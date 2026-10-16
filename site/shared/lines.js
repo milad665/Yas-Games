@@ -140,4 +140,16 @@ self.VOICE_LINES = {
   'sm.levelUp':      { en: 'Wow! Here come trickier shadows!',      nl: 'Wauw! Nu komen er moeilijkere schaduwen!' },
   'sm.turned':       { en: 'Some shadows are turned around! Look carefully.', nl: 'Sommige schaduwen zijn gedraaid! Kijk goed.' },
   'sm.lookalike':    { en: 'These ones look alike! Look very closely.', nl: 'Deze lijken op elkaar! Kijk heel goed.' },
+
+  // ---------- Robot Factory ----------
+  'rf.intro':        { en: "Welcome to the robot factory! Build robots from a recipe, or catch the silly robot's mistakes!", nl: 'Welkom in de robotfabriek! Bouw robots met een recept, of vang de foutjes van de gekke robot!' },
+  'rf.recipe':       { en: 'Look at the recipe card. Build the same robot, then press the green check!', nl: 'Kijk naar het receptkaartje. Bouw dezelfde robot en druk dan op het groene vinkje!' },
+  'rf.check':        { en: "Let's check!",                          nl: 'Even controleren!' },
+  'rf.almost':       { en: 'Almost! Something is different. Look at the recipe.', nl: 'Bijna! Er is iets anders. Kijk naar het recept.' },
+  'rf.perfect':      { en: 'Perfect! Just like the recipe!',        nl: 'Perfect! Precies zoals het recept!' },
+  'rf.silly':        { en: 'Oh no, the silly robot made a mistake! Can you find it? Tap it to fix it!', nl: 'O nee, de gekke robot heeft een foutje gemaakt! Kun jij het vinden? Tik erop om het te maken!' },
+  'rf.silly2':       { en: 'The silly robot made two mistakes! Find them both!', nl: 'De gekke robot heeft twee foutjes gemaakt! Vind ze allebei!' },
+  'rf.found':        { en: 'You found one! Fixed!',                 nl: 'Eén gevonden! Gerepareerd!' },
+  'rf.notThat':      { en: 'That part is right. Look at the recipe again!', nl: 'Dat onderdeel klopt. Kijk nog eens naar het recept!' },
+  'rf.allFixed':     { en: 'All fixed! Great checking!',            nl: 'Alles gerepareerd! Goed gecontroleerd!' },
 };

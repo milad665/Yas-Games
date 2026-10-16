@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Robot Factory">
+<meta name="theme-color" content="#e2e8f0">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="stylesheet" href="/shared/kit.css">
+<title>Robot Factory</title>
+<style>
+  body { background: repeating-linear-gradient(45deg, #e2e8f0 0 40px, #e9eef5 40px 80px); }
+  .robot svg { width: 100%; height: 100%; display: block; overflow: visible; }
+  .blinky { animation: blinky 1.2s steps(2) infinite; }
+  @keyframes blinky { 50% { opacity: .35; } }
+
+  /* ---------- home ---------- */
+  #home { flex-direction: column; align-items: center; justify-content: center; gap: 4vh; }
+  .modes { display: flex; gap: clamp(24px, 6vw, 70px); }
+  .mode { width: clamp(150px, 22vw, 210px); height: clamp(150px, 22vw, 210px); border-radius: 40px; font-size: clamp(70px, 10vw, 100px); }
+  #recipeMode { background: #bfdbfe; } #sillyMode { background: #fde68a; }
+  .homeBots { display: flex; gap: 20px; }
+  .homeBots .robot { width: 110px; height: 132px; animation: kit-bob 2.4s ease-in-out infinite; }
+  #stickers { font-size: 30px; background: rgba(255,255,255,.75); border-radius: 999px; padding: 6px 18px; }
+
+  /* ---------- factory floor ---------- */
+  #play { flex-direction: column; padding: max(14px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(14px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left)); gap: 10px; }
+  .top { display: flex; align-items: center; gap: 12px; }
+  .top .btn { width: 64px; height: 64px; font-size: 30px; }
+  .spacer { flex: 1; }
+  #floor { flex: 1; min-height: 0; display: flex; gap: 2vw; align-items: center; }
+  #card {
+    width: clamp(150px, 24vw, 260px); max-height: 100%; background: #fffbeb; border-radius: 24px; padding: 14px; position: relative;
+    box-shadow: 0 8px 0 rgba(0,0,0,.1); border: 4px solid #fcd34d; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  }
+  #card::before { content: '📋'; position: absolute; top: -26px; left: 50%; translate: -50% 0; font-size: 44px; }
+  #card .robot { width: 100%; max-height: 100%; aspect-ratio: 200 / 240; }
+  #belt { flex: 1; align-self: stretch; position: relative; overflow: hidden; }
+  #conveyor { position: absolute; left: 0; right: 0; bottom: 6%; height: 40px; border-radius: 20px; background: repeating-linear-gradient(90deg, #475569 0 30px, #64748b 30px 60px); box-shadow: 0 8px 0 #334155; }
+  #conveyor.run { animation: belt .4s linear infinite; }
+  @keyframes belt { to { background-position: 60px 0; } }
+  #bot { position: absolute; bottom: calc(6% + 34px); left: 50%; height: 78%; aspect-ratio: 200 / 240; translate: -50% 0; transition: transform 1.2s ease-in; }
+  #bot.out { transform: translateX(140%); }
+  #bot.in { transition: none; transform: translateX(-160%); }
+  #bot [data-part] { transition: opacity .3s; }
+  #bot.building [data-part] { opacity: 0; }
+  #bot [data-part].shown { opacity: 1; }
+  #bot [data-part].bad { animation: kit-shake .5s; filter: drop-shadow(0 0 6px #ef4444) drop-shadow(0 0 6px #ef4444); }
+  #bot [data-part].hint { filter: drop-shadow(0 0 8px #facc15) drop-shadow(0 0 8px #facc15); }
+  #bot [data-part].fixed { filter: drop-shadow(0 0 8px #22c55e); }
+  #arm { position: absolute; top: -10px; left: 50%; font-size: 70px; translate: -50% 0; transition: top .25s ease-in; z-index: 3; pointer-events: none; display: none; }
+
+  #controls { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+  #tabs { display: flex; gap: 10px; }
+  .tab { width: 60px; height: 60px; font-size: 30px; }
+  .tab.sel { background: #bfdbfe; box-shadow: 0 6px 0 rgba(40,50,90,.18), 0 0 0 4px #3b82f6; }
+  .tab.wrong { box-shadow: 0 6px 0 rgba(40,50,90,.18), 0 0 0 4px #ef4444; }
+  .row { display: flex; align-items: center; gap: 18px; }
+  #opts { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+  .opt { width: 84px; height: 84px; border-radius: 20px; border: 4px solid transparent; background: #fff; padding: 4px; cursor: pointer; touch-action: manipulation; box-shadow: 0 4px 0 rgba(0,0,0,.1); }
+  .opt.sel { border-color: #3b82f6; }
+  .opt.swatch { width: 64px; height: 64px; border-radius: 50%; border: 5px solid #fff; }
+  .opt.swatch.sel { border-color: #33415c; }
+  #checkBtn { width: 100px; height: 100px; font-size: 52px; background: #4ade80; }
+</style>
+</head>
+<body>
+
+<section id="home" class="screen on">
+  <a class="btn corner left" href="../../" aria-label="Back to Yas's Games">🏠</a>
+  <button id="soundBtn" class="btn corner right" aria-label="Sound on or off">🔊</button>
+  <h1 id="title" class="title"></h1>
+  <div class="homeBots" id="homeBots"></div>
+  <div class="modes">
+    <button id="recipeMode" class="btn mode" aria-label="Build from a recipe">📋</button>
+    <button id="sillyMode" class="btn mode" aria-label="Find the silly robot's mistakes">🤪</button>
+  </div>
+  <div id="stickers"></div>
+</section>
+
+<section id="play" class="screen">
+  <div class="top">
+    <button id="backBtn" class="btn" aria-label="Back">🏠</button>
+    <div class="spacer"></div>
+    <div id="playStickers" style="font-size:28px"></div>
+    <div class="spacer"></div>
+  </div>
+  <div id="floor">
+    <div id="card"><div id="cardBot" class="robot"></div></div>
+    <div id="belt">
+      <div id="arm">🦾</div>
+      <div id="conveyor"></div>
+      <div id="bot" class="robot"></div>
+    </div>
+  </div>
+  <div id="controls">
+    <div id="tabs"></div>
+    <div class="row"><div id="opts"></div><button id="checkBtn" class="btn" aria-label="Check">✅</button></div>
+  </div>
+</section>
+
+<script src="/shared/lines.js"></script>
+<script src="/shared/voice.js"></script>
+<script src="/shared/kit.js"></script>
+<script src="/shared/robot.js"></script>
+<script>
+(() => {
+  const { $, pick, shuffle, sleep } = Kit;
+  const { COLORS, OPTIONS } = RobotArt;
+  const PARTS = ['color', 'head', 'eyes', 'antenna', 'bottom'];
+  const ICONS = { color: '🎨', head: '🙂', eyes: '👀', antenna: '📡', bottom: '🛞' };
+  const choices = part => part === 'color' ? COLORS : OPTIONS[part];
+  const BUILD_ORDER = ['bottom', 'color', 'head', 'eyes', 'antenna'];
+
+  const save = Kit.store('robot-factory');
+  const saved = save.get({ stickers: 0, recipeLevel: 0, recipeDone: 0, sillyDone: 0 });
+  const persist = () => save.set(saved);
+
+  const randomRobot = () => Object.fromEntries(PARTS.map(p => [p, pick(choices(p))]));
+  function paintStickers() {
+    const n = saved.stickers, t = n ? (n > 10 ? '🤖 × ' + n : '🤖'.repeat(n)) : '';
+    $('stickers').textContent = t || '🤖'; $('stickers').style.opacity = n ? 1 : .4;
+    $('playStickers').textContent = t;
+  }
+  function show(id) { document.querySelectorAll('.screen').forEach(s => s.classList.toggle('on', s.id === id)); }
+
+  // ---------- home ----------
+  Kit.title('title', 'Robot Factory');
+  Kit.soundButton('soundBtn');
+  for (let i = 0; i < 3; i++) {
+    const b = document.createElement('div'); b.className = 'robot'; b.style.animationDelay = -i * .7 + 's';
+    b.innerHTML = RobotArt.svg(randomRobot()); $('homeBots').appendChild(b);
+  }
+  paintStickers();
+  Kit.say('rf.intro');
+
+  let mode = null, recipe = null, built = null, active = [], tab = null, busy = false;
+  let mistakes = [], wrongTaps = 0;
+
+  function paintBot(extraClass) {
+    $('bot').innerHTML = RobotArt.svg(built);
+    if (extraClass) $('bot').querySelectorAll('[data-part]').forEach(g => g.classList.add(extraClass));
+  }
+
+  async function rollIn() {
+    const bot = $('bot');
+    bot.classList.remove('out'); bot.classList.add('in'); void bot.offsetWidth;
+    bot.classList.remove('in');
+    $('conveyor').classList.add('run'); Kit.sfx.whoosh();
+    await sleep(1200); $('conveyor').classList.remove('run');
+  }
+  async function rollOut() {
+    $('conveyor').classList.add('run'); $('bot').classList.add('out'); Kit.sfx.whoosh();
+    await sleep(1250); $('conveyor').classList.remove('run');
+  }
+  function sticker() {
+    saved.stickers++; persist(); paintStickers();
+    Kit.sfx.yay(); Kit.burstAt($('bot'), ['⭐', '⚙️', '✨', '🎉'], 18, 220);
+  }
+
+  // ================= recipe mode: build what the card shows =================
+  async function newRecipe() {
+    busy = true;
+    recipe = randomRobot();
+    const n = Math.min(2 + saved.recipeLevel, PARTS.length);
+    active = shuffle(PARTS).slice(0, n).sort((a, b) => PARTS.indexOf(a) - PARTS.indexOf(b));
+    // start with the right parts everywhere except where she has to choose
+    built = { ...recipe };
+    for (const p of active) built[p] = pick(choices(p).filter(v => v !== recipe[p]));
+    tab = active[0];
+    $('cardBot').innerHTML = RobotArt.svg(recipe);
+    paintBot(); paintControls();
+    await rollIn();
+    busy = false;
+  }
+  function paintControls() {
+    const tabs = $('tabs'); tabs.innerHTML = '';
+    for (const p of active) {
+      const b = document.createElement('button'); b.className = 'btn tab' + (p === tab ? ' sel' : ''); b.textContent = ICONS[p];
+      b.setAttribute('aria-label', p);
+      b.onclick = () => { tab = p; Kit.sfx.pop(); paintControls(); };
+      tabs.appendChild(b);
+    }
+    const opts = $('opts'); opts.innerHTML = '';
+    for (const v of choices(tab)) {
+      const b = document.createElement('button');
+      const sel = built[tab] === v;
+      if (tab === 'color') { b.className = 'opt swatch' + (sel ? ' sel' : ''); b.style.background = v; }
+      else { b.className = 'opt robot' + (sel ? ' sel' : ''); b.innerHTML = v === 'none' ? '<div style="font-size:34px;line-height:72px">🚫</div>' : RobotArt.svg({ ...built, [tab]: v }); }
+      b.onclick = () => {
+        if (busy) return;
+        built[tab] = v; Kit.tone(300 + Math.random() * 400, .1, { type: 'square', vol: .06 });
+        paintBot(); paintControls();
+      };
+      opts.appendChild(b);
+    }
+  }
+  $('checkBtn').onclick = async () => {
+    if (busy) return;
+    busy = true; Kit.say('rf.check'); Kit.sfx.pop();
+    await sleep(900);
+    const wrong = active.filter(p => built[p] !== recipe[p]);
+    if (wrong.length) {
+      Kit.sfx.oops(); Kit.say('rf.almost');
+      for (const p of wrong) $('bot').querySelector(`[data-part="${p}"]`)?.classList.add('bad');
+      document.querySelectorAll('.tab').forEach((b, i) => b.classList.toggle('wrong', wrong.includes(active[i])));
+      tab = wrong[0];
+      setTimeout(() => { paintControls(); document.querySelectorAll('.tab').forEach((b, i) => b.classList.toggle('wrong', wrong.includes(active[i]))); }, 600);
+      busy = false; return;
+    }
+    Kit.say('rf.perfect'); sticker();
+    saved.recipeDone++;
+    if (saved.recipeDone % 2 === 0 && saved.recipeLevel < 3) saved.recipeLevel++;
+    persist();
+    await sleep(1400); await rollOut(); newRecipe();
+  };
+
+  // ================= silly mode: the robot arm makes mistakes =================
+  async function newSilly() {
+    busy = true; wrongTaps = 0;
+    recipe = randomRobot();
+    const count = saved.sillyDone >= 3 ? 2 : 1;
+    mistakes = shuffle(PARTS).slice(0, count);
+    built = { ...recipe };
+    // never make a part disappear: she has to be able to tap the mistake
+    for (const p of mistakes) built[p] = pick(choices(p).filter(v => v !== recipe[p] && v !== 'none'));
+    $('cardBot').innerHTML = RobotArt.svg(recipe);
+    paintBot();
+    $('bot').classList.add('building');
+    await rollIn();
+    // the arm adds the parts one at a time
+    const arm = $('arm'); arm.style.display = 'block';
+    for (const p of BUILD_ORDER) {
+      arm.style.top = '-10px'; await sleep(250);
+      arm.style.top = '30%'; await sleep(260);
+      $('bot').querySelector(`[data-part="${p}"]`)?.classList.add('shown');
+      Kit.tone(160, .12, { type: 'square', vol: .1 }); Kit.tone(90, .15, { type: 'square', vol: .08, delay: .06 });
+      await sleep(200);
+    }
+    arm.style.top = '-10px'; await sleep(300); arm.style.display = 'none';
+    $('bot').classList.remove('building');
+    paintBot();
+    Kit.say(count > 1 ? 'rf.silly2' : 'rf.silly');
+    busy = false;
+  }
+  $('bot').addEventListener('pointerdown', async e => {
+    if (mode !== 'silly' || busy) return;
+    const g = e.target.closest('[data-part]'); if (!g) return;
+    let part = g.dataset.part;
+    // the head is painted the body color too
+    if (part === 'head' && mistakes.includes('color') && !mistakes.includes('head')) part = 'color';
+    if (!mistakes.includes(part)) {
+      wrongTaps++; Kit.sfx.oops(); Kit.say('rf.notThat');
+      g.classList.add('bad'); setTimeout(() => g.classList.remove('bad'), 600);
+      if (wrongTaps >= 2) mistakes.forEach(p => $('bot').querySelector(`[data-part="${p}"]`)?.classList.add('hint'));
+      return;
+    }
+    // fix it
+    busy = true;
+    built[part] = recipe[part]; mistakes = mistakes.filter(p => p !== part);
+    const stillHint = mistakes.filter(() => wrongTaps >= 2);
+    paintBot();
+    $('bot').querySelector(`[data-part="${part}"]`)?.classList.add('fixed');
+    stillHint.forEach(p => $('bot').querySelector(`[data-part="${p}"]`)?.classList.add('hint'));
+    Kit.sfx.ding(); Kit.burst(e.clientX, e.clientY, ['🔧', '✨', '⚙️'], 8, 100);
+    if (mistakes.length) { Kit.say('rf.found'); busy = false; return; }
+    Kit.say('rf.allFixed'); sticker();
+    saved.sillyDone++; persist();
+    await sleep(1600); await rollOut(); newSilly();
+  });
+
+  // ---------- switching modes ----------
+  function start(m) {
+    mode = m; show('play');
+    $('controls').style.display = m === 'recipe' ? 'flex' : 'none';
+    if (m === 'recipe') { Kit.say('rf.recipe'); newRecipe(); } else newSilly();
+  }
+  $('recipeMode').onclick = () => { Kit.sfx.pop(); start('recipe'); };
+  $('sillyMode').onclick = () => { Kit.sfx.pop(); start('silly'); };
+  $('backBtn').onclick = () => { if (busy) return; Kit.sfx.pop(); mode = null; show('home'); };
+})();
+</script>
+</body>
+</html>

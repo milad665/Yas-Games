@@ -120,7 +120,17 @@
     "sm.done2": "3f5d669744",
     "sm.levelUp": "c53fed7590",
     "sm.turned": "51f3c8a97a",
-    "sm.lookalike": "bebdd4773f"
+    "sm.lookalike": "bebdd4773f",
+    "rf.intro": "12580396c0",
+    "rf.recipe": "11c3f06b76",
+    "rf.check": "c88e860f4f",
+    "rf.almost": "a33145c1c8",
+    "rf.perfect": "2c00b34d43",
+    "rf.silly": "ec9b43c07e",
+    "rf.silly2": "953471392d",
+    "rf.found": "30c11c9b58",
+    "rf.notThat": "31df9c0af9",
+    "rf.allFixed": "b32f94f9da"
   },
   "nl": {
     "hub.lang": "0eaed72984",
@@ -243,7 +253,17 @@
     "sm.done2": "161c5e63c7",
     "sm.levelUp": "5630a77c07",
     "sm.turned": "821843c32f",
-    "sm.lookalike": "bd423f8c57"
+    "sm.lookalike": "bd423f8c57",
+    "rf.intro": "6ee7cb1e92",
+    "rf.recipe": "fe7782a5f5",
+    "rf.check": "4b1687fc65",
+    "rf.almost": "1a00bba02c",
+    "rf.perfect": "e04ad73dbf",
+    "rf.silly": "e70b092f82",
+    "rf.silly2": "3d988bef3b",
+    "rf.found": "ade8420482",
+    "rf.notThat": "8151206364",
+    "rf.allFixed": "18449e7527"
   },
   "voices": {
     "en": "Evan (Enhanced)",

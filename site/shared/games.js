@@ -56,4 +56,11 @@ self.GAMES = [
     extras: ['🐘', '🦒', '🚀', '🦋', '⭐'],
     colors: ['#fef3c7', '#fde68a', '#fdba74'],
   },
+  {
+    name: 'Robot Factory',
+    path: 'games/robot-factory/',
+    art: '🏭',
+    extras: ['🤖', '🦾', '⚙️', '📋', '🔧'],
+    colors: ['#e2e8f0', '#bfdbfe', '#fde68a'],
+  },
 ];
