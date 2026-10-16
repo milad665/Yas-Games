@@ -110,7 +110,17 @@
     "pt.yes1": "f76de5c33c",
     "pt.yes2": "e06bf41e3c",
     "pt.yes3": "2ff9e97b8b",
-    "pt.levelUp": "429084c096"
+    "pt.levelUp": "429084c096",
+    "sm.intro": "1819a4536d",
+    "sm.yes1": "5ccf917452",
+    "sm.yes2": "be468471b7",
+    "sm.yes3": "a3a6e7e588",
+    "sm.no": "0b591c0c36",
+    "sm.done1": "fd3bbed0e8",
+    "sm.done2": "3f5d669744",
+    "sm.levelUp": "c53fed7590",
+    "sm.turned": "51f3c8a97a",
+    "sm.lookalike": "bebdd4773f"
   },
   "nl": {
     "hub.lang": "0eaed72984",
@@ -223,7 +233,17 @@
     "pt.yes1": "b380836f34",
     "pt.yes2": "057b16ccbc",
     "pt.yes3": "40a8d5c964",
-    "pt.levelUp": "8c3eb97d66"
+    "pt.levelUp": "8c3eb97d66",
+    "sm.intro": "e9833d7406",
+    "sm.yes1": "c69db20feb",
+    "sm.yes2": "1b9eb8b522",
+    "sm.yes3": "651ede62b1",
+    "sm.no": "62d26a9d87",
+    "sm.done1": "e2d81e4c7a",
+    "sm.done2": "161c5e63c7",
+    "sm.levelUp": "5630a77c07",
+    "sm.turned": "821843c32f",
+    "sm.lookalike": "bd423f8c57"
   },
   "voices": {
     "en": "Evan (Enhanced)",

@@ -128,4 +128,16 @@ self.VOICE_LINES = {
   'pt.yes2':         { en: 'Great job!',                            nl: 'Goed gedaan!' },
   'pt.yes3':         { en: 'You got it!',                           nl: 'Helemaal goed!' },
   'pt.levelUp':      { en: 'Wow, you are getting so good! Here comes a trickier train!', nl: 'Wauw, jij wordt er echt goed in! Daar komt een moeilijkere trein!' },
+
+  // ---------- Shadow Match ----------
+  'sm.intro':        { en: 'Who belongs to which shadow? Drag each one onto its shadow!', nl: 'Wie hoort bij welke schaduw? Sleep ze allemaal naar hun schaduw!' },
+  'sm.yes1':         { en: 'Perfect fit!',                          nl: 'Past precies!' },
+  'sm.yes2':         { en: "Yes, that's it!",                       nl: 'Ja, dat is hem!' },
+  'sm.yes3':         { en: 'Great matching!',                       nl: 'Goed gevonden!' },
+  'sm.no':           { en: "Hmm, that's not its shadow. Try another one!", nl: 'Hmm, dat is niet zijn schaduw. Probeer een andere!' },
+  'sm.done1':        { en: 'You found every shadow!',               nl: 'Je hebt alle schaduwen gevonden!' },
+  'sm.done2':        { en: 'All matched! Hooray!',                  nl: 'Alles past! Hoera!' },
+  'sm.levelUp':      { en: 'Wow! Here come trickier shadows!',      nl: 'Wauw! Nu komen er moeilijkere schaduwen!' },
+  'sm.turned':       { en: 'Some shadows are turned around! Look carefully.', nl: 'Sommige schaduwen zijn gedraaid! Kijk goed.' },
+  'sm.lookalike':    { en: 'These ones look alike! Look very closely.', nl: 'Deze lijken op elkaar! Kijk heel goed.' },
 };

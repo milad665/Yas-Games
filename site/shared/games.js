@@ -49,4 +49,11 @@ self.GAMES = [
     extras: ['🍎', '🍌', '🔴', '🔵', '❓'],
     colors: ['#bae6fd', '#bbf7d0', '#fef08a'],
   },
+  {
+    name: 'Shadow Match',
+    path: 'games/shadow-match/',
+    art: '🔦',
+    extras: ['🐘', '🦒', '🚀', '🦋', '⭐'],
+    colors: ['#fef3c7', '#fde68a', '#fdba74'],
+  },
 ];

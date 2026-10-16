@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Shadow Match">
+<meta name="theme-color" content="#fde68a">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="stylesheet" href="/shared/kit.css">
+<title>Shadow Match</title>
+<style>
+  body { background: linear-gradient(160deg, #fef3c7 0%, #fde68a 45%, #fdba74 100%); }
+  #game { flex-direction: column; padding: max(14px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(14px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left)); gap: 14px; }
+  .top { display: flex; align-items: center; gap: 14px; }
+  .top .btn { width: 66px; height: 66px; font-size: 32px; }
+  .spacer { flex: 1; }
+  #stars { font-size: 30px; background: rgba(255,255,255,.7); border-radius: 999px; padding: 6px 18px; min-width: 70px; text-align: center; }
+
+  #board { flex: 1; min-height: 0; position: relative; border-radius: 34px; background: rgba(255,255,255,.55); box-shadow: inset 0 0 0 6px rgba(255,255,255,.8), 0 10px 30px rgba(146, 64, 14, .15); overflow: hidden; }
+  #board.lit { animation: lit 1.2s ease-out; }
+  @keyframes lit { 30% { background: rgba(255,255,255,.95); } }
+  .slot { position: absolute; translate: -50% -50%; display: grid; place-items: center; border-radius: 50%; }
+  .slot .shade { line-height: 1; filter: brightness(0); opacity: .32; transition: filter .6s, opacity .6s; }
+  .slot.filled .shade { filter: none; opacity: 1; animation: kit-pop .45s cubic-bezier(.3,1.6,.5,1); }
+  .slot.hint { animation: kit-pulse 1s ease-in-out infinite; background: radial-gradient(circle, rgba(253, 224, 71, .6), transparent 70%); }
+  .slot.over { background: radial-gradient(circle, rgba(255,255,255,.9), transparent 70%); }
+
+  #tray { display: flex; justify-content: center; gap: 14px; flex-wrap: wrap; background: rgba(255,255,255,.6); border-radius: 30px; padding: 12px; min-height: 120px; align-items: center; }
+  .piece { width: 104px; height: 104px; border-radius: 26px; background: #fff; display: grid; place-items: center; font-size: 66px; line-height: 1; touch-action: none; cursor: grab; box-shadow: 0 5px 0 rgba(146, 64, 14, .2); }
+  .piece.gone { visibility: hidden; }
+  .dragging { position: fixed; z-index: 40; pointer-events: none; line-height: 1; filter: drop-shadow(0 12px 8px rgba(0,0,0,.25)); }
+  .dragging.back { transition: left .3s ease-out, top .3s ease-out; }
+</style>
+</head>
+<body>
+
+<section id="game" class="screen on">
+  <div class="top">
+    <a class="btn" href="../../" aria-label="Back to Yas's Games">🏠</a>
+    <div class="spacer"></div>
+    <div id="stars">⭐</div>
+    <div class="spacer"></div>
+    <button id="soundBtn" class="btn" aria-label="Sound on or off">🔊</button>
+  </div>
+  <div id="board"></div>
+  <div id="tray"></div>
+</section>
+
+<script src="/shared/lines.js"></script>
+<script src="/shared/voice.js"></script>
+<script src="/shared/kit.js"></script>
+<script>
+(() => {
+  const { $, rand, pick, shuffle, sleep } = Kit;
+
+  // easy sets have very different shapes; look-alike sets are tricky on purpose
+  const EASY = [
+    ['🐘', '🦒', '🐌', '🦋', '🐢', '🦀', '🐍', '🦉'],
+    ['🚀', '🌙', '⭐', '🪐', '🛸', '☄️'],
+    ['🐳', '🐙', '🦀', '🐠', '🦞', '🐚', '🦈'],
+    ['🦕', '🌋', '🦴', '🥚', '🌴', '🦖'],
+    ['👑', '🏰', '🦄', '🔑', '💍', '🪄'],
+    ['🚗', '✈️', '🚲', '🚁', '⛵', '🚂'],
+    ['🍌', '🍇', '🍐', '🥕', '🍉', '🍒'],
+  ];
+  const LOOKALIKE = [
+    ['🐶', '🐱', '🐻', '🐰', '🐭', '🐷'],
+    ['🍎', '🍅', '🍑', '🍊', '🍋'],
+    ['🦕', '🦖', '🐊', '🦎'],
+    ['🐄', '🐴', '🐑', '🐐', '🦌'],
+    ['🦆', '🐔', '🐧', '🦉', '🦜'],
+  ];
+  const LEVELS = [
+    { n: 3 },
+    { n: 4 },
+    { n: 4, turn: true },
+    { n: 5, size: true },
+    { n: 4, alike: true },
+    { n: 5, alike: true, turn: true },
+    { n: 6, alike: true, size: true },
+  ];
+  const ROUNDS_PER_LEVEL = 2;
+
+  const save = Kit.store('shadow-match');
+  const saved = save.get({ level: 0, stars: 0, rounds: 0 });
+  let level = Math.min(saved.level, LEVELS.length - 1);
+  let slots = [], misses = {}, busy = false;
+
+  function paintStars() { $('stars').textContent = saved.stars > 10 ? '⭐ × ' + saved.stars : '⭐'.repeat(Math.max(1, saved.stars)); $('stars').style.opacity = saved.stars ? 1 : .45; }
+
+  function newRound() {
+    const L = LEVELS[level];
+    const set = L.alike ? pick(LOOKALIKE) : pick(EASY);
+    const items = shuffle(set).slice(0, Math.min(L.n, set.length));
+    const board = $('board'); board.innerHTML = ''; board.classList.remove('lit');
+    const W = board.clientWidth, H = board.clientHeight;
+    // spread the shadows on a loose grid
+    const cols = items.length <= 3 ? items.length : Math.ceil(items.length / 2), rows = Math.ceil(items.length / cols);
+    const cell = Math.min(W / cols, H / rows);
+    const base = Math.min(cell * .55, 150);
+    const spots = shuffle(Array.from({ length: cols * rows }, (_, i) => i)).slice(0, items.length);
+    slots = items.map((e, k) => {
+      const i = spots[k], c = i % cols, r = Math.floor(i / cols);
+      const turn = L.turn && Math.random() < .7 ? pick([90, 180, 270, -45, 45]) : 0;
+      const scale = L.size ? pick([.7, 1, 1.3]) : 1;
+      const el = document.createElement('div'); el.className = 'slot';
+      const x = (c + .5) * W / cols + rand(-cell * .08, cell * .08), y = (r + .5) * H / rows + rand(-cell * .06, cell * .06);
+      el.style.left = x + 'px'; el.style.top = y + 'px';
+      el.style.width = el.style.height = base * scale * 1.5 + 'px';
+      const sh = document.createElement('div'); sh.className = 'shade'; sh.textContent = e;
+      sh.style.fontSize = base * scale + 'px'; sh.style.transform = `rotate(${turn}deg)`;
+      el.appendChild(sh); board.appendChild(el);
+      return { e, el, filled: false, turn, scale };
+    });
+    misses = {};
+    const tray = $('tray'); tray.innerHTML = '';
+    for (const e of shuffle(items)) {
+      const p = document.createElement('div'); p.className = 'piece pop-in'; p.textContent = e;
+      p.addEventListener('pointerdown', ev => drag(ev, p, e));
+      tray.appendChild(p);
+    }
+    busy = false;
+  }
+
+  function slotAt(x, y) {
+    let best = null, bestD = Infinity;
+    for (const s of slots) {
+      if (s.filled) continue;
+      const r = s.el.getBoundingClientRect(), d = Math.hypot(x - (r.left + r.width / 2), y - (r.top + r.height / 2));
+      if (d < Math.max(r.width * .6, 70) && d < bestD) { best = s; bestD = d; }
+    }
+    return best;
+  }
+
+  function drag(ev, piece, e) {
+    if (busy || piece.classList.contains('gone')) return;
+    ev.preventDefault();
+    const pr = piece.getBoundingClientRect();
+    const g = document.createElement('div'); g.className = 'dragging'; g.textContent = e; g.style.fontSize = '80px';
+    document.body.appendChild(g);
+    const place = (x, y) => { g.style.left = (x - 45) + 'px'; g.style.top = (y - 50) + 'px'; };
+    place(ev.clientX, ev.clientY);
+    piece.classList.add('gone'); Kit.sfx.pop();
+    let over = null;
+    const move = m => {
+      if (m.pointerId !== ev.pointerId) return;
+      place(m.clientX, m.clientY);
+      const s = slotAt(m.clientX, m.clientY);
+      if (s !== over) { over && over.el.classList.remove('over'); over = s; over && over.el.classList.add('over'); }
+    };
+    const up = async u => {
+      if (u.pointerId !== ev.pointerId) return;
+      removeEventListener('pointermove', move); removeEventListener('pointerup', up); removeEventListener('pointercancel', up);
+      over && over.el.classList.remove('over');
+      const s = slotAt(u.clientX, u.clientY);
+      if (s && s.e === e) { g.remove(); return fill(s); }
+      // not a match: float back to the shelf
+      if (s) {
+        Kit.sfx.oops(); Kit.flash(s.el, 'wobble'); Kit.say('sm.no');
+        misses[e] = (misses[e] || 0) + 1;
+        if (misses[e] >= 2) slots.find(x => x.e === e).el.classList.add('hint');
+      }
+      g.classList.add('back'); g.style.left = (pr.left + pr.width / 2 - 45) + 'px'; g.style.top = (pr.top + pr.height / 2 - 50) + 'px';
+      await sleep(300); g.remove(); piece.classList.remove('gone');
+    };
+    addEventListener('pointermove', move); addEventListener('pointerup', up); addEventListener('pointercancel', up);
+  }
+
+  async function fill(s) {
+    s.filled = true; s.el.classList.remove('hint'); s.el.classList.add('filled');
+    Kit.sfx.ding(); Kit.burstAt(s.el, ['✨', '⭐'], 7, 100);
+    if (slots.every(x => x.filled)) return roundDone();
+    if (Math.random() < .5) Kit.say(['sm.yes1', 'sm.yes2', 'sm.yes3']);
+  }
+
+  async function roundDone() {
+    busy = true;
+    await sleep(400);
+    $('board').classList.add('lit'); Kit.sfx.yay();
+    Kit.burstAt($('board'), ['⭐', '🌟', '✨', '🎉'], 22, 260);
+    Kit.say(['sm.done1', 'sm.done2']);
+    saved.stars++; saved.rounds++;
+    let up = false;
+    if (saved.rounds >= ROUNDS_PER_LEVEL && level < LEVELS.length - 1) { level++; saved.rounds = 0; up = true; }
+    saved.level = level; save.set(saved); paintStars();
+    await sleep(2600);
+    newRound();
+    const L = LEVELS[level];
+    if (up) Kit.say(L.alike ? 'sm.lookalike' : L.turn ? 'sm.turned' : 'sm.levelUp');
+  }
+
+  Kit.soundButton('soundBtn');
+  paintStars();
+  addEventListener('resize', () => { if (!busy && !slots.some(s => s.filled)) newRound(); });
+  newRound(); Kit.say('sm.intro');
+})();
+</script>
+</body>
+</html>
