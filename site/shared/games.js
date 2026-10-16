@@ -35,4 +35,11 @@ self.GAMES = [
     extras: ['👸', '🐉', '🎬', '🧜‍♀️', '👽'],
     colors: ['#fca5a5', '#f9a8d4', '#fcd34d'],
   },
+  {
+    name: 'Creature Lab',
+    path: 'games/creature-lab/',
+    art: '🧪',
+    extras: ['🦄', '🦖', '👽', '🐰', '💖'],
+    colors: ['#d9f99d', '#a7f3d0', '#fef08a'],
+  },
 ];
