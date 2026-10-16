@@ -4,7 +4,7 @@
 // Images: served from cache, refreshed in the background.
 importScripts('/shared/games.js');
 
-const CACHE = 'yas-games-v1';
+const CACHE = 'yas-games-v2';
 const CORE = [
   '/',
   '/manifest.webmanifest',
