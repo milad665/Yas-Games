@@ -65,4 +65,17 @@ self.VOICE_LINES = {
   'mp.harp':         { en: 'Harp!',                                 nl: 'Harp!' },
   'mp.trumpet':      { en: 'Trumpet!',                              nl: 'Trompet!' },
   'mp.drum':         { en: 'Drum!',                                 nl: 'Trommel!' },
+
+  // ---------- Story Theater ----------
+  'st.pick':         { en: 'Pick a stage for your story!',          nl: 'Kies een toneel voor je verhaal!' },
+  'st.castle':       { en: 'The castle!',                           nl: 'Het kasteel!' },
+  'st.ocean':        { en: 'The ocean!',                            nl: 'De zee!' },
+  'st.space':        { en: 'Outer space!',                          nl: 'De ruimte!' },
+  'st.forest':       { en: 'The forest!',                           nl: 'Het bos!' },
+  'st.farm':         { en: 'The farm!',                             nl: 'De boerderij!' },
+  'st.intro':        { en: 'Drag your characters onto the stage. Tap them to make them move!', nl: 'Sleep je figuren op het toneel. Tik erop om ze te laten bewegen!' },
+  'st.tellRec':      { en: 'Press the red button to film your story!', nl: 'Druk op de rode knop om je verhaal te filmen!' },
+  'st.action':       { en: 'Ready, set, action!',                   nl: 'Klaar voor de start... actie!' },
+  'st.cut':          { en: 'And cut! Press the movie button to watch your story.', nl: 'En... stop! Druk op de filmknop om je verhaal te bekijken.' },
+  'st.theEnd':       { en: 'The end! Bravo!',                       nl: 'Einde! Bravo!' },
 };

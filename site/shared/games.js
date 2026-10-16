@@ -28,4 +28,11 @@ self.GAMES = [
     extras: ['🎵', '🎹', '🥁', '🎺', '🔔'],
     colors: ['#fde68a', '#fbcfe8', '#bfdbfe'],
   },
+  {
+    name: 'Story Theater',
+    path: 'games/story-theater/',
+    art: '🎭',
+    extras: ['👸', '🐉', '🎬', '🧜‍♀️', '👽'],
+    colors: ['#fca5a5', '#f9a8d4', '#fcd34d'],
+  },
 ];

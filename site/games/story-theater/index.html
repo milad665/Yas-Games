@@ -1,0 +1,451 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Story Theater">
+<meta name="theme-color" content="#7c2d12">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="stylesheet" href="/shared/kit.css">
+<title>Story Theater</title>
+<style>
+  body { background: #7c2d12; }
+
+  /* ---------- stage picker ---------- */
+  #pick {
+    flex-direction: column; align-items: center; justify-content: center; gap: 4vh;
+    background: radial-gradient(ellipse at 50% 0%, #fca5a5 0%, #b91c1c 45%, #7f1d1d 100%);
+  }
+  #pick .title span { -webkit-text-stroke: 3px #7f1d1d; }
+  #stages { display: flex; flex-wrap: wrap; gap: clamp(16px, 3vw, 34px); justify-content: center; padding: 0 20px; }
+  .stagePick {
+    width: clamp(130px, 18vw, 180px); height: clamp(130px, 18vw, 180px); border-radius: 30px; border: 7px solid #fde68a;
+    font-size: clamp(60px, 9vw, 90px); display: grid; place-items: center; cursor: pointer; position: relative;
+    box-shadow: 0 10px 0 rgba(0,0,0,.25); animation: kit-bob 3s ease-in-out infinite; touch-action: manipulation;
+  }
+  .stagePick .film { position: absolute; right: -10px; top: -12px; font-size: 38px; }
+  .curtainL, .curtainR {
+    position: absolute; top: 0; bottom: 0; width: 9vw; pointer-events: none;
+    background: repeating-linear-gradient(90deg, #991b1b 0 18px, #b91c1c 18px 36px); box-shadow: 0 0 30px rgba(0,0,0,.4);
+  }
+  .curtainL { left: 0; border-radius: 0 0 60% 0; } .curtainR { right: 0; border-radius: 0 0 0 60%; }
+
+  /* ---------- stage ---------- */
+  #stage { flex-direction: column; }
+  #scene { position: relative; flex: 1; overflow: hidden; }
+  .bg-castle { background: radial-gradient(ellipse 80% 22% at 50% 92%, #bbf7d0 99%, transparent 100%), linear-gradient(#fbcfe8 0%, #ddd6fe 62%, #a7f3d0 72%, #86efac 100%); }
+  .bg-ocean  { background: radial-gradient(ellipse 90% 16% at 50% 100%, #fde68a 99%, transparent 100%), linear-gradient(#67e8f9 0%, #2563eb 60%, #1e3a8a 100%); }
+  .bg-space  { background: radial-gradient(circle at 30% 25%, #4c1d95 0%, #1e1b4b 45%, #020617 100%); }
+  .bg-forest { background: linear-gradient(#bae6fd 0%, #dcfce7 45%, #4ade80 62%, #15803d 100%); }
+  .bg-farm   { background: radial-gradient(ellipse 60% 20% at 25% 66%, #a3e635 99%, transparent 100%), linear-gradient(#7dd3fc 0%, #e0f2fe 60%, #84cc16 60%, #4d7c0f 100%); }
+  .deco { position: absolute; translate: -50% -50%; line-height: 1; pointer-events: none; }
+  .tw { animation: twinkle 2s ease-in-out infinite; }
+  @keyframes twinkle { 50% { opacity: .3; } }
+
+  .actor { position: absolute; left: 0; top: 0; line-height: 1; touch-action: none; cursor: grab; will-change: transform; }
+  .actor .face { display: inline-block; filter: drop-shadow(0 6px 4px rgba(0,0,0,.25)); }
+  .actor.lift .face { filter: drop-shadow(0 16px 10px rgba(0,0,0,.3)); }
+  .a-jump  { animation: aJump .7s cubic-bezier(.3,1.5,.5,1); }
+  .a-spin  { animation: kit-spin .7s ease-in-out; }
+  .a-wiggle{ animation: aWiggle .7s ease-in-out; }
+  .a-grow  { animation: aGrow .7s ease-in-out; }
+  @keyframes aJump { 40% { translate: 0 -45%; } }
+  @keyframes aWiggle { 20% { rotate: -18deg; } 40% { rotate: 18deg; } 60% { rotate: -12deg; } 80% { rotate: 12deg; } }
+  @keyframes aGrow { 50% { scale: 1.45; } }
+
+  .topbar { position: absolute; top: max(14px, env(safe-area-inset-top)); left: max(14px, env(safe-area-inset-left)); right: max(14px, env(safe-area-inset-right)); display: flex; gap: 12px; align-items: center; z-index: 20; pointer-events: none; }
+  .topbar .btn { width: 68px; height: 68px; font-size: 34px; pointer-events: auto; }
+  .spacer { flex: 1; }
+  #recBtn { background: #fff; }
+  #recBtn .dot { width: 34px; height: 34px; border-radius: 50%; background: #ef4444; }
+  #recBtn.rec .dot { border-radius: 8px; animation: kit-pulse 1s infinite; }
+  #recBtn.rec { box-shadow: 0 6px 0 rgba(0,0,0,.18), 0 0 0 6px #ef4444; }
+  #recTime { display: none; font-size: 26px; font-weight: 900; color: #fff; background: #ef4444; padding: 6px 16px; border-radius: 999px; pointer-events: none; }
+  #recTime.on { display: block; }
+  #filmBtn.ready { animation: kit-pulse 1.2s infinite; }
+
+  #countdown { position: absolute; inset: 0; display: none; place-items: center; z-index: 30; background: rgba(0,0,0,.35); font-size: 30vmin; font-weight: 900; color: #fff; text-shadow: 0 10px 0 rgba(0,0,0,.3); }
+  #countdown.on { display: grid; }
+  #theEnd { position: absolute; inset: 0; display: none; place-items: center; z-index: 30; pointer-events: none; font-size: 22vmin; }
+  #theEnd.on { display: grid; animation: kit-pop .5s cubic-bezier(.3,1.6,.5,1); }
+  .playing #tray, .playing .topbar .btn:not(#filmBtn) { opacity: .3; pointer-events: none; }
+  .letterbox::before, .letterbox::after { content: ''; position: absolute; left: 0; right: 0; height: 7%; background: #000; z-index: 25; }
+  .letterbox::before { top: 0; } .letterbox::after { bottom: 0; }
+
+  #trash {
+    position: absolute; right: 20px; top: 50%; translate: 0 -50%; z-index: 22; width: 100px; height: 100px; border-radius: 50%;
+    background: rgba(255,255,255,.85); font-size: 52px; display: grid; place-items: center; scale: 0; transition: scale .2s; pointer-events: none;
+  }
+  #trash.show { scale: 1; } #trash.hot { scale: 1.3; background: #fca5a5; }
+
+  #tray {
+    display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; padding: 10px 14px;
+    padding-bottom: max(10px, env(safe-area-inset-bottom));
+    background: repeating-linear-gradient(90deg, #92400e 0 40px, #a16207 40px 80px); box-shadow: 0 -6px 16px rgba(0,0,0,.3);
+  }
+  .item {
+    width: 72px; height: 72px; border-radius: 20px; background: rgba(255,255,255,.9); font-size: 46px; line-height: 1;
+    display: grid; place-items: center; touch-action: none; cursor: grab; box-shadow: 0 4px 0 rgba(0,0,0,.25);
+  }
+  .item.prop { background: rgba(255,247,214,.9); }
+</style>
+</head>
+<body>
+
+<!-- STAGE PICKER -->
+<section id="pick" class="screen on">
+  <div class="curtainL"></div><div class="curtainR"></div>
+  <a class="btn corner left" href="../../" aria-label="Back to Yas's Games">🏠</a>
+  <button id="soundBtn" class="btn corner right" aria-label="Sound on or off">🔊</button>
+  <h1 id="title" class="title"></h1>
+  <div id="stages"></div>
+</section>
+
+<!-- STAGE -->
+<section id="stage" class="screen">
+  <div id="scene">
+    <div id="decor"></div>
+    <div id="actors"></div>
+    <div class="topbar">
+      <button id="backBtn" class="btn" aria-label="Choose another stage">🏠</button>
+      <div class="spacer"></div>
+      <div id="recTime"></div>
+      <button id="recBtn" class="btn" aria-label="Record"><div class="dot"></div></button>
+      <button id="filmBtn" class="btn" aria-label="Watch the movie" disabled>🎬</button>
+    </div>
+    <div id="trash">🗑️</div>
+    <div id="countdown"></div>
+    <div id="theEnd">🎬</div>
+  </div>
+  <div id="tray"></div>
+</section>
+
+<script src="/shared/lines.js"></script>
+<script src="/shared/voice.js"></script>
+<script src="/shared/kit.js"></script>
+<script>
+(() => {
+  const { $, rand, pick, sleep } = Kit;
+
+  const STAGES = {
+    castle: { icon: '🏰', cast: ['👸', '🤴', '🧚', '🦄', '🐉', '🧙'],
+      decor: [['🏰', 50, 38, 26], ['🌈', 14, 16, 12], ['✨', 82, 12, 5, 'tw'], ['⭐', 66, 8, 4, 'tw'], ['🌸', 8, 84, 6], ['🌸', 93, 86, 6]] },
+    ocean:  { icon: '🌊', cast: ['🧜‍♀️', '🐬', '🐙', '🦈', '🐠', '🐢'],
+      decor: [['🪸', 8, 86, 13], ['🌿', 24, 84, 11], ['🐚', 46, 94, 6], ['🪸', 82, 86, 14], ['🌿', 93, 82, 10]] },
+    space:  { icon: '🚀', cast: ['👩‍🚀', '👽', '🛸', '🤖', '🚀', '☄️'],
+      decor: [['🪐', 82, 18, 14], ['🌙', 14, 14, 12], ['🌍', 60, 74, 11], ['✨', 40, 20, 4, 'tw'], ['✨', 70, 46, 4, 'tw']], stars: true },
+    forest: { icon: '🌳', cast: ['🦊', '🐻', '🦉', '🐿️', '🐰', '🦔'],
+      decor: [['🌳', 8, 50, 26], ['🌲', 90, 46, 26], ['🌲', 74, 54, 16], ['🍄', 30, 88, 6], ['🌼', 58, 92, 5], ['☀️', 50, 10, 10]] },
+    farm:   { icon: '🐄', cast: ['🐄', '🐷', '🐔', '🐴', '🐑', '🧑‍🌾'],
+      decor: [['🏡', 20, 46, 18], ['🌻', 6, 70, 8], ['🚜', 86, 60, 13], ['☀️', 84, 10, 10], ['☁️', 40, 12, 10]] },
+  };
+  const PROPS = ['🎁', '⭐', '🌈', '❤️', '🍰', '🎈'];
+  const ACTIONS = [
+    { cls: 'a-jump', sound: () => Kit.sfx.boing() },
+    { cls: 'a-spin', sound: () => Kit.sfx.whoosh() },
+    { cls: 'a-wiggle', sound: () => [0, 1, 2].forEach(i => Kit.tone(600 + i * 80, .08, { type: 'square', vol: .05, delay: i * .09 })) },
+    { cls: 'a-grow', sound: () => Kit.tone(300, .5, { type: 'triangle', to: 900 }) },
+  ];
+  const MAX_SECONDS = 60;
+  const save = Kit.store('story-theater');
+  const saved = save.get({ scenes: {}, movies: {} });
+
+  // ---------- movies live in IndexedDB (they include her voice) ----------
+  const db = new Promise(ok => {
+    try {
+      const req = indexedDB.open('yasGames.storyTheater', 1);
+      req.onupgradeneeded = () => req.result.createObjectStore('movies');
+      req.onsuccess = () => ok(req.result);
+      req.onerror = () => ok(null);
+    } catch (e) { ok(null); }
+  });
+  async function dbDo(mode, fn) {
+    const d = await db; if (!d) return null;
+    return new Promise(ok => {
+      try { const tx = d.transaction('movies', mode), r = fn(tx.objectStore('movies')); r.onsuccess = () => ok(r.result); r.onerror = () => ok(null); }
+      catch (e) { ok(null); }
+    });
+  }
+  const loadMovie = key => dbDo('readonly', s => s.get(key));
+  const saveMovie = (key, m) => dbDo('readwrite', s => s.put(m, key));
+
+  // ---------- picker ----------
+  Kit.title('title', 'Story Theater');
+  function paintPicker() {
+    $('stages').innerHTML = '';
+    for (const [key, st] of Object.entries(STAGES)) {
+      const b = document.createElement('button');
+      b.className = 'stagePick bg-' + key; b.textContent = st.icon;
+      b.style.animationDelay = -Kit.rand(0, 3) + 's';
+      if (saved.movies[key]) { const f = document.createElement('span'); f.className = 'film'; f.textContent = '🎬'; b.appendChild(f); }
+      b.onclick = () => { Kit.sfx.pop(); openStage(key); };
+      $('stages').appendChild(b);
+    }
+  }
+  paintPicker();
+  Kit.soundButton('soundBtn');
+  Kit.say('st.pick');
+
+  // ---------- stage ----------
+  let stageKey = null, actors = [], nextId = 1, W = 0, H = 0;
+  let recording = null, playing = false, starting = false;
+
+  function openStage(key) {
+    stageKey = key;
+    const st = STAGES[key];
+    document.querySelectorAll('.screen').forEach(s => s.classList.toggle('on', s.id === 'stage'));
+    $('scene').className = 'bg-' + key;
+    measure();
+    // scenery
+    const d = $('decor'); d.innerHTML = '';
+    if (st.stars) for (let i = 0; i < 60; i++) {
+      const s = document.createElement('div'); s.className = 'deco tw';
+      Object.assign(s.style, { left: rand(0, 100) + '%', top: rand(0, 100) + '%', width: '4px', height: '4px', borderRadius: '50%', background: '#fff', animationDelay: -rand(0, 2) + 's' });
+      d.appendChild(s);
+    }
+    for (const [emo, x, y, size, cls] of st.decor) {
+      const e = document.createElement('div'); e.className = 'deco' + (cls ? ' ' + cls : '');
+      e.textContent = emo; e.style.left = x + '%'; e.style.top = y + '%'; e.style.fontSize = size + 'vmin';
+      d.appendChild(e);
+    }
+    // tray
+    const tray = $('tray'); tray.innerHTML = '';
+    [...st.cast.map(e => [e, false]), ...PROPS.map(e => [e, true])].forEach(([emo, prop]) => {
+      const it = document.createElement('div');
+      it.className = 'item' + (prop ? ' prop' : ''); it.textContent = emo;
+      it.addEventListener('pointerdown', e => dragFromTray(e, emo));
+      tray.appendChild(it);
+    });
+    // actors from last time
+    clearActors();
+    (saved.scenes[key] || []).forEach(a => addActor(a.e, a.x, a.y, a.flip));
+    $('filmBtn').disabled = !saved.movies[key];
+    $('filmBtn').classList.toggle('ready', !!saved.movies[key]);
+    Kit.say('st.' + key, actors.length ? null : 'st.intro');
+  }
+  function measure() { const r = $('scene').getBoundingClientRect(); W = r.width; H = r.height; }
+
+  // further back (higher up) = smaller
+  function sizeAt(y) { return Math.min(W, H) * .17 * (.55 + .65 * y); }
+  function place(a) {
+    const s = sizeAt(a.y);
+    a.el.style.fontSize = s + 'px';
+    a.el.style.transform = `translate(${a.x * W - s / 2}px, ${a.y * H - s * .9}px)`;
+    a.el.style.zIndex = 10 + Math.round(a.y * 100);
+    a.face.style.transform = a.flip ? 'scaleX(-1)' : '';
+  }
+  function addActor(e, x, y, flip = false, id = nextId++) {
+    nextId = Math.max(nextId, id + 1);
+    const el = document.createElement('div'); el.className = 'actor';
+    const face = document.createElement('span'); face.className = 'face'; face.textContent = e;
+    el.appendChild(face); $('actors').appendChild(el);
+    const a = { id, e, x, y, flip, el, face };
+    actors.push(a); place(a); attach(a);
+    return a;
+  }
+  function removeActor(a) { a.el.remove(); actors = actors.filter(o => o !== a); }
+  function clearActors() { actors.forEach(a => a.el.remove()); actors = []; }
+  function persistScene() { saved.scenes[stageKey] = actors.map(({ id, e, x, y, flip }) => ({ id, e, x, y, flip })); save.set(saved); }
+  const clampX = x => Math.max(.04, Math.min(.96, x)), clampY = y => Math.max(.18, Math.min(1, y));
+
+  function act(a, which = Math.floor(Math.random() * ACTIONS.length)) {
+    const A = ACTIONS[which];
+    a.face.classList.remove(...ACTIONS.map(x => x.cls)); void a.face.offsetWidth; a.face.classList.add(A.cls);
+    A.sound();
+    if (recording) recording.events.push({ t: now(), type: 'act', id: a.id, which });
+  }
+
+  function overTrash(e) { const r = $('trash').getBoundingClientRect(); return e.clientX > r.left - 30 && e.clientX < r.right + 30 && e.clientY > r.top - 30 && e.clientY < r.bottom + 30; }
+
+  // drag something new from the tray onto the stage
+  function dragFromTray(e, emo) {
+    if (playing) return;
+    e.preventDefault();
+    const sr = $('scene').getBoundingClientRect();
+    const a = addActor(emo, clampX((e.clientX - sr.left) / W), clampY((e.clientY - sr.top) / H));
+    a.el.classList.add('lift'); Kit.sfx.pop();
+    const move = ev => {
+      if (ev.pointerId !== e.pointerId) return;
+      const nx = clampX((ev.clientX - sr.left) / W);
+      if (Math.abs(nx - a.x) > .004) a.flip = nx > a.x;
+      a.x = nx; a.y = clampY((ev.clientY - sr.top) / H); place(a);
+    };
+    const up = ev => {
+      if (ev.pointerId !== e.pointerId) return;
+      removeEventListener('pointermove', move); removeEventListener('pointerup', up); removeEventListener('pointercancel', up);
+      a.el.classList.remove('lift');
+      if (ev.clientY > sr.bottom) { removeActor(a); return; } // dropped back on the shelf
+      Kit.sfx.boing(); Kit.burst(ev.clientX, ev.clientY, ['✨', '⭐'], 6, 80);
+      if (recording) recording.events.push({ t: now(), type: 'add', id: a.id, e: a.e });
+      persistScene();
+      if (actors.length === 2 && !saved.toldRec) { saved.toldRec = true; save.set(saved); setTimeout(() => Kit.say('st.tellRec'), 700); }
+    };
+    addEventListener('pointermove', move); addEventListener('pointerup', up); addEventListener('pointercancel', up);
+  }
+
+  // tap = act, drag = move, drag to bin = bye
+  function attach(a) {
+    let start = null, moved = false;
+    a.el.addEventListener('pointerdown', e => {
+      if (playing || start) return;
+      e.preventDefault(); try { a.el.setPointerCapture(e.pointerId); } catch (err) {}
+      start = { x: e.clientX, y: e.clientY, id: e.pointerId, ax: a.x, ay: a.y }; moved = false;
+    });
+    a.el.addEventListener('pointermove', e => {
+      if (!start || e.pointerId !== start.id) return;
+      if (!moved && Math.hypot(e.clientX - start.x, e.clientY - start.y) > 12) { moved = true; a.el.classList.add('lift'); $('trash').classList.add('show'); }
+      if (!moved) return;
+      const nx = clampX(start.ax + (e.clientX - start.x) / W);
+      if (Math.abs(nx - a.x) > .004) a.flip = nx > a.x;
+      a.x = nx; a.y = clampY(start.ay + (e.clientY - start.y) / H); place(a);
+      $('trash').classList.toggle('hot', overTrash(e));
+    });
+    const end = e => {
+      if (!start || e.pointerId !== start.id) return;
+      start = null; a.el.classList.remove('lift');
+      const t = $('trash'); t.classList.remove('show', 'hot');
+      if (!moved) { act(a); return; }
+      if (overTrash(e)) {
+        Kit.sfx.oops(); Kit.burst(e.clientX, e.clientY, ['💨', '☁️'], 6, 70);
+        if (recording) recording.events.push({ t: now(), type: 'remove', id: a.id });
+        removeActor(a);
+      }
+      persistScene();
+    };
+    a.el.addEventListener('pointerup', end);
+    a.el.addEventListener('pointercancel', end);
+  }
+
+  // ---------- recording a movie ----------
+  const now = () => performance.now() - recording.t0;
+  const snapshot = () => actors.map(({ id, e, x, y, flip }) => ({ id, e, x, y, flip }));
+  let micStream = null;
+
+  async function getMic() {
+    if (micStream) return micStream;
+    if (!navigator.mediaDevices || !window.MediaRecorder) return null; // not allowed on plain http
+    try { micStream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } }); }
+    catch (e) { micStream = null; }
+    return micStream;
+  }
+
+  async function startRecording() {
+    if (playing || recording || starting) return;
+    starting = true;
+    const mic = await getMic();
+    // 3, 2, 1, action!
+    const cd = $('countdown'); cd.classList.add('on');
+    Kit.say('st.action');
+    for (const n of ['3', '2', '1']) { cd.textContent = n; Kit.tone(660, .15, { type: 'triangle' }); await sleep(800); }
+    cd.textContent = '🎬'; Kit.tone(990, .3, { type: 'triangle' }); await sleep(400);
+    cd.classList.remove('on');
+    starting = false;
+
+    recording = { t0: performance.now(), start: snapshot(), frames: [], events: [], chunks: [], rec: null };
+    if (mic) {
+      try {
+        const rec = new MediaRecorder(mic);
+        rec.ondataavailable = ev => { if (ev.data.size) recording && recording.chunks.push(ev.data); };
+        rec.start(250); recording.rec = rec;
+      } catch (e) { /* film without sound */ }
+    }
+    $('recBtn').classList.add('rec'); $('recTime').classList.add('on');
+    recording.timer = setInterval(() => {
+      const s = Math.floor(now() / 1000);
+      $('recTime').textContent = '🔴 ' + s;
+      if (s >= MAX_SECONDS) stopRecording();
+    }, 250);
+    recording.sampler = setInterval(() => recording.frames.push({ t: now(), a: actors.map(a => [a.id, +a.x.toFixed(4), +a.y.toFixed(4), a.flip ? 1 : 0]) }), 66);
+  }
+
+  async function stopRecording() {
+    const r = recording; if (!r) return;
+    clearInterval(r.timer); clearInterval(r.sampler);
+    r.duration = now();
+    recording = null;
+    $('recBtn').classList.remove('rec'); $('recTime').classList.remove('on');
+    let audio = null;
+    if (r.rec) {
+      await new Promise(ok => { r.rec.onstop = ok; r.rec.stop(); });
+      if (r.chunks.length) audio = new Blob(r.chunks, { type: r.rec.mimeType || 'audio/mp4' });
+    }
+    if (r.duration < 1200) return; // tapped by accident
+    const movie = { start: r.start, frames: r.frames, events: r.events, duration: r.duration, audio };
+    await saveMovie(stageKey, movie);
+    saved.movies[stageKey] = true; save.set(saved);
+    $('filmBtn').disabled = false; $('filmBtn').classList.add('ready');
+    Kit.sfx.yay(); Kit.say('st.cut');
+  }
+  $('recBtn').onclick = () => { Kit.sfx.pop(); recording ? stopRecording() : startRecording(); };
+
+  // ---------- watching the movie ----------
+  async function watch() {
+    if (recording) return;
+    if (playing) { playing = false; return; }
+    const m = await loadMovie(stageKey);
+    if (!m) return;
+    playing = true;
+    $('stage').classList.add('playing'); $('scene').classList.add('letterbox');
+    $('filmBtn').textContent = '⏹️'; $('filmBtn').classList.remove('ready');
+    const live = snapshot();
+
+    // set the stage as it was when filming started
+    clearActors(); m.start.forEach(a => addActor(a.e, a.x, a.y, a.flip, a.id));
+    let player = null;
+    if (m.audio) { player = new Audio(URL.createObjectURL(m.audio)); player.play().catch(() => {}); }
+    const t0 = performance.now();
+    let fi = 0, ei = 0;
+    await new Promise(done => {
+      const tick = () => {
+        if (!playing) return done();
+        const t = player && !player.paused && player.currentTime > 0 ? player.currentTime * 1000 : performance.now() - t0;
+        while (ei < m.events.length && m.events[ei].t <= t) {
+          const ev = m.events[ei++];
+          const a = actors.find(x => x.id === ev.id);
+          if (ev.type === 'act' && a) act(a, ev.which);
+          if (ev.type === 'remove' && a) { Kit.sfx.oops(); removeActor(a); }
+          if (ev.type === 'add') Kit.sfx.boing();
+        }
+        while (fi < m.frames.length && m.frames[fi].t <= t) {
+          const f = m.frames[fi++];
+          for (const [id, x, y, flip] of f.a) {
+            let a = actors.find(o => o.id === id);
+            if (!a) { const src = m.events.find(ev => ev.type === 'add' && ev.id === id); if (!src) continue; a = addActor(src.e, x, y, !!flip, id); }
+            a.x = x; a.y = y; a.flip = !!flip; place(a);
+          }
+        }
+        if (t >= m.duration + 200) return done();
+        setTimeout(tick, 30);
+      };
+      tick();
+    });
+    if (player) { player.pause(); URL.revokeObjectURL(player.src); }
+    const finished = playing;
+    playing = false;
+    if (finished) {
+      $('theEnd').classList.add('on'); Kit.sfx.yay(); Kit.say('st.theEnd');
+      await sleep(1600); $('theEnd').classList.remove('on');
+    }
+    // back to the stage as she left it
+    clearActors(); live.forEach(a => addActor(a.e, a.x, a.y, a.flip, a.id));
+    $('stage').classList.remove('playing'); $('scene').classList.remove('letterbox');
+    $('filmBtn').textContent = '🎬'; $('filmBtn').classList.add('ready');
+  }
+  $('filmBtn').onclick = () => { Kit.sfx.pop(); watch(); };
+
+  $('backBtn').onclick = async () => {
+    if (playing) return;
+    if (recording) await stopRecording();
+    Kit.sfx.pop(); persistScene(); stageKey = null; paintPicker();
+    document.querySelectorAll('.screen').forEach(s => s.classList.toggle('on', s.id === 'pick'));
+  };
+
+  addEventListener('resize', () => { if (!stageKey) return; measure(); actors.forEach(place); });
+})();
+</script>
+</body>
+</html>

@@ -53,7 +53,18 @@
     "mp.flute": "7e0a4d0b75",
     "mp.harp": "60c92308f9",
     "mp.trumpet": "65cedf14c8",
-    "mp.drum": "590de65ab2"
+    "mp.drum": "590de65ab2",
+    "st.pick": "fb6104bbe5",
+    "st.castle": "62b3dc4a99",
+    "st.ocean": "666f0ae510",
+    "st.space": "4b2df5dee4",
+    "st.forest": "1b20fc81a2",
+    "st.farm": "af21c107bc",
+    "st.intro": "122fb40ee1",
+    "st.tellRec": "c238a2b8d3",
+    "st.action": "240f958345",
+    "st.cut": "cd24c13204",
+    "st.theEnd": "569d50704b"
   },
   "nl": {
     "hub.lang": "0eaed72984",
@@ -109,7 +120,18 @@
     "mp.flute": "467ccdf37a",
     "mp.harp": "867480535a",
     "mp.trumpet": "53335fe0b6",
-    "mp.drum": "c292681214"
+    "mp.drum": "c292681214",
+    "st.pick": "95fea7ab92",
+    "st.castle": "8a65a5c86c",
+    "st.ocean": "dd69c6805c",
+    "st.space": "e9b72fdb21",
+    "st.forest": "523178fb6c",
+    "st.farm": "f0fa499b61",
+    "st.intro": "48b682d31a",
+    "st.tellRec": "d61d334e19",
+    "st.action": "4141719bd0",
+    "st.cut": "f7afead8db",
+    "st.theEnd": "3ebb0ecfdc"
   },
   "voices": {
     "en": "Evan (Enhanced)",
