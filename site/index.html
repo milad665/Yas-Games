@@ -8,9 +8,9 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Yas's Games">
 <meta name="theme-color" content="#ffd6ec">
-<link rel="apple-touch-icon" href="icon.png">
-<link rel="icon" href="icon.png">
-<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="icon" href="/icon-192.png">
+<link rel="manifest" href="/manifest.webmanifest">
 <title>Yas's Games</title>
 <style>
   * { box-sizing: border-box; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; }
@@ -76,6 +76,24 @@
   .soon .art { opacity: .5; animation: none; }
   .soon .name { opacity: .6; }
   .soon { animation: none; pointer-events: none; }
+
+  /* language + install, top-right */
+  #corner { position: fixed; z-index: 5; top: max(14px, env(safe-area-inset-top)); right: max(14px, env(safe-area-inset-right)); display: flex; gap: 10px; }
+  .pill { background: rgba(255,255,255,.85); border-radius: 999px; box-shadow: 0 4px 0 rgba(90, 60, 140, .12); border: none; }
+  #installBtn { width: 56px; height: 56px; font-size: 28px; touch-action: manipulation; }
+  #installBtn[hidden] { display: none; }
+  #langs { display: flex; padding: 4px; gap: 2px; }
+  #langs button { border: none; background: none; font-size: 30px; width: 48px; height: 48px; border-radius: 50%; opacity: .45; transition: transform .15s, opacity .15s; touch-action: manipulation; padding: 0; }
+  #langs button.sel { opacity: 1; transform: scale(1.12); background: #fff3fb; }
+  @media (max-width: 600px) { header { margin-top: 64px; } }
+
+  #iosHelp { position: fixed; inset: 0; z-index: 30; background: rgba(60, 40, 100, .35); display: grid; place-items: center; padding: 20px; }
+  #iosHelp[hidden] { display: none; }
+  #iosHelp .card { background: #fff; border-radius: 32px; padding: 28px 30px; max-width: 420px; text-align: center; font-size: 21px; line-height: 1.4; box-shadow: 0 20px 50px rgba(60, 40, 100, .3); }
+  #iosHelp .big { font-size: 64px; }
+  #iosHelp .nl { color: #8a7aa8; font-size: 18px; }
+  #iosHelp .share { display: inline-block; border: 2px solid #2f9bff; color: #2f9bff; border-radius: 6px; padding: 0 6px; font-size: 16px; }
+  #iosHelp .ok { margin-top: 10px; border: none; background: #4ade80; font-size: 36px; width: 80px; height: 80px; border-radius: 50%; box-shadow: 0 6px 0 rgba(0,0,0,.15); }
 </style>
 </head>
 <body>
@@ -87,29 +105,27 @@
 
   <main id="games"></main>
 
+  <div id="corner">
+    <button id="installBtn" class="pill" hidden aria-label="Install app">📲</button>
+    <div id="langs" class="pill" role="group" aria-label="Language">
+      <button data-lang="en" aria-label="English">🇬🇧</button>
+      <button data-lang="nl" aria-label="Nederlands">🇳🇱</button>
+    </div>
+  </div>
+
+  <div id="iosHelp" hidden>
+    <div class="card">
+      <div class="big">📲</div>
+      <p>Tap <b>Share</b> <span class="share">⬆︎</span> in Safari, then <b>Add to Home Screen</b>.</p>
+      <p class="nl">Tik op <b>Delen</b> <span class="share">⬆︎</span> in Safari en dan <b>Zet op beginscherm</b>.</p>
+      <button id="iosHelpClose" class="ok">👍</button>
+    </div>
+  </div>
+
+<script src="/shared/games.js"></script>
+<script src="/shared/lines.js"></script>
+<script src="/shared/voice.js"></script>
 <script>
-  // ============================================================
-  //  Add new games here. Each game lives in /games/<folder>/
-  //  art:    a big emoji for the cover
-  //  extras: small emojis sprinkled around the cover
-  //  colors: the cover's gradient
-  // ============================================================
-  const GAMES = [
-    {
-      name: 'Magic Doodles',
-      path: 'games/magic-doodles/',
-      art: '🖍️',
-      extras: ['🐰', '🐠', '🚀', '🦕', '🏰'],
-      colors: ['#ffb3d9', '#c4b5fd', '#8fd3ff'],
-    },
-    {
-      name: 'Beep Boop Robot',
-      path: 'games/beep-boop-robot/',
-      art: '🤖',
-      extras: ['🔋', '⚙️', '⬆️', '➡️', '🔧'],
-      colors: ['#a5f3fc', '#93c5fd', '#c4b5fd'],
-    },
-  ];
 
   // a friendly "more coming" card so the shelf never looks empty
   const SHOW_COMING_SOON = true;
@@ -203,6 +219,31 @@
       o.connect(g).connect(ac.destination); o.start(t); o.stop(t + .16);
     } catch (e) {}
   }
+
+  // ---- language: one switch for all games ----
+  function paintLangs() {
+    document.querySelectorAll('#langs button').forEach(b => b.classList.toggle('sel', b.dataset.lang === Voice.lang));
+    document.documentElement.lang = Voice.lang;
+  }
+  document.querySelectorAll('#langs button').forEach(b => b.addEventListener('click', () => {
+    Voice.setLang(b.dataset.lang); paintLangs(); pop(); Voice.say('hub.lang');
+  }));
+  paintLangs();
+
+  // ---- install as an app (shown to grown-ups in the corner) ----
+  const standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  let installEvent = null;
+  addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvent = e; $('installBtn').hidden = false; });
+  if (!standalone && isIOS) $('installBtn').hidden = false;
+  $('installBtn').addEventListener('click', async () => {
+    if (installEvent) { installEvent.prompt(); await installEvent.userChoice; installEvent = null; $('installBtn').hidden = true; }
+    else $('iosHelp').hidden = false;
+  });
+  $('iosHelpClose').addEventListener('click', () => { $('iosHelp').hidden = true; });
+  addEventListener('appinstalled', () => { $('installBtn').hidden = true; });
+
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => {});
 
   // coming back with the browser's back button: un-squish the card
   addEventListener('pageshow', () => document.querySelectorAll('.tapped').forEach(a => a.classList.remove('tapped')));

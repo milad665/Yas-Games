@@ -119,6 +119,25 @@ tap **Share → Add to Home Screen** and Yas gets an app icon that opens full sc
 - **Saved drawings live on the iPad** (in Safari's storage for this address), not on the
   server. Keep the same address over time or Yas's creatures won't be found.
 
+## HTTPS (needed for offline play and app install)
+
+Browsers only run the offline service worker on secure sites. On `http://<server-ip>:8080`
+the games still work and the iPad's **Add to Home Screen** still gives a full-screen app,
+but it won't work offline, and Android won't offer to install it. Pick one of these:
+
+- **Tailscale (easiest if you use it):** on the server run
+  `tailscale serve --bg 8080`. You get `https://<machine>.<tailnet>.ts.net` with a real
+  certificate. Install Tailscale on the tablet too.
+- **Your own domain + reverse proxy:** point e.g. `games.example.com` at the server's LAN IP
+  in your local DNS, and let Caddy, Traefik or Nginx Proxy Manager fetch a Let's Encrypt
+  certificate with a DNS challenge. Proxy it to `http://<server-ip>:8080`.
+- **Caddy with its own local certificate:** works, but you must install and trust Caddy's
+  root certificate on the tablet (Settings → General → About → Certificate Trust Settings).
+
+> Saved drawings, robot designs and progress are stored per web address, and an installed
+> iPad app keeps its own storage separate from Safari. Choose the final address first, then
+> install the app from that address.
+
 ## Troubleshooting
 
 | Symptom | Fix |

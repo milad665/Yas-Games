@@ -8,7 +8,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Magic Doodles">
 <meta name="theme-color" content="#7ec8ff">
-<link rel="apple-touch-icon" href="../../icon.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
 <title>Magic Doodles</title>
 <style>
   * { box-sizing: border-box; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; }
@@ -224,21 +225,23 @@
   <div id="moves"></div>
 </section>
 
+<script src="/shared/lines.js"></script>
+<script src="/shared/voice.js"></script>
 <script>
 (() => {
   // ================= data =================
   const WORLDS = {
-    meadow: { icon: '🐰', bg: '#9de07f', say: 'Animal meadow!', move: 'hop', ground: .9,
+    meadow: { icon: '🐰', bg: '#9de07f', say: 'md.meadow', move: 'hop', ground: .9,
       decor: [['☀️',85,11,90,'spin-slow'],['☁️',14,12,80,'drift'],['☁️',52,8,60,'drift'],['🌳',90,58,140],
               ['🌷',8,82,46],['🌼',30,92,40],['🍄',64,88,42],['🌻',46,76,52],['🦋',70,30,34,'bob']] },
-    castle: { icon: '🏰', bg: '#e3c8ff', say: 'Fairy castle!', move: 'fly', ground: .92,
+    castle: { icon: '🏰', bg: '#e3c8ff', say: 'md.castle', move: 'fly', ground: .92,
       decor: [['🏰',50,42,230],['🌈',14,18,110],['✨',82,14,40,'twinkle'],['✨',30,32,30,'twinkle'],
               ['⭐',66,9,36,'twinkle'],['🌸',8,90,46],['🌸',92,92,46],['🦄',80,72,70,'bob']] },
-    ocean:  { icon: '🐠', bg: '#5ec4f2', say: 'Under the sea!', move: 'swim', ground: .94, bubbles: true,
+    ocean:  { icon: '🐠', bg: '#5ec4f2', say: 'md.ocean', move: 'swim', ground: .94, bubbles: true,
       decor: [['🪸',8,88,90],['🌿',24,86,80,'sway'],['🐚',44,95,44],['🪸',80,87,100],['🌿',93,84,72,'sway'],['⭐',62,95,40],['🐙',70,70,60,'bob']] },
-    space:  { icon: '🚀', bg: '#3b2a7a', say: 'Outer space!', move: 'float', ground: .92, stars: true,
+    space:  { icon: '🚀', bg: '#3b2a7a', say: 'md.space', move: 'float', ground: .92, stars: true,
       decor: [['🪐',82,20,110,'bob'],['🌙',14,15,90],['🌍',62,78,80,'spin-slow'],['☄️',36,24,50,'drift'],['🛸',20,70,60,'bob']] },
-    dino:   { icon: '🦕', bg: '#ffc06b', say: 'Dino land!', move: 'hop', ground: .9,
+    dino:   { icon: '🦕', bg: '#ffc06b', say: 'md.dino', move: 'hop', ground: .9,
       decor: [['🌋',74,48,210],['🌴',9,60,130],['🌴',93,64,110],['🥚',40,90,40],['🦴',58,94,40],['☁️',30,12,70,'drift'],['🦖',24,76,70,'bob']] },
   };
   const MOVES = { hop: '🐸', fly: '🦋', swim: '🐟', float: '🎈', crawl: '🐛' };
@@ -286,15 +289,7 @@
     poof: () => tone(500, .25, { type: 'sawtooth', vol: .08, to: 60 }),
     wipe: () => tone(900, .3, { type: 'sawtooth', vol: .05, to: 200 }),
   };
-  function say(text) {
-    if (muted || !('speechSynthesis' in window)) return;
-    try {
-      speechSynthesis.cancel();
-      const u = new SpeechSynthesisUtterance(text);
-      u.pitch = 1.3; u.rate = .95;
-      speechSynthesis.speak(u);
-    } catch (e) {}
-  }
+  function say(...lines) { if (!muted) Voice.say(...lines); }
 
   // ================= particles =================
   function burst(x, y, emojis, n = 10, spread = 140) {
@@ -338,7 +333,7 @@
   });
   function paintSound() { $('soundBtn').textContent = muted ? '🔇' : '🔊'; }
   paintSound();
-  $('soundBtn').onclick = () => { muted = !muted; saved.muted = muted; persist(); paintSound(); sfx.pop(); };
+  $('soundBtn').onclick = () => { muted = !muted; saved.muted = muted; persist(); paintSound(); sfx.pop(); if (muted) Voice.stop(); };
 
   // ================= world =================
   let worldKey = null;
@@ -358,7 +353,7 @@
     creatures = [];
     (saved[key] || []).forEach(d => spawn(d, false));
     $('pencilBtn').classList.toggle('nudge', creatures.length === 0);
-    say(creatures.length ? w.say : w.say + ' Tap the pencil and draw something!');
+    say(w.say, creatures.length ? null : 'md.tapPencil');
   }
 
   function buildDecor(w) {
@@ -634,7 +629,7 @@
   function openDraw() {
     $('draw').classList.add('on');
     requestAnimationFrame(() => { sizeCanvas(); });
-    if (!strokes.length) say('Draw anything you like!');
+    if (!strokes.length) say('md.drawAnything');
   }
   function closeDraw() { $('draw').classList.remove('on'); }
 
@@ -759,7 +754,7 @@
       moves.appendChild(b);
     }
     $('picker').classList.add('on');
-    say('How should it move?');
+    say('md.howMove');
   };
 
   function release(move) {
@@ -776,7 +771,7 @@
     if (move === 'hop' || move === 'crawl') { c.fall = c.y - (ground - c.h); c.fallV = -300; }
     sfx.magic();
     burst(W / 2, H * .4, ['✨','⭐','🌟','💖','🎉'], 18, 220);
-    say(pick(["It's alive!", 'Hello, new friend!', 'Ta-da!', 'Wow, look at that!']));
+    say(['md.alive1', 'md.alive2', 'md.alive3', 'md.alive4']);
     $('pencilBtn').classList.remove('nudge');
 
     // too many friends in one world: the oldest one waves goodbye
@@ -785,6 +780,7 @@
   }
 
   // stop iPad pinch-zoom and double-tap zoom from getting in the way
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => {});
   document.addEventListener('gesturestart', e => e.preventDefault());
   document.addEventListener('dblclick', e => e.preventDefault());
   document.addEventListener('contextmenu', e => e.preventDefault());

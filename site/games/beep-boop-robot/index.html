@@ -8,7 +8,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Beep Boop Robot">
 <meta name="theme-color" content="#cdeffd">
-<link rel="apple-touch-icon" href="../../icon.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
 <title>Beep Boop Robot</title>
 <style>
   * { box-sizing: border-box; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; }
@@ -199,6 +200,8 @@
   </div>
 </section>
 
+<script src="/shared/lines.js"></script>
+<script src="/shared/voice.js"></script>
 <script>
 (() => {
   // ================= levels =================
@@ -229,12 +232,12 @@
   // ================= robot parts =================
   const COLORS = ['#60a5fa', '#f87171', '#fbbf24', '#34d399', '#c084fc', '#f472b6', '#94a3b8'];
   const PARTS = [
-    { key: 'color',   opts: COLORS,                         say: 'Ooh, a shiny new color!' },
-    { key: 'head',    opts: ['square', 'round', 'dome'],    say: "The head holds the robot's computer brain!" },
-    { key: 'eyes',    opts: ['round', 'visor', 'cyclops'],  say: 'Eyes are sensors. They help the robot see!' },
-    { key: 'antenna', opts: ['ball', 'double', 'bolt', 'none'], say: 'The antenna sends and gets messages!' },
+    { key: 'color',   opts: COLORS,                         say: 'rb.color' },
+    { key: 'head',    opts: ['square', 'round', 'dome'],    say: 'rb.head' },
+    { key: 'eyes',    opts: ['round', 'visor', 'cyclops'],  say: 'rb.eyes' },
+    { key: 'antenna', opts: ['ball', 'double', 'bolt', 'none'], say: 'rb.antenna' },
     { key: 'bottom',  opts: ['wheels', 'legs', 'treads'],
-      say: { wheels: 'Wheels help the robot roll!', legs: 'Legs help the robot walk!', treads: 'Treads help it drive over bumps!' } },
+      say: { wheels: 'rb.wheels', legs: 'rb.legs', treads: 'rb.treads' } },
   ];
 
   const $ = id => document.getElementById(id);
@@ -277,10 +280,7 @@
     win: () => [523, 659, 784, 1047, 784, 1047, 1319].forEach((f, i) => tone(f, .18, { type: 'triangle', vol: .16, delay: i * .1 })),
     boop: () => { tone(880, .07); tone(660, .07, { delay: .08 }); tone(990, .1, { delay: .16 }); },
   };
-  function say(text) {
-    if (muted || !('speechSynthesis' in window)) return;
-    try { speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(text); u.pitch = 1.3; u.rate = .95; speechSynthesis.speak(u); } catch (e) {}
-  }
+  function say(...lines) { if (!muted) Voice.say(...lines); }
   document.addEventListener('pointerdown', () => audio());
 
   function burst(x, y, emojis, n = 14, spread = 200) {
@@ -354,15 +354,15 @@
   });
   function paintSound() { $('soundBtn').textContent = muted ? '🔇' : '🔊'; }
   paintSound();
-  $('soundBtn').onclick = () => { muted = !muted; saved.muted = muted; persist(); paintSound(); sfx.pop(); };
-  $('homeRobot').onclick = () => { sfx.boop(); say(pick(['Beep boop!', 'Hello! I am your robot!', 'Let\'s go!'])); };
+  $('soundBtn').onclick = () => { muted = !muted; saved.muted = muted; persist(); paintSound(); sfx.pop(); if (muted) Voice.stop(); };
+  $('homeRobot').onclick = () => { sfx.boop(); say(['rb.hi1', 'rb.hi2', 'rb.hi3']); };
   $('buildBtn').onclick = () => { sfx.pop(); openBuilder(); };
   $('playBtn').onclick = () => { sfx.pop(); openLevels(); };
 
   // ---------- builder ----------
   function openBuilder() {
     renderParts(); show('build');
-    say('Build your robot! Tap the parts you like.');
+    say('rb.build');
   }
   function renderParts() {
     const box = $('parts'); box.innerHTML = '';
@@ -390,7 +390,7 @@
       box.appendChild(row);
     }
   }
-  $('doneBtn').onclick = () => { sfx.boop(); show('home'); say('Beep boop! I love my new look!'); };
+  $('doneBtn').onclick = () => { sfx.boop(); show('home'); say('rb.newLook'); };
 
   // ---------- level picker ----------
   function unlocked(i) { return i === 0 || saved.done.includes(i - 1) || saved.done.includes(i); }
@@ -445,8 +445,8 @@
     $('lvlBadge').textContent = (i + 1) + ' / ' + LEVELS.length;
     show('play');
     renderBoard(); renderProg();
-    if (i === 0) say('Help the robot get to the battery! Tap the arrows, then press the green button.');
-    else say(pick(['Help the robot find its battery!', 'The robot needs to charge up!', 'Where should the robot go?']));
+    if (i === 0) say('rb.intro');
+    else say(['rb.go1', 'rb.go2', 'rb.go3']);
   }
 
   function renderBoard() {
@@ -535,7 +535,7 @@
 
   $('undoBtn').onclick = () => { if (running || !program.length) return; program.pop(); sfx.remove(); renderProg(); };
   $('clearBtn').onclick = () => { if (running || !program.length) return; program = []; sfx.remove(); renderProg(); };
-  $('hintBtn').onclick = () => { if (running) return; sfx.pop(); showHint = true; renderBoard(); say('Follow the arrows on the floor!'); };
+  $('hintBtn').onclick = () => { if (running) return; sfx.pop(); showHint = true; renderBoard(); say('rb.followArrows'); };
   $('playBack').onclick = () => { if (running) return; sfx.pop(); openLevels(); };
 
   // ---------- running the program ----------
@@ -554,7 +554,7 @@
         placeBot(pos, true, d); sfx.bump(); $('bot').classList.add('shake');
         cards[i].classList.remove('now'); cards[i].classList.add('bad');
         await sleep(250); placeBot(pos);
-        say(pick(['Oops! Bump!', 'Uh oh, something is in the way!', 'Bonk! Let\'s fix the plan!']));
+        say(['rb.bump1', 'rb.bump2', 'rb.bump3']);
         await sleep(1300);
         $('bot').classList.remove('shake');
         return tryAgain(cards);
@@ -564,7 +564,7 @@
       await sleep(520);
       if (pos.x === L.goal.x && pos.y === L.goal.y) return win();
     }
-    say(pick(['Hmm, the robot needs more steps!', 'Almost! Add some more arrows!']));
+    say(['rb.more1', 'rb.more2']);
     await sleep(1400);
     tryAgain(cards);
   }
@@ -573,7 +573,7 @@
     cards.forEach(c => c.classList.remove('now', 'bad'));
     face('right'); placeBot(L.start);
     running = false;
-    if (fails >= 2 && !showHint) { showHint = true; setTimeout(() => { renderBoard(); say('Here is a little help. Follow the arrows on the floor!'); }, 500); }
+    if (fails >= 2 && !showHint) { showHint = true; setTimeout(() => { renderBoard(); say('rb.help'); }, 500); }
     renderProg();
   }
   function win() {
@@ -581,7 +581,7 @@
     const r = $('bot').getBoundingClientRect();
     burst(r.left + r.width / 2, r.top + r.height / 2, ['⚡', '⭐', '✨', '🔋', '🎉'], 18, 220);
     if (!saved.done.includes(cur)) { saved.done.push(cur); persist(); }
-    say(pick(['You did it! The robot is charged up!', 'Beep boop! Thank you!', 'Hooray! Great programming!']));
+    say(['rb.win1', 'rb.win2', 'rb.win3']);
     setTimeout(() => {
       running = false;
       $('nextBtn').textContent = cur === LEVELS.length - 1 ? '🏆' : '➡️';
@@ -593,12 +593,13 @@
   $('nextBtn').onclick = () => {
     sfx.pop(); $('win').classList.remove('on');
     if (cur < LEVELS.length - 1) startLevel(cur + 1);
-    else { openLevels(); say('You finished every level! You are a super robot programmer!'); burst(innerWidth / 2, innerHeight / 2, ['🏆', '⭐', '🎉', '🤖'], 30, 320); }
+    else { openLevels(); say('rb.allDone'); burst(innerWidth / 2, innerHeight / 2, ['🏆', '⭐', '🎉', '🤖'], 30, 320); }
   };
 
   addEventListener('resize', () => { if ($('play').classList.contains('on') && !running) renderBoard(); });
 
   paintRobots();
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => {});
   document.addEventListener('gesturestart', e => e.preventDefault());
   document.addEventListener('dblclick', e => e.preventDefault());
   document.addEventListener('contextmenu', e => e.preventDefault());

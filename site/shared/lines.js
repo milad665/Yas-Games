@@ -1,0 +1,52 @@
+// Every line the games speak, in English and Dutch.
+// Games call Voice.say('<key>'). After changing or adding a line, re-record the clips:
+//   node tools/record-voice.mjs
+self.VOICE_LINES = {
+  // ---------- Yas's Games home ----------
+  'hub.lang':        { en: "Let's play in English!",                nl: 'We spelen in het Nederlands!' },
+
+  // ---------- Magic Doodles ----------
+  'md.meadow':       { en: 'Animal meadow!',                        nl: 'Dierenweide!' },
+  'md.castle':       { en: 'Fairy castle!',                         nl: 'Feeënkasteel!' },
+  'md.ocean':        { en: 'Under the sea!',                        nl: 'Onder de zee!' },
+  'md.space':        { en: 'Outer space!',                          nl: 'De ruimte in!' },
+  'md.dino':         { en: 'Dino land!',                            nl: 'Dinoland!' },
+  'md.tapPencil':    { en: 'Tap the pencil and draw something!',    nl: 'Tik op het potlood en teken iets!' },
+  'md.drawAnything': { en: 'Draw anything you like!',               nl: 'Teken maar wat je wilt!' },
+  'md.howMove':      { en: 'How should it move?',                   nl: 'Hoe moet het bewegen?' },
+  'md.alive1':       { en: "It's alive!",                           nl: 'Het leeft!' },
+  'md.alive2':       { en: 'Hello, new friend!',                    nl: 'Hallo, nieuw vriendje!' },
+  'md.alive3':       { en: 'Ta-da!',                                nl: 'Tadaa!' },
+  'md.alive4':       { en: 'Wow, look at that!',                    nl: 'Wauw, kijk nou!' },
+
+  // ---------- Beep Boop Robot ----------
+  'rb.hi1':          { en: 'Beep boop!',                            nl: 'Biep boep!' },
+  'rb.hi2':          { en: 'Hello! I am your robot!',               nl: 'Hallo! Ik ben jouw robot!' },
+  'rb.hi3':          { en: "Let's go!",                             nl: 'Daar gaan we!' },
+  'rb.build':        { en: 'Build your robot! Tap the parts you like.', nl: 'Bouw je robot! Tik op de onderdelen die je mooi vindt.' },
+  'rb.newLook':      { en: 'Beep boop! I love my new look!',        nl: 'Biep boep! Ik vind mijn nieuwe look geweldig!' },
+  'rb.color':        { en: 'Ooh, a shiny new color!',               nl: 'Oeh, een glimmende nieuwe kleur!' },
+  'rb.head':         { en: "The head holds the robot's computer brain!", nl: 'In het hoofd zit het computerbrein van de robot!' },
+  'rb.eyes':         { en: 'Eyes are sensors. They help the robot see!', nl: 'Ogen zijn sensoren. Daarmee kan de robot zien!' },
+  'rb.antenna':      { en: 'The antenna sends and gets messages!',  nl: 'Met de antenne stuurt en krijgt de robot berichtjes!' },
+  'rb.wheels':       { en: 'Wheels help the robot roll!',           nl: 'Met wielen kan de robot rijden!' },
+  'rb.legs':         { en: 'Legs help the robot walk!',             nl: 'Met benen kan de robot lopen!' },
+  'rb.treads':       { en: 'Treads help it drive over bumps!',      nl: 'Met rupsbanden rijdt hij over hobbels!' },
+  'rb.intro':        { en: 'Help the robot get to the battery! Tap the arrows, then press the green button.',
+                       nl: 'Help de robot naar de batterij! Tik op de pijltjes en druk dan op de groene knop.' },
+  'rb.go1':          { en: 'Help the robot find its battery!',      nl: 'Help de robot zijn batterij te vinden!' },
+  'rb.go2':          { en: 'The robot needs to charge up!',         nl: 'De robot moet opladen!' },
+  'rb.go3':          { en: 'Where should the robot go?',            nl: 'Waar moet de robot naartoe?' },
+  'rb.followArrows': { en: 'Follow the arrows on the floor!',       nl: 'Volg de pijltjes op de vloer!' },
+  'rb.help':         { en: 'Here is a little help. Follow the arrows on the floor!', nl: 'Hier is een beetje hulp. Volg de pijltjes op de vloer!' },
+  'rb.bump1':        { en: 'Oops! Bump!',                           nl: 'Oeps! Boem!' },
+  'rb.bump2':        { en: 'Uh oh, something is in the way!',       nl: 'O jee, er staat iets in de weg!' },
+  'rb.bump3':        { en: "Bonk! Let's fix the plan!",             nl: 'Bonk! Laten we het plan verbeteren!' },
+  'rb.more1':        { en: 'Hmm, the robot needs more steps!',      nl: 'Hmm, de robot heeft meer stapjes nodig!' },
+  'rb.more2':        { en: 'Almost! Add some more arrows!',         nl: 'Bijna! Doe er nog wat pijltjes bij!' },
+  'rb.win1':         { en: 'You did it! The robot is charged up!',  nl: 'Het is gelukt! De robot is opgeladen!' },
+  'rb.win2':         { en: 'Beep boop! Thank you!',                 nl: 'Biep boep! Dankjewel!' },
+  'rb.win3':         { en: 'Hooray! Great programming!',            nl: 'Hoera! Goed geprogrammeerd!' },
+  'rb.allDone':      { en: 'You finished every level! You are a super robot programmer!',
+                       nl: 'Je hebt alle levels gehaald! Jij bent een super robotprogrammeur!' },
+};
