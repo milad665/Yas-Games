@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Pattern Train">
+<meta name="theme-color" content="#bae6fd">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="stylesheet" href="/shared/kit.css">
+<title>Pattern Train</title>
+<style>
+  body {
+    background:
+      radial-gradient(ellipse 60% 18% at 20% 62%, #86efac 99%, transparent 100%),
+      radial-gradient(ellipse 70% 22% at 85% 64%, #4ade80 99%, transparent 100%),
+      linear-gradient(#7dd3fc 0%, #e0f2fe 60%, #4ade80 60%, #16a34a 100%);
+  }
+  #game { flex-direction: column; }
+  .deco { position: absolute; translate: -50% -50%; line-height: 1; pointer-events: none; }
+  .cloud { animation: drift 40s linear infinite; }
+  @keyframes drift { from { transform: translateX(-30vw); } to { transform: translateX(130vw); } }
+
+  #stickers { position: absolute; top: max(22px, env(safe-area-inset-top)); left: 50%; translate: -50% 0; display: flex; gap: 2px; font-size: 30px; background: rgba(255,255,255,.7); border-radius: 999px; padding: 6px 16px; min-height: 52px; min-width: 120px; justify-content: center; z-index: 5; flex-wrap: wrap; max-width: 60vw; }
+
+  #trackWrap { position: absolute; left: 0; right: 0; top: 34%; height: 30%; }
+  #rails { position: absolute; left: 0; right: 0; bottom: 0; height: 26px;
+    background:
+      linear-gradient(#57534e, #57534e) 0 4px / 100% 6px no-repeat,
+      linear-gradient(#57534e, #57534e) 0 18px / 100% 6px no-repeat,
+      repeating-linear-gradient(90deg, #92400e 0 14px, transparent 14px 44px);
+  }
+  #train { position: absolute; left: 0; bottom: 20px; display: flex; align-items: flex-end; gap: 6px; padding-left: 20px; will-change: transform; }
+  #train.arrive { transition: transform 1.6s cubic-bezier(.2,.8,.3,1); }
+  #train.leave { transition: transform 1.8s cubic-bezier(.6,0,.9,.5); }
+  .engine { line-height: .8; position: relative; }
+  .car { position: relative; display: grid; place-items: center; border-radius: 14px 14px 8px 8px; border: 5px solid rgba(0,0,0,.18); }
+  .car::before, .car::after { content: ''; position: absolute; bottom: -22%; width: 26%; aspect-ratio: 1; border-radius: 50%; background: #334155; border: 5px solid #94a3b8; }
+  .car::before { left: 10%; } .car::after { right: 10%; }
+  .car .item { line-height: 1; transition: transform .3s; }
+  .car.blank { background: rgba(255,255,255,.75) !important; border-style: dashed; border-color: #64748b; }
+  .car.blank .item { opacity: .45; font-weight: 900; color: #475569; font-family: inherit; }
+  .car.now { box-shadow: 0 0 0 6px #fde047, 0 0 24px 8px rgba(253, 224, 71, .7); }
+  .car.filled .item { animation: kit-pop .45s cubic-bezier(.3,1.6,.5,1); }
+  .link { width: 10px; height: 8px; background: #475569; align-self: center; margin-top: 30px; }
+
+  #choices { position: absolute; left: 0; right: 0; bottom: max(28px, env(safe-area-inset-bottom)); display: flex; justify-content: center; gap: clamp(20px, 5vw, 60px); z-index: 5; }
+  .choice { width: clamp(110px, 16vw, 150px); height: clamp(110px, 16vw, 150px); border-radius: 32px; font-size: clamp(60px, 9vw, 86px); background: #fff; }
+  .choice .item { line-height: 1; display: inline-block; }
+  .choice.hint { animation: kit-pulse 1s ease-in-out infinite; box-shadow: 0 6px 0 rgba(40,50,90,.18), 0 0 0 6px #fde047; }
+  .flyer { position: fixed; z-index: 30; pointer-events: none; line-height: 1; transition: transform .45s cubic-bezier(.4,1.2,.6,1); }
+</style>
+</head>
+<body>
+
+<section id="game" class="screen on">
+  <a class="btn corner left" href="../../" aria-label="Back to Yas's Games">🏠</a>
+  <button id="soundBtn" class="btn corner right" aria-label="Sound on or off">🔊</button>
+  <div class="deco cloud" style="left:20%;top:10%;font-size:12vmin">☁️</div>
+  <div class="deco cloud" style="left:60%;top:16%;font-size:9vmin;animation-delay:-20s">☁️</div>
+  <div class="deco" style="left:88%;top:9%;font-size:10vmin">☀️</div>
+  <div class="deco" style="left:8%;top:56%;font-size:12vmin">🌳</div>
+  <div class="deco" style="left:92%;top:58%;font-size:10vmin">🌲</div>
+  <div id="stickers"></div>
+  <div id="trackWrap"><div id="rails"></div><div id="train"></div></div>
+  <div id="choices"></div>
+</section>
+
+<script src="/shared/lines.js"></script>
+<script src="/shared/voice.js"></script>
+<script src="/shared/kit.js"></script>
+<script>
+(() => {
+  const { $, pick, shuffle, sleep } = Kit;
+
+  const THEMES = [
+    ['🔴', '🔵', '🟡', '🟢', '🟣'],
+    ['🍎', '🍌', '🍇', '🍓', '🍊'],
+    ['🐶', '🐱', '🐰', '🐻', '🐸'],
+    ['🐠', '🐙', '🐬', '🦀', '🐳'],
+    ['🌙', '⭐', '🪐', '🚀', '☀️'],
+    ['🦕', '🦖', '🥚', '🌋', '🌴'],
+    ['👑', '💎', '🦄', '🏰', '🌸'],
+  ];
+  const CAR_COLORS = ['#f87171', '#fb923c', '#facc15', '#4ade80', '#60a5fa', '#a78bfa', '#f472b6'];
+
+  // each level: how the repeating unit looks, how many cars, and which cars are empty
+  //   letters are items; lower case = same item but small
+  const LEVELS = [
+    { units: ['AB'], cars: 5, blanks: 'end1', themes: [0] },
+    { units: ['AB'], cars: 5, blanks: 'end1' },
+    { units: ['AAB', 'ABB'], cars: 6, blanks: 'end1' },
+    { units: ['ABC'], cars: 6, blanks: 'end1' },
+    { units: ['AB', 'ABC'], cars: 6, blanks: 'middle' },
+    { units: ['AABB'], cars: 7, blanks: 'end1' },
+    { units: ['Aa', 'Aaa', 'aA'], cars: 6, blanks: 'end1' },
+    { units: ['ABC', 'AAB'], cars: 7, blanks: 'end2' },
+  ];
+  const STREAK_TO_LEVEL_UP = 3;
+
+  const save = Kit.store('pattern-train');
+  const saved = save.get({ level: 0, stickers: 0 });
+  let level = Math.min(saved.level, LEVELS.length - 1), streak = 0;
+  let train = null, busy = false, misses = 0;
+
+  function paintStickers() {
+    const n = saved.stickers;
+    $('stickers').textContent = n ? (n > 12 ? '🚂 × ' + n : '🚂'.repeat(n)) : '🚂';
+    $('stickers').style.opacity = n ? 1 : .5;
+  }
+
+  function makeTrain() {
+    const L = LEVELS[level];
+    const theme = L.themes ? THEMES[pick(L.themes)] : pick(THEMES);
+    const [A, B, C] = shuffle(theme);
+    const unit = pick(L.units);
+    const items = { A: { e: A, s: 1 }, B: { e: B, s: 1 }, C: { e: C, s: 1 }, a: { e: A, s: .55 } };
+    const seq = Array.from({ length: L.cars }, (_, i) => items[unit[i % unit.length]]);
+    let blanks;
+    if (L.blanks === 'end1') blanks = [L.cars - 1];
+    else if (L.blanks === 'end2') blanks = [L.cars - 2, L.cars - 1];
+    else blanks = [pick([...Array(L.cars).keys()].filter(i => i >= unit.length))];
+    // the choices: always include the right item(s) plus look-alikes from the same theme
+    const key = it => it.e + it.s;
+    const pool = new Map();
+    for (const i of blanks) pool.set(key(seq[i]), seq[i]);
+    const extras = shuffle([...Object.values(items).filter(it => unit.includes(Object.keys(items).find(k => items[k] === it))),
+      ...theme.map(e => ({ e, s: 1 })), ...(unit.includes('a') ? [{ e: A, s: .55 }, { e: B, s: .55 }] : [])]);
+    for (const it of extras) { if (pool.size >= 3) break; pool.set(key(it), it); }
+    return { seq, blanks, filled: [], choices: shuffle([...pool.values()]), car: pick(CAR_COLORS), unit };
+  }
+
+  function sizes() {
+    const n = train.seq.length + 1.4;
+    const car = Math.min(140, (innerWidth - 60) / n - 16, innerHeight * .2);
+    return { car, font: car * .62 };
+  }
+
+  function paintTrain() {
+    const t = $('train'); t.innerHTML = '';
+    const { car, font } = sizes();
+    const eng = document.createElement('div'); eng.className = 'engine'; eng.textContent = '🚂';
+    eng.style.fontSize = car * 1.25 + 'px';
+    t.appendChild(eng);
+    train.seq.forEach((it, i) => {
+      const link = document.createElement('div'); link.className = 'link'; t.appendChild(link);
+      const c = document.createElement('div'); c.className = 'car';
+      c.style.width = car + 'px'; c.style.height = car * .9 + 'px';
+      c.style.background = train.car;
+      const blank = train.blanks.includes(i) && !train.filled.includes(i);
+      if (blank) c.classList.add('blank');
+      if (blank && i === nextBlank()) c.classList.add('now');
+      const span = document.createElement('span'); span.className = 'item';
+      span.textContent = blank ? '?' : it.e;
+      span.style.fontSize = (blank ? font * .9 : font * it.s) + 'px';
+      c.appendChild(span); c.dataset.i = i;
+      t.appendChild(c);
+    });
+  }
+  const nextBlank = () => train.blanks.find(i => !train.filled.includes(i));
+
+  function paintChoices() {
+    const box = $('choices'); box.innerHTML = '';
+    for (const it of train.choices) {
+      const b = document.createElement('button'); b.className = 'btn choice';
+      const span = document.createElement('span'); span.className = 'item'; span.textContent = it.e;
+      span.style.transform = `scale(${it.s})`;
+      b.appendChild(span); b.onclick = () => choose(it, b);
+      box.appendChild(b);
+    }
+  }
+
+  function whistle() { Kit.tone(587, .35, { type: 'triangle', vol: .14 }); Kit.tone(740, .35, { type: 'triangle', vol: .1 }); Kit.tone(587, .4, { type: 'triangle', vol: .14, delay: .4 }); Kit.tone(740, .4, { type: 'triangle', vol: .1, delay: .4 }); }
+  function chug(n = 6, gap = .16) { for (let i = 0; i < n; i++) Kit.tone(110, .1, { type: 'sawtooth', vol: .05, to: 60, delay: i * gap }); }
+  function smoke() { const e = document.querySelector('.engine'); if (e) Kit.burstAt(e, ['☁️', '💨'], 4, 70); }
+
+  async function arrive(first = false) {
+    busy = true; misses = 0;
+    train = makeTrain();
+    paintTrain(); $('choices').innerHTML = '';
+    const t = $('train');
+    t.classList.remove('arrive', 'leave'); t.style.transform = `translateX(${innerWidth + 50}px)`;
+    void t.offsetWidth;
+    t.classList.add('arrive'); t.style.transform = `translateX(${Math.max(0, (innerWidth - t.scrollWidth) / 2)}px)`;
+    chug(9); setTimeout(smoke, 500); setTimeout(smoke, 1100);
+    await sleep(1650);
+    whistle(); paintChoices(); busy = false;
+    Kit.say(first ? 'pt.intro' : LEVELS[level].blanks === 'middle' ? 'pt.missing' : 'pt.next');
+  }
+
+  async function choose(it, btn) {
+    if (busy) return;
+    const i = nextBlank(), want = train.seq[i];
+    const right = it.e === want.e && it.s === want.s;
+    if (!right) {
+      misses++; Kit.flash(btn, 'wobble'); Kit.sfx.oops(); Kit.say('pt.tryAgain');
+      if (misses >= 2) [...$('choices').children].forEach((b, k) => b.classList.toggle('hint', train.choices[k] === want || (train.choices[k].e === want.e && train.choices[k].s === want.s)));
+      return;
+    }
+    busy = true;
+    // the item flies up into its car
+    const car = document.querySelector(`.car[data-i="${i}"]`), br = btn.getBoundingClientRect(), cr = car.getBoundingClientRect();
+    const fly = document.createElement('div'); fly.className = 'flyer'; fly.textContent = it.e;
+    const { font } = sizes();
+    fly.style.fontSize = font * it.s + 'px'; fly.style.left = (br.left + br.width / 2 - font * it.s / 2) + 'px'; fly.style.top = (br.top + br.height / 2 - font * it.s / 2) + 'px';
+    document.body.appendChild(fly);
+    await sleep(20);
+    fly.style.transform = `translate(${cr.left + cr.width / 2 - br.left - br.width / 2}px, ${cr.top + cr.height / 2 - br.top - br.height / 2}px)`;
+    Kit.sfx.pop();
+    await sleep(470); fly.remove();
+    train.filled.push(i); misses = 0;
+    paintTrain();
+    document.querySelector(`.car[data-i="${i}"]`).classList.add('filled');
+    Kit.sfx.ding();
+    if (nextBlank() !== undefined) { paintChoices(); busy = false; return; }
+    await win();
+  }
+
+  async function win() {
+    $('choices').innerHTML = '';
+    Kit.burstAt($('train'), ['⭐', '✨', '🎉'], 16, 220);
+    Kit.say(['pt.yes1', 'pt.yes2', 'pt.yes3']);
+    whistle();
+    saved.stickers++; streak++;
+    let levelUp = false;
+    if (streak >= STREAK_TO_LEVEL_UP && level < LEVELS.length - 1) { level++; streak = 0; levelUp = true; }
+    saved.level = level; save.set(saved); paintStickers();
+    await sleep(1500);
+    const t = $('train');
+    t.classList.remove('arrive'); t.classList.add('leave');
+    t.style.transform = `translateX(${-t.scrollWidth - 80}px)`;
+    chug(10, .13); smoke(); setTimeout(smoke, 400);
+    await sleep(1900);
+    if (levelUp) { Kit.sfx.yay(); Kit.say('pt.levelUp'); await sleep(2600); }
+    arrive();
+  }
+
+  Kit.soundButton('soundBtn');
+  paintStickers();
+  addEventListener('resize', () => { if (train && !busy) { paintTrain(); const t = $('train'); t.classList.remove('arrive'); t.style.transform = `translateX(${Math.max(0, (innerWidth - t.scrollWidth) / 2)}px)`; } });
+  setTimeout(() => arrive(true), 400);
+})();
+</script>
+</body>
+</html>

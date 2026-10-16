@@ -102,7 +102,15 @@
     "cl.name.Nugget": "566b5ee49b",
     "cl.name.Dotty": "7d08c9415d",
     "cl.name.Pompom": "63a3f7a3d4",
-    "cl.name.Zappy": "f19b0f022c"
+    "cl.name.Zappy": "f19b0f022c",
+    "pt.intro": "a947bd0633",
+    "pt.next": "89b95b8328",
+    "pt.missing": "255514450e",
+    "pt.tryAgain": "4d7b9517b2",
+    "pt.yes1": "f76de5c33c",
+    "pt.yes2": "e06bf41e3c",
+    "pt.yes3": "2ff9e97b8b",
+    "pt.levelUp": "429084c096"
   },
   "nl": {
     "hub.lang": "0eaed72984",
@@ -207,7 +215,15 @@
     "cl.name.Nugget": "728f0258e9",
     "cl.name.Dotty": "0e222f524d",
     "cl.name.Pompom": "c90545c0b4",
-    "cl.name.Zappy": "d2e969b287"
+    "cl.name.Zappy": "d2e969b287",
+    "pt.intro": "763b3622b6",
+    "pt.next": "ae9ee80402",
+    "pt.missing": "5014305643",
+    "pt.tryAgain": "fcdca6af97",
+    "pt.yes1": "b380836f34",
+    "pt.yes2": "057b16ccbc",
+    "pt.yes3": "40a8d5c964",
+    "pt.levelUp": "8c3eb97d66"
   },
   "voices": {
     "en": "Evan (Enhanced)",

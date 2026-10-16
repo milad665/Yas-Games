@@ -42,4 +42,11 @@ self.GAMES = [
     extras: ['🦄', '🦖', '👽', '🐰', '💖'],
     colors: ['#d9f99d', '#a7f3d0', '#fef08a'],
   },
+  {
+    name: 'Pattern Train',
+    path: 'games/pattern-train/',
+    art: '🚂',
+    extras: ['🍎', '🍌', '🔴', '🔵', '❓'],
+    colors: ['#bae6fd', '#bbf7d0', '#fef08a'],
+  },
 ];

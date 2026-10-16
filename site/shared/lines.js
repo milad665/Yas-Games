@@ -118,4 +118,14 @@ self.VOICE_LINES = {
   'cl.name.Dotty':     { en: 'Dotty!', nl: 'Dotty!' },
   'cl.name.Pompom':    { en: 'Pompom!', nl: 'Pompom!' },
   'cl.name.Zappy':     { en: 'Zappy!', nl: 'Zappy!' },
+
+  // ---------- Pattern Train ----------
+  'pt.intro':        { en: 'All aboard! Help finish the pattern on the train. What comes next?', nl: 'Instappen! Maak het patroon op de trein af. Wat komt hierna?' },
+  'pt.next':         { en: 'What comes next?',                      nl: 'Wat komt hierna?' },
+  'pt.missing':      { en: 'What is missing?',                      nl: 'Wat ontbreekt er?' },
+  'pt.tryAgain':     { en: 'Hmm, try another one!',                 nl: 'Hmm, probeer een andere!' },
+  'pt.yes1':         { en: 'Yes! Choo choo!',                       nl: 'Ja! Tsjoek tsjoek!' },
+  'pt.yes2':         { en: 'Great job!',                            nl: 'Goed gedaan!' },
+  'pt.yes3':         { en: 'You got it!',                           nl: 'Helemaal goed!' },
+  'pt.levelUp':      { en: 'Wow, you are getting so good! Here comes a trickier train!', nl: 'Wauw, jij wordt er echt goed in! Daar komt een moeilijkere trein!' },
 };
