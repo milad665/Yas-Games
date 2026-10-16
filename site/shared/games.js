@@ -21,4 +21,11 @@ self.GAMES = [
     extras: ['🔋', '⚙️', '⬆️', '➡️', '🔧'],
     colors: ['#a5f3fc', '#93c5fd', '#c4b5fd'],
   },
+  {
+    name: 'Music Painter',
+    path: 'games/music-painter/',
+    art: '🎨',
+    extras: ['🎵', '🎹', '🥁', '🎺', '🔔'],
+    colors: ['#fde68a', '#fbcfe8', '#bfdbfe'],
+  },
 ];

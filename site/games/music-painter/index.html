@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Music Painter">
+<meta name="theme-color" content="#fff1d6">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="stylesheet" href="/shared/kit.css">
+<title>Music Painter</title>
+<style>
+  body { background: linear-gradient(160deg, #fff1d6 0%, #ffe0f0 50%, #e0ecff 100%); }
+  #app { flex-direction: column; gap: 12px; padding: max(14px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(14px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left)); }
+  .bar { display: flex; align-items: center; gap: 12px; }
+  .bar .btn { width: 66px; height: 66px; font-size: 32px; }
+  .spacer { flex: 1; }
+  #playBtn { width: 96px; height: 96px; font-size: 48px; background: #4ade80; }
+  #playBtn.playing { background: #f87171; }
+  #loopBtn.on, #slowBtn.on { background: #fde68a; box-shadow: 0 6px 0 rgba(40,50,90,.18), 0 0 0 5px #f59e0b; }
+
+  #paper {
+    flex: 1; min-height: 0; position: relative; border-radius: 28px; overflow: hidden; background: #fff;
+    box-shadow: 0 8px 30px rgba(0,0,0,.12), inset 0 0 0 6px #ffe7f4;
+  }
+  #rows { position: absolute; inset: 0; display: flex; flex-direction: column; pointer-events: none; }
+  #rows div { flex: 1; }
+  #canvas { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: none; }
+  #playhead {
+    position: absolute; top: 0; bottom: 0; width: 8px; margin-left: -4px; left: 0; display: none; pointer-events: none;
+    background: linear-gradient(#fde047, #f472b6); box-shadow: 0 0 18px 6px rgba(253, 224, 71, .7); border-radius: 4px;
+  }
+  #playhead::before { content: '⭐'; position: absolute; top: -6px; left: 50%; translate: -50% 0; font-size: 34px; }
+  .note { position: absolute; pointer-events: none; font-size: 30px; translate: -50% -50%; animation: noteUp .7s ease-out forwards; }
+  @keyframes noteUp { from { opacity: 1; transform: scale(.6); } to { opacity: 0; transform: translateY(-50px) scale(1.4); } }
+  .ring { position: absolute; pointer-events: none; border-radius: 50%; translate: -50% -50%; border: 5px solid; animation: ring .5s ease-out forwards; }
+  @keyframes ring { from { width: 10px; height: 10px; opacity: 1; } to { width: 80px; height: 80px; opacity: 0; } }
+
+  #swatches { justify-content: center; flex-wrap: wrap; }
+  .swatch {
+    width: 74px; height: 74px; border-radius: 50%; border: 5px solid #fff; cursor: pointer; padding: 0; font-size: 32px;
+    box-shadow: 0 5px 0 rgba(0,0,0,.18); transition: transform .12s; touch-action: manipulation; display: grid; place-items: center;
+  }
+  .swatch.sel { transform: scale(1.2); border-color: #33415c; }
+</style>
+</head>
+<body>
+
+<section id="app" class="screen on">
+  <div class="bar">
+    <a class="btn" href="../../" aria-label="Back to Yas's Games">🏠</a>
+    <button id="undoBtn" class="btn" aria-label="Undo">↩️</button>
+    <button id="clearBtn" class="btn" aria-label="Clear">🧽</button>
+    <div class="spacer"></div>
+    <button id="slowBtn" class="btn" aria-label="Slow">🐢</button>
+    <button id="loopBtn" class="btn" aria-label="Repeat">🔁</button>
+    <button id="playBtn" class="btn" aria-label="Play">▶️</button>
+    <div class="spacer"></div>
+    <button id="soundBtn" class="btn" aria-label="Sound on or off">🔊</button>
+  </div>
+  <div id="paper">
+    <div id="rows"></div>
+    <canvas id="canvas"></canvas>
+    <div id="playhead"></div>
+  </div>
+  <div id="swatches" class="bar"></div>
+</section>
+
+<script src="/shared/lines.js"></script>
+<script src="/shared/voice.js"></script>
+<script src="/shared/kit.js"></script>
+<script>
+(() => {
+  const { $, sleep } = Kit;
+
+  // the picture is a grid of notes: columns are time, rows are pitch (top = high)
+  const COLS = 24, ROWS = 10;
+  // C major pentatonic, high to low: always sounds nice together
+  const PITCHES = [659.3, 587.3, 523.3, 440.0, 392.0, 329.6, 293.7, 261.6, 220.0, 196.0];
+  const ROW_TINTS = ['#fff5f5', '#fff8f0', '#fffbea', '#f7fff0', '#f0fff6', '#f0fbff', '#f2f5ff', '#f6f2ff', '#fcf2ff', '#fff2f8'];
+
+  const INSTRUMENTS = [
+    { name: 'piano',     color: '#ef4444', icon: '🎹' },
+    { name: 'xylophone', color: '#f97316', icon: '🪇' },
+    { name: 'bells',     color: '#eab308', icon: '🔔' },
+    { name: 'flute',     color: '#22c55e', icon: '🪈' },
+    { name: 'harp',      color: '#3b82f6', icon: '🎵' },
+    { name: 'trumpet',   color: '#a855f7', icon: '🎺' },
+    { name: 'drum',      color: '#92400e', icon: '🥁' },
+  ];
+
+  // ---------- instruments (little synths) ----------
+  function play(inst, freq, when = 0) {
+    if (Kit.muted) return;
+    const a = Kit.audio(); if (!a) return;
+    const t = a.currentTime + when;
+    const out = a.createGain(); out.connect(a.destination);
+    const osc = (type, f, gain, attack, decay, detune = 0) => {
+      const o = a.createOscillator(), g = a.createGain();
+      o.type = type; o.frequency.value = f; o.detune.value = detune;
+      g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(gain, t + attack);
+      g.gain.exponentialRampToValueAtTime(.001, t + attack + decay);
+      o.connect(g).connect(out); o.start(t); o.stop(t + attack + decay + .05);
+      return o;
+    };
+    switch (inst) {
+      case 'piano':     osc('triangle', freq, .22, .005, .7); osc('sine', freq * 2, .05, .005, .4); break;
+      case 'xylophone': osc('sine', freq * 2, .25, .002, .25); osc('sine', freq * 8, .04, .002, .06); break;
+      case 'bells':     osc('sine', freq * 2, .14, .002, 1.4); osc('sine', freq * 5.4, .05, .002, .7); break;
+      case 'flute':     { const o = osc('sine', freq * 2, .16, .08, .55); const lfo = a.createOscillator(), lg = a.createGain();
+                          lfo.frequency.value = 5; lg.gain.value = 6; lfo.connect(lg).connect(o.frequency); lfo.start(t); lfo.stop(t + .7); break; }
+      case 'harp':      osc('triangle', freq, .2, .003, .9); osc('triangle', freq, .08, .003, .9, 8); break;
+      case 'trumpet': {
+        const f = a.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = 1800; f.connect(out);
+        const o = a.createOscillator(), g = a.createGain(); o.type = 'sawtooth'; o.frequency.value = freq;
+        g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.09, t + .04); g.gain.exponentialRampToValueAtTime(.001, t + .45);
+        o.connect(g).connect(f); o.start(t); o.stop(t + .5); break;
+      }
+      case 'drum': {
+        const o = a.createOscillator(), g = a.createGain(); o.type = 'sine';
+        o.frequency.setValueAtTime(freq * .6, t); o.frequency.exponentialRampToValueAtTime(40, t + .25);
+        g.gain.setValueAtTime(.5, t); g.gain.exponentialRampToValueAtTime(.001, t + .3);
+        o.connect(g).connect(out); o.start(t); o.stop(t + .32);
+        const n = a.createBufferSource(), buf = a.createBuffer(1, a.sampleRate * .08, a.sampleRate), d = buf.getChannelData(0);
+        for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / d.length);
+        const ng = a.createGain(); ng.gain.value = .12; n.buffer = buf; n.connect(ng).connect(out); n.start(t);
+        break;
+      }
+    }
+  }
+
+  // ---------- state ----------
+  const save = Kit.store('music-painter');
+  const saved = save.get({ strokes: [] });
+  let strokes = saved.strokes;   // { inst, pts: [[x, y], ...] } in 0..1 paper coords
+  let inst = 0, cur = null, curId = null, lastCell = null;
+  let grid = [];                 // grid[col][row] = instrument index or -1
+  let slow = false, loop = false, playing = false, playToken = 0;
+
+  const cv = $('canvas'), ctx = cv.getContext('2d');
+  let dpr = 1;
+
+  ROW_TINTS.forEach(c => { const d = document.createElement('div'); d.style.background = c; $('rows').appendChild(d); });
+
+  INSTRUMENTS.forEach((it, i) => {
+    const b = document.createElement('button');
+    b.className = 'swatch' + (i === 0 ? ' sel' : '');
+    b.style.background = it.color; b.textContent = it.icon;
+    b.setAttribute('aria-label', it.name);
+    b.onclick = () => {
+      inst = i;
+      document.querySelectorAll('.swatch').forEach(s => s.classList.toggle('sel', s === b));
+      play(it.name, PITCHES[3]); Kit.say('mp.' + it.name);
+    };
+    $('swatches').appendChild(b);
+  });
+
+  function size() {
+    const r = $('paper').getBoundingClientRect();
+    dpr = Math.min(2, devicePixelRatio || 1);
+    cv.width = Math.round(r.width * dpr); cv.height = Math.round(r.height * dpr);
+    redraw();
+  }
+  function brush() { return Math.min(cv.width / COLS, cv.height / ROWS) * .85; }
+  function cellOf(x, y) { return [Math.min(COLS - 1, Math.floor(x * COLS)), Math.min(ROWS - 1, Math.floor(y * ROWS))]; }
+
+  function drawSeg(st, a, b) {
+    ctx.strokeStyle = INSTRUMENTS[st.inst].color;
+    ctx.lineWidth = brush(); ctx.lineCap = ctx.lineJoin = 'round';
+    ctx.beginPath(); ctx.moveTo(a[0] * cv.width, a[1] * cv.height); ctx.lineTo(b[0] * cv.width, b[1] * cv.height); ctx.stroke();
+  }
+  // mark every grid cell the line between two points passes through
+  function markSeg(st, a, b) {
+    const steps = Math.ceil(Math.max(Math.abs(b[0] - a[0]) * COLS, Math.abs(b[1] - a[1]) * ROWS) * 3) + 1;
+    for (let i = 0; i <= steps; i++) {
+      const [c, r] = cellOf(a[0] + (b[0] - a[0]) * i / steps, a[1] + (b[1] - a[1]) * i / steps);
+      grid[c][r] = st.inst;
+    }
+  }
+  function redraw() {
+    ctx.clearRect(0, 0, cv.width, cv.height);
+    grid = Array.from({ length: COLS }, () => new Array(ROWS).fill(-1));
+    for (const st of strokes) {
+      drawSeg(st, st.pts[0], st.pts[0]); markSeg(st, st.pts[0], st.pts[0]);
+      for (let i = 1; i < st.pts.length; i++) { drawSeg(st, st.pts[i - 1], st.pts[i]); markSeg(st, st.pts[i - 1], st.pts[i]); }
+    }
+    $('undoBtn').disabled = $('clearBtn').disabled = !strokes.length;
+  }
+  function persist() { save.set({ strokes, heardTip: saved.heardTip }); }
+
+  function pt(e) { const r = cv.getBoundingClientRect(); return [Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)), Math.max(0, Math.min(1, (e.clientY - r.top) / r.height))]; }
+  function sing(p) {
+    const [c, r] = cellOf(p[0], p[1]), key = c + ',' + r;
+    if (key === lastCell) return;
+    lastCell = key; play(INSTRUMENTS[inst].name, PITCHES[r]);
+  }
+
+  cv.addEventListener('pointerdown', e => {
+    if (cur || playing) return;
+    e.preventDefault(); cv.setPointerCapture(e.pointerId); curId = e.pointerId;
+    const p = pt(e);
+    cur = { inst, pts: [p] }; strokes.push(cur); lastCell = null;
+    drawSeg(cur, p, p); markSeg(cur, p, p); sing(p);
+    $('undoBtn').disabled = $('clearBtn').disabled = false;
+  });
+  cv.addEventListener('pointermove', e => {
+    if (!cur || e.pointerId !== curId) return;
+    const evs = e.getCoalescedEvents ? e.getCoalescedEvents() : [e];
+    for (const ev of (evs.length ? evs : [e])) {
+      const p = pt(ev), prev = cur.pts[cur.pts.length - 1];
+      if (Math.hypot(p[0] - prev[0], p[1] - prev[1]) < .003) continue;
+      cur.pts.push(p); drawSeg(cur, prev, p); markSeg(cur, prev, p); sing(p);
+    }
+  });
+  const end = e => {
+    if (e.pointerId !== curId) return;
+    cur = null; curId = null; persist();
+    if (strokes.length === 1 && !saved.heardTip) { saved.heardTip = true; persist(); Kit.say('mp.highLow'); }
+  };
+  cv.addEventListener('pointerup', end);
+  cv.addEventListener('pointercancel', end);
+
+  $('undoBtn').onclick = () => { if (playing || !strokes.length) return; strokes.pop(); redraw(); persist(); Kit.sfx.oops(); };
+  $('clearBtn').onclick = () => {
+    if (playing || !strokes.length) return;
+    strokes = []; redraw(); persist(); Kit.sfx.whoosh();
+    Kit.flash($('paper'), 'wobble');
+  };
+  $('slowBtn').onclick = () => { slow = !slow; $('slowBtn').classList.toggle('on', slow); Kit.sfx.pop(); };
+  $('loopBtn').onclick = () => { loop = !loop; $('loopBtn').classList.toggle('on', loop); Kit.sfx.pop(); };
+
+  // ---------- playing the picture ----------
+  function sparkle(c, r, color) {
+    const paper = $('paper'), x = (c + .5) / COLS * paper.clientWidth, y = (r + .5) / ROWS * paper.clientHeight;
+    const n = document.createElement('div'); n.className = 'note'; n.textContent = Math.random() < .5 ? '🎵' : '🎶';
+    n.style.left = x + 'px'; n.style.top = y + 'px'; paper.appendChild(n);
+    const ring = document.createElement('div'); ring.className = 'ring'; ring.style.borderColor = color;
+    ring.style.left = x + 'px'; ring.style.top = y + 'px'; paper.appendChild(ring);
+    setTimeout(() => { n.remove(); ring.remove(); }, 750);
+  }
+
+  async function start() {
+    if (playing) return stop();
+    if (!strokes.length) { Kit.sfx.oops(); Kit.say('mp.empty'); return; }
+    playing = true; const token = ++playToken;
+    $('playBtn').classList.add('playing'); $('playBtn').textContent = '⏹️';
+    Kit.say('mp.listen');
+    await sleep(900);
+    const head = $('playhead'); head.style.display = 'block';
+    // skip the empty space before the first note and after the last
+    const used = grid.map((col, c) => col.some(v => v >= 0) ? c : -1).filter(c => c >= 0);
+    const first = used[0], last = used[used.length - 1];
+    do {
+      for (let c = first; c <= last && token === playToken; c++) {
+        head.style.left = ((c + .5) / COLS * 100) + '%';
+        grid[c].forEach((v, r) => { if (v >= 0) { play(INSTRUMENTS[v].name, PITCHES[r]); sparkle(c, r, INSTRUMENTS[v].color); } });
+        await sleep(slow ? 360 : 220);
+      }
+      if (loop && token === playToken) await sleep(slow ? 500 : 300);
+    } while (loop && token === playToken);
+    if (token !== playToken) return;
+    stop();
+    Kit.sfx.yay(); Kit.burstAt($('playBtn'), ['🎵', '🎶', '⭐', '✨'], 14, 160);
+    Kit.say(['mp.bravo1', 'mp.bravo2']);
+  }
+  function stop() {
+    playToken++; playing = false;
+    $('playhead').style.display = 'none';
+    $('playBtn').classList.remove('playing'); $('playBtn').textContent = '▶️';
+  }
+  $('playBtn').onclick = start;
+
+  Kit.soundButton('soundBtn');
+  addEventListener('resize', size);
+  size();
+  Kit.say(strokes.length ? 'mp.welcomeBack' : 'mp.intro');
+})();
+</script>
+</body>
+</html>

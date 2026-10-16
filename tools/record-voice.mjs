@@ -2,7 +2,7 @@
 // Records every line in site/shared/lines.js with a natural Apple voice (macOS only),
 // saving site/voice/<lang>/<key>.mp3 and site/voice/manifest.json.
 //
-//   node tools/record-voice.mjs                    use the best installed voice per language
+//   node tools/record-voice.mjs                    same voices as last time (or the best installed)
 //   node tools/record-voice.mjs --en "Zoe (Premium)" --nl "Xander (Enhanced)"
 //   node tools/record-voice.mjs --force            re-record everything
 //   node tools/record-voice.mjs --list             show which voices would be used
@@ -47,10 +47,17 @@ function bestVoice(lang, voices) {
   return ok[0] && rank(ok[0]) < 90 ? ok[0].name : null;
 }
 
+const manifestPath = path.join(OUT, 'manifest.json');
+let manifest = {};
+try { manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8')); } catch {}
+
 const voices = installedVoices();
+const installed = name => voices.some(v => v.name === name);
 const chosen = {};
 for (const lang of Object.keys(LANGS)) {
-  chosen[lang] = opt('--' + lang) || bestVoice(lang, voices);
+  // keep the voice used last time so new lines match the old ones
+  const previous = manifest.voices && manifest.voices[lang];
+  chosen[lang] = opt('--' + lang) || (installed(previous) ? previous : null) || bestVoice(lang, voices);
   if (chosen[lang] && !voices.some(v => v.name === chosen[lang])) {
     console.error(`✗ Voice "${chosen[lang]}" is not installed.`); process.exit(1);
   }
@@ -68,9 +75,6 @@ if (missing.length) {
 }
 
 // ---- record ----
-const manifestPath = path.join(OUT, 'manifest.json');
-let manifest = {};
-try { manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8')); } catch {}
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'yas-voice-'));
 let made = 0;
 

@@ -49,4 +49,20 @@ self.VOICE_LINES = {
   'rb.win3':         { en: 'Hooray! Great programming!',            nl: 'Hoera! Goed geprogrammeerd!' },
   'rb.allDone':      { en: 'You finished every level! You are a super robot programmer!',
                        nl: 'Je hebt alle levels gehaald! Jij bent een super robotprogrammeur!' },
+
+  // ---------- Music Painter ----------
+  'mp.intro':        { en: 'Paint a picture, and it becomes a song! Then press play.', nl: 'Schilder een tekening, dan wordt het een liedje! Druk daarna op afspelen.' },
+  'mp.welcomeBack':  { en: 'Your song is still here! Press play to hear it.', nl: 'Je liedje is er nog! Druk op afspelen om het te horen.' },
+  'mp.highLow':      { en: 'Paint up high for high sounds, and down low for low sounds!', nl: 'Bovenaan klinkt hoog, en onderaan klinkt laag!' },
+  'mp.listen':       { en: "Let's listen!",                         nl: 'Luister maar!' },
+  'mp.empty':        { en: 'Paint something first!',                nl: 'Schilder eerst iets!' },
+  'mp.bravo1':       { en: 'What a beautiful song!',                nl: 'Wat een mooi liedje!' },
+  'mp.bravo2':       { en: 'Bravo! You made music!',                nl: 'Bravo! Jij hebt muziek gemaakt!' },
+  'mp.piano':        { en: 'Piano!',                                nl: 'Piano!' },
+  'mp.xylophone':    { en: 'Xylophone!',                            nl: 'Xylofoon!' },
+  'mp.bells':        { en: 'Bells!',                                nl: 'Belletjes!' },
+  'mp.flute':        { en: 'Flute!',                                nl: 'Fluit!' },
+  'mp.harp':         { en: 'Harp!',                                 nl: 'Harp!' },
+  'mp.trumpet':      { en: 'Trumpet!',                              nl: 'Trompet!' },
+  'mp.drum':         { en: 'Drum!',                                 nl: 'Trommel!' },
 };
