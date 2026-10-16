@@ -63,4 +63,11 @@ self.GAMES = [
     extras: ['🤖', '🦾', '⚙️', '📋', '🔧'],
     colors: ['#e2e8f0', '#bfdbfe', '#fde68a'],
   },
+  {
+    name: 'Counting Garden',
+    path: 'games/counting-garden/',
+    art: '🌻',
+    extras: ['🌷', '🍓', '🥕', '🐝', '💧'],
+    colors: ['#bbf7d0', '#fef08a', '#fbcfe8'],
+  },
 ];

@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Counting Garden">
+<meta name="theme-color" content="#bae6fd">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="stylesheet" href="/shared/kit.css">
+<title>Counting Garden</title>
+<style>
+  body { background: linear-gradient(#bae6fd 0%, #e0f2fe 38%, #86efac 38%, #4ade80 100%); }
+  #game { flex-direction: column; align-items: center; padding: max(14px, env(safe-area-inset-top)) 16px max(14px, env(safe-area-inset-bottom)); gap: 2vh; }
+  .deco { position: absolute; translate: -50% -50%; line-height: 1; pointer-events: none; }
+  #flowers { position: absolute; top: max(24px, env(safe-area-inset-top)); left: 50%; translate: -50% 0; font-size: 28px; background: rgba(255,255,255,.7); border-radius: 999px; padding: 4px 16px; min-height: 46px; z-index: 5; max-width: 50vw; text-align: center; }
+
+  #card {
+    margin-top: 70px; background: #fff; border-radius: 28px; padding: 10px 26px; display: flex; align-items: center; gap: 20px;
+    box-shadow: 0 8px 0 rgba(0,0,0,.1); min-height: 110px; min-width: 120px; justify-content: center;
+  }
+  #card .digit { font-size: 84px; font-weight: 900; color: #16a34a; line-height: 1; }
+  .dots { display: grid; grid-template-columns: repeat(5, 18px); gap: 6px; }
+  .dots i { width: 18px; height: 18px; border-radius: 50%; background: #f472b6; }
+  #card.ask .digit { color: #f59e0b; }
+
+  #bed {
+    position: relative; width: min(92vw, 900px); flex: 1; max-height: 52vh; border-radius: 40px;
+    background: radial-gradient(circle at 30% 30%, #a16207, #78350f); box-shadow: inset 0 10px 30px rgba(0,0,0,.35), 0 10px 0 #451a03;
+    display: grid; grid-template-columns: repeat(5, 1fr); grid-template-rows: repeat(2, 1fr); padding: 3%; gap: 3%;
+  }
+  #bed.free { display: block; }
+  .hole { border-radius: 50%; background: radial-gradient(circle, #451a03 0%, #57290a 60%, transparent 62%); display: grid; place-items: center; cursor: pointer; touch-action: manipulation; position: relative; }
+  .hole span { line-height: 1; transition: transform .35s cubic-bezier(.3,1.6,.5,1); }
+  .hole .seed { font-size: min(5vw, 5vh); }
+  .hole .bloom { font-size: min(10vw, 9vh); animation: grow .7s cubic-bezier(.3,1.6,.5,1) both; transform-origin: 50% 100%; }
+  @keyframes grow { from { transform: scale(0) translateY(30%); } to { transform: scale(1); } }
+  .counted { position: absolute; top: -8px; right: 8%; font-size: 22px; font-weight: 900; background: #fff; border-radius: 999px; width: 34px; height: 34px; display: grid; place-items: center; box-shadow: 0 3px 0 rgba(0,0,0,.15); }
+  .crop { position: absolute; translate: -50% -50%; font-size: min(9vw, 9vh); line-height: 1; cursor: pointer; touch-action: manipulation; transition: transform .5s ease-in, opacity .5s; }
+  .crop.picked { pointer-events: none; }
+  .crop.glow { filter: drop-shadow(0 0 10px #fde047) drop-shadow(0 0 10px #fde047); transform: scale(1.25); }
+  .drop { position: absolute; font-size: 30px; pointer-events: none; animation: rain .6s ease-in forwards; }
+  @keyframes rain { from { transform: translateY(-80px); opacity: 1; } to { transform: translateY(10px); opacity: 0; } }
+
+  #bottom { display: flex; align-items: center; gap: 30px; min-height: 120px; }
+  #can { width: 120px; height: 120px; font-size: 66px; background: #7dd3fc; }
+  #basket { font-size: 70px; position: relative; }
+  #basketCount { position: absolute; right: -14px; top: -6px; font-size: 26px; font-weight: 900; background: #fff; border-radius: 999px; min-width: 40px; height: 40px; display: grid; place-items: center; box-shadow: 0 3px 0 rgba(0,0,0,.15); }
+  #answers { display: flex; gap: 22px; }
+  .num { width: 120px; height: 120px; border-radius: 30px; display: flex; flex-direction: column; gap: 4px; align-items: center; justify-content: center; }
+  .num b { font-size: 56px; line-height: 1; color: #f59e0b; }
+  .num .dots { grid-template-columns: repeat(5, 11px); gap: 3px; }
+  .num .dots i { width: 11px; height: 11px; }
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<section id="game" class="screen on">
+  <a class="btn corner left" href="../../" aria-label="Back to Yas's Games">🏠</a>
+  <button id="soundBtn" class="btn corner right" aria-label="Sound on or off">🔊</button>
+  <div class="deco" style="left:88%;top:16%;font-size:11vmin">☀️</div>
+  <div class="deco" style="left:12%;top:20%;font-size:10vmin">☁️</div>
+  <div class="deco" style="left:6%;top:70%;font-size:9vmin">🌳</div>
+  <div class="deco" style="left:95%;top:72%;font-size:8vmin">🏡</div>
+  <div id="flowers"></div>
+  <div id="card"></div>
+  <div id="bed"></div>
+  <div id="bottom">
+    <div id="basket" class="hidden">🧺<span id="basketCount">0</span></div>
+    <div id="answers" class="hidden"></div>
+    <button id="can" class="btn" aria-label="Water the garden">🚿</button>
+  </div>
+</section>
+
+<script src="/shared/lines.js"></script>
+<script src="/shared/voice.js"></script>
+<script src="/shared/kit.js"></script>
+<script>
+(() => {
+  const { $, rand, pick, shuffle, sleep } = Kit;
+  const BLOOMS = ['🌷', '🌻', '🌹', '🌼', '🪻', '🌺'];
+  const CROPS = ['🍓', '🥕', '🍅', '🍎', '🌽', '🫑', '🍆'];
+
+  const save = Kit.store('counting-garden');
+  const saved = save.get({ done: 0, flowers: 0 });
+  const maxNumber = () => Math.min(10, 3 + Math.floor(saved.done / 2));
+
+  let round = null, busy = false;
+
+  function dots(n) { return `<div class="dots">${'<i></i>'.repeat(n)}</div>`; }
+  function paintFlowers() { const n = saved.flowers; $('flowers').textContent = n ? (n > 10 ? '🌻 × ' + n : '🌻'.repeat(n)) : '🌱'; }
+  const countSay = n => Kit.say('cg.n' + n);
+
+  // ================= planting: plant exactly N seeds =================
+  function startPlant(first) {
+    const n = Math.floor(rand(1, maxNumber() + 1));
+    round = { type: 'plant', n, seeds: new Set(), bloom: pick(BLOOMS) };
+    $('card').className = ''; $('card').innerHTML = `<span class="digit">${n}</span>${dots(n)}`;
+    $('basket').classList.add('hidden'); $('answers').classList.add('hidden'); $('can').classList.remove('hidden');
+    const bed = $('bed'); bed.className = ''; bed.innerHTML = '';
+    for (let i = 0; i < 10; i++) {
+      const h = document.createElement('div'); h.className = 'hole'; h.dataset.i = i;
+      h.onclick = () => tapHole(i, h);
+      bed.appendChild(h);
+    }
+    busy = false;
+    Kit.say(first ? 'cg.intro' : null, 'cg.plant' + n);
+  }
+  function paintHoles() {
+    let k = 0;
+    document.querySelectorAll('.hole').forEach((h, i) => {
+      if (round.seeds.has(i)) { k++; h.innerHTML = `<span class="seed">🌰</span><span class="counted">${k}</span>`; }
+      else h.innerHTML = '';
+    });
+  }
+  function tapHole(i, h) {
+    if (busy || round.type !== 'plant') return;
+    if (round.seeds.has(i)) { round.seeds.delete(i); Kit.sfx.oops(); paintHoles(); return; }
+    round.seeds.add(i); paintHoles();
+    Kit.tone(300 + round.seeds.size * 60, .12, { type: 'triangle' });
+    if (round.seeds.size <= 10) countSay(round.seeds.size);
+  }
+  $('can').onclick = async () => {
+    if (busy || round.type !== 'plant') return;
+    const have = round.seeds.size, n = round.n;
+    // a little rain over the garden either way
+    busy = true;
+    const bed = $('bed').getBoundingClientRect();
+    for (let i = 0; i < 12; i++) setTimeout(() => {
+      const d = document.createElement('div'); d.className = 'drop'; d.textContent = '💧';
+      d.style.left = rand(bed.left, bed.right) + 'px'; d.style.top = rand(bed.top, bed.top + bed.height * .6) + 'px';
+      document.body.appendChild(d); setTimeout(() => d.remove(), 650);
+    }, i * 50);
+    Kit.tone(1200, .5, { type: 'sawtooth', vol: .03, to: 400 });
+    await sleep(700);
+    if (have < n) { Kit.sfx.oops(); Kit.say('cg.more'); Kit.flash($('card'), 'wobble'); busy = false; return; }
+    if (have > n) { Kit.sfx.oops(); Kit.say('cg.tooMany'); Kit.flash($('card'), 'wobble'); busy = false; return; }
+    // grow!
+    let k = 0;
+    for (const h of document.querySelectorAll('.hole')) {
+      if (!round.seeds.has(+h.dataset.i)) continue;
+      k++; h.innerHTML = `<span class="bloom">${round.bloom}</span>`;
+      Kit.tone(400 + k * 70, .2, { type: 'triangle' }); await sleep(180);
+    }
+    await win();
+  };
+
+  // ================= harvest: pick them all, then say how many =================
+  function startHarvest(first) {
+    const n = Math.floor(rand(2, maxNumber() + 1));
+    const crop = pick(CROPS);
+    round = { type: 'harvest', n, picked: 0, crop, asked: false };
+    $('card').className = 'ask'; $('card').innerHTML = `<span class="digit">?</span>`;
+    $('can').classList.add('hidden'); $('answers').classList.add('hidden'); $('basket').classList.remove('hidden');
+    $('basketCount').textContent = '0';
+    const bed = $('bed'); bed.className = 'free'; bed.innerHTML = '';
+    // scatter them without overlapping
+    const spots = [];
+    while (spots.length < n) {
+      const p = [rand(10, 90), rand(16, 84)];
+      if (spots.every(q => Math.hypot((q[0] - p[0]) * 1.6, q[1] - p[1]) > 22)) spots.push(p);
+    }
+    spots.forEach(([x, y]) => {
+      const c = document.createElement('div'); c.className = 'crop'; c.textContent = crop;
+      c.style.left = x + '%'; c.style.top = y + '%';
+      c.onclick = () => pickCrop(c);
+      bed.appendChild(c);
+    });
+    busy = false;
+    Kit.say(first ? 'cg.intro' : null, 'cg.harvest');
+  }
+  function pickCrop(c) {
+    if (busy || round.type !== 'harvest' || c.classList.contains('picked')) return;
+    c.classList.add('picked');
+    round.picked++; $('basketCount').textContent = round.picked;
+    const br = $('basket').getBoundingClientRect(), cr = c.getBoundingClientRect();
+    c.style.transform = `translate(${br.left + br.width / 2 - cr.left - cr.width / 2}px, ${br.top - cr.top}px) scale(.4)`;
+    c.style.opacity = '.0';
+    Kit.tone(350 + round.picked * 60, .12, { type: 'triangle' });
+    countSay(round.picked);
+    if (round.picked === round.n) setTimeout(ask, 900);
+  }
+  function ask() {
+    const n = round.n;
+    const options = new Set([n]);
+    while (options.size < 3) { const o = n + pick([-2, -1, 1, 2]); if (o >= 1 && o <= 10) options.add(o); }
+    const box = $('answers'); box.innerHTML = '';
+    for (const o of shuffle([...options])) {
+      const b = document.createElement('button'); b.className = 'btn num';
+      b.innerHTML = `<b>${o}</b>${dots(o)}`;
+      b.onclick = () => answer(o, b);
+      box.appendChild(b);
+    }
+    box.classList.remove('hidden');
+    $('basketCount').textContent = '?';
+    Kit.say('cg.howMany');
+  }
+  async function answer(o, b) {
+    if (busy) return;
+    if (o === round.n) {
+      busy = true;
+      $('card').innerHTML = `<span class="digit">${round.n}</span>${dots(round.n)}`;
+      $('basketCount').textContent = round.n;
+      return win();
+    }
+    // count again together: put them back and light them up one by one
+    busy = true; Kit.flash(b, 'wobble'); Kit.sfx.oops(); Kit.say('cg.again');
+    await sleep(1800);
+    const crops = [...document.querySelectorAll('.crop')];
+    crops.forEach(c => { c.style.transform = ''; c.style.opacity = '1'; });
+    await sleep(600);
+    for (let i = 0; i < crops.length; i++) {
+      crops[i].classList.add('glow'); countSay(i + 1); Kit.tone(350 + i * 60, .12, { type: 'triangle' });
+      await sleep(900); crops[i].classList.remove('glow');
+    }
+    Kit.say('cg.howMany');
+    busy = false;
+  }
+
+  // ================= between rounds =================
+  async function win() {
+    Kit.sfx.yay(); Kit.burstAt($('bed'), ['🌸', '⭐', '✨', '🦋'], 20, 260);
+    Kit.say(['cg.right1', 'cg.right2', 'cg.right3']);
+    saved.done++; saved.flowers++; save.set(saved); paintFlowers();
+    await sleep(2800);
+    next();
+  }
+  function next(first = false) { (saved.done % 2 === 0 ? startPlant : startHarvest)(first); }
+
+  Kit.soundButton('soundBtn');
+  paintFlowers();
+  next(true);
+})();
+</script>
+</body>
+</html>
