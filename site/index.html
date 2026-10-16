@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Yas's Games">
+<meta name="theme-color" content="#ffd6ec">
+<link rel="apple-touch-icon" href="icon.png">
+<link rel="icon" href="icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<title>Yas's Games</title>
+<style>
+  * { box-sizing: border-box; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; min-height: 100%; overscroll-behavior: none; }
+  body {
+    font-family: ui-rounded, "SF Pro Rounded", "Arial Rounded MT Bold", system-ui, sans-serif;
+    background: linear-gradient(170deg, #ffd6ec 0%, #e6d9ff 40%, #c9ecff 75%, #d8ffe0 100%);
+    background-attachment: fixed; color: #4a3b6b; overflow-x: hidden;
+    padding: max(24px, env(safe-area-inset-top)) max(20px, env(safe-area-inset-right)) max(32px, env(safe-area-inset-bottom)) max(20px, env(safe-area-inset-left));
+  }
+
+  /* floating sky decorations */
+  #sky { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+  .float { position: absolute; line-height: 1; opacity: .85; }
+  .cloud { animation: drift linear infinite; }
+  .balloon { bottom: -80px; animation: rise linear infinite; }
+  .twinkle { animation: twinkle 2.2s ease-in-out infinite; }
+  @keyframes drift { from { transform: translateX(-20vw); } to { transform: translateX(120vw); } }
+  @keyframes rise { from { transform: translateY(0) rotate(-6deg); } 50% { transform: translateY(-60vh) rotate(6deg); } to { transform: translateY(-130vh) rotate(-6deg); } }
+  @keyframes twinkle { 0%,100% { opacity: .9; scale: 1; } 50% { opacity: .25; scale: .6; } }
+
+  header { position: relative; z-index: 1; text-align: center; margin: 8px 0 clamp(24px, 5vh, 56px); }
+  h1 {
+    margin: 0; font-size: clamp(52px, 11vw, 120px); line-height: 1.05; letter-spacing: 1px;
+    font-weight: 900;
+  }
+  h1 .l {
+    display: inline-block; animation: wave 2.6s ease-in-out infinite;
+    -webkit-text-stroke: 3px #fff; paint-order: stroke fill;
+    text-shadow: 0 6px 0 rgba(90, 60, 140, .18);
+  }
+  h1 .sp { width: .35em; display: inline-block; }
+  h1 .sparkle { display: inline-block; font-size: .55em; vertical-align: middle; animation: spin 6s linear infinite; }
+  @keyframes wave { 0%,100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(-12px) rotate(-3deg); } }
+  @keyframes spin { to { rotate: 360deg; } }
+
+  main {
+    position: relative; z-index: 1; display: flex; flex-wrap: wrap; justify-content: center;
+    gap: clamp(20px, 4vw, 44px); max-width: 1200px; margin: 0 auto;
+  }
+  .game {
+    width: clamp(220px, 34vw, 320px); text-decoration: none; color: inherit; display: block;
+    animation: bob 3.4s ease-in-out infinite; touch-action: manipulation;
+  }
+  .game:nth-child(2n) { animation-delay: -1.2s; }
+  .game:nth-child(3n) { animation-delay: -2.3s; }
+  @keyframes bob { 0%,100% { translate: 0 0; } 50% { translate: 0 -10px; } }
+  .cover {
+    position: relative; aspect-ratio: 1; border-radius: 40px; border: 8px solid #fff; overflow: hidden;
+    box-shadow: 0 12px 0 rgba(90, 60, 140, .16), 0 18px 34px rgba(90, 60, 140, .2);
+    display: grid; place-items: center; transition: transform .15s;
+  }
+  .game:active .cover, .game.tapped .cover { transform: scale(.92) rotate(-2deg); }
+  .cover .art { font-size: clamp(96px, 15vw, 140px); filter: drop-shadow(0 8px 6px rgba(0,0,0,.18)); animation: wiggle 2.8s ease-in-out infinite; }
+  @keyframes wiggle { 0%,100% { rotate: -6deg; } 50% { rotate: 6deg; } }
+  .cover .extra { position: absolute; font-size: clamp(30px, 5vw, 44px); animation: twinkle 3s ease-in-out infinite; }
+  .name {
+    margin-top: 18px; text-align: center; font-size: clamp(22px, 3.2vw, 30px); font-weight: 800;
+    background: #fff; border-radius: 999px; padding: 8px 20px; box-shadow: 0 5px 0 rgba(90, 60, 140, .12);
+  }
+
+  .soon .cover { background: rgba(255,255,255,.45); border-style: dashed; box-shadow: none; }
+  .soon .art { opacity: .5; animation: none; }
+  .soon .name { opacity: .6; }
+  .soon { animation: none; pointer-events: none; }
+</style>
+</head>
+<body>
+  <div id="sky" aria-hidden="true"></div>
+
+  <header>
+    <h1 id="title" aria-label="Yas's Games"></h1>
+  </header>
+
+  <main id="games"></main>
+
+<script>
+  // ============================================================
+  //  Add new games here. Each game lives in /games/<folder>/
+  //  art:    a big emoji for the cover
+  //  extras: small emojis sprinkled around the cover
+  //  colors: the cover's gradient
+  // ============================================================
+  const GAMES = [
+    {
+      name: 'Magic Doodles',
+      path: 'games/magic-doodles/',
+      art: '🖍️',
+      extras: ['🐰', '🐠', '🚀', '🦕', '🏰'],
+      colors: ['#ffb3d9', '#c4b5fd', '#8fd3ff'],
+    },
+  ];
+
+  // a friendly "more coming" card so the shelf never looks empty
+  const SHOW_COMING_SOON = true;
+
+  const $ = id => document.getElementById(id);
+  const rand = (a, b) => a + Math.random() * (b - a);
+
+  // ---- title: bouncy rainbow letters ----
+  const palette = ['#ff5c8a', '#ff9f1c', '#f5c400', '#3cc954', '#2f9bff', '#9b5cff'];
+  const title = $('title');
+  const star = () => { const s = document.createElement('span'); s.className = 'sparkle'; s.textContent = '⭐'; return s; };
+  title.appendChild(star());
+  let li = 0;
+  for (const ch of "Yas's Games") {
+    const s = document.createElement('span');
+    if (ch === ' ') { s.className = 'sp'; }
+    else {
+      s.className = 'l'; s.textContent = ch;
+      s.style.color = palette[li % palette.length];
+      s.style.animationDelay = (li * .13) + 's';
+      li++;
+    }
+    title.appendChild(s);
+  }
+  title.appendChild(star());
+
+  // ---- game cards ----
+  const spots = [[14, 16], [84, 18], [12, 82], [86, 80], [50, 10]];
+  function card(g, soon) {
+    const a = document.createElement(soon ? 'div' : 'a');
+    a.className = 'game' + (soon ? ' soon' : '');
+    if (!soon) a.href = g.path;
+    const cover = document.createElement('div');
+    cover.className = 'cover';
+    if (!soon) cover.style.background = `linear-gradient(135deg, ${g.colors.join(', ')})`;
+    const art = document.createElement('div');
+    art.className = 'art'; art.textContent = g.art;
+    cover.appendChild(art);
+    (g.extras || []).forEach((e, i) => {
+      const x = document.createElement('div');
+      x.className = 'extra'; x.textContent = e;
+      const [l, t] = spots[i % spots.length];
+      x.style.left = `calc(${l}% - .5em)`; x.style.top = `calc(${t}% - .5em)`;
+      x.style.animationDelay = -(i * .6) + 's';
+      cover.appendChild(x);
+    });
+    const name = document.createElement('div');
+    name.className = 'name'; name.textContent = g.name;
+    a.append(cover, name);
+    if (!soon) a.addEventListener('click', e => {
+      // little pop + squish before we leave
+      e.preventDefault();
+      a.classList.add('tapped');
+      pop();
+      setTimeout(() => { location.href = g.path; }, 180);
+    });
+    return a;
+  }
+  for (const g of GAMES) $('games').appendChild(card(g));
+  if (SHOW_COMING_SOON) $('games').appendChild(card({ name: 'Coming soon', art: '🎁' }, true));
+
+  // ---- sky: drifting clouds, twinkling stars, rising balloons ----
+  const sky = $('sky');
+  function add(cls, text, css) {
+    const d = document.createElement('div');
+    d.className = 'float ' + cls; d.textContent = text;
+    Object.assign(d.style, css);
+    sky.appendChild(d);
+  }
+  for (let i = 0; i < 4; i++) add('cloud', '☁️', {
+    top: rand(4, 70) + '%', fontSize: rand(50, 90) + 'px',
+    animationDuration: rand(40, 70) + 's', animationDelay: -rand(0, 70) + 's',
+  });
+  for (let i = 0; i < 10; i++) add('twinkle', ['✨', '⭐', '💫'][i % 3], {
+    left: rand(2, 96) + '%', top: rand(2, 96) + '%', fontSize: rand(16, 30) + 'px',
+    animationDelay: -rand(0, 2.2) + 's',
+  });
+  for (let i = 0; i < 5; i++) add('balloon', '🎈', {
+    left: rand(3, 95) + '%', fontSize: rand(34, 54) + 'px',
+    animationDuration: rand(18, 30) + 's', animationDelay: -rand(0, 30) + 's',
+  });
+
+  // ---- tiny sound ----
+  let ac = null;
+  function pop() {
+    try {
+      ac = ac || new (window.AudioContext || window.webkitAudioContext)();
+      const t = ac.currentTime, o = ac.createOscillator(), g = ac.createGain();
+      o.frequency.setValueAtTime(520, t); o.frequency.exponentialRampToValueAtTime(1040, t + .12);
+      g.gain.setValueAtTime(.2, t); g.gain.exponentialRampToValueAtTime(.001, t + .15);
+      o.connect(g).connect(ac.destination); o.start(t); o.stop(t + .16);
+    } catch (e) {}
+  }
+
+  // coming back with the browser's back button: un-squish the card
+  addEventListener('pageshow', () => document.querySelectorAll('.tapped').forEach(a => a.classList.remove('tapped')));
+</script>
+</body>
+</html>

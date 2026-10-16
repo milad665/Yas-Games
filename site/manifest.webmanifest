@@ -1,0 +1,9 @@
+{
+  "name": "Yas's Games",
+  "short_name": "Yas's Games",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffd6ec",
+  "theme_color": "#ffd6ec",
+  "icons": [{ "src": "icon.png", "sizes": "512x512", "type": "image/png" }]
+}

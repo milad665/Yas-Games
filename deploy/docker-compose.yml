@@ -1,0 +1,7 @@
+services:
+  web:
+    image: ghcr.io/milad665/yas-games:${IMAGE_TAG:-latest}
+    container_name: yas-games
+    restart: unless-stopped
+    ports:
+      - "${PORT:-8080}:80"
