@@ -52,7 +52,7 @@
     gap: clamp(20px, 4vw, 44px); max-width: 1200px; margin: 0 auto;
   }
   .game {
-    width: clamp(220px, 34vw, 320px); text-decoration: none; color: inherit; display: block;
+    width: clamp(165px, 23vw, 250px); text-decoration: none; color: inherit; display: block;
     animation: bob 3.4s ease-in-out infinite; touch-action: manipulation;
   }
   .game:nth-child(2n) { animation-delay: -1.2s; }
@@ -64,11 +64,11 @@
     display: grid; place-items: center; transition: transform .15s;
   }
   .game:active .cover, .game.tapped .cover { transform: scale(.92) rotate(-2deg); }
-  .cover .art { font-size: clamp(96px, 15vw, 140px); filter: drop-shadow(0 8px 6px rgba(0,0,0,.18)); animation: wiggle 2.8s ease-in-out infinite; }
+  .cover .art { font-size: clamp(76px, 11vw, 116px); filter: drop-shadow(0 8px 6px rgba(0,0,0,.18)); animation: wiggle 2.8s ease-in-out infinite; }
   @keyframes wiggle { 0%,100% { rotate: -6deg; } 50% { rotate: 6deg; } }
-  .cover .extra { position: absolute; font-size: clamp(30px, 5vw, 44px); animation: twinkle 3s ease-in-out infinite; }
+  .cover .extra { position: absolute; font-size: clamp(24px, 3.6vw, 36px); animation: twinkle 3s ease-in-out infinite; }
   .name {
-    margin-top: 18px; text-align: center; font-size: clamp(22px, 3.2vw, 30px); font-weight: 800;
+    margin-top: 14px; text-align: center; font-size: clamp(18px, 2.4vw, 26px); font-weight: 800;
     background: #fff; border-radius: 999px; padding: 8px 20px; box-shadow: 0 5px 0 rgba(90, 60, 140, .12);
   }
 

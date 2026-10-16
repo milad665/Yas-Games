@@ -6,6 +6,14 @@ A little collection of creative, no-reading-needed games for Yas, made for the i
 | --- | --- |
 | **Magic Doodles** | Draw anything with your finger, tap ✨, and it comes alive with googly eyes and hops, flies, swims, floats or crawls around one of five worlds. |
 | **Beep Boop Robot** | Build your own robot from parts, then program it with arrow cards to reach its battery. Teaches sequencing and debugging. |
+| **Music Painter** | Colors are instruments and height is pitch: paint a picture, press play, and it becomes a song. |
+| **Story Theater** | Pick a stage, drag on characters and props, tap them to act, and film a story with her own voice. |
+| **Creature Lab** | Mix heads, bodies, legs, tails and wings into a creature with a silly name, then feed, bathe and play with it. |
+| **Pattern Train** | Finish the pattern on each train car; patterns grow from AB to AABB, big-small and gaps. |
+| **Shadow Match** | Drag each picture onto its shadow; later shadows are turned, resized or look-alikes. |
+| **Robot Factory** | Build robots from picture recipes, or find and fix the silly robot's mistakes. |
+| **Counting Garden** | Plant exactly the number shown, then harvest and count, from 1 to 10. |
+| **Animal Safari** | "Where is the lion?" / "Who says moo?" in English or Dutch; found animals fill a photo album. |
 
 ## Project layout
 
@@ -16,6 +24,8 @@ site/                     ← everything that gets served
   shared/games.js         ← the list of games
   shared/lines.js         ← every spoken line, English + Dutch
   shared/voice.js         ← plays the recorded voice clips
+  shared/kit.js, kit.css  ← common buttons, sounds, sparkles and saving for games
+  shared/robot.js         ← the robot drawing used by the robot games
   voice/                  ← recorded clips (made by tools/record-voice.mjs)
   games/
     magic-doodles/index.html

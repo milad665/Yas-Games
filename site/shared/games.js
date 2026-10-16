@@ -70,4 +70,11 @@ self.GAMES = [
     extras: ['🌷', '🍓', '🥕', '🐝', '💧'],
     colors: ['#bbf7d0', '#fef08a', '#fbcfe8'],
   },
+  {
+    name: 'Animal Safari',
+    path: 'games/animal-safari/',
+    art: '🦁',
+    extras: ['🐘', '🦒', '🐄', '🐧', '📸'],
+    colors: ['#fde68a', '#fdba74', '#bbf7d0'],
+  },
 ];

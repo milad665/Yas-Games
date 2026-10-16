@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Animal Safari">
+<meta name="theme-color" content="#fde68a">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="stylesheet" href="/shared/kit.css">
+<title>Animal Safari</title>
+<style>
+  body { background: #fde68a; }
+  .bg-farm    { background: radial-gradient(ellipse 70% 20% at 30% 58%, #a3e635 99%, transparent 100%), linear-gradient(#7dd3fc 0%, #e0f2fe 52%, #84cc16 52%, #4d7c0f 100%); }
+  .bg-savanna { background: radial-gradient(circle at 80% 18%, #fef08a 0 7%, transparent 7.5%), linear-gradient(#fdba74 0%, #fde68a 50%, #d9a441 50%, #a16207 100%); }
+  .bg-jungle  { background: linear-gradient(#86efac 0%, #22c55e 45%, #15803d 100%); }
+  .bg-ocean   { background: radial-gradient(ellipse 90% 14% at 50% 100%, #fde68a 99%, transparent 100%), linear-gradient(#67e8f9 0%, #2563eb 60%, #1e3a8a 100%); }
+  .bg-arctic  { background: radial-gradient(ellipse 80% 22% at 50% 70%, #fff 99%, transparent 100%), linear-gradient(#a5f3fc 0%, #e0f2fe 52%, #f8fafc 52%, #cbd5e1 100%); }
+
+  /* ---------- habitat picker ---------- */
+  #pick { flex-direction: column; align-items: center; justify-content: center; gap: 4vh; background: linear-gradient(160deg, #fef3c7, #fde68a 50%, #bbf7d0); }
+  #habitats { display: flex; flex-wrap: wrap; gap: clamp(16px, 3vw, 34px); justify-content: center; padding: 0 20px; }
+  .habitat { width: clamp(130px, 18vw, 180px); height: clamp(130px, 18vw, 180px); border-radius: 50%; border: 7px solid #fff; font-size: clamp(64px, 9vw, 90px); display: grid; place-items: center; cursor: pointer; box-shadow: 0 10px 0 rgba(0,0,0,.15); animation: kit-bob 3s ease-in-out infinite; touch-action: manipulation; }
+  #albumBtn { position: absolute; bottom: max(24px, env(safe-area-inset-bottom)); right: 24px; width: 100px; height: 100px; font-size: 54px; }
+  #albumCount { position: absolute; top: -8px; right: -8px; background: #f472b6; color: #fff; font-size: 20px; font-weight: 900; border-radius: 999px; min-width: 36px; height: 36px; display: grid; place-items: center; }
+
+  /* ---------- scene ---------- */
+  #scene { overflow: hidden; }
+  .top { position: absolute; top: max(14px, env(safe-area-inset-top)); left: max(14px, env(safe-area-inset-left)); right: max(14px, env(safe-area-inset-right)); display: flex; gap: 12px; z-index: 10; align-items: center; }
+  .top .btn { width: 68px; height: 68px; font-size: 34px; }
+  .spacer { flex: 1; }
+  #askBtn { width: 84px; height: 84px; font-size: 44px; background: #fde047; }
+  .deco { position: absolute; translate: -50% -50%; line-height: 1; pointer-events: none; }
+  .animal { position: absolute; translate: -50% -50%; line-height: 1; cursor: pointer; touch-action: manipulation; animation: kit-bob 2.6s ease-in-out infinite; filter: drop-shadow(0 8px 5px rgba(0,0,0,.25)); }
+  .animal span { display: inline-block; }
+  .animal.yay span { animation: yay .8s cubic-bezier(.3,1.5,.5,1); }
+  .animal.nope span { animation: kit-shake .45s; }
+  .animal.found { filter: drop-shadow(0 0 14px #fde047) drop-shadow(0 0 14px #fde047); }
+  @keyframes yay { 40% { transform: translateY(-40%) rotate(-10deg) scale(1.25); } 70% { transform: rotate(8deg) scale(1.15); } }
+  #bubble { position: absolute; z-index: 11; background: #fff; border-radius: 24px; padding: 8px 18px; font-size: 26px; font-weight: 900; pointer-events: none; display: none; translate: -50% -100%; box-shadow: 0 6px 0 rgba(0,0,0,.12); white-space: nowrap; }
+  #bubble::after { content: ''; position: absolute; bottom: -12px; left: 50%; translate: -50% 0; border: 12px solid transparent; border-top-color: #fff; border-bottom: 0; }
+
+  /* ---------- album ---------- */
+  #album { flex-direction: column; align-items: center; padding: 100px 20px 20px; overflow-y: auto; touch-action: pan-y; background: linear-gradient(#fef3c7, #fde68a); }
+  #albumGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 14px; width: min(100%, 1000px); }
+  .photo { aspect-ratio: 1; background: #fff; border-radius: 18px; display: grid; place-items: center; font-size: 58px; box-shadow: 0 5px 0 rgba(0,0,0,.1); border: 5px solid #fff; cursor: pointer; touch-action: manipulation; }
+  .photo.missing span { filter: brightness(0); opacity: .18; }
+</style>
+</head>
+<body>
+
+<section id="pick" class="screen on">
+  <a class="btn corner left" href="../../" aria-label="Back to Yas's Games">🏠</a>
+  <button id="soundBtn" class="btn corner right" aria-label="Sound on or off">🔊</button>
+  <h1 id="title" class="title"></h1>
+  <div id="habitats"></div>
+  <button id="albumBtn" class="btn" aria-label="Photo album">📖<span id="albumCount">0</span></button>
+</section>
+
+<section id="scene" class="screen">
+  <div id="decor"></div>
+  <div id="animals"></div>
+  <div class="top">
+    <button id="backBtn" class="btn" aria-label="Choose another place">🏠</button>
+    <div class="spacer"></div>
+    <button id="askBtn" class="btn" aria-label="Hear the question again">👂</button>
+    <div class="spacer"></div>
+    <button id="sceneAlbum" class="btn" aria-label="Photo album">📖</button>
+  </div>
+  <div id="bubble"></div>
+</section>
+
+<section id="album" class="screen">
+  <button id="albumBack" class="btn corner left" aria-label="Back">🏠</button>
+  <div id="albumGrid"></div>
+</section>
+
+<script src="/shared/lines.js"></script>
+<script src="/shared/voice.js"></script>
+<script src="/shared/kit.js"></script>
+<script>
+(() => {
+  const { $, rand, pick, shuffle, sleep } = Kit;
+
+  // key, emoji, habitat, sound? (sound lines exist when true)
+  const ANIMALS = [
+    ['cow', '🐄', 'farm', 1], ['pig', '🐖', 'farm', 1], ['sheep', '🐑', 'farm', 1], ['horse', '🐎', 'farm', 1],
+    ['rooster', '🐓', 'farm', 1], ['duck', '🦆', 'farm', 1], ['dog', '🐕', 'farm', 1], ['cat', '🐈', 'farm', 1],
+    ['lion', '🦁', 'savanna', 1], ['elephant', '🐘', 'savanna', 0], ['giraffe', '🦒', 'savanna', 0], ['zebra', '🦓', 'savanna', 0],
+    ['hippo', '🦛', 'savanna', 0], ['rhino', '🦏', 'savanna', 0],
+    ['monkey', '🐒', 'jungle', 1], ['tiger', '🐅', 'jungle', 0], ['parrot', '🦜', 'jungle', 0], ['snake', '🐍', 'jungle', 1],
+    ['frog', '🐸', 'jungle', 1], ['sloth', '🦥', 'jungle', 0],
+    ['fish', '🐟', 'ocean', 0], ['octopus', '🐙', 'ocean', 0], ['whale', '🐋', 'ocean', 0], ['dolphin', '🐬', 'ocean', 0],
+    ['crab', '🦀', 'ocean', 0], ['turtle', '🐢', 'ocean', 0], ['shark', '🦈', 'ocean', 0],
+    ['penguin', '🐧', 'arctic', 0], ['polarbear', '🐻‍❄️', 'arctic', 0], ['owl', '🦉', 'arctic', 1], ['fox', '🦊', 'arctic', 0],
+    ['wolf', '🐺', 'arctic', 1],
+  ].map(([key, e, home, sound]) => ({ key, e, home, sound: !!sound }));
+
+  const HABITATS = {
+    farm:    { icon: '🚜', decor: [['🏡', 16, 40, 16], ['🌳', 88, 40, 15], ['☀️', 82, 12, 9], ['🌻', 6, 70, 6], ['🌾', 50, 46, 6]] },
+    savanna: { icon: '🦁', decor: [['🌳', 14, 44, 18], ['🌵', 90, 50, 9], ['⛰️', 60, 40, 12], ['🌾', 40, 92, 6]] },
+    jungle:  { icon: '🌴', decor: [['🌴', 8, 40, 22], ['🌴', 92, 38, 22], ['🌿', 30, 92, 9], ['🍌', 72, 22, 6], ['🌺', 50, 88, 6]] },
+    ocean:   { icon: '🐳', decor: [['🪸', 8, 88, 12], ['🌿', 24, 88, 10], ['🐚', 46, 95, 5], ['🪸', 86, 88, 13]] },
+    arctic:  { icon: '🐧', decor: [['🏔️', 20, 40, 18], ['🏔️', 78, 38, 14], ['❄️', 50, 14, 6], ['❄️', 86, 20, 5], ['🌲', 92, 60, 10]] },
+  };
+
+  const save = Kit.store('animal-safari');
+  const saved = save.get({ found: [], rounds: 0 });
+  const persist = () => save.set(saved);
+  const byKey = k => ANIMALS.find(a => a.key === k);
+  const howMany = () => Math.min(5, 3 + Math.floor(saved.rounds / 4));
+
+  function show(id) { document.querySelectorAll('.screen').forEach(s => s.classList.toggle('on', s.id === id)); }
+  function paintCount() { $('albumCount').textContent = saved.found.length; }
+
+  // ---------- picker ----------
+  Kit.title('title', 'Animal Safari');
+  Kit.soundButton('soundBtn');
+  for (const [key, h] of Object.entries(HABITATS)) {
+    const b = document.createElement('button'); b.className = 'habitat bg-' + key; b.textContent = h.icon;
+    b.style.animationDelay = -rand(0, 3) + 's'; b.setAttribute('aria-label', key);
+    b.onclick = () => { Kit.sfx.pop(); openHabitat(key); };
+    $('habitats').appendChild(b);
+  }
+  paintCount();
+  Kit.say('sa.intro');
+
+  // ---------- a round ----------
+  let home = null, round = null, busy = false;
+
+  function openHabitat(key) {
+    home = key;
+    $('scene').className = 'screen on bg-' + key; show('scene');
+    const d = $('decor'); d.innerHTML = '';
+    for (const [e, x, y, s] of HABITATS[key].decor) {
+      const el = document.createElement('div'); el.className = 'deco'; el.textContent = e;
+      el.style.left = x + '%'; el.style.top = y + '%'; el.style.fontSize = s + 'vmin'; d.appendChild(el);
+    }
+    newRound(true);
+  }
+
+  function newRound(first = false) {
+    busy = false;
+    const pool = ANIMALS.filter(a => a.home === home);
+    const group = shuffle(pool).slice(0, Math.min(howMany(), pool.length));
+    // prefer animals she hasn't found yet
+    const fresh = group.filter(a => !saved.found.includes(a.key));
+    const target = pick(fresh.length && Math.random() < .7 ? fresh : group);
+    const bySound = target.sound && Math.random() < .45;
+    round = { group, target, bySound, misses: 0 };
+
+    const box = $('animals'); box.innerHTML = '';
+    const slots = shuffle([[22, 62], [50, 68], [78, 60], [35, 38], [66, 36], [14, 76], [86, 76]]).slice(0, group.length);
+    group.forEach((a, i) => {
+      const el = document.createElement('div'); el.className = 'animal pop-in';
+      el.innerHTML = `<span>${a.e}</span>`;
+      el.style.left = slots[i][0] + rand(-4, 4) + '%'; el.style.top = slots[i][1] + rand(-3, 3) + '%';
+      el.style.fontSize = rand(15, 19) + 'vmin'; el.style.animationDelay = -rand(0, 2.6) + 's';
+      el.onclick = () => tap(a, el);
+      box.appendChild(el);
+    });
+    ask(first);
+  }
+  const question = () => round.bySound ? 'sa.says.' + round.target.key : 'sa.where.' + round.target.key;
+  function ask(first = false) { Kit.say(first ? 'sa.lookAround' : null, question()); }
+  $('askBtn').onclick = () => { Kit.sfx.pop(); if (round) ask(); };
+
+  function bubble(el, text) {
+    const r = el.getBoundingClientRect(), b = $('bubble');
+    b.textContent = text; b.style.left = (r.left + r.width / 2) + 'px'; b.style.top = (r.top - 6) + 'px'; b.style.display = 'block';
+    clearTimeout(bubble.t); bubble.t = setTimeout(() => { b.style.display = 'none'; }, 1800);
+  }
+
+  async function tap(a, el) {
+    if (busy) return;
+    const s = el.querySelector('span');
+    if (a !== round.target) {
+      // still a little lesson: hear what this one is called
+      round.misses++;
+      el.classList.remove('nope'); void el.offsetWidth; el.classList.add('nope');
+      Kit.sfx.oops(); Kit.say('sa.is.' + a.key, question());
+      bubble(el, a.e + ' ?');
+      if (round.misses >= 2) [...$('animals').children].forEach((x, i) => { if (round.group[i] === round.target) x.classList.add('found'); });
+      return;
+    }
+    busy = true;
+    el.classList.remove('yay'); void el.offsetWidth; el.classList.add('yay');
+    Kit.sfx.yay(); Kit.burstAt(el, ['⭐', '✨', '💖', '📸'], 16, 200);
+    const isNew = !saved.found.includes(a.key);
+    if (isNew) { saved.found.push(a.key); paintCount(); }
+    saved.rounds++; persist();
+    Kit.say(round.bySound ? 'sa.answer.' + a.key : 'sa.is.' + a.key, isNew ? 'sa.newPhoto' : ['sa.yes1', 'sa.yes2']);
+    bubble(el, isNew ? '📸 ✨' : '⭐');
+    await sleep(3600);
+    newRound();
+  }
+
+  $('backBtn').onclick = () => { if (busy) return; Kit.sfx.pop(); home = null; show('pick'); };
+
+  // ---------- album ----------
+  function openAlbum(from) {
+    const g = $('albumGrid'); g.innerHTML = '';
+    for (const a of ANIMALS) {
+      const has = saved.found.includes(a.key);
+      const p = document.createElement('div'); p.className = 'photo' + (has ? '' : ' missing');
+      p.innerHTML = `<span>${a.e}</span>`;
+      p.onclick = () => { if (has) { Kit.sfx.pop(); Kit.say('sa.is.' + a.key); Kit.flash(p, 'pop-in'); } else Kit.sfx.oops(); };
+      g.appendChild(p);
+    }
+    $('albumBack').onclick = () => { Kit.sfx.pop(); show(from); };
+    show('album');
+    Kit.say(saved.found.length ? 'sa.album' : 'sa.albumEmpty');
+  }
+  $('albumBtn').onclick = () => { Kit.sfx.pop(); openAlbum('pick'); };
+  $('sceneAlbum').onclick = () => { if (busy) return; Kit.sfx.pop(); openAlbum('scene'); };
+})();
+</script>
+</body>
+</html>
