@@ -34,7 +34,7 @@ site/                     ← everything that gets served
   index.html              ← the Yas's Games home page
   sw.js, manifest.webmanifest, icon-*.png  ← installable app + offline support
   shared/games.js         ← the list of games
-  shared/lines.js         ← every spoken line, English + Dutch
+  shared/lines.js         ← every spoken line, in English, Dutch, German, Spanish and Persian
   shared/voice.js         ← plays the recorded voice clips
   shared/kit.js, kit.css  ← common buttons, sounds, sparkles and saving for games
   shared/robot.js         ← the robot drawing used by the robot games
@@ -51,7 +51,7 @@ docs/homelab-setup.md     ← one-time server setup guide
 
 1. Create `site/games/<game-name>/index.html` (one self-contained page is easiest).
 2. Give it a 🏠 button that links back home: `<a href="../../">🏠</a>`.
-3. To make it speak, load the shared voice and add its lines to `site/shared/lines.js` (English + Dutch):
+3. To make it speak, load the shared voice and add its lines to `site/shared/lines.js` (en, nl, de, es, fa):
 
    ```html
    <script src="/shared/lines.js"></script>
@@ -75,21 +75,28 @@ docs/homelab-setup.md     ← one-time server setup guide
 5. If you added lines, record them: `node tools/record-voice.mjs` (see below).
 6. Commit and push to `main`. The pipeline deploys it to the homelab.
 
-## Voice (English + Dutch)
+## Voice (English, Dutch, German, Spanish, Persian)
 
-Every spoken line lives in `site/shared/lines.js`. The language switch (🇬🇧/🇳🇱) on the
-home page applies to all games. Lines are pre-recorded with natural Apple voices so they
-sound the same on every device and work offline:
+Every spoken line lives in `site/shared/lines.js`. The language switch (🇬🇧 🇳🇱 🇮🇷) on the
+home page applies to all games (German and Spanish are translated but switched off until they're
+recorded: see `LANGS` in `site/shared/voice.js` and `site/sw.js`, and the flags in `site/index.html`).
+Lines are pre-recorded with ElevenLabs (Jessica; Matilda for Persian) so they sound the same on
+every device and work offline:
 
-1. On the Mac: **System Settings → Accessibility → Spoken Content → System voice →
-   Manage Voices…**, then download an English voice, e.g. **Zoe (Premium)** or **Ava (Premium)**,
-   and a Dutch voice, e.g. **Xander (Enhanced)** or **Claire (Enhanced)**.
-2. Record (only new or changed lines are re-recorded):
+1. Put your ElevenLabs API key in `.env` in the project root (it's git-ignored):
+
+   ```bash
+   read -rs "k?ElevenLabs API key: " && printf 'ELEVENLABS_API_KEY=%s\n' "$k" > .env && chmod 600 .env && unset k
+   ```
+
+2. Record (only new or changed lines are re-recorded; `--dry-run` shows the character cost,
+   `--lang en,nl` limits it to some languages):
 
    ```bash
    node tools/record-voice.mjs
    ```
 
+   If the monthly quota runs out it stops cleanly; run it again after the reset to finish.
 3. Commit `site/voice/` and push.
 
 If a clip is missing, the games fall back to the device's built-in voice.

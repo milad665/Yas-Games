@@ -99,9 +99,9 @@
   #installBtn { width: 56px; height: 56px; font-size: 28px; touch-action: manipulation; }
   #installBtn[hidden] { display: none; }
   #langs { display: flex; padding: 4px; gap: 2px; }
-  #langs button { border: none; background: none; font-size: 30px; width: 48px; height: 48px; border-radius: 50%; opacity: .45; transition: transform .15s, opacity .15s; touch-action: manipulation; padding: 0; }
+  #langs button { border: none; background: none; font-size: 30px; width: 46px; height: 46px; border-radius: 50%; opacity: .45; transition: transform .15s, opacity .15s; touch-action: manipulation; padding: 0; }
   #langs button.sel { opacity: 1; transform: scale(1.12); background: #fff3fb; }
-  @media (max-width: 600px) { header { margin-top: 64px; } }
+  @media (max-width: 960px) { header { margin-top: 64px; } }
 
   #iosHelp { position: fixed; inset: 0; z-index: 30; background: rgba(60, 40, 100, .35); display: grid; place-items: center; padding: 20px; }
   #iosHelp[hidden] { display: none; }
@@ -126,6 +126,8 @@
     <div id="langs" class="pill" role="group" aria-label="Language">
       <button data-lang="en" aria-label="English">🇬🇧</button>
       <button data-lang="nl" aria-label="Nederlands">🇳🇱</button>
+      <!-- not recorded yet: <button data-lang="de" aria-label="Deutsch">🇩🇪</button> <button data-lang="es" aria-label="Español">🇪🇸</button> -->
+      <button data-lang="fa" aria-label="فارسی">🇮🇷</button>
     </div>
   </div>
 

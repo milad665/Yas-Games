@@ -6,10 +6,10 @@
 // Images: served from cache, refreshed in the background.
 importScripts('/shared/games.js');
 
-const CACHE = 'yas-games-v7';
+const CACHE = 'yas-games-v8';
 // survives version bumps: remembers the chosen language so a new version can precache its clips
 const SETTINGS = 'yas-games-settings';
-const LANGS = ['en', 'nl'];
+const LANGS = ['en', 'nl', 'fa'];
 const CORE = [
   '/',
   '/manifest.webmanifest',

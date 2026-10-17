@@ -6,18 +6,22 @@
 //   Voice.say(['rb.win1', 'rb.win2'])        pick one at random
 //   Voice.say('md.meadow', 'md.tapPencil')   speak several in a row
 //   Voice.stop()
-//   Voice.lang / Voice.setLang('nl')         language is shared by all games
+//   Voice.lang / Voice.setLang('nl')         language is shared by all games (en, nl, fa)
 (() => {
   const LANG_KEY = 'yasGames.lang';
-  const LANGS = { en: 'en-US', nl: 'nl-NL' };
+  // German and Spanish lines are translated but not recorded yet: add de: 'de-DE', es: 'es-ES' to turn them on
+  const LANGS = { en: 'en-US', nl: 'nl-NL', fa: 'fa-IR' };
   const LINES = self.VOICE_LINES || {};
 
   let lang = 'en';
   try { lang = localStorage.getItem(LANG_KEY) || ''; } catch (e) {}
-  if (!LANGS[lang]) lang = (navigator.language || '').toLowerCase().startsWith('nl') ? 'nl' : 'en';
+  if (!LANGS[lang]) {
+    const device = (navigator.language || '').toLowerCase().slice(0, 2);
+    lang = LANGS[device] ? device : 'en';
+  }
 
   // ---------- recorded clips ----------
-  let manifest = null; // { en: { key: hash }, nl: { ... } }
+  let manifest = null; // { en: { key: hash }, nl: { ... }, ... }
   const ready = fetch('/voice/manifest.json', { cache: 'no-cache' })
     .then(r => (r.ok ? r.json() : {}))
     .catch(() => ({}))
@@ -58,7 +62,13 @@
     if (!('speechSynthesis' in window)) return;
     const want = LANGS[lang].slice(0, 2);
     const voices = speechSynthesis.getVoices().filter(v => v.lang.replace('_', '-').toLowerCase().startsWith(want));
-    const nice = lang === 'nl' ? /xander|claire|ellen|fleur|google nederlands/i : /ava|zoe|allison|susan|samantha|google us english/i;
+    const nice = {
+      en: /ava|zoe|allison|susan|samantha|google us english/i,
+      nl: /xander|claire|ellen|fleur|google nederlands/i,
+      de: /anna|petra|helena|marlene|google deutsch/i,
+      es: /m[oó]nica|paulina|marisol|google espa[nñ]ol/i,
+      fa: /dariush|google/i,
+    }[lang];
     const score = v => (/premium|enhanced|natural|neural|siri/i.test(v.name) ? 4 : 0) + (nice.test(v.name) ? 2 : 0) + (v.localService ? 1 : 0);
     ttsVoice = voices.sort((a, b) => score(b) - score(a))[0] || null;
   }
