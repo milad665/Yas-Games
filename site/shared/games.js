@@ -119,4 +119,11 @@ self.GAMES = [
     extras: ['👑', '🚀', '🧜‍♀️', '🦸', '🧚'],
     colors: ['#fae8ff', '#fce7f3', '#e0f2fe'],
   },
+  {
+    name: 'Little Vet',
+    path: 'games/little-vet/',
+    art: '🩺',
+    extras: ['🐶', '🩹', '🐱', '💊', '💖'],
+    colors: ['#dcfce7', '#ecfeff', '#bae6fd'],
+  },
 ];

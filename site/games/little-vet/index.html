@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Little Vet">
+<meta name="theme-color" content="#dcfce7">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="stylesheet" href="/shared/kit.css">
+<title>Little Vet</title>
+<style>
+  body { background: linear-gradient(#dcfce7 0%, #ecfeff 60%, #bae6fd 60%, #93c5fd 100%); }
+  #clinic { flex-direction: column; align-items: center; padding: max(14px, env(safe-area-inset-top)) 14px max(12px, env(safe-area-inset-bottom)); gap: 1vh; }
+  #wall { margin-top: 4px; font-size: 30px; background: rgba(255,255,255,.75); border-radius: 999px; padding: 4px 18px; min-height: 48px; max-width: 60vw; text-align: center; }
+  .deco { position: absolute; translate: -50% -50%; line-height: 1; pointer-events: none; }
+  #room { flex: 1; min-height: 0; width: 100%; position: relative; display: grid; place-items: center; }
+  #table { position: absolute; bottom: 4%; left: 50%; translate: -50% 0; width: min(70vw, 560px); height: 7vh; background: #e2e8f0; border-radius: 20px; box-shadow: 0 10px 0 #94a3b8; }
+  #patient { position: relative; width: min(46vh, 60vw); aspect-ratio: 1; margin-bottom: 7vh; }
+  #patient.arrive { animation: arrive .9s cubic-bezier(.3,1.4,.5,1); }
+  @keyframes arrive { from { transform: translateX(-120vw) rotate(-20deg); } }
+  #patient.leave { transition: transform .9s ease-in; transform: translateX(130vw) rotate(15deg); }
+  #animal { position: absolute; inset: 0; display: grid; place-items: center; font-size: min(36vh, 46vw); line-height: 1; transition: filter .4s; }
+  #animal.happy { animation: kit-bob .6s ease-in-out 3; }
+  #animal.no { animation: kit-shake .45s; }
+  #animal.droopy { transform: rotate(-8deg) translateY(4%); }
+  #patient.over { filter: drop-shadow(0 0 18px #fde047); }
+  .mark { position: absolute; translate: -50% -50%; line-height: 1; pointer-events: none; transition: opacity .5s, transform .5s; }
+  .mark.gone { opacity: 0; transform: scale(.3); }
+  .mark.pulse2 { animation: kit-pulse 1s infinite; }
+  .mud { position: absolute; border-radius: 50%; background: #7c4a1e; opacity: .85; translate: -50% -50%; transition: opacity .6s; }
+  .scrape { position: absolute; width: 16%; height: 9%; border-radius: 40%; background: repeating-linear-gradient(135deg, #ef4444 0 6px, #fca5a5 6px 10px); translate: -50% -50%; transition: opacity .6s; }
+  #tools { display: grid; grid-template-columns: repeat(6, auto); gap: 10px; background: rgba(255,255,255,.7); padding: 10px 14px; border-radius: 28px; }
+  .tool { width: 76px; height: 76px; border-radius: 22px; background: #fff; font-size: 44px; display: grid; place-items: center; touch-action: none; cursor: grab; box-shadow: 0 4px 0 rgba(0,0,0,.12); }
+  .tool.glow { box-shadow: 0 4px 0 rgba(0,0,0,.12), 0 0 0 5px #fde047; animation: kit-pulse 1s infinite; }
+  .ghost { position: fixed; z-index: 60; font-size: 70px; line-height: 1; pointer-events: none; filter: drop-shadow(0 10px 8px rgba(0,0,0,.25)); }
+</style>
+</head>
+<body>
+
+<section id="clinic" class="screen on">
+  <a class="btn corner left" href="../../" aria-label="Back to Yas's Games">🏠</a>
+  <button id="soundBtn" class="btn corner right" aria-label="Sound on or off">🔊</button>
+  <div class="deco" style="left:9%;top:24%;font-size:9vmin">🏥</div>
+  <div class="deco" style="left:91%;top:26%;font-size:8vmin">🪴</div>
+  <div id="wall"></div>
+  <div id="room"><div id="table"></div><div id="patient"><div id="animal"></div></div></div>
+  <div id="tools"></div>
+</section>
+
+<script src="/shared/lines.js"></script>
+<script src="/shared/voice.js"></script>
+<script src="/shared/kit.js"></script>
+<script>
+(() => {
+  const { $, rand, pick, shuffle, sleep } = Kit;
+
+  const TOOLS = { soap: '🧼', bandage: '🩹', thermometer: '🌡️', icepack: '🧊', tissue: '🧻', bed: '🛏️',
+                  magnifier: '🔍', stethoscope: '🩺', medicine: '💊', toothbrush: '🪥', teddy: '🧸', carrot: '🥕' };
+  // marks: [emoji or 'mud' / 'scrape', x%, y%, size] and which step removes them
+  const CASES = [
+    { id: 1, who: '🐈', steps: ['soap', 'bandage'], marks: [['scrape', 36, 78, 0, 1]], after: { bandage: ['🩹', 36, 78, 11] } },
+    { id: 2, who: '🐕', steps: ['thermometer', 'icepack'], marks: [['♨️', 78, 18, 12, 1], ['🥵', 22, 20, 10, 1]] },
+    { id: 3, who: '🐇', steps: ['tissue', 'bed'], marks: [['💦', 66, 52, 10, 0], ['🤧', 24, 18, 11, 1]] },
+    { id: 4, who: '🐖', steps: ['soap'], marks: [['mud', 30, 40, 16, 0], ['mud', 64, 62, 20, 0], ['mud', 44, 76, 13, 0], ['mud', 72, 34, 11, 0]] },
+    { id: 5, who: '🐅', steps: ['magnifier', 'bandage'], marks: [['🌵', 30, 84, 4.5, 0]], after: { bandage: ['🩹', 30, 84, 10] } },
+    { id: 6, who: '🐘', steps: ['stethoscope', 'medicine'], marks: [['⚡', 50, 62, 10, 1]] },
+    { id: 7, who: '🐒', steps: ['toothbrush'], marks: [['🦷', 76, 30, 10, 0], ['🍬', 22, 74, 9, 0]] },
+    { id: 8, who: '🦉', steps: ['bed'], marks: [['🥱', 76, 22, 11, 0]], droopy: true },
+    { id: 9, who: '🐥', steps: ['teddy'], marks: [['💧', 62, 40, 8, 0]] },
+    { id: 10, who: '🐎', steps: ['carrot'], marks: [['💭', 78, 16, 14, 0], ['🍽️', 78, 14, 6, 0]], droopy: true },
+  ];
+
+  const save = Kit.store('little-vet');
+  const saved = save.get({ healed: [], order: [] });
+  let patient = null, stepI = 0, misses = 0, busy = false;
+
+  function paintWall() { const n = saved.healed.length; $('wall').textContent = n ? (n > 12 ? saved.healed.slice(-12).join('') + ' +' : saved.healed.join('')) : '💌'; }
+
+  // ---------- tools tray (drag a tool onto the patient) ----------
+  for (const [key, e] of Object.entries(TOOLS)) {
+    const t = document.createElement('div'); t.className = 'tool'; t.textContent = e; t.dataset.tool = key;
+    t.addEventListener('pointerdown', ev => drag(ev, key, e));
+    $('tools').appendChild(t);
+  }
+  function overPatient(x, y) { const r = $('patient').getBoundingClientRect(); return x > r.left && x < r.right && y > r.top && y < r.bottom; }
+  function drag(ev, key, e) {
+    if (busy || !patient) return;
+    ev.preventDefault();
+    Kit.say('lv.tool.' + key); Kit.sfx.pop();
+    const g = document.createElement('div'); g.className = 'ghost'; g.textContent = e; document.body.appendChild(g);
+    const place = (x, y) => { g.style.left = (x - 35) + 'px'; g.style.top = (y - 45) + 'px'; };
+    place(ev.clientX, ev.clientY);
+    const move = m => { if (m.pointerId !== ev.pointerId) return; place(m.clientX, m.clientY); $('patient').classList.toggle('over', overPatient(m.clientX, m.clientY)); };
+    const up = u => {
+      if (u.pointerId !== ev.pointerId) return;
+      removeEventListener('pointermove', move); removeEventListener('pointerup', up); removeEventListener('pointercancel', up);
+      g.remove(); $('patient').classList.remove('over');
+      if (overPatient(u.clientX, u.clientY)) use(key, u.clientX, u.clientY);
+    };
+    addEventListener('pointermove', move); addEventListener('pointerup', up); addEventListener('pointercancel', up);
+  }
+
+  // ---------- patients ----------
+  function nextCase() {
+    if (!saved.order.length) saved.order = shuffle(CASES.map(c => c.id));
+    const id = saved.order.shift(); save.set(saved);
+    return CASES.find(c => c.id === id);
+  }
+  async function admit(first) {
+    busy = true; stepI = 0; misses = 0;
+    patient = nextCase();
+    const p = $('patient'); p.className = '';
+    $('animal').textContent = patient.who; $('animal').className = patient.droopy ? 'droopy' : '';
+    p.querySelectorAll('.mark, .mud, .scrape').forEach(m => m.remove());
+    patient.els = patient.marks.map(([e, x, y, size, step]) => {
+      const el = document.createElement('div');
+      if (e === 'mud') { el.className = 'mud'; el.style.width = el.style.height = size + '%'; }
+      else if (e === 'scrape') el.className = 'scrape';
+      else { el.className = 'mark pulse2'; el.textContent = e; el.style.fontSize = size + 'vmin'; }
+      el.style.left = x + '%'; el.style.top = y + '%'; el.dataset.step = step;
+      p.appendChild(el); return el;
+    });
+    void p.offsetWidth; p.classList.add('arrive');
+    Kit.tone(660, .1, { type: 'triangle' }); Kit.tone(880, .15, { type: 'triangle', delay: .12 });
+    await sleep(900);
+    Kit.say(first ? 'lv.intro' : 'lv.next', 'lv.case' + patient.id);
+    busy = false;
+  }
+
+  async function use(key, x, y) {
+    const want = patient.steps[stepI];
+    if (key !== want) {
+      misses++;
+      $('animal').classList.remove('no'); void $('animal').offsetWidth; $('animal').classList.add('no');
+      Kit.sfx.oops(); Kit.say('lv.notThat');
+      if (misses >= 2) document.querySelector(`.tool[data-tool="${want}"]`).classList.add('glow');
+      return;
+    }
+    busy = true; misses = 0;
+    document.querySelectorAll('.tool.glow').forEach(t => t.classList.remove('glow'));
+    toolEffect(key, x, y);
+    // marks belonging to this step go away
+    patient.els.forEach(el => { if (+el.dataset.step === stepI || (stepI === patient.steps.length - 1)) { el.style.opacity = 0; el.classList.add('gone'); } });
+    const after = patient.after && patient.after[key];
+    if (after) {
+      const el = document.createElement('div'); el.className = 'mark pop-in'; el.textContent = after[0];
+      el.style.left = after[1] + '%'; el.style.top = after[2] + '%'; el.style.fontSize = after[3] + 'vmin'; $('patient').appendChild(el);
+    }
+    stepI++;
+    await sleep(1100);
+    if (stepI < patient.steps.length) { Kit.sfx.ding(); Kit.say('lv.more'); busy = false; return; }
+    healed();
+  }
+  function toolEffect(key, x, y) {
+    const fx = {
+      soap: () => { Kit.burst(x, y, ['🫧'], 14, 120); [0, 1, 2, 3].forEach(i => Kit.tone(900 + i * 200, .08, { vol: .08, delay: i * .1 })); },
+      thermometer: () => { Kit.burst(x, y, ['🔴'], 3, 40); [0, 1, 2].forEach(i => Kit.tone(1400, .06, { type: 'square', vol: .05, delay: i * .25 })); },
+      icepack: () => { Kit.burst(x, y, ['❄️', '💙'], 10, 110); Kit.tone(1200, .4, { to: 600, vol: .08 }); },
+      tissue: () => { Kit.tone(300, .3, { type: 'sawtooth', vol: .05, to: 600 }); Kit.burst(x, y, ['💨'], 4, 60); },
+      bed: () => { Kit.burst(x, y, ['💤', '🌙'], 8, 120); Kit.tone(392, .6, { vol: .1 }); Kit.tone(330, .7, { vol: .1, delay: .5 }); },
+      magnifier: () => { Kit.burst(x, y, ['✨'], 6, 70); Kit.tone(700, .2, { type: 'triangle', to: 1400 }); },
+      stethoscope: () => { [0, 1, 2, 3].forEach(i => Kit.tone(80, .12, { vol: .3, delay: i * .4 })); Kit.burst(x, y, ['💗'], 4, 70); },
+      medicine: () => { Kit.tone(500, .15, { type: 'triangle' }); Kit.tone(750, .2, { type: 'triangle', delay: .15 }); },
+      toothbrush: () => { [0, 1, 2, 3, 4, 5].forEach(i => Kit.tone(i % 2 ? 700 : 900, .06, { type: 'square', vol: .04, delay: i * .07 })); Kit.burst(x, y, ['✨', '🫧'], 10, 90); },
+      teddy: () => { Kit.burst(x, y, ['💖', '💕'], 10, 110); Kit.tone(523, .3, { type: 'triangle' }); },
+      bandage: () => Kit.tone(800, .1, { type: 'triangle' }),
+      carrot: () => [0, 1, 2].forEach(i => Kit.tone(220, .08, { type: 'square', vol: .08, delay: i * .2 })),
+    }[key];
+    fx && fx();
+  }
+  async function healed() {
+    $('animal').className = 'happy';
+    Kit.sfx.yay(); Kit.burstAt($('patient'), ['💖', '⭐', '✨', '🎉'], 22, 240);
+    Kit.say(['lv.thanks1', 'lv.thanks2']);
+    saved.healed.push(patient.who); save.set(saved); paintWall();
+    await sleep(2800);
+    $('patient').classList.remove('arrive'); $('patient').classList.add('leave');
+    await sleep(900);
+    admit(false);
+  }
+
+  Kit.soundButton('soundBtn');
+  paintWall();
+  admit(true);
+})();
+</script>
+</body>
+</html>
