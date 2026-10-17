@@ -355,4 +355,14 @@ self.VOICE_LINES = {
   'lt.X':            { en: 'X! X is for x-ray.', nl: 'X! De X van xylofoon.' },
   'lt.Y':            { en: 'Y! Y is for Yas!', nl: 'Y! De Y van Yas!' },
   'lt.Z':            { en: 'Z! Z is for zebra.', nl: 'Z! De Z van zon.' },
+
+  // ---------- Mirror Painter ----------
+  'mi.intro':        { en: 'Paint on one side, and watch the magic mirror copy it!', nl: 'Schilder aan één kant, en kijk hoe de toverspiegel het nadoet!' },
+  'mi.butterfly':    { en: 'Butterfly mirror!', nl: 'Vlinderspiegel!' },
+  'mi.flower':       { en: 'Flower mirror! Four times!', nl: 'Bloemenspiegel! Vier keer!' },
+  'mi.snow':         { en: 'Snowflake mirror! So many!', nl: 'Sneeuwvlokspiegel! Zo veel!' },
+  'mi.glitter':      { en: 'Glitter!', nl: 'Glitter!' },
+  'mi.stencil':      { en: 'Here is a shape to color in!', nl: 'Hier is een vorm om in te kleuren!' },
+  'mi.saved':        { en: 'Click! Saved in your gallery.', nl: 'Klik! Bewaard in je galerij.' },
+  'mi.gallery':      { en: 'Your gallery! Tap a picture to see it big.', nl: 'Jouw galerij! Tik op een tekening om hem groot te zien.' },
 };

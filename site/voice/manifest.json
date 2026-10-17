@@ -325,7 +325,15 @@
     "lt.W": "330171db15",
     "lt.X": "04ac9f588c",
     "lt.Y": "f7f651e642",
-    "lt.Z": "2b2c1d299f"
+    "lt.Z": "2b2c1d299f",
+    "mi.intro": "44c61c8189",
+    "mi.butterfly": "00e5509cdf",
+    "mi.flower": "0ee32a5e0d",
+    "mi.snow": "0121069f23",
+    "mi.glitter": "2e651427e8",
+    "mi.stencil": "cac389f655",
+    "mi.saved": "1dbf9859e2",
+    "mi.gallery": "c8dd96b23f"
   },
   "nl": {
     "hub.lang": "0eaed72984",
@@ -653,7 +661,15 @@
     "lt.W": "50cbb04ee2",
     "lt.X": "09bf4e2016",
     "lt.Y": "f3d1fdf2ae",
-    "lt.Z": "49f50b6b04"
+    "lt.Z": "49f50b6b04",
+    "mi.intro": "dde295c987",
+    "mi.butterfly": "50998dd9b3",
+    "mi.flower": "f79ac3b665",
+    "mi.snow": "92fd2ea0eb",
+    "mi.glitter": "b6387c4895",
+    "mi.stencil": "403ce96ddd",
+    "mi.saved": "62d2c5f765",
+    "mi.gallery": "271506cae9"
   },
   "voices": {
     "en": "Evan (Enhanced)",

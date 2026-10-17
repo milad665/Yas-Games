@@ -91,4 +91,11 @@ self.GAMES = [
     extras: ['🅰️', '🍎', '☀️', '👧', '⭐'],
     colors: ['#e0e7ff', '#fce7f3', '#fef9c3'],
   },
+  {
+    name: 'Mirror Painter',
+    path: 'games/mirror-painter/',
+    art: '🦋',
+    extras: ['❄️', '🌸', '✨', '🪞', '💜'],
+    colors: ['#ede9fe', '#fce7f3', '#e0f2fe'],
+  },
 ];

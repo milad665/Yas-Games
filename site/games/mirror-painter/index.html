@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Mirror Painter">
+<meta name="theme-color" content="#ede9fe">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="stylesheet" href="/shared/kit.css">
+<title>Mirror Painter</title>
+<style>
+  body { background: linear-gradient(160deg, #ede9fe 0%, #fce7f3 50%, #e0f2fe 100%); }
+  #app { flex-direction: column; gap: 10px; padding: max(12px, env(safe-area-inset-top)) max(14px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(14px, env(safe-area-inset-left)); }
+  .bar { display: flex; align-items: center; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  .bar .btn { width: 62px; height: 62px; font-size: 30px; }
+  .spacer { flex: 1; }
+  .mode.sel, .tool.sel { background: #ddd6fe; box-shadow: 0 6px 0 rgba(40,50,90,.18), 0 0 0 4px #8b5cf6; }
+  #paper { flex: 1; min-height: 0; position: relative; border-radius: 28px; overflow: hidden; background: #fff; box-shadow: 0 8px 30px rgba(91, 33, 182, .12); }
+  #paper canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+  #ink { touch-action: none; }
+  .swatch { width: 58px; height: 58px; border-radius: 50%; border: 5px solid #fff; padding: 0; box-shadow: 0 4px 0 rgba(0,0,0,.15); touch-action: manipulation; transition: transform .12s; }
+  .swatch.sel { transform: scale(1.2); border-color: #33415c; }
+  .swatch.rainbow { background: conic-gradient(red, orange, yellow, lime, cyan, blue, magenta, red); }
+  .size { width: 58px; height: 58px; border-radius: 50%; background: #fff; border: 4px solid transparent; display: grid; place-items: center; box-shadow: 0 4px 0 rgba(0,0,0,.12); touch-action: manipulation; padding: 0; }
+  .size.sel { border-color: #33415c; }
+  .size i { display: block; border-radius: 50%; background: #33415c; }
+
+  #gallery { position: fixed; inset: 0; z-index: 30; display: none; flex-direction: column; align-items: center; padding: 90px 20px 20px; background: rgba(237, 233, 254, .97); overflow-y: auto; touch-action: pan-y; }
+  #gallery.on { display: flex; }
+  #shots { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 16px; width: min(100%, 1000px); }
+  #shots img { width: 100%; border-radius: 18px; background: #fff; box-shadow: 0 5px 0 rgba(0,0,0,.1); }
+  #big { position: fixed; inset: 0; z-index: 40; display: none; place-items: center; background: rgba(0,0,0,.5); }
+  #big.on { display: grid; }
+  #big img { max-width: 92vw; max-height: 88vh; border-radius: 24px; background: #fff; }
+  .flash { position: fixed; inset: 0; background: #fff; z-index: 50; pointer-events: none; animation: flash .5s ease-out forwards; }
+  @keyframes flash { from { opacity: .9; } to { opacity: 0; } }
+</style>
+</head>
+<body>
+
+<section id="app" class="screen on">
+  <div class="bar">
+    <a class="btn" href="../../" aria-label="Back to Yas's Games">🏠</a>
+    <button id="undoBtn" class="btn" aria-label="Undo">↩️</button>
+    <button id="clearBtn" class="btn" aria-label="Clear">🧽</button>
+    <div class="spacer"></div>
+    <button class="btn mode" data-mode="mirror" aria-label="Butterfly mirror">🦋</button>
+    <button class="btn mode" data-mode="quad" aria-label="Flower mirror">🌸</button>
+    <button class="btn mode" data-mode="snow" aria-label="Snowflake mirror">❄️</button>
+    <button id="stencilBtn" class="btn" aria-label="Shape to color in">✏️</button>
+    <div class="spacer"></div>
+    <button id="shotBtn" class="btn" aria-label="Save to gallery">📸</button>
+    <button id="galleryBtn" class="btn" aria-label="Gallery">🖼️</button>
+    <button id="soundBtn" class="btn" aria-label="Sound on or off">🔊</button>
+  </div>
+  <div id="paper"><canvas id="guide"></canvas><canvas id="ink"></canvas></div>
+  <div class="bar" id="palette"></div>
+</section>
+
+<div id="gallery">
+  <button id="galleryBack" class="btn corner left" aria-label="Back">🏠</button>
+  <div id="shots"></div>
+</div>
+<div id="big"><img alt=""></div>
+
+<script src="/shared/lines.js"></script>
+<script src="/shared/voice.js"></script>
+<script src="/shared/kit.js"></script>
+<script>
+(() => {
+  const { $ } = Kit;
+  const COLORS = ['#ef4444', '#f97316', '#facc15', '#22c55e', '#06b6d4', '#3b82f6', '#a855f7', '#ec4899', '#1e293b', 'rainbow'];
+  const SIZES = [8, 18, 34];
+  const STENCILS = ['none', 'butterfly', 'heart', 'face'];
+  const GALLERY_MAX = 12;
+
+  const save = Kit.store('mirror-painter');
+  const saved = save.get({ gallery: [] });
+
+  const ink = $('ink'), ctx = ink.getContext('2d'), guide = $('guide'), gctx = guide.getContext('2d');
+  let W = 0, H = 0, dpr = 1;
+  let mode = 'mirror', color = COLORS[0], size = SIZES[1], glitter = false, stencil = 0;
+  let strokes = [], cur = null, curId = null, hue = 0;
+
+  // ---------- symmetry: every point becomes several ----------
+  function copies(m, x, y) {
+    const cx = .5, cy = .5, dx = x - cx, dy = y - cy;
+    if (m === 'mirror') return [[x, y], [cx - dx, y]];
+    if (m === 'quad') return [[x, y], [cx - dx, y], [x, cy - dy], [cx - dx, cy - dy]];
+    // snowflake: 6 turns, each also mirrored (works in square space so it stays round)
+    const s = Math.min(W, H), ax = dx * W / s, ay = dy * H / s, out = [];
+    for (let k = 0; k < 6; k++) {
+      const a = k * Math.PI / 3, c = Math.cos(a), sn = Math.sin(a);
+      for (const mx of [1, -1]) {
+        const px = ax * mx, rx = px * c - ay * sn, ry = px * sn + ay * c;
+        out.push([cx + rx * s / W, cy + ry * s / H]);
+      }
+    }
+    return out;
+  }
+  const colorOf = (st, p) => st.color === 'rainbow' ? `hsl(${p[2]},95%,55%)` : st.color;
+  const width = st => st.size * dpr * Math.max(.8, Math.min(W, H) / 700);
+  function drawSeg(st, a, b) {
+    const reps = copies(st.mode, a[0], a[1]), repsB = copies(st.mode, b[0], b[1]);
+    if (st.glitter) {
+      // sparkly dots, placed the same way every time so undo redraws match
+      for (let r = 0; r < reps.length; r++) for (let i = 0; i < 3; i++) {
+        const seed = Math.sin((b[0] * 9301 + b[1] * 4919 + i * 233) * 1000) * 10000, f = seed - Math.floor(seed);
+        const ox = (f - .5) * width(st) * 2.2, oy = ((f * 7) % 1 - .5) * width(st) * 2.2;
+        ctx.fillStyle = i === 0 ? '#fff' : colorOf(st, b);
+        ctx.beginPath(); ctx.arc(repsB[r][0] * ink.width + ox, repsB[r][1] * ink.height + oy, Math.max(1.5, width(st) * (.12 + f * .2)), 0, Math.PI * 2); ctx.fill();
+      }
+      return;
+    }
+    ctx.strokeStyle = colorOf(st, b); ctx.lineWidth = width(st); ctx.lineCap = ctx.lineJoin = 'round';
+    for (let r = 0; r < reps.length; r++) {
+      ctx.beginPath(); ctx.moveTo(reps[r][0] * ink.width, reps[r][1] * ink.height); ctx.lineTo(repsB[r][0] * ink.width, repsB[r][1] * ink.height); ctx.stroke();
+    }
+  }
+  function redraw() {
+    ctx.clearRect(0, 0, ink.width, ink.height);
+    for (const st of strokes) { drawSeg(st, st.pts[0], st.pts[0]); for (let i = 1; i < st.pts.length; i++) drawSeg(st, st.pts[i - 1], st.pts[i]); }
+    $('undoBtn').disabled = $('clearBtn').disabled = $('shotBtn').disabled = !strokes.length;
+  }
+
+  // ---------- the faint guide: mirror lines and an optional shape ----------
+  function paintGuide() {
+    const w = guide.width, h = guide.height, s = Math.min(w, h);
+    gctx.clearRect(0, 0, w, h);
+    gctx.setLineDash([10 * dpr, 10 * dpr]); gctx.strokeStyle = 'rgba(139, 92, 246, .35)'; gctx.lineWidth = 3 * dpr;
+    const line = (x1, y1, x2, y2) => { gctx.beginPath(); gctx.moveTo(x1, y1); gctx.lineTo(x2, y2); gctx.stroke(); };
+    if (mode === 'mirror') line(w / 2, 0, w / 2, h);
+    if (mode === 'quad') { line(w / 2, 0, w / 2, h); line(0, h / 2, w, h / 2); }
+    if (mode === 'snow') for (let k = 0; k < 6; k++) { const a = k * Math.PI / 6 * 2; line(w / 2, h / 2, w / 2 + Math.cos(a) * s, h / 2 + Math.sin(a) * s); }
+    gctx.setLineDash([]); gctx.strokeStyle = 'rgba(100, 116, 139, .4)'; gctx.lineWidth = 5 * dpr;
+    const cx = w / 2, cy = h / 2, r = s * .38;
+    const kind = STENCILS[stencil];
+    gctx.beginPath();
+    if (kind === 'butterfly') {
+      for (const m of [-1, 1]) {
+        gctx.ellipse(cx + m * r * .55, cy - r * .3, r * .5, r * .42, m * -.5, 0, Math.PI * 2);
+        gctx.moveTo(cx + m * r * .38 + r * .32, cy + r * .45);
+        gctx.ellipse(cx + m * r * .38, cy + r * .45, r * .32, r * .3, m * .5, 0, Math.PI * 2);
+      }
+      gctx.moveTo(cx + r * .08, cy - r * .7); gctx.ellipse(cx, cy, r * .08, r * .75, 0, 0, Math.PI * 2);
+    }
+    if (kind === 'heart') {
+      gctx.moveTo(cx, cy + r * .9);
+      gctx.bezierCurveTo(cx - r * 1.5, cy - r * .1, cx - r * .6, cy - r * 1.1, cx, cy - r * .45);
+      gctx.bezierCurveTo(cx + r * .6, cy - r * 1.1, cx + r * 1.5, cy - r * .1, cx, cy + r * .9);
+    }
+    if (kind === 'face') {
+      gctx.arc(cx, cy, r, 0, Math.PI * 2);
+      for (const m of [-1, 1]) { gctx.moveTo(cx + m * r * .35 + r * .12, cy - r * .2); gctx.arc(cx + m * r * .35, cy - r * .2, r * .12, 0, Math.PI * 2); }
+      gctx.moveTo(cx - r * .45, cy + r * .3); gctx.quadraticCurveTo(cx, cy + r * .75, cx + r * .45, cy + r * .3);
+    }
+    gctx.stroke();
+  }
+
+  function sizeCanvases() {
+    const r = $('paper').getBoundingClientRect();
+    W = r.width; H = r.height; dpr = Math.min(2, devicePixelRatio || 1);
+    for (const c of [ink, guide]) { c.width = Math.round(W * dpr); c.height = Math.round(H * dpr); }
+    paintGuide(); redraw();
+  }
+
+  // ---------- painting ----------
+  const pt = e => { const r = ink.getBoundingClientRect(); if (color === 'rainbow') hue = (hue + 5) % 360; return [(e.clientX - r.left) / r.width, (e.clientY - r.top) / r.height, hue]; };
+  ink.addEventListener('pointerdown', e => {
+    if (cur) return;
+    e.preventDefault(); try { ink.setPointerCapture(e.pointerId); } catch (err) {}
+    curId = e.pointerId;
+    cur = { mode, color, size, glitter, pts: [pt(e)] }; strokes.push(cur);
+    drawSeg(cur, cur.pts[0], cur.pts[0]);
+    $('undoBtn').disabled = $('clearBtn').disabled = $('shotBtn').disabled = false;
+    if (glitter) Kit.tone(1500 + Math.random() * 800, .08, { vol: .05 });
+  });
+  ink.addEventListener('pointermove', e => {
+    if (!cur || e.pointerId !== curId) return;
+    const evs = e.getCoalescedEvents ? e.getCoalescedEvents() : [];
+    for (const ev of (evs.length ? evs : [e])) {
+      const p = pt(ev), prev = cur.pts[cur.pts.length - 1];
+      if (Math.hypot(p[0] - prev[0], p[1] - prev[1]) < .002) continue;
+      cur.pts.push(p); drawSeg(cur, prev, p);
+      if (glitter && Math.random() < .08) Kit.tone(1500 + Math.random() * 900, .06, { vol: .04 });
+    }
+  });
+  const end = e => { if (e.pointerId === curId) { cur = null; curId = null; } };
+  ink.addEventListener('pointerup', end); ink.addEventListener('pointercancel', end);
+
+  // ---------- toolbar ----------
+  COLORS.forEach((c, i) => {
+    const b = document.createElement('button'); b.className = 'swatch tool' + (c === 'rainbow' ? ' rainbow' : '') + (i === 0 ? ' sel' : '');
+    if (c !== 'rainbow') b.style.background = c;
+    b.onclick = () => { color = c; glitter = false; Kit.tone(392 * Math.pow(2, i / 8), .12, { type: 'triangle' }); paintTools(); };
+    b.dataset.color = c; $('palette').appendChild(b);
+  });
+  const gl = document.createElement('button'); gl.className = 'btn tool'; gl.id = 'glitterBtn'; gl.textContent = '✨'; gl.style.width = gl.style.height = '58px'; gl.style.fontSize = '28px';
+  gl.onclick = () => { glitter = !glitter; Kit.sfx.ding(); if (glitter) Kit.say('mi.glitter'); paintTools(); };
+  $('palette').appendChild(gl);
+  SIZES.forEach(s => {
+    const b = document.createElement('button'); b.className = 'size' + (s === size ? ' sel' : '');
+    const d = document.createElement('i'); d.style.width = d.style.height = Math.max(8, s * .9) + 'px'; b.appendChild(d);
+    b.onclick = () => { size = s; Kit.sfx.pop(); document.querySelectorAll('.size').forEach(x => x.classList.toggle('sel', x === b)); };
+    $('palette').appendChild(b);
+  });
+  function paintTools() {
+    document.querySelectorAll('.swatch').forEach(b => b.classList.toggle('sel', !glitter && b.dataset.color === color));
+    $('glitterBtn').classList.toggle('sel', glitter);
+    document.querySelectorAll('.mode').forEach(b => b.classList.toggle('sel', b.dataset.mode === mode));
+  }
+  document.querySelectorAll('.mode').forEach(b => b.onclick = () => {
+    mode = b.dataset.mode; Kit.sfx.pop(); paintTools(); paintGuide();
+    Kit.say({ mirror: 'mi.butterfly', quad: 'mi.flower', snow: 'mi.snow' }[mode]);
+  });
+  $('stencilBtn').onclick = () => { stencil = (stencil + 1) % STENCILS.length; Kit.sfx.pop(); paintGuide(); if (stencil) Kit.say('mi.stencil'); };
+  $('undoBtn').onclick = () => { if (!strokes.length) return; strokes.pop(); redraw(); Kit.sfx.oops(); };
+  $('clearBtn').onclick = () => { if (!strokes.length) return; strokes = []; redraw(); Kit.sfx.whoosh(); Kit.flash($('paper'), 'wobble'); };
+
+  // ---------- gallery ----------
+  function snapshot() {
+    // a small JPEG on white so it fits in the tablet's storage
+    const s = 600 / Math.max(ink.width, ink.height), c = document.createElement('canvas');
+    c.width = Math.round(ink.width * s); c.height = Math.round(ink.height * s);
+    const x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, c.width, c.height); x.drawImage(ink, 0, 0, c.width, c.height);
+    return c.toDataURL('image/jpeg', .72);
+  }
+  $('shotBtn').onclick = () => {
+    if (!strokes.length) return;
+    const f = document.createElement('div'); f.className = 'flash'; document.body.appendChild(f); setTimeout(() => f.remove(), 520);
+    Kit.tone(1800, .05, { type: 'square', vol: .08 }); Kit.tone(1200, .08, { type: 'square', vol: .06, delay: .06 });
+    saved.gallery.push(snapshot());
+    while (saved.gallery.length > GALLERY_MAX) saved.gallery.shift();
+    save.set(saved);
+    Kit.burstAt($('galleryBtn'), ['⭐', '✨'], 8, 90);
+    Kit.say('mi.saved');
+  };
+  $('galleryBtn').onclick = () => {
+    Kit.sfx.pop();
+    const box = $('shots'); box.innerHTML = '';
+    [...saved.gallery].reverse().forEach(src => {
+      const img = document.createElement('img'); img.src = src;
+      img.onclick = () => { $('big').querySelector('img').src = src; $('big').classList.add('on'); Kit.sfx.pop(); };
+      box.appendChild(img);
+    });
+    $('gallery').classList.add('on'); Kit.say('mi.gallery');
+  };
+  $('galleryBack').onclick = () => { Kit.sfx.pop(); $('gallery').classList.remove('on'); };
+  $('big').onclick = () => $('big').classList.remove('on');
+
+  Kit.soundButton('soundBtn');
+  paintTools();
+  addEventListener('resize', sizeCanvases);
+  sizeCanvases();
+  Kit.say('mi.intro');
+})();
+</script>
+</body>
+</html>
