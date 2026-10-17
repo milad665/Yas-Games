@@ -58,8 +58,9 @@ In the repository → **Settings → Secrets and variables → Actions**:
 3. Optionally turn on **Adaptive Pricing** so people pay in their own currency.
 4. Copy the link (`https://buy.stripe.com/...`) into the `STRIPE_DONATE_URL` variable.
 
-Nothing secret goes into the site: the button only opens that link. Grown-ups press and hold 💝 for a
-second to open it, like the ⚙️, so children don't wander onto a payment page.
+Nothing secret goes into the site: the button only opens that link. Tapping 💝 opens a short note for
+grown-ups, and the Stripe button shows after answering a sum written in words ("seven plus five"), so
+children who can't read yet don't wander onto a payment page.
 
 ### 4. Search engines
 
