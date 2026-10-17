@@ -367,7 +367,19 @@
     "cs.age.dino": "5238862790",
     "cs.hb.dino": "ded47b9d5c",
     "cs.age.yas": "33a818978e",
-    "cs.hb.yas": "bd8f04f416"
+    "cs.hb.yas": "bd8f04f416",
+    "du.intro": "2532bf315a",
+    "du.surprise": "305c415aa3",
+    "du.photo": "a4fc28643f",
+    "du.album": "c45d1cb01f",
+    "du.theme.princess": "08bd136be1",
+    "du.theme.astronaut": "fb8fe15dcf",
+    "du.theme.firefighter": "46153f85b2",
+    "du.theme.pirate": "74dd6fcd58",
+    "du.theme.fairy": "b0514b669b",
+    "du.theme.superhero": "fe280444ba",
+    "du.theme.mermaid": "f2f96669bb",
+    "du.theme.doctor": "8c8bd76929"
   },
   "nl": {
     "hub.lang": "0eaed72984",
@@ -737,7 +749,19 @@
     "cs.age.dino": "1ea4334cee",
     "cs.hb.dino": "402dfcf0eb",
     "cs.age.yas": "66f00d72cd",
-    "cs.hb.yas": "5f255d6b0f"
+    "cs.hb.yas": "5f255d6b0f",
+    "du.intro": "b04123d6d3",
+    "du.surprise": "872ed7bfd3",
+    "du.photo": "52d1689415",
+    "du.album": "8146a934c3",
+    "du.theme.princess": "4a7d938ad6",
+    "du.theme.astronaut": "a4d4746d9e",
+    "du.theme.firefighter": "fd33d0b8a7",
+    "du.theme.pirate": "19f72e687b",
+    "du.theme.fairy": "dae4bea507",
+    "du.theme.superhero": "3d73f35619",
+    "du.theme.mermaid": "008255654f",
+    "du.theme.doctor": "8e26492618"
   },
   "voices": {
     "en": "Evan (Enhanced)",

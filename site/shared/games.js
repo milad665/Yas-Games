@@ -112,4 +112,11 @@ self.GAMES = [
     extras: ['🍓', '🕯️', '🧁', '🎉', '🍰'],
     colors: ['#fce7f3', '#fde68a', '#fbcfe8'],
   },
+  {
+    name: 'Dress-Up Studio',
+    path: 'games/dress-up/',
+    art: '👗',
+    extras: ['👑', '🚀', '🧜‍♀️', '🦸', '🧚'],
+    colors: ['#fae8ff', '#fce7f3', '#e0f2fe'],
+  },
 ];

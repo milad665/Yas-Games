@@ -403,4 +403,18 @@ self.VOICE_LINES = {
   'cs.hb.dino':      { en: 'Happy birthday, Dino!', nl: 'Hoera, gefeliciteerd Dino!' },
   'cs.age.yas':      { en: 'Yas is turning five! Put on five candles.', nl: 'Yas wordt vijf! Zet er vijf kaarsjes op.' },
   'cs.hb.yas':       { en: 'Happy birthday, Yas!', nl: 'Hoera, gefeliciteerd Yas!' },
+
+  // ---------- Dress-Up Studio ----------
+  'du.intro':        { en: 'Welcome to the dress-up studio! Who do you want to be today?', nl: 'Welkom in de verkleedstudio! Wat wil jij vandaag zijn?' },
+  'du.surprise':     { en: 'Surprise outfit!', nl: 'Verrassingskostuum!' },
+  'du.photo':        { en: 'Say cheese! Click!', nl: 'Zeg eens kaas! Klik!' },
+  'du.album':        { en: 'Your photo album!', nl: 'Jouw fotoalbum!' },
+  'du.theme.princess': { en: 'Wow! You are a real princess!', nl: 'Wauw! Jij bent een echte prinses!' },
+  'du.theme.astronaut': { en: 'Wow! You are a real astronaut!', nl: 'Wauw! Jij bent een echte astronaut!' },
+  'du.theme.firefighter': { en: 'Wow! You are a real firefighter!', nl: 'Wauw! Jij bent een echte brandweervrouw!' },
+  'du.theme.pirate': { en: 'Wow! You are a real pirate!', nl: 'Wauw! Jij bent een echte piraat!' },
+  'du.theme.fairy':  { en: 'Wow! You are a real fairy!', nl: 'Wauw! Jij bent een echte fee!' },
+  'du.theme.superhero': { en: 'Wow! You are a real superhero!', nl: 'Wauw! Jij bent een echte superheld!' },
+  'du.theme.mermaid': { en: 'Wow! You are a real mermaid!', nl: 'Wauw! Jij bent een echte zeemeermin!' },
+  'du.theme.doctor': { en: 'Wow! You are a real doctor!', nl: 'Wauw! Jij bent een echte dokter!' },
 };
