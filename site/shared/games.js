@@ -105,4 +105,11 @@ self.GAMES = [
     extras: ['🖍️', '🦄', '🚀', '⭐', '🎨'],
     colors: ['#ccfbf1', '#e0f2fe', '#fef3c7'],
   },
+  {
+    name: 'Cake Shop',
+    path: 'games/cake-shop/',
+    art: '🎂',
+    extras: ['🍓', '🕯️', '🧁', '🎉', '🍰'],
+    colors: ['#fce7f3', '#fde68a', '#fbcfe8'],
+  },
 ];

@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Cake Shop">
+<meta name="theme-color" content="#fce7f3">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="stylesheet" href="/shared/kit.css">
+<title>Cake Shop</title>
+<style>
+  body { background: repeating-linear-gradient(90deg, #fce7f3 0 60px, #fdf2f8 60px 120px); }
+  #shop { flex-direction: column; align-items: center; padding: max(14px, env(safe-area-inset-top)) 16px max(14px, env(safe-area-inset-bottom)); gap: 1.5vh; }
+  #steps { display: flex; gap: 10px; margin-top: 4px; }
+  .step { width: 56px; height: 56px; border-radius: 50%; background: rgba(255,255,255,.6); display: grid; place-items: center; font-size: 28px; opacity: .45; }
+  .step.now { opacity: 1; background: #fff; box-shadow: 0 0 0 4px #ec4899; }
+  .step.done { opacity: 1; }
+  #stage { flex: 1; min-height: 0; width: 100%; display: flex; align-items: center; justify-content: center; gap: 4vw; position: relative; }
+  #guest { font-size: min(18vh, 20vw); line-height: 1; display: none; }
+  #guest.on { display: block; animation: kit-bob 2.2s ease-in-out infinite; }
+  #guest.party { animation: party .5s ease-in-out infinite alternate; }
+  @keyframes party { from { transform: rotate(-10deg) translateY(0); } to { transform: rotate(10deg) translateY(-14px); } }
+  #cake { height: 100%; max-height: 54vh; aspect-ratio: 300 / 340; position: relative; }
+  #cake svg { width: 100%; height: 100%; overflow: visible; }
+  #cake.dim { filter: brightness(.95); }
+  .flame { transform-box: fill-box; transform-origin: 50% 100%; animation: flicker .25s ease-in-out infinite alternate; cursor: pointer; }
+  @keyframes flicker { from { transform: scale(1, 1) rotate(-3deg); } to { transform: scale(.9, 1.12) rotate(3deg); } }
+  .drop { animation: dropIn .45s cubic-bezier(.4,1.4,.6,1); transform-box: fill-box; }
+  @keyframes dropIn { from { transform: translateY(-120px); opacity: 0; } }
+  #night { position: absolute; inset: 0; background: rgba(15, 23, 42, .6); pointer-events: none; opacity: 0; transition: opacity .8s; z-index: 0; }
+  #night.on { opacity: 1; }
+  #stage, #panel, #steps { z-index: 2; position: relative; }
+
+  #panel { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; align-items: center; min-height: 110px; }
+  .opt { width: 88px; height: 88px; border-radius: 26px; font-size: 48px; }
+  .flavor { width: 84px; height: 84px; border-radius: 50%; border: 6px solid #fff; box-shadow: 0 5px 0 rgba(0,0,0,.15); touch-action: manipulation; }
+  #nextBtn { width: 104px; height: 104px; font-size: 52px; background: #4ade80; margin-left: 10px; }
+  #count { font-size: 40px; font-weight: 900; background: #fff; border-radius: 999px; padding: 4px 20px; box-shadow: 0 5px 0 rgba(0,0,0,.1); }
+</style>
+</head>
+<body>
+
+<section id="shop" class="screen on">
+  <div id="night"></div>
+  <a class="btn corner left" href="../../" aria-label="Back to Yas's Games">🏠</a>
+  <button id="soundBtn" class="btn corner right" aria-label="Sound on or off">🔊</button>
+  <div id="steps"></div>
+  <div id="stage"><div id="guest"></div><div id="cake"></div></div>
+  <div id="panel"></div>
+</section>
+
+<script src="/shared/lines.js"></script>
+<script src="/shared/voice.js"></script>
+<script src="/shared/kit.js"></script>
+<script>
+(() => {
+  const { $, rand, pick, sleep } = Kit;
+
+  const FLAVORS = { chocolate: '#7c3f1d', strawberry: '#f9a8d4', vanilla: '#fef3c7', blueberry: '#a78bfa', lemon: '#fde047', mint: '#86efac' };
+  const FROSTINGS = ['#ffffff', '#fbcfe8', '#93c5fd', '#fde68a', '#c4b5fd', '#6b3a1e'];
+  const TOPPINGS = ['🍓', '🍒', '🫐', '⭐', '🌸', '🍬', '🍫', '❤️'];
+  const GUESTS = { bear: ['🐻', 3], bunny: ['🐰', 4], unicorn: ['🦄', 5], puppy: ['🐶', 2], dino: ['🦖', 6], yas: ['👧', 5] };
+  const STEPS = [['layers', '🍰'], ['frosting', '🧁'], ['deco', '🍓'], ['candles', '🕯️']];
+  const MAX_LAYERS = 4;
+
+  let cake, step, guest, lit, busy, welcome = true;
+
+  function reset() {
+    cake = { layers: [], frosting: null, toppings: [], sprinkles: [], candles: 0 };
+    step = 0; guest = null; lit = false; busy = false;
+    $('guest').className = ''; $('guest').textContent = ''; $('night').classList.remove('on');
+  }
+
+  // ---------- drawing the cake (300 x 340 picture) ----------
+  const LAYER_H = 52, BOTTOM = 300, CX = 150, W = 220;
+  const topY = () => BOTTOM - cake.layers.length * LAYER_H;
+  function shade(hex, amt) { const n = parseInt(hex.slice(1), 16), c = v => Math.max(0, Math.min(255, v + amt)); return '#' + [c(n >> 16), c((n >> 8) & 255), c(n & 255)].map(v => v.toString(16).padStart(2, '0')).join(''); }
+  function paintCake(dropLast = false) {
+    let s = '<svg viewBox="0 0 300 340" xmlns="http://www.w3.org/2000/svg">';
+    s += `<ellipse cx="${CX}" cy="${BOTTOM + 12}" rx="140" ry="20" fill="#e2e8f0" stroke="#cbd5e1" stroke-width="4"/>`;
+    cake.layers.forEach((f, i) => {
+      const y = BOTTOM - (i + 1) * LAYER_H, col = FLAVORS[f];
+      s += `<g class="${dropLast && i === cake.layers.length - 1 ? 'drop' : ''}"><rect x="${CX - W / 2}" y="${y}" width="${W}" height="${LAYER_H}" rx="14" fill="${col}" stroke="${shade(col, -40)}" stroke-width="4"/>`;
+      s += `<rect x="${CX - W / 2 + 6}" y="${y + LAYER_H - 12}" width="${W - 12}" height="6" rx="3" fill="${shade(col, 30)}" opacity=".7"/></g>`;
+    });
+    if (cake.layers.length && cake.frosting) {
+      const y = topY(), col = cake.frosting;
+      // icing on top with drips down the side
+      let d = `M${CX - W / 2 - 4} ${y + 6} Q${CX - W / 2 - 4} ${y - 10} ${CX - W / 2 + 14} ${y - 10} L${CX + W / 2 - 14} ${y - 10} Q${CX + W / 2 + 4} ${y - 10} ${CX + W / 2 + 4} ${y + 6}`;
+      for (let x = CX + W / 2; x > CX - W / 2; x -= 24) d += ` L${x} ${y + 8} Q${x - 6} ${y + 30} ${x - 12} ${y + 8}`;
+      s += `<path d="${d} Z" fill="${col}" stroke="${shade(col, -30)}" stroke-width="3" stroke-linejoin="round"/>`;
+    }
+    for (const [x, y, c] of cake.sprinkles) s += `<rect x="${x}" y="${y}" width="10" height="4" rx="2" fill="${c}" transform="rotate(${(x * 7) % 180} ${x + 5} ${y + 2})"/>`;
+    for (const t of cake.toppings) s += `<text x="${t[1]}" y="${t[2]}" font-size="30" text-anchor="middle" dominant-baseline="central">${t[0]}</text>`;
+    // candles
+    for (let i = 0; i < cake.candles; i++) {
+      const n = cake.candles, x = CX - (n - 1) * 15 + i * 30, y = topY() - 12;
+      const stripe = ['#f472b6', '#60a5fa', '#facc15', '#4ade80', '#a78bfa', '#fb923c'][i % 6];
+      s += `<g data-candle="${i}"><rect x="${x - 6}" y="${y - 56}" width="12" height="56" rx="4" fill="#fff" stroke="${stripe}" stroke-width="3"/><line x1="${x}" y1="${y - 56}" x2="${x}" y2="${y - 64}" stroke="#334155" stroke-width="2"/>`;
+      if (lit && !(cake.out || []).includes(i)) s += `<path class="flame" d="M${x} ${y - 92} C${x + 12} ${y - 76} ${x + 10} ${y - 62} ${x} ${y - 62} C${x - 10} ${y - 62} ${x - 12} ${y - 76} ${x} ${y - 92} Z" fill="#fbbf24" stroke="#f97316" stroke-width="3"/>`;
+      s += '</g>';
+    }
+    $('cake').innerHTML = s + '</svg>';
+  }
+
+  // ---------- steps ----------
+  function paintSteps() {
+    $('steps').innerHTML = STEPS.map(([, icon], i) => `<div class="step ${i === step ? 'now' : i < step ? 'done' : ''}">${icon}</div>`).join('');
+  }
+  function nextButton(enabled = true) {
+    const b = document.createElement('button'); b.className = 'btn'; b.id = 'nextBtn'; b.textContent = '➡️'; b.disabled = !enabled;
+    b.setAttribute('aria-label', 'Next'); b.onclick = () => { Kit.sfx.pop(); step++; showStep(); };
+    return b;
+  }
+  function showStep() {
+    paintSteps(); paintCake();
+    const p = $('panel'); p.innerHTML = '';
+    const name = STEPS[step][0];
+    if (name === 'layers') {
+      for (const [f, col] of Object.entries(FLAVORS)) {
+        const b = document.createElement('button'); b.className = 'flavor'; b.style.background = col; b.setAttribute('aria-label', f);
+        b.onclick = () => {
+          if (cake.layers.length >= MAX_LAYERS) { Kit.sfx.oops(); return; }
+          cake.layers.push(f); paintCake(true); Kit.tone(300 + cake.layers.length * 80, .2, { type: 'triangle' }); Kit.say('cs.f.' + f);
+          $('nextBtn').disabled = false;
+        };
+        p.appendChild(b);
+      }
+      const undo = document.createElement('button'); undo.className = 'btn opt'; undo.textContent = '↩️';
+      undo.onclick = () => { if (!cake.layers.length) return; cake.layers.pop(); paintCake(); Kit.sfx.oops(); $('nextBtn').disabled = !cake.layers.length; };
+      p.append(undo, nextButton(cake.layers.length > 0));
+      Kit.say(welcome ? 'cs.intro' : null, cake.layers.length ? null : 'cs.layers'); welcome = false;
+    }
+    if (name === 'frosting') {
+      for (const col of FROSTINGS) {
+        const b = document.createElement('button'); b.className = 'flavor'; b.style.background = col;
+        b.onclick = () => { cake.frosting = col; paintCake(); Kit.tone(700, .25, { type: 'sine', to: 400 }); $('nextBtn').disabled = false; };
+        p.appendChild(b);
+      }
+      p.appendChild(nextButton(!!cake.frosting));
+      Kit.say('cs.frosting');
+    }
+    if (name === 'deco') {
+      for (const t of TOPPINGS) {
+        const b = document.createElement('button'); b.className = 'btn opt'; b.textContent = t;
+        b.onclick = () => {
+          if (cake.toppings.length > 18) cake.toppings.shift();
+          cake.toppings.push([t, rand(CX - W / 2 + 22, CX + W / 2 - 22), topY() + rand(-2, 26)]);
+          paintCake(); Kit.tone(600 + Math.random() * 500, .1, { type: 'triangle' });
+        };
+        p.appendChild(b);
+      }
+      const sp = document.createElement('button'); sp.className = 'btn opt'; sp.textContent = '🌈';
+      sp.setAttribute('aria-label', 'Sprinkles');
+      sp.onclick = () => {
+        for (let i = 0; i < 14; i++) cake.sprinkles.push([rand(CX - W / 2 + 6, CX + W / 2 - 16), rand(topY() - 6, BOTTOM - 10), pick(['#ef4444', '#3b82f6', '#22c55e', '#facc15', '#ec4899', '#a855f7'])]);
+        cake.sprinkles = cake.sprinkles.slice(-120);
+        paintCake(); [0, 1, 2, 3].forEach(i => Kit.tone(1200 + i * 150, .05, { vol: .06, delay: i * .04 }));
+      };
+      p.append(sp, nextButton(true));
+      Kit.say('cs.deco');
+    }
+    if (name === 'candles') chooseGuest();
+  }
+
+  // ---------- birthday! ----------
+  function chooseGuest() {
+    const p = $('panel'); p.innerHTML = '';
+    for (const [k, [e]] of Object.entries(GUESTS)) {
+      const b = document.createElement('button'); b.className = 'btn opt'; b.textContent = e; b.setAttribute('aria-label', k);
+      b.onclick = () => { Kit.sfx.pop(); guest = k; candles(); };
+      p.appendChild(b);
+    }
+    Kit.say('cs.who');
+  }
+  function candles() {
+    const [e, age] = GUESTS[guest];
+    $('guest').textContent = e; $('guest').className = 'on';
+    const p = $('panel'); p.innerHTML = '';
+    const add = document.createElement('button'); add.className = 'btn opt'; add.textContent = '🕯️'; add.setAttribute('aria-label', 'Add a candle');
+    const take = document.createElement('button'); take.className = 'btn opt'; take.textContent = '↩️';
+    const count = document.createElement('div'); count.id = 'count'; count.textContent = '0';
+    const light = document.createElement('button'); light.className = 'btn'; light.id = 'nextBtn'; light.textContent = '🔥'; light.setAttribute('aria-label', 'Light the candles');
+    const paint = () => { count.textContent = cake.candles; paintCake(); };
+    add.onclick = () => { if (cake.candles >= 7) return Kit.sfx.oops(); cake.candles++; paint(); Kit.tone(500 + cake.candles * 60, .12, { type: 'triangle' }); Kit.say('cg.n' + cake.candles); };
+    take.onclick = () => { if (!cake.candles) return; cake.candles--; paint(); Kit.sfx.oops(); };
+    light.onclick = () => {
+      if (busy) return;
+      if (cake.candles < age) { Kit.sfx.oops(); Kit.say('cs.more'); return; }
+      if (cake.candles > age) { Kit.sfx.oops(); Kit.say('cs.tooMany'); return; }
+      party();
+    };
+    p.append(take, add, count, light);
+    Kit.say('cs.age.' + guest);
+  }
+  function song() {
+    // Happy Birthday (public domain melody)
+    const G = 392, A = 440, B = 494, C = 523, D = 587, E = 659, F = 698, G2 = 784;
+    const tune = [[G, .75], [G, .25], [A, 1], [G, 1], [C, 1], [B, 2], [G, .75], [G, .25], [A, 1], [G, 1], [D, 1], [C, 2],
+      [G, .75], [G, .25], [G2, 1], [E, 1], [C, 1], [B, 1], [A, 2], [F, .75], [F, .25], [E, 1], [C, 1], [D, 1], [C, 2.5]];
+    let t = 0;
+    for (const [f, d] of tune) { Kit.tone(f, d * .38, { type: 'triangle', vol: .14, delay: t }); Kit.tone(f / 2, d * .38, { type: 'sine', vol: .06, delay: t }); t += d * .4; }
+    return t;
+  }
+  async function party() {
+    busy = true; step = 3; paintSteps();
+    $('panel').innerHTML = '';
+    lit = true; cake.out = []; paintCake();
+    $('night').classList.add('on');
+    Kit.say('cs.light');
+    await sleep(2200);
+    const len = song();
+    $('guest').classList.add('party');
+    await sleep(len * 1000 + 300);
+    Kit.say('cs.hb.' + guest, 'cs.blow');
+    busy = false;
+  }
+  // blow out a flame by tapping it
+  $('cake').addEventListener('pointerdown', e => {
+    if (!lit || busy) return;
+    const g = e.target.closest('[data-candle]'); if (!g) return;
+    const i = +g.dataset.candle; if (cake.out.includes(i)) return;
+    cake.out.push(i); paintCake();
+    Kit.tone(900, .3, { type: 'sawtooth', vol: .04, to: 200 });
+    Kit.burst(e.clientX, e.clientY - 30, ['💨'], 2, 40);
+    if (cake.out.length === cake.candles) finish();
+  });
+  async function finish() {
+    busy = true; lit = false;
+    $('night').classList.remove('on');
+    Kit.sfx.yay(); Kit.burstAt($('cake'), ['🎉', '🎊', '🎈', '⭐', '🍰'], 30, 320);
+    Kit.say('cs.yum');
+    await sleep(3500);
+    const again = document.createElement('button'); again.className = 'btn big go'; again.textContent = '🔁'; again.setAttribute('aria-label', 'Bake another cake');
+    again.onclick = () => { Kit.sfx.pop(); reset(); showStep(); };
+    $('panel').innerHTML = ''; $('panel').appendChild(again); again.classList.add('pulse');
+  }
+
+  Kit.soundButton('soundBtn');
+  reset();
+  showStep();
+})();
+</script>
+</body>
+</html>
