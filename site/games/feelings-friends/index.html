@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Feelings Friends">
+<meta name="theme-color" content="#fbcfe8">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="stylesheet" href="/shared/kit.css">
+<title>Feelings Friends</title>
+<style>
+  body { background: linear-gradient(160deg, #fce7f3 0%, #fbcfe8 40%, #ddd6fe 100%); }
+  #game { flex-direction: column; align-items: center; padding: max(14px, env(safe-area-inset-top)) 16px max(14px, env(safe-area-inset-bottom)); gap: 2vh; }
+  #hearts { position: absolute; top: max(24px, env(safe-area-inset-top)); left: 50%; translate: -50% 0; font-size: 28px; background: rgba(255,255,255,.7); border-radius: 999px; padding: 4px 16px; min-height: 46px; max-width: 50vw; text-align: center; }
+
+  #stage {
+    margin-top: 80px; flex: 1; width: min(94vw, 900px); max-height: 50vh; min-height: 0; position: relative;
+    background: rgba(255,255,255,.65); border-radius: 40px; box-shadow: 0 10px 30px rgba(190, 24, 93, .12);
+  }
+  .thing { position: absolute; translate: -50% -50%; line-height: 1; }
+  .hero { animation: kit-bob 2.4s ease-in-out infinite; }
+  .hero.cheer { animation: cheer .8s cubic-bezier(.3,1.5,.5,1) 2; }
+  @keyframes cheer { 40% { transform: translateY(-25%) rotate(-8deg) scale(1.1); } }
+  .fall { animation: fall 1s ease-in forwards; }
+  @keyframes fall { to { transform: translateY(120%) rotate(120deg); } }
+  .shake { animation: kit-shake .5s 3; }
+  #bubble {
+    position: absolute; translate: -50% -100%; background: #fff; border-radius: 26px; padding: 4px 14px; font-size: 56px; line-height: 1.2;
+    box-shadow: 0 6px 0 rgba(0,0,0,.1); display: none;
+  }
+  #bubble::after { content: ''; position: absolute; bottom: -12px; left: 50%; translate: -50% 0; border: 12px solid transparent; border-top-color: #fff; border-bottom: 0; }
+  #bubble.on { display: block; animation: kit-pop .4s cubic-bezier(.3,1.6,.5,1); }
+
+  #choices { display: flex; gap: clamp(10px, 2.5vw, 26px); justify-content: center; flex-wrap: wrap; min-height: 130px; align-items: center; }
+  .feel { width: clamp(96px, 14vw, 128px); height: clamp(96px, 14vw, 128px); font-size: clamp(58px, 9vw, 80px); }
+  .help { width: clamp(110px, 16vw, 140px); height: clamp(110px, 16vw, 140px); border-radius: 34px; font-size: clamp(60px, 9vw, 84px); }
+  .glow { box-shadow: 0 6px 0 rgba(40,50,90,.18), 0 0 0 6px #fde047; animation: kit-pulse 1s infinite; }
+
+  /* face builder */
+  #face { width: min(42vh, 60vw); aspect-ratio: 1; position: absolute; left: 50%; top: 50%; translate: -50% -50%; }
+  #face svg, .part svg { width: 100%; height: 100%; display: block; }
+  #parts { display: flex; flex-direction: column; gap: 10px; align-items: center; }
+  .partRow { display: flex; gap: 10px; background: rgba(255,255,255,.6); border-radius: 24px; padding: 6px 10px; }
+  .part { width: 74px; height: 74px; border-radius: 20px; background: #fff; border: 4px solid transparent; padding: 2px; touch-action: manipulation; cursor: pointer; box-shadow: 0 4px 0 rgba(0,0,0,.1); }
+  .part.sel { border-color: #ec4899; }
+  .faceRow { display: flex; gap: 20px; align-items: center; }
+  #checkBtn { width: 100px; height: 100px; font-size: 52px; background: #4ade80; }
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<section id="game" class="screen on">
+  <a class="btn corner left" href="../../" aria-label="Back to Yas's Games">🏠</a>
+  <button id="soundBtn" class="btn corner right" aria-label="Sound on or off">🔊</button>
+  <div id="hearts"></div>
+  <div id="stage"><div id="bubble"></div></div>
+  <div id="choices"></div>
+  <div class="faceRow hidden" id="builder"><div id="parts"></div><button id="checkBtn" class="btn" aria-label="Done">✅</button></div>
+</section>
+
+<script src="/shared/lines.js"></script>
+<script src="/shared/voice.js"></script>
+<script src="/shared/kit.js"></script>
+<script>
+(() => {
+  const { $, pick, shuffle, sleep } = Kit;
+
+  const FEELINGS = { happy: '😊', sad: '😢', angry: '😠', scared: '😨', surprised: '😮' };
+
+  // each story: hero, scenery [emoji, x%, y%, size vmin, class], feelings that fit, kind helps, one unkind choice
+  const STORIES = [
+    { id: 1, hero: '🐰', things: [['🍦', 62, 62, 14, 'fall']], feel: ['sad', 'angry'], help: ['🍦', '🤗'], unkind: '😂' },
+    { id: 2, hero: '🐻', things: [['🎂', 66, 62, 16], ['🎈', 82, 28, 10], ['🎉', 20, 24, 10]], feel: ['happy'] },
+    { id: 3, hero: '🐱', things: [['⛈️', 70, 22, 16, 'shake'], ['⚡', 46, 30, 9, 'shake']], feel: ['scared'], help: ['🤗', '🧸'], unkind: '📢' },
+    { id: 4, hero: '🐶', things: [['🧱', 62, 72, 9, 'fall'], ['🧱', 70, 60, 9, 'fall'], ['🧱', 76, 72, 9, 'fall']], feel: ['angry', 'sad'], help: ['🧱', '🌬️'], unkind: '💥' },
+    { id: 5, hero: '🐸', things: [['🎁', 64, 62, 14], ['🤡', 64, 32, 12]], feel: ['surprised', 'scared'] },
+    { id: 6, hero: '🐼', things: [['🛝', 72, 56, 18]], feel: ['sad'], help: ['🤝', '⚽'], unkind: '🙈' },
+    { id: 7, hero: '🦊', things: [['🌑', 72, 26, 14], ['🕸️', 24, 22, 10]], feel: ['scared'], help: ['🔦', '🤗'], unkind: '👻' },
+    { id: 8, hero: '🐷', things: [['💥', 66, 34, 14]], feel: ['surprised', 'sad'], help: ['🎈', '🤗'], unkind: '😂' },
+    { id: 9, hero: '🐯', things: [['🍪', 74, 50, 12, 'fall'], ['🐵', 86, 56, 14]], feel: ['angry'], help: ['🗣️', '🍪'], unkind: '👊' },
+    { id: 10, hero: '🦄', things: [['🎨', 66, 64, 14], ['🖼️', 70, 32, 14], ['⭐', 86, 22, 8]], feel: ['happy'] },
+    { id: 11, hero: '🐭', things: [['🐈‍⬛', 72, 52, 22]], feel: ['scared'], help: ['🏠', '🤗'], unkind: '📢' },
+    { id: 12, hero: '🐨', things: [['🌈', 66, 28, 22], ['☀️', 88, 18, 10]], feel: ['surprised', 'happy'] },
+  ];
+
+  // ---------- faces for the face-making rounds ----------
+  const BROWS = ['none', 'up', 'angry', 'sad'];
+  const EYES = ['normal', 'wide', 'happy'];
+  const MOUTHS = ['smile', 'frown', 'open', 'wavy', 'flat'];
+  function faceSVG(f, crop) {
+    let s = `<svg viewBox="${crop || '0 0 200 200'}" xmlns="http://www.w3.org/2000/svg">`;
+    if (!crop) s += '<circle cx="100" cy="100" r="92" fill="#fde047" stroke="#ca8a04" stroke-width="6"/><circle cx="52" cy="122" r="12" fill="#fda4af" opacity=".6"/><circle cx="148" cy="122" r="12" fill="#fda4af" opacity=".6"/>';
+    else s += '<rect x="-50" y="-50" width="400" height="400" fill="#fde047"/>';
+    const k = '#3f2a14';
+    // brows
+    if (f.brows === 'up') s += `<path d="M48 52 Q66 36 84 50 M116 50 Q134 36 152 52" fill="none" stroke="${k}" stroke-width="7" stroke-linecap="round"/>`;
+    if (f.brows === 'angry') s += `<path d="M48 48 L84 62 M152 48 L116 62" fill="none" stroke="${k}" stroke-width="8" stroke-linecap="round"/>`;
+    if (f.brows === 'sad') s += `<path d="M50 62 L84 50 M150 62 L116 50" fill="none" stroke="${k}" stroke-width="8" stroke-linecap="round"/>`;
+    // eyes
+    if (f.eyes === 'normal') s += `<circle cx="70" cy="82" r="10" fill="${k}"/><circle cx="130" cy="82" r="10" fill="${k}"/>`;
+    if (f.eyes === 'wide') s += `<circle cx="70" cy="82" r="18" fill="#fff" stroke="${k}" stroke-width="5"/><circle cx="130" cy="82" r="18" fill="#fff" stroke="${k}" stroke-width="5"/><circle cx="70" cy="82" r="7" fill="${k}"/><circle cx="130" cy="82" r="7" fill="${k}"/>`;
+    if (f.eyes === 'happy') s += `<path d="M56 86 Q70 70 84 86 M116 86 Q130 70 144 86" fill="none" stroke="${k}" stroke-width="7" stroke-linecap="round"/>`;
+    // mouth
+    if (f.mouth === 'smile') s += `<path d="M58 124 Q100 168 142 124" fill="none" stroke="${k}" stroke-width="8" stroke-linecap="round"/>`;
+    if (f.mouth === 'frown') s += `<path d="M64 154 Q100 120 136 154" fill="none" stroke="${k}" stroke-width="8" stroke-linecap="round"/>`;
+    if (f.mouth === 'open') s += `<ellipse cx="100" cy="142" rx="18" ry="24" fill="${k}"/>`;
+    if (f.mouth === 'wavy') s += `<path d="M62 142 q10 -10 19 0 t19 0 t19 0 t19 0" fill="none" stroke="${k}" stroke-width="7" stroke-linecap="round"/>`;
+    if (f.mouth === 'flat') s += `<path d="M66 140 L134 140" fill="none" stroke="${k}" stroke-width="8" stroke-linecap="round"/>`;
+    return s + '</svg>';
+  }
+  // does this face show the feeling? (kept friendly: the key parts only)
+  const FITS = {
+    happy:     f => ['smile'].includes(f.mouth) && !['angry', 'sad'].includes(f.brows),
+    sad:       f => f.mouth === 'frown' && f.brows !== 'angry' && f.eyes !== 'happy',
+    angry:     f => f.brows === 'angry' && ['frown', 'flat'].includes(f.mouth),
+    scared:    f => f.eyes === 'wide' && ['wavy', 'open', 'frown'].includes(f.mouth) && f.brows !== 'angry',
+    surprised: f => f.eyes === 'wide' && f.mouth === 'open' && f.brows !== 'angry',
+  };
+
+  const save = Kit.store('feelings-friends');
+  const saved = save.get({ hearts: 0, rounds: 0, order: [] });
+  let story = null, busy = false, stage = 'feel', misses = 0;
+
+  function paintHearts() { const n = saved.hearts; $('hearts').textContent = n ? (n > 10 ? '💖 × ' + n : '💖'.repeat(n)) : '🤍'; }
+  function clearStage() { [...$('stage').querySelectorAll('.thing, #face')].forEach(e => e.remove()); $('bubble').classList.remove('on'); }
+  function addThing(e, x, y, size, cls = '') {
+    const el = document.createElement('div'); el.className = 'thing ' + cls; el.textContent = e;
+    el.style.left = x + '%'; el.style.top = y + '%'; el.style.fontSize = size + 'vmin';
+    $('stage').appendChild(el); return el;
+  }
+  function bubble(text) {
+    const hero = $('stage').querySelector('.hero'); if (!hero) return;
+    const b = $('bubble'); b.textContent = text;
+    b.style.left = hero.style.left; b.style.top = `calc(${hero.style.top} - 11vmin)`;
+    b.classList.remove('on'); void b.offsetWidth; b.classList.add('on');
+  }
+
+  // pick stories in a shuffled order so she sees them all before repeats
+  function nextStory() {
+    if (!saved.order.length) saved.order = shuffle(STORIES.map(s => s.id));
+    const id = saved.order.shift(); save.set(saved);
+    return STORIES.find(s => s.id === id);
+  }
+
+  // ================= story rounds =================
+  async function storyRound(first) {
+    busy = true; stage = 'feel'; misses = 0;
+    $('builder').classList.add('hidden'); $('choices').classList.remove('hidden');
+    story = nextStory();
+    clearStage();
+    addThing(story.hero, 30, 54, 22, 'hero');
+    const things = story.things.map(([e, x, y, s]) => addThing(e, x, y, s));
+    $('choices').innerHTML = '';
+    if (first) { Kit.say('ff.intro'); await sleep(3200); }
+    Kit.say('ff.s' + story.id, 'ff.howFeel');
+    await sleep(1200);
+    story.things.forEach(([, , , , cls], i) => cls && things[i].classList.add(cls));
+    if (story.things.some(t => t[4] === 'fall')) Kit.sfx.oops();
+    if (story.things.some(t => t[4] === 'shake')) Kit.tone(70, .8, { type: 'sawtooth', vol: .08, to: 40 });
+    paintFeelings(); busy = false;
+  }
+  function paintFeelings() {
+    const box = $('choices'); box.innerHTML = '';
+    for (const [k, e] of Object.entries(FEELINGS)) {
+      const b = document.createElement('button'); b.className = 'btn feel'; b.textContent = e; b.setAttribute('aria-label', k);
+      b.onclick = () => chooseFeeling(k, b);
+      box.appendChild(b);
+    }
+  }
+  async function chooseFeeling(k, b) {
+    if (busy || stage !== 'feel') return;
+    if (!story.feel.includes(k)) {
+      misses++; Kit.flash(b, 'wobble'); Kit.sfx.oops(); Kit.say('ff.f.' + k, 'ff.lookAgain');
+      if (misses >= 2) [...$('choices').children].forEach(x => x.classList.toggle('glow', story.feel.includes(x.getAttribute('aria-label'))));
+      return;
+    }
+    busy = true; Kit.sfx.ding(); bubble(FEELINGS[k]);
+    Kit.say('ff.f.' + k, 'ff.right.' + k);
+    await sleep(3400);
+    if (!story.help) return celebrate();
+    stage = 'help'; misses = 0;
+    const box = $('choices'); box.innerHTML = '';
+    for (const h of shuffle([...story.help, story.unkind])) {
+      const btn = document.createElement('button'); btn.className = 'btn help'; btn.textContent = h;
+      btn.onclick = () => chooseHelp(h, btn);
+      box.appendChild(btn);
+    }
+    Kit.say('ff.howHelp'); busy = false;
+  }
+  async function chooseHelp(h, b) {
+    if (busy || stage !== 'help') return;
+    if (h === story.unkind) {
+      misses++; Kit.flash(b, 'wobble'); Kit.sfx.oops(); Kit.say('ff.notHelp');
+      if (misses >= 1) [...$('choices').children].forEach(x => x.classList.toggle('glow', story.help.includes(x.textContent)));
+      return;
+    }
+    busy = true; Kit.sfx.yay();
+    addThing(h, 46, 40, 12, 'pop-in');
+    bubble('😊');
+    $('stage').querySelector('.hero').classList.add('cheer');
+    Kit.burstAt($('stage').querySelector('.hero'), ['💖', '💕', '✨'], 16, 180);
+    Kit.say('ff.helped');
+    win();
+  }
+  function celebrate() {
+    Kit.sfx.yay(); bubble('🥳');
+    $('stage').querySelector('.hero').classList.add('cheer');
+    Kit.burstAt($('stage'), ['🎉', '⭐', '💖', '✨'], 20, 240);
+    Kit.say('ff.celebrate');
+    win();
+  }
+
+  // ================= face-making rounds =================
+  let face = null, want = null;
+  function faceRound() {
+    busy = false; stage = 'face'; misses = 0;
+    clearStage();
+    $('choices').classList.add('hidden'); $('builder').classList.remove('hidden');
+    want = pick(Object.keys(FEELINGS));
+    face = { brows: 'none', eyes: 'normal', mouth: 'flat' };
+    const f = document.createElement('div'); f.id = 'face'; $('stage').appendChild(f);
+    paintFace();
+    Kit.say('ff.make.' + want);
+  }
+  function paintFace() {
+    $('face').innerHTML = faceSVG(face);
+    const parts = $('parts'); parts.innerHTML = '';
+    for (const [key, opts, crop] of [['brows', BROWS, '30 22 140 60'], ['eyes', EYES, '30 52 140 60'], ['mouth', MOUTHS, '30 104 140 70']]) {
+      const row = document.createElement('div'); row.className = 'partRow';
+      for (const o of opts) {
+        const b = document.createElement('button'); b.className = 'part' + (face[key] === o ? ' sel' : '');
+        b.innerHTML = faceSVG({ brows: 'none', eyes: 'none', mouth: 'none', [key]: o }, crop);
+        b.setAttribute('aria-label', key + ' ' + o);
+        b.onclick = () => { face[key] = o; Kit.tone(400 + Math.random() * 300, .1, { type: 'triangle' }); paintFace(); };
+        row.appendChild(b);
+      }
+      parts.appendChild(row);
+    }
+  }
+  $('checkBtn').onclick = async () => {
+    if (busy || stage !== 'face') return;
+    if (!FITS[want](face)) {
+      misses++; Kit.sfx.oops(); Kit.flash($('face'), 'wobble'); Kit.say('ff.notQuite');
+      return;
+    }
+    busy = true; Kit.sfx.yay(); Kit.burstAt($('face'), ['⭐', '✨', '💖'], 18, 200);
+    Kit.say('ff.greatFace');
+    win();
+  };
+
+  // ================= flow =================
+  async function win() {
+    saved.hearts++; saved.rounds++; save.set(saved); paintHearts();
+    await sleep(3600);
+    next();
+  }
+  function next(first = false) { (saved.rounds % 3 === 2 && !first ? faceRound : storyRound)(first); }
+
+  Kit.soundButton('soundBtn');
+  paintHearts();
+  next(true);
+})();
+</script>
+</body>
+</html>

@@ -77,4 +77,11 @@ self.GAMES = [
     extras: ['🐘', '🦒', '🐄', '🐧', '📸'],
     colors: ['#fde68a', '#fdba74', '#bbf7d0'],
   },
+  {
+    name: 'Feelings Friends',
+    path: 'games/feelings-friends/',
+    art: '😊',
+    extras: ['😢', '😠', '😨', '😮', '💖'],
+    colors: ['#fce7f3', '#fbcfe8', '#ddd6fe'],
+  },
 ];
