@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Doodle Puzzles">
+<meta name="theme-color" content="#ccfbf1">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="stylesheet" href="/shared/kit.css">
+<title>Doodle Puzzles</title>
+<style>
+  body { background: linear-gradient(160deg, #ccfbf1 0%, #e0f2fe 50%, #fef3c7 100%); }
+
+  #pick { flex-direction: column; align-items: center; padding: max(24px, env(safe-area-inset-top)) 20px 24px; gap: 2.5vh; overflow-y: auto; touch-action: pan-y; }
+  #pick .title { margin-top: 46px; font-size: clamp(40px, 7vw, 76px); }
+  #sizes { display: flex; gap: 16px; background: rgba(255,255,255,.7); padding: 10px 16px; border-radius: 28px; }
+  .size { width: 84px; height: 84px; border-radius: 22px; display: grid; place-items: center; }
+  .size.sel { background: #99f6e4; box-shadow: 0 6px 0 rgba(40,50,90,.18), 0 0 0 4px #14b8a6; }
+  .grid { display: grid; gap: 3px; }
+  .grid i { width: 13px; height: 13px; background: #14b8a6; border-radius: 3px; }
+  #pics { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 16px; width: min(100%, 1000px); }
+  .pic { position: relative; border-radius: 22px; overflow: hidden; cursor: pointer; touch-action: manipulation; box-shadow: 0 6px 0 rgba(0,0,0,.1); border: 5px solid #fff; background: #fff; aspect-ratio: 4 / 3; }
+  .pic img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .pic .mine { position: absolute; top: 6px; left: 6px; font-size: 26px; }
+  .pic .st { position: absolute; top: 6px; right: 6px; font-size: 26px; }
+
+  #play { overflow: hidden; }
+  #board { position: absolute; border-radius: 12px; background: rgba(255,255,255,.6); box-shadow: 0 10px 30px rgba(15, 118, 110, .2); }
+  #ghost { position: absolute; inset: 0; width: 100%; height: 100%; opacity: .22; border-radius: 12px; transition: opacity .6s; }
+  #board.done #ghost { opacity: 1; }
+  .piece { position: absolute; left: 0; top: 0; touch-action: none; cursor: grab; filter: drop-shadow(0 4px 4px rgba(0,0,0,.25)); will-change: transform; }
+  .piece.lift { filter: drop-shadow(0 14px 10px rgba(0,0,0,.3)); z-index: 50; }
+  .piece.locked { filter: none; cursor: default; pointer-events: none; }
+  .piece.snap { transition: transform .15s ease-out; }
+</style>
+</head>
+<body>
+
+<section id="pick" class="screen on">
+  <a class="btn corner left" href="../../" aria-label="Back to Yas's Games">🏠</a>
+  <button id="soundBtn" class="btn corner right" aria-label="Sound on or off">🔊</button>
+  <h1 id="title" class="title"></h1>
+  <div id="sizes"></div>
+  <div id="pics"></div>
+</section>
+
+<section id="play" class="screen">
+  <button id="backBtn" class="btn corner left" aria-label="Pick another picture">🏠</button>
+  <div id="board"><img id="ghost" alt=""></div>
+  <div id="pieces"></div>
+</section>
+
+<script src="/shared/lines.js"></script>
+<script src="/shared/voice.js"></script>
+<script src="/shared/kit.js"></script>
+<script>
+(() => {
+  const { $, rand, shuffle, sleep } = Kit;
+  const SIZES = [[2, 2], [3, 2], [3, 3], [4, 3]];
+
+  const save = Kit.store('doodle-puzzles');
+  const saved = save.get({ size: 0, solved: [] });
+
+  // ---------- pictures: her own first, then ready-made scenes ----------
+  function scene(bg, items) {
+    const c = document.createElement('canvas'); c.width = 800; c.height = 600;
+    const x = c.getContext('2d');
+    const g = x.createLinearGradient(0, 0, 800, 600); bg.forEach((col, i) => g.addColorStop(i / (bg.length - 1), col));
+    x.fillStyle = g; x.fillRect(0, 0, 800, 600);
+    x.textAlign = 'center'; x.textBaseline = 'middle';
+    for (const [e, px, py, size] of items) { x.font = `${size}px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif`; x.fillText(e, px, py); }
+    return c.toDataURL('image/jpeg', .85);
+  }
+  const READY = [
+    () => scene(['#fbcfe8', '#c4b5fd', '#93c5fd'], [['🌈', 560, 160, 220], ['🦄', 330, 360, 300], ['✨', 120, 110, 90], ['⭐', 680, 470, 80]]),
+    () => scene(['#1e1b4b', '#4c1d95', '#0f172a'], [['🪐', 620, 150, 180], ['🌙', 140, 120, 120], ['🚀', 360, 370, 260], ['⭐', 650, 470, 70], ['✨', 200, 480, 70]]),
+    () => scene(['#67e8f9', '#2563eb', '#1e3a8a'], [['🐠', 230, 220, 190], ['🐙', 560, 380, 230], ['🫧', 640, 120, 90], ['🪸', 130, 500, 140], ['🐚', 380, 540, 70]]),
+    () => scene(['#fdba74', '#fde68a', '#86efac'], [['🌋', 590, 230, 260], ['🦕', 250, 360, 280], ['🌴', 90, 300, 160], ['🥚', 480, 520, 80]]),
+    () => scene(['#fbcfe8', '#ddd6fe', '#bbf7d0'], [['🏰', 520, 270, 300], ['👸', 190, 380, 220], ['🌸', 90, 520, 80], ['✨', 700, 90, 80]]),
+    () => scene(['#7dd3fc', '#e0f2fe', '#84cc16'], [['🐶', 220, 380, 220], ['🐱', 520, 400, 200], ['☀️', 660, 110, 130], ['🌳', 90, 230, 170]]),
+  ];
+  // Magic Doodles creatures sit on their world's colors
+  const WORLD_BG = { meadow: ['#8fd3ff', '#d9f3ff', '#62bd4c'], castle: ['#ffb3d9', '#d7c2ff', '#a6e8b4'], ocean: ['#6fd6ff', '#2b8fd6', '#1a5fa8'],
+                     space: ['#1a1550', '#4a2f8f', '#070a24'], dino: ['#ffcf70', '#ffad6b', '#8cc65a'] };
+  function onBackground(src, bg) {
+    return new Promise(ok => {
+      const img = new Image();
+      img.onload = () => {
+        const c = document.createElement('canvas'); c.width = 800; c.height = 600;
+        const x = c.getContext('2d'), g = x.createLinearGradient(0, 0, 0, 600);
+        bg.forEach((col, i) => g.addColorStop(i / (bg.length - 1), col)); x.fillStyle = g; x.fillRect(0, 0, 800, 600);
+        const k = Math.min(620 / img.width, 480 / img.height);
+        x.drawImage(img, 400 - img.width * k / 2, 300 - img.height * k / 2, img.width * k, img.height * k);
+        ok(c.toDataURL('image/jpeg', .85));
+      };
+      img.onerror = () => ok(null);
+      img.src = src;
+    });
+  }
+  async function collect() {
+    const mine = [];
+    try {
+      const md = JSON.parse(localStorage.getItem('magicDoodles.v1')) || {};
+      for (const [world, list] of Object.entries(md)) if (Array.isArray(list)) for (const c of list.slice(-4)) mine.push({ id: 'md' + c.img.length + world, make: () => onBackground(c.img, WORLD_BG[world] || WORLD_BG.meadow) });
+    } catch (e) {}
+    try { (Kit.store('mirror-painter').get({ gallery: [] }).gallery || []).forEach(src => mine.push({ id: 'mi' + src.length, src })); } catch (e) {}
+    const ready = READY.map((f, i) => ({ id: 'ready' + i, make: async () => f() }));
+    return { mine: mine.slice(-12).reverse(), ready };
+  }
+
+  // ---------- picker ----------
+  Kit.title('title', 'Doodle Puzzles');
+  Kit.soundButton('soundBtn');
+  function paintSizes() {
+    $('sizes').innerHTML = '';
+    SIZES.forEach(([c, r], i) => {
+      const b = document.createElement('button'); b.className = 'btn size' + (i === saved.size ? ' sel' : '');
+      b.innerHTML = `<div class="grid" style="grid-template-columns:repeat(${c},13px)">${'<i></i>'.repeat(c * r)}</div>`;
+      b.setAttribute('aria-label', c * r + ' pieces');
+      b.onclick = () => { saved.size = i; save.set(saved); Kit.tone(400 + i * 120, .12, { type: 'triangle' }); paintSizes(); };
+      $('sizes').appendChild(b);
+    });
+  }
+  async function paintPicker() {
+    paintSizes();
+    const { mine, ready } = await collect();
+    const box = $('pics'); box.innerHTML = '';
+    for (const [p, isMine] of [...mine.map(p => [p, true]), ...ready.map(p => [p, false])]) {
+      const src = p.src || await p.make(); if (!src) continue;
+      const el = document.createElement('div'); el.className = 'pic';
+      el.innerHTML = `<img src="${src}" alt="">${isMine ? '<span class="mine">🖍️</span>' : ''}${saved.solved.includes(p.id) ? '<span class="st">⭐</span>' : ''}`;
+      el.onclick = () => { Kit.sfx.pop(); start(src, p.id, isMine); };
+      box.appendChild(el);
+    }
+    return mine.length;
+  }
+  paintPicker().then(n => Kit.say('dp.intro', n ? null : 'dp.noPics'));
+
+  // ---------- the puzzle ----------
+  let pieces = [], picId = null, busy = false;
+
+  // one edge of a piece: flat, or a knob sticking out (1) or in (-1)
+  function edge(x, ax, ay, bx, by, dir, s) {
+    if (!dir) return x.lineTo(bx, by);
+    const L = Math.hypot(bx - ax, by - ay), ux = (bx - ax) / L, uy = (by - ay) / L, nx = uy, ny = -ux;
+    const p = (t, h) => [ax + ux * L * t + nx * h * s * dir, ay + uy * L * t + ny * h * s * dir];
+    x.lineTo(...p(.36, 0));
+    x.bezierCurveTo(...p(.28, .9), ...p(.42, 1.25), ...p(.5, 1.25));
+    x.bezierCurveTo(...p(.58, 1.25), ...p(.72, .9), ...p(.64, 0));
+    x.lineTo(bx, by);
+  }
+
+  async function start(src, id, isMine) {
+    picId = id; busy = false;
+    document.querySelectorAll('.screen').forEach(s => s.classList.toggle('on', s.id === 'play'));
+    const img = await new Promise(ok => { const i = new Image(); i.onload = () => ok(i); i.src = src; });
+    const [cols, rows] = SIZES[saved.size];
+    // board size: as big as fits while leaving room for the loose pieces
+    const vw = innerWidth, vh = innerHeight, aspect = img.width / img.height;
+    // landscape: pieces go left and right of the board; portrait: below it
+    let bw = vw >= vh ? Math.min(vw * .5, (vh - 110) * .72 * aspect) : Math.min(vw * .8, (vh - 110) * .46 * aspect);
+    let bh = bw / aspect;
+    const bx = (vw - bw) / 2, by = 90;
+    const board = $('board');
+    Object.assign(board.style, { left: bx + 'px', top: by + 'px', width: bw + 'px', height: bh + 'px' });
+    board.classList.remove('done');
+    $('ghost').src = src;
+
+    const cw = bw / cols, ch = bh / rows, s = Math.min(cw, ch) * .2, m = s * 1.4;
+    const hor = Array.from({ length: rows }, () => Array.from({ length: cols }, () => Math.random() < .5 ? 1 : -1));
+    const ver = Array.from({ length: rows }, () => Array.from({ length: cols }, () => Math.random() < .5 ? 1 : -1));
+    const dpr = Math.min(2, devicePixelRatio || 1);
+    $('pieces').innerHTML = ''; pieces = [];
+
+    // free spots around the board for the loose pieces
+    const pw = cw + 2 * m, ph = ch + 2 * m;
+    // try to lay pieces out without overlapping; squeeze closer only if there isn't room
+    let spots = [];
+    for (const step of [1, .85, .7, .55]) {
+      spots = [];
+      for (let y = 80; y <= vh - ph * (1 - (1 - step) / 2); y += ph * step) for (let x = 8; x <= vw - pw * (1 - (1 - step) / 2); x += pw * step) {
+        const inBoard = x + pw * .8 > bx && x + pw * .2 < bx + bw && y + ph * .8 > by && y + ph * .2 < by + bh;
+        if (!inBoard) spots.push([x, y]);
+      }
+      if (spots.length >= cols * rows) break;
+    }
+    const order = shuffle(spots);
+
+    for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
+      const e = { top: r ? -hor[r - 1][c] : 0, right: c < cols - 1 ? ver[r][c] : 0, bottom: r < rows - 1 ? hor[r][c] : 0, left: c ? -ver[r][c - 1] : 0 };
+      const cv = document.createElement('canvas'); cv.className = 'piece';
+      cv.width = pw * dpr; cv.height = ph * dpr; cv.style.width = pw + 'px'; cv.style.height = ph + 'px';
+      const x = cv.getContext('2d'); x.scale(dpr, dpr);
+      x.beginPath(); x.moveTo(m, m);
+      edge(x, m, m, m + cw, m, e.top, s);
+      edge(x, m + cw, m, m + cw, m + ch, e.right, s);
+      edge(x, m + cw, m + ch, m, m + ch, e.bottom, s);
+      edge(x, m, m + ch, m, m, e.left, s);
+      x.closePath();
+      x.save(); x.clip(); x.drawImage(img, m - c * cw, m - r * ch, bw, bh); x.restore();
+      x.strokeStyle = 'rgba(255,255,255,.9)'; x.lineWidth = 2; x.stroke();
+      const target = [bx + c * cw - m, by + r * ch - m];
+      const at = order.length ? order.pop() : [rand(10, vw - pw), rand(vh - ph - 10, vh - ph)];
+      const piece = { cv, x: at[0], y: at[1], target, locked: false };
+      place(piece); attach(piece);
+      $('pieces').appendChild(cv); pieces.push(piece);
+    }
+    Kit.say(isMine ? 'dp.yours' : null, 'dp.go');
+  }
+  function place(p) { p.cv.style.transform = `translate(${p.x}px, ${p.y}px)`; }
+  function attach(p) {
+    let start = null;
+    p.cv.addEventListener('pointerdown', e => {
+      if (p.locked || start) return;
+      e.preventDefault(); try { p.cv.setPointerCapture(e.pointerId); } catch (err) {}
+      start = { id: e.pointerId, dx: e.clientX - p.x, dy: e.clientY - p.y };
+      p.cv.classList.remove('snap'); p.cv.classList.add('lift'); $('pieces').appendChild(p.cv);
+      Kit.tone(500, .05, { type: 'triangle', vol: .08 });
+    });
+    p.cv.addEventListener('pointermove', e => {
+      if (!start || e.pointerId !== start.id) return;
+      p.x = e.clientX - start.dx; p.y = e.clientY - start.dy; place(p);
+    });
+    const end = e => {
+      if (!start || e.pointerId !== start.id) return;
+      start = null; p.cv.classList.remove('lift');
+      const d = Math.hypot(p.x - p.target[0], p.y - p.target[1]);
+      if (d < Math.max(36, p.cv.offsetWidth * .28)) {
+        p.x = p.target[0]; p.y = p.target[1]; p.locked = true;
+        p.cv.classList.add('snap', 'locked'); place(p);
+        Kit.sfx.ding(); Kit.burst(e.clientX, e.clientY, ['✨', '⭐'], 5, 70);
+        if (pieces.every(q => q.locked)) done();
+      }
+    };
+    p.cv.addEventListener('pointerup', end); p.cv.addEventListener('pointercancel', end);
+  }
+  async function done() {
+    busy = true;
+    await sleep(300);
+    $('board').classList.add('done'); $('pieces').style.opacity = 0;
+    Kit.sfx.yay(); Kit.burstAt($('board'), ['🎉', '⭐', '🌟', '✨', '🧩'], 26, 300);
+    Kit.say(['dp.done1', 'dp.done2']);
+    if (!saved.solved.includes(picId)) { saved.solved.push(picId); save.set(saved); }
+    await sleep(3200);
+    $('pieces').style.opacity = 1;
+    $('backBtn').classList.add('pulse');
+  }
+  $('backBtn').onclick = () => { Kit.sfx.pop(); $('backBtn').classList.remove('pulse'); paintPicker(); document.querySelectorAll('.screen').forEach(s => s.classList.toggle('on', s.id === 'pick')); };
+})();
+</script>
+</body>
+</html>

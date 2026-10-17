@@ -365,4 +365,12 @@ self.VOICE_LINES = {
   'mi.stencil':      { en: 'Here is a shape to color in!', nl: 'Hier is een vorm om in te kleuren!' },
   'mi.saved':        { en: 'Click! Saved in your gallery.', nl: 'Klik! Bewaard in je galerij.' },
   'mi.gallery':      { en: 'Your gallery! Tap a picture to see it big.', nl: 'Jouw galerij! Tik op een tekening om hem groot te zien.' },
+
+  // ---------- Doodle Puzzles ----------
+  'dp.intro':        { en: 'Pick a picture, and I\'ll turn it into a puzzle!', nl: 'Kies een plaatje, dan maak ik er een puzzel van!' },
+  'dp.noPics':       { en: 'Make drawings in Magic Doodles or Mirror Painter, and they will show up here too!', nl: 'Maak tekeningen in Magic Doodles of Mirror Painter, dan komen ze hier ook!' },
+  'dp.yours':        { en: 'That\'s your own drawing!', nl: 'Dat is je eigen tekening!' },
+  'dp.go':           { en: 'Put each piece in the right place!', nl: 'Leg elk stukje op de goede plek!' },
+  'dp.done1':        { en: 'You did the whole puzzle!', nl: 'Je hebt de hele puzzel gemaakt!' },
+  'dp.done2':        { en: 'Hooray! The puzzle is finished!', nl: 'Hoera! De puzzel is af!' },
 };

@@ -333,7 +333,13 @@
     "mi.glitter": "2e651427e8",
     "mi.stencil": "cac389f655",
     "mi.saved": "1dbf9859e2",
-    "mi.gallery": "c8dd96b23f"
+    "mi.gallery": "c8dd96b23f",
+    "dp.intro": "adbd732002",
+    "dp.noPics": "940a98ae14",
+    "dp.yours": "bae076fe43",
+    "dp.go": "054d153229",
+    "dp.done1": "743e322b46",
+    "dp.done2": "275d497604"
   },
   "nl": {
     "hub.lang": "0eaed72984",
@@ -669,7 +675,13 @@
     "mi.glitter": "b6387c4895",
     "mi.stencil": "403ce96ddd",
     "mi.saved": "62d2c5f765",
-    "mi.gallery": "271506cae9"
+    "mi.gallery": "271506cae9",
+    "dp.intro": "2d1346191f",
+    "dp.noPics": "73381b33af",
+    "dp.yours": "3518baff94",
+    "dp.go": "4ab7b91944",
+    "dp.done1": "8af8c83342",
+    "dp.done2": "41b07c7325"
   },
   "voices": {
     "en": "Evan (Enhanced)",

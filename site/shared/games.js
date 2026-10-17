@@ -98,4 +98,11 @@ self.GAMES = [
     extras: ['❄️', '🌸', '✨', '🪞', '💜'],
     colors: ['#ede9fe', '#fce7f3', '#e0f2fe'],
   },
+  {
+    name: 'Doodle Puzzles',
+    path: 'games/doodle-puzzles/',
+    art: '🧩',
+    extras: ['🖍️', '🦄', '🚀', '⭐', '🎨'],
+    colors: ['#ccfbf1', '#e0f2fe', '#fef3c7'],
+  },
 ];
