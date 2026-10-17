@@ -3,7 +3,7 @@
 //
 //   node tools/build.mjs yas                       Yas's own edition (the homelab): site/ as it is
 //   node tools/build.mjs public                    the public edition (Firebase)
-//     --url https://example.com                    where it's hosted: canonical links, sitemap, social cards
+//     --url https://example.com                    where it's hosted (default: "url" in editions/public/site.json)
 //     --donate-url https://donate.stripe.com/...   Stripe Payment Link for the 💝 button (no link, no button)
 //     --out <dir>                                  somewhere other than dist/<edition>
 //
@@ -46,7 +46,7 @@ if (edition === 'yas') {
 
 // ---------- public edition ----------
 const cfg = JSON.parse(fs.readFileSync(path.join(ROOT, 'editions', 'public', 'site.json'), 'utf8'));
-const siteUrl = (opt('--url') ?? process.env.SITE_URL ?? '').trim().replace(/\/+$/, '');
+const siteUrl = (opt('--url') || process.env.SITE_URL || cfg.url || '').trim().replace(/\/+$/, '');
 const donateUrl = (opt('--donate-url') ?? process.env.DONATE_URL ?? '').trim();
 for (const [name, u] of [['--url', siteUrl], ['--donate-url', donateUrl]]) {
   if (u && !/^https:\/\/[^\s"'<>]+$/.test(u)) { console.error(`✗ ${name} must be an https:// address, got "${u}"`); process.exit(1); }

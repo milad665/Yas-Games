@@ -47,7 +47,7 @@ In the repository → **Settings → Secrets and variables → Actions**:
 | --- | --- | --- |
 | Secret | `FIREBASE_SERVICE_ACCOUNT` | the whole JSON key file |
 | Variable | `FIREBASE_PROJECT_ID` | the project id, e.g. `little-sparks-games` |
-| Variable | `PUBLIC_SITE_URL` | optional: your own domain, e.g. `https://littlesparks.app` (defaults to `https://<project>.web.app`) |
+| Variable | `PUBLIC_SITE_URL` | optional: overrides `url` in `editions/public/site.json` (`https://kids.studioaices.com`) |
 | Variable | `STRIPE_DONATE_URL` | the Stripe Payment Link below (leave it out and there's no donate button) |
 
 ### 3. Donations with Stripe (any amount)
@@ -69,5 +69,16 @@ After the first deploy:
    [Bing Webmaster Tools](https://www.bing.com/webmasters) (verify with an HTML file in
    `editions/public/static/` or a DNS record if you use your own domain).
 2. Submit `https://<your site>/sitemap.xml` in both.
-3. A custom domain helps: Firebase console → Hosting → **Add custom domain**, then set
-   `PUBLIC_SITE_URL` to it so canonical links and the sitemap use it.
+
+### 5. The domain: kids.studioaices.com
+
+The site is built for `https://kids.studioaices.com` (canonical links, sitemap, social cards), set by
+`url` in `editions/public/site.json`. To point the domain at Firebase:
+
+1. Firebase console → Hosting → **Add custom domain** → `kids.studioaices.com`.
+2. At the DNS provider for `studioaices.com`, add the records Firebase shows (for a subdomain
+   usually a `CNAME` or `A` record for `kids`, plus a `TXT` record to prove ownership).
+3. Wait for Firebase to say **Connected**; it sets up the HTTPS certificate itself (minutes to a
+   few hours).
+
+Until then the site is also at `https://<project>.web.app`, which the pipeline's health check uses.

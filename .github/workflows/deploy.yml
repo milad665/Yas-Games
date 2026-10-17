@@ -129,7 +129,11 @@ jobs:
             echo "::error::Set the FIREBASE_PROJECT_ID variable and FIREBASE_SERVICE_ACCOUNT secret (see docs/public-site.md)"
             exit 1
           fi
+          # the address people use: PUBLIC_SITE_URL, else "url" in editions/public/site.json
+          [ -n "$SITE_URL" ] || SITE_URL=$(node -p "require('./editions/public/site.json').url || ''")
           echo "url=${SITE_URL:-https://$PROJECT.web.app}" >> "$GITHUB_OUTPUT"
+          # Firebase's own address always works, even before the custom domain's DNS is set up
+          echo "firebase=https://$PROJECT.web.app" >> "$GITHUB_OUTPUT"
 
       - name: Build the public edition
         env:
@@ -146,7 +150,7 @@ jobs:
 
       - name: Health check
         env:
-          URL: ${{ steps.site.outputs.url }}
+          URL: ${{ steps.site.outputs.firebase }}
         run: |
           for i in $(seq 1 10); do
             if curl -fsS "$URL/" -o page.html && curl -fsS "$URL/sitemap.xml" -o /dev/null; then
