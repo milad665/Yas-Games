@@ -23,6 +23,27 @@
     background: #ff5c8a; color: #fff; box-shadow: 0 5px 0 rgba(180, 30, 80, .25); touch-action: manipulation;
   }
 
+  /* sharing with other parents */
+  #shareBtn { width: 56px; height: 56px; font-size: 26px; touch-action: manipulation; padding: 0; }
+  @media (max-width: 640px) { #shareBtn { display: none; } }
+  .shareBig {
+    border: none; border-radius: 999px; padding: 14px 22px; margin-top: 12px; font: 700 18px system-ui, sans-serif;
+    background: #4f46e5; color: #fff; box-shadow: 0 5px 0 rgba(55, 48, 163, .25); touch-action: manipulation; cursor: pointer;
+  }
+  #share { position: fixed; inset: 0; z-index: 40; background: rgba(60, 40, 100, .35); display: grid; place-items: center; padding: 16px; -webkit-user-select: text; user-select: text; }
+  #share[hidden] { display: none; }
+  #share .panel { background: #fff; border-radius: 28px; width: min(100%, 480px); max-height: calc(100vh - 32px); overflow-y: auto; padding: 22px 24px 26px; box-shadow: 0 20px 50px rgba(60, 40, 100, .3); font: 17px/1.5 system-ui, sans-serif; color: #3b2f55; }
+  #share h2 { margin: 0 0 8px; font-size: 24px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  #share p { margin: 8px 0; color: #5b4d78; }
+  #share .close { border: none; background: #f2eefa; width: 44px; height: 44px; border-radius: 50%; font-size: 22px; flex: none; cursor: pointer; }
+  #share .link { display: flex; gap: 8px; margin: 14px 0 16px; }
+  #share .link input { flex: 1; min-width: 0; font: 600 16px system-ui, sans-serif; padding: 12px 14px; border: 2px solid #d9cff5; border-radius: 12px; color: #3b2f55; background: #faf8ff; }
+  #share .link button { border: none; border-radius: 12px; padding: 0 16px; font: 700 16px system-ui, sans-serif; background: #4f46e5; color: #fff; cursor: pointer; white-space: nowrap; }
+  #share .apps { display: grid; grid-template-columns: repeat(auto-fit, minmax(96px, 1fr)); gap: 10px; }
+  #share .apps a { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 12px 6px; border-radius: 16px; background: #f6f2ff; color: #3b2f55; font-weight: 600; font-size: 15px; text-decoration: none; }
+  #share .apps a:hover { background: #ede7fe; }
+  #share .apps span { font-size: 28px; line-height: 1; }
+
   #donate { position: fixed; inset: 0; z-index: 40; background: rgba(60, 40, 100, .35); display: grid; place-items: center; padding: 16px; -webkit-user-select: text; user-select: text; }
   #donate[hidden] { display: none; }
   #donate .panel { background: #fff; border-radius: 28px; width: min(100%, 520px); max-height: calc(100vh - 32px); overflow-y: auto; padding: 22px 24px 26px; box-shadow: 0 20px 50px rgba(60, 40, 100, .3); font: 17px/1.5 system-ui, sans-serif; color: #3b2f55; }
@@ -54,6 +75,12 @@
 {{GAME_LIST}}
   </ul>
 
+  <div>
+    <h3>Know other parents? 💌</h3>
+    <p>If your child enjoys {{NAME}}, share it with friends, family or your school's parent group. It's free for every child, so the more families find it, the better.</p>
+    <button class="shareBig" id="shareBtn2">📤 Share with other parents</button>
+  </div>
+
   <div data-donate>
     <h3>Keep it free 💝</h3>
     <p>{{NAME}} is made with love and will always be free, for kids from every family. If it brings joy to yours and you'd like to help keep it running and growing, you can give any amount you like. It's completely optional.</p>
@@ -76,6 +103,75 @@
     <a class="go" id="donateGo" target="_blank" rel="noopener" hidden>Choose an amount with Stripe →</a>
   </div>
 </div>
+
+<div id="share" hidden role="dialog" aria-modal="true" aria-labelledby="shareTitle">
+  <div class="panel">
+    <h2 id="shareTitle">Share {{NAME}} 💌 <button id="shareClose" class="close" aria-label="Close">✕</button></h2>
+    <p>Send other parents the link to these free, ad-free learning games.</p>
+    <div class="link">
+      <input id="shareLink" type="text" readonly aria-label="Link to share">
+      <button id="shareCopy">Copy link</button>
+    </div>
+    <div class="apps">
+      <a id="shareWhatsApp" target="_blank" rel="noopener"><span>💬</span>WhatsApp</a>
+      <a id="shareEmail"><span>✉️</span>Email</a>
+      <a id="shareFacebook" target="_blank" rel="noopener"><span>👍</span>Facebook</a>
+      <a id="shareX" target="_blank" rel="noopener"><span>✖️</span>X</a>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  // Share with other parents: the device's own share sheet where there is one (phones, tablets,
+  // Safari, Edge), otherwise a panel with a link to copy and a few apps.
+  const $ = id => document.getElementById(id);
+  const canonical = document.querySelector('link[rel="canonical"]');
+  const url = {{SITE_URL}} || (canonical && canonical.href) || location.origin + '/';
+  const title = document.title.split(':')[0].trim() || '{{NAME}}';
+  const text = '{{NAME}}: free, ad-free learning games for kids aged 3 to 7. No reading needed, works offline on any tablet or phone.';
+
+  $('shareLink').value = url;
+  $('shareWhatsApp').href = 'https://wa.me/?text=' + encodeURIComponent(text + ' ' + url);
+  $('shareEmail').href = 'mailto:?subject=' + encodeURIComponent(title + ' - free learning games for kids') + '&body=' + encodeURIComponent(text + '\n\n' + url);
+  $('shareFacebook').href = 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(url);
+  $('shareX').href = 'https://x.com/intent/post?text=' + encodeURIComponent(text) + '&url=' + encodeURIComponent(url);
+
+  function openPanel() {
+    $('shareCopy').textContent = 'Copy link';
+    $('share').hidden = false;
+  }
+  async function share() {
+    const data = { title, text, url };
+    if (navigator.share && (!navigator.canShare || navigator.canShare(data))) {
+      try { await navigator.share(data); return; }
+      catch (e) { if (e && e.name === 'AbortError') return; } // closed the share sheet: that's fine
+    }
+    openPanel();
+  }
+  async function copy() {
+    const input = $('shareLink');
+    let ok = false;
+    try { await navigator.clipboard.writeText(url); ok = true; } catch (e) {}
+    if (!ok) { input.focus(); input.select(); input.setSelectionRange(0, url.length); try { ok = document.execCommand('copy'); } catch (e) {} }
+    $('shareCopy').textContent = ok ? 'Copied ✓' : 'Select & copy';
+  }
+
+  // a share button in the corner too (hidden on phones, where the corner is full)
+  const pill = document.createElement('button');
+  pill.id = 'shareBtn'; pill.className = 'pill'; pill.textContent = '📤';
+  pill.setAttribute('aria-label', 'Share with other parents');
+  $('gearBtn').before(pill);
+
+  pill.addEventListener('click', share);
+  $('shareBtn2').addEventListener('click', share);
+  $('shareCopy').addEventListener('click', copy);
+  $('shareLink').addEventListener('focus', e => e.target.select());
+  $('shareClose').onclick = () => { $('share').hidden = true; };
+  $('share').addEventListener('click', e => { if (e.target === $('share')) $('share').hidden = true; });
+  addEventListener('keydown', e => { if (e.key === 'Escape') $('share').hidden = true; });
+})();
+</script>
 
 <script>
 (() => {

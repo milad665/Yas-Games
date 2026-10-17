@@ -150,7 +150,9 @@ const home = read(path.join(ROOT, 'editions', 'public', 'home.html'))
   .replaceAll('{{NAME}}', esc(cfg.name))
   .replaceAll('{{COUNT}}', String(GAMES.length))
   .replaceAll('{{GAME_LIST}}', gameList)
-  .replaceAll('{{DONATE_URL}}', JSON.stringify(donateUrl).replace(/</g, '\\u003c'));
+  .replaceAll('{{DONATE_URL}}', JSON.stringify(donateUrl).replace(/</g, '\\u003c'))
+  .replaceAll('{{SITE_URL}}', JSON.stringify(siteUrl ? abs('') : '').replace(/</g, '\\u003c'))
+  .replaceAll('{{TAGLINE}}', esc(cfg.tagline));
 seo(out('index.html'), {
   rel: '',
   title: `${cfg.name}: ${cfg.tagline}`,
