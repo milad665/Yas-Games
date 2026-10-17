@@ -103,6 +103,32 @@
   #langs button.sel { opacity: 1; transform: scale(1.12); background: #fff3fb; }
   @media (max-width: 960px) { header { margin-top: 64px; } }
 
+  /* grown-ups' settings: hold the gear to open */
+  #gearBtn { position: relative; width: 56px; height: 56px; font-size: 28px; touch-action: none; padding: 0; }
+  #gearBtn::after { content: ''; position: absolute; inset: -4px; border-radius: 50%; border: 4px solid #9b5cff; opacity: 0; }
+  #gearBtn.holding::after { animation: hold 1s linear forwards; }
+  @keyframes hold { from { opacity: .2; clip-path: inset(0 100% 0 0); } to { opacity: 1; clip-path: inset(0 0 0 0); } }
+  #gearBtn.nope { animation: nope .4s; }
+  @keyframes nope { 25% { rotate: -20deg; } 75% { rotate: 20deg; } }
+  #settings { position: fixed; inset: 0; z-index: 40; background: rgba(60, 40, 100, .35); display: grid; place-items: center; padding: 16px; -webkit-user-select: text; user-select: text; }
+  #settings[hidden] { display: none; }
+  #settings .panel { background: #fff; border-radius: 28px; width: min(100%, 760px); max-height: calc(100vh - 32px); overflow-y: auto; padding: 22px 24px 26px; box-shadow: 0 20px 50px rgba(60, 40, 100, .3); font-family: system-ui, sans-serif; font-size: 17px; color: #3b2f55; touch-action: pan-y; }
+  #settings h2 { margin: 0 0 4px; font-size: 26px; display: flex; align-items: center; justify-content: space-between; }
+  #settings h3 { margin: 22px 0 6px; font-size: 19px; }
+  #settings p { margin: 4px 0; color: #6b5d88; line-height: 1.4; }
+  #settings .buttons { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+  #settings button.act { border: none; border-radius: 14px; padding: 11px 16px; font-size: 16px; font-weight: 600; background: #efe8ff; color: #4a3b6b; touch-action: manipulation; }
+  #settings button.act.danger { background: #ffe1e6; color: #b4233c; }
+  #settings button.act:disabled { opacity: .45; }
+  #settings .close { border: none; background: #f2eefa; width: 44px; height: 44px; border-radius: 50%; font-size: 22px; }
+  #grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 12px; margin-top: 12px; }
+  #grid figure { margin: 0; position: relative; }
+  #grid img { width: 100%; aspect-ratio: 1; object-fit: contain; border-radius: 14px; background: #f4f0fb; display: block; }
+  #grid figcaption { font-size: 13px; color: #8a7aa8; margin-top: 4px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 4px; }
+  #grid figcaption .btns { display: flex; gap: 6px; }
+  #grid figcaption button { border: none; background: #f2eefa; border-radius: 10px; font-size: 17px; width: 38px; height: 34px; padding: 0; }
+  #status { min-height: 1.4em; font-weight: 600; color: #3cc954 !important; }
+
   #iosHelp { position: fixed; inset: 0; z-index: 30; background: rgba(60, 40, 100, .35); display: grid; place-items: center; padding: 20px; }
   #iosHelp[hidden] { display: none; }
   #iosHelp .card { background: #fff; border-radius: 32px; padding: 28px 30px; max-width: 420px; text-align: center; font-size: 21px; line-height: 1.4; box-shadow: 0 20px 50px rgba(60, 40, 100, .3); }
@@ -123,11 +149,34 @@
 
   <div id="corner">
     <button id="installBtn" class="pill" hidden aria-label="Install app">📲</button>
+    <button id="gearBtn" class="pill" aria-label="Settings for grown-ups (press and hold)">⚙️</button>
     <div id="langs" class="pill" role="group" aria-label="Language">
       <button data-lang="en" aria-label="English">🇬🇧</button>
       <button data-lang="nl" aria-label="Nederlands">🇳🇱</button>
       <!-- not recorded yet: <button data-lang="de" aria-label="Deutsch">🇩🇪</button> <button data-lang="es" aria-label="Español">🇪🇸</button> -->
       <button data-lang="fa" aria-label="فارسی">🇮🇷</button>
+    </div>
+  </div>
+
+  <div id="settings" hidden role="dialog" aria-label="Settings">
+    <div class="panel">
+      <h2>Settings <button id="settingsClose" class="close" aria-label="Close">✕</button></h2>
+      <p>Game progress, photos and drawings are kept on this device and stay when the site is updated.</p>
+      <p id="keepNote"></p>
+
+      <h3>📸 Photos</h3>
+      <p id="photoInfo">Loading…</p>
+      <div class="buttons">
+        <button id="saveAll" class="act">⬇️ Save all to this device</button>
+        <button id="deletePhotos" class="act danger">🗑️ Delete all photos</button>
+      </div>
+      <p id="status"></p>
+      <div id="grid"></div>
+
+      <h3>📦 Offline files</h3>
+      <p id="cacheInfo">Loading…</p>
+      <p>The games and voices downloaded for playing without internet. Deleting them frees space; they download again when needed. Progress and photos are kept.</p>
+      <div class="buttons"><button id="deleteCache" class="act danger">🧹 Delete offline files</button></div>
     </div>
   </div>
 
@@ -143,6 +192,7 @@
 <script src="/shared/games.js"></script>
 <script src="/shared/lines.js"></script>
 <script src="/shared/voice.js"></script>
+<script src="/shared/saved.js"></script>
 <script>
 
   // a friendly "more coming" card so the shelf never looks empty
@@ -278,6 +328,76 @@
   });
   $('iosHelpClose').addEventListener('click', () => { $('iosHelp').hidden = true; });
   addEventListener('appinstalled', () => { $('installBtn').hidden = true; });
+
+  // ---- settings for grown-ups: hold the gear for a second so little fingers don't open it ----
+  let holdTimer = null;
+  const gear = $('gearBtn');
+  gear.addEventListener('pointerdown', e => {
+    try { gear.setPointerCapture(e.pointerId); } catch (err) {}
+    gear.classList.add('holding');
+    holdTimer = setTimeout(() => { holdTimer = null; gear.classList.remove('holding'); openSettings(); }, 1000);
+  });
+  const letGo = () => {
+    if (!holdTimer) return;
+    clearTimeout(holdTimer); holdTimer = null; gear.classList.remove('holding');
+    gear.classList.remove('nope'); void gear.offsetWidth; gear.classList.add('nope');
+  };
+  gear.addEventListener('pointerup', letGo);
+  gear.addEventListener('pointercancel', letGo);
+  gear.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') openSettings(); });
+
+  const mb = n => n < 1e6 ? Math.max(1, Math.round(n / 1e3)) + ' KB' : (n / 1e6).toFixed(1) + ' MB';
+  const gameOf = id => GAMES.find(g => g.path.includes('/' + id + '/')) || { name: id, art: '📸' };
+  let photos = [], urls = [];
+  const status = text => { $('status').textContent = text; if (text) setTimeout(() => { if ($('status').textContent === text) $('status').textContent = ''; }, 4000); };
+
+  async function paintPhotos() {
+    urls.forEach(URL.revokeObjectURL); urls = [];
+    photos = (await Saved.photos.list()).reverse();
+    const bytes = photos.reduce((n, p) => n + p.blob.size, 0);
+    $('photoInfo').textContent = photos.length ? `${photos.length} photo${photos.length > 1 ? 's' : ''} from the games (${mb(bytes)}). Tap ⬇️ to save one.` : 'No photos yet. Photos taken in Dress-Up Studio and Mirror Painter show up here.';
+    $('saveAll').disabled = $('deletePhotos').disabled = !photos.length;
+    $('grid').innerHTML = '';
+    for (const p of photos) {
+      const url = URL.createObjectURL(p.blob); urls.push(url);
+      const f = document.createElement('figure');
+      const img = document.createElement('img'); img.src = url; img.alt = gameOf(p.game).name + ' photo';
+      const cap = document.createElement('figcaption');
+      const when = document.createElement('span'); when.textContent = gameOf(p.game).art + ' ' + new Date(p.time).toLocaleDateString();
+      const dl = document.createElement('button'); dl.textContent = '⬇️'; dl.setAttribute('aria-label', 'Save this photo');
+      dl.onclick = () => savePhotos([p]);
+      const del = document.createElement('button'); del.textContent = '🗑️'; del.setAttribute('aria-label', 'Delete this photo');
+      del.onclick = async () => { if (confirm('Delete this photo?')) { await Saved.photos.remove(p.id); paintPhotos(); } };
+      const btns = document.createElement('span'); btns.className = 'btns'; btns.append(dl, del);
+      cap.append(when, btns); f.append(img, cap); $('grid').appendChild(f);
+    }
+  }
+  async function savePhotos(list) {
+    const how = await Saved.photos.save(list);
+    status({ shared: 'Saved.', folder: `Saved ${list.length} photos to the folder.`, downloaded: 'Saved to your Downloads.' }[how] || '');
+  }
+  async function paintUsage() {
+    const u = await Saved.usage();
+    $('cacheInfo').textContent = u.cacheBytes ? 'Using ' + mb(u.cacheBytes) + ' on this device.' : 'Nothing downloaded right now.';
+    $('keepNote').textContent = u.persisted === false
+      ? (isIOS && !standalone ? 'Tip: add Yas\'s Games to the Home Screen (📲) so Safari never clears its saved games.' : '')
+      : '';
+  }
+  function openSettings() {
+    pop(); $('settings').hidden = false;
+    paintPhotos(); paintUsage();
+  }
+  $('settingsClose').onclick = () => { $('settings').hidden = true; urls.forEach(URL.revokeObjectURL); urls = []; $('grid').innerHTML = ''; };
+  $('saveAll').onclick = () => savePhotos(photos);
+  $('deletePhotos').onclick = async () => {
+    if (!confirm(`Delete all ${photos.length} photos? This can't be undone. Save them first if you want to keep them.`)) return;
+    await Saved.photos.clear(); paintPhotos(); status('Photos deleted.');
+  };
+  $('deleteCache').onclick = async () => {
+    if (!confirm('Delete the offline files? Game progress and photos are kept.')) return;
+    $('cacheInfo').textContent = 'Deleting…';
+    await Saved.clearCache(); paintUsage();
+  };
 
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => {});
 

@@ -37,6 +37,7 @@ site/                     ← everything that gets served
   shared/lines.js         ← every spoken line, in English, Dutch, German, Spanish and Persian
   shared/voice.js         ← plays the recorded voice clips
   shared/kit.js, kit.css  ← common buttons, sounds, sparkles and saving for games
+  shared/saved.js         ← photos and drawings kept on the device (IndexedDB)
   shared/robot.js         ← the robot drawing used by the robot games
   voice/                  ← recorded clips (made by tools/record-voice.mjs)
   games/

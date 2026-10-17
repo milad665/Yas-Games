@@ -6,7 +6,7 @@
 // Images: served from cache, refreshed in the background.
 importScripts('/shared/games.js');
 
-const CACHE = 'yas-games-v8';
+const CACHE = 'yas-games-v9';
 // survives version bumps: remembers the chosen language so a new version can precache its clips
 const SETTINGS = 'yas-games-settings';
 const LANGS = ['en', 'nl', 'fa'];
@@ -19,6 +19,7 @@ const CORE = [
   '/shared/games.js',
   '/shared/lines.js',
   '/shared/voice.js',
+  '/shared/saved.js',
   '/shared/kit.js',
   '/shared/kit.css',
   '/shared/robot.js',

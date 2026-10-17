@@ -56,6 +56,7 @@
 
 <script src="/shared/lines.js"></script>
 <script src="/shared/voice.js"></script>
+<script src="/shared/saved.js"></script>
 <script src="/shared/kit.js"></script>
 <script>
 (() => {
@@ -101,13 +102,23 @@
       img.src = src;
     });
   }
+  // a data URL, so the puzzle can keep using it like the others
+  const blobURL = blob => new Promise(ok => { const r = new FileReader(); r.onload = () => ok(r.result); r.onerror = () => ok(null); r.readAsDataURL(blob); });
   async function collect() {
     const mine = [];
     try {
-      const md = JSON.parse(localStorage.getItem('magicDoodles.v1')) || {};
-      for (const [world, list] of Object.entries(md)) if (Array.isArray(list)) for (const c of list.slice(-4)) mine.push({ id: 'md' + c.img.length + world, make: () => onBackground(c.img, WORLD_BG[world] || WORLD_BG.meadow) });
+      // Magic Doodles keeps its drawings in Saved.pictures (older saves still have them inline)
+      const md = JSON.parse(localStorage.getItem('magicDoodles.v1')) || {}, pics = await Saved.pictures.all();
+      for (const [world, list] of Object.entries(md)) if (Array.isArray(list)) for (const c of list.slice(-4)) {
+        const src = c.img || pics[c.pic];
+        if (src) mine.push({ id: 'md' + (c.pic || src.length) + world, make: () => onBackground(src, WORLD_BG[world] || WORLD_BG.meadow) });
+      }
     } catch (e) {}
-    try { (Kit.store('mirror-painter').get({ gallery: [] }).gallery || []).forEach(src => mine.push({ id: 'mi' + src.length, src })); } catch (e) {}
+    try {
+      const old = Kit.store('mirror-painter').get({}).gallery || [];
+      old.forEach(src => mine.push({ id: 'mi' + src.length, src }));
+      for (const p of await Saved.photos.list('mirror-painter')) mine.push({ id: 'mi' + p.id, make: () => blobURL(p.blob) });
+    } catch (e) {}
     const ready = READY.map((f, i) => ({ id: 'ready' + i, make: async () => f() }));
     return { mine: mine.slice(-12).reverse(), ready };
   }

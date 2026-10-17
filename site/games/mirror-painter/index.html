@@ -33,9 +33,10 @@
   #gallery.on { display: flex; }
   #shots { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 16px; width: min(100%, 1000px); }
   #shots img { width: 100%; border-radius: 18px; background: #fff; box-shadow: 0 5px 0 rgba(0,0,0,.1); }
-  #big { position: fixed; inset: 0; z-index: 40; display: none; place-items: center; background: rgba(0,0,0,.5); }
-  #big.on { display: grid; }
-  #big img { max-width: 92vw; max-height: 88vh; border-radius: 24px; background: #fff; }
+  #big { position: fixed; inset: 0; z-index: 40; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 20px; padding: 20px; background: rgba(0,0,0,.5); }
+  #big.on { display: flex; }
+  #big img { max-width: 92vw; max-height: 74vh; border-radius: 24px; background: #fff; }
+  #big .row { display: flex; gap: 28px; }
   .flash { position: fixed; inset: 0; background: #fff; z-index: 50; pointer-events: none; animation: flash .5s ease-out forwards; }
   @keyframes flash { from { opacity: .9; } to { opacity: 0; } }
 </style>
@@ -65,10 +66,11 @@
   <button id="galleryBack" class="btn corner left" aria-label="Back">🏠</button>
   <div id="shots"></div>
 </div>
-<div id="big"><img alt=""></div>
+<div id="big"><img alt=""><div class="row"><button id="bigBack" class="btn big" aria-label="Back">👈</button><button id="bigSave" class="btn big go" aria-label="Save to this device">⬇️</button></div></div>
 
 <script src="/shared/lines.js"></script>
 <script src="/shared/voice.js"></script>
+<script src="/shared/saved.js"></script>
 <script src="/shared/kit.js"></script>
 <script>
 (() => {
@@ -76,10 +78,11 @@
   const COLORS = ['#ef4444', '#f97316', '#facc15', '#22c55e', '#06b6d4', '#3b82f6', '#a855f7', '#ec4899', '#1e293b', 'rainbow'];
   const SIZES = [8, 18, 34];
   const STENCILS = ['none', 'butterfly', 'heart', 'face'];
-  const GALLERY_MAX = 12;
 
   const save = Kit.store('mirror-painter');
-  const saved = save.get({ gallery: [] });
+  const saved = save.get({});
+  // pictures live in Saved.photos; older versions kept them in this save
+  if (saved.gallery) Saved.photos.adopt('mirror-painter', saved.gallery).then(ok => { if (ok) { delete saved.gallery; save.set(saved); } });
 
   const ink = $('ink'), ctx = ink.getContext('2d'), guide = $('guide'), gctx = guide.getContext('2d');
   let W = 0, H = 0, dpr = 1;
@@ -223,34 +226,36 @@
 
   // ---------- gallery ----------
   function snapshot() {
-    // a small JPEG on white so it fits in the tablet's storage
-    const s = 600 / Math.max(ink.width, ink.height), c = document.createElement('canvas');
+    // a JPEG on white
+    const s = Math.min(1, 1200 / Math.max(ink.width, ink.height)), c = document.createElement('canvas');
     c.width = Math.round(ink.width * s); c.height = Math.round(ink.height * s);
     const x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, c.width, c.height); x.drawImage(ink, 0, 0, c.width, c.height);
-    return c.toDataURL('image/jpeg', .72);
+    return c;
   }
   $('shotBtn').onclick = () => {
     if (!strokes.length) return;
     const f = document.createElement('div'); f.className = 'flash'; document.body.appendChild(f); setTimeout(() => f.remove(), 520);
     Kit.tone(1800, .05, { type: 'square', vol: .08 }); Kit.tone(1200, .08, { type: 'square', vol: .06, delay: .06 });
-    saved.gallery.push(snapshot());
-    while (saved.gallery.length > GALLERY_MAX) saved.gallery.shift();
-    save.set(saved);
+    Saved.photos.add('mirror-painter', snapshot());
     Kit.burstAt($('galleryBtn'), ['⭐', '✨'], 8, 90);
     Kit.say('mi.saved');
   };
-  $('galleryBtn').onclick = () => {
+  let shown = [], bigPhoto = null;
+  $('galleryBtn').onclick = async () => {
     Kit.sfx.pop();
+    shown.forEach(p => URL.revokeObjectURL(p.url));
+    shown = (await Saved.photos.list('mirror-painter')).reverse().map(p => ({ ...p, url: URL.createObjectURL(p.blob) }));
     const box = $('shots'); box.innerHTML = '';
-    [...saved.gallery].reverse().forEach(src => {
-      const img = document.createElement('img'); img.src = src;
-      img.onclick = () => { $('big').querySelector('img').src = src; $('big').classList.add('on'); Kit.sfx.pop(); };
+    shown.forEach(p => {
+      const img = document.createElement('img'); img.src = p.url;
+      img.onclick = () => { bigPhoto = p; $('big').querySelector('img').src = p.url; $('big').classList.add('on'); Kit.sfx.pop(); };
       box.appendChild(img);
     });
     $('gallery').classList.add('on'); Kit.say('mi.gallery');
   };
   $('galleryBack').onclick = () => { Kit.sfx.pop(); $('gallery').classList.remove('on'); };
-  $('big').onclick = () => $('big').classList.remove('on');
+  $('bigBack').onclick = () => { Kit.sfx.pop(); $('big').classList.remove('on'); };
+  $('bigSave').onclick = () => { if (bigPhoto) { Kit.sfx.ding(); Saved.photos.save([bigPhoto]); } };
 
   Kit.soundButton('soundBtn');
   paintTools();

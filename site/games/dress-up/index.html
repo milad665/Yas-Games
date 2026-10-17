@@ -46,6 +46,10 @@
   #album.on { display: flex; }
   #photos { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 16px; width: min(100%, 900px); }
   #photos img { width: 100%; border-radius: 18px; box-shadow: 0 5px 0 rgba(0,0,0,.1); border: 5px solid #fff; }
+  #big { position: fixed; inset: 0; z-index: 40; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 20px; padding: 20px; background: rgba(60, 40, 100, .55); }
+  #big.on { display: flex; }
+  #big img { max-width: 90vw; max-height: 72vh; border-radius: 24px; border: 8px solid #fff; box-shadow: 0 12px 40px rgba(0,0,0,.3); }
+  #big .actions { gap: 28px; }
 </style>
 </head>
 <body>
@@ -65,9 +69,11 @@
   </div>
 </section>
 <div id="album"><button id="albumBack" class="btn corner left" aria-label="Back">🏠</button><div id="photos"></div></div>
+<div id="big"><img alt=""><div class="actions"><button id="bigBack" class="btn big" aria-label="Back">👈</button><button id="bigSave" class="btn big go" aria-label="Save to this device">⬇️</button></div></div>
 
 <script src="/shared/lines.js"></script>
 <script src="/shared/voice.js"></script>
+<script src="/shared/saved.js"></script>
 <script src="/shared/kit.js"></script>
 <script>
 (() => {
@@ -103,7 +109,9 @@
   const TABS = [['outfit', '👗'], ['head', '👑'], ['hair', '💇'], ['hairColor', '🖍️'], ['color', '🎨'], ['back', '🦸'], ['hand', '✋'], ['skin', '🙂'], ['bg', '🖼️']];
 
   const save = Kit.store('dress-up');
-  const saved = save.get({ look: null, photos: [], cheered: [] });
+  const saved = save.get({ look: null, cheered: [] });
+  // photos live in Saved.photos; older versions kept them in this save
+  if (saved.photos) Saved.photos.adopt('dress-up', saved.photos).then(ok => { if (ok) { delete saved.photos; save.set(saved); } });
   let look = saved.look || { outfit: 'everyday', head: 'none', hair: 'long', back: 'none', hand: 'none', bg: 'studio', skin: SKINS[0], hairColor: HAIRS[0], color: COLORS[0] };
   let tab = 'outfit';
 
@@ -220,7 +228,7 @@
   // ---------- photos ----------
   async function snapshot() {
     const r = $('scene').getBoundingClientRect(), W = 450, H = 600, c = document.createElement('canvas');
-    c.width = W; c.height = H; const x = c.getContext('2d');
+    c.width = W * 2; c.height = H * 2; const x = c.getContext('2d'); x.scale(2, 2);
     // background colors
     const bgCols = { studio: ['#fff', '#f0abfc'], castle: ['#fbcfe8', '#bbf7d0'], space: ['#4c1d95', '#020617'], ocean: ['#67e8f9', '#2563eb'], fire: ['#fecaca', '#9ca3af'], ship: ['#7dd3fc', '#1d4ed8'], city: ['#fde68a', '#64748b'] }[look.bg];
     const g = x.createLinearGradient(0, 0, 0, H); g.addColorStop(0, bgCols[0]); g.addColorStop(1, bgCols[1]); x.fillStyle = g; x.fillRect(0, 0, W, H);
@@ -229,21 +237,30 @@
     const img = new Image();
     await new Promise(ok => { img.onload = ok; img.onerror = ok; img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(dollSVG(look)); });
     try { x.drawImage(img, W * .08, H * .04, W * .84, H * .96); } catch (e) {}
-    return c.toDataURL('image/jpeg', .8);
+    return c;
   }
   $('photoBtn').onclick = async () => {
     const f = document.createElement('div'); f.className = 'flash'; document.body.appendChild(f); setTimeout(() => f.remove(), 520);
     Kit.tone(1800, .05, { type: 'square', vol: .08 }); Kit.tone(1200, .08, { type: 'square', vol: .06, delay: .06 });
     Kit.say('du.photo');
-    saved.photos.push(await snapshot()); while (saved.photos.length > 12) saved.photos.shift();
-    save.set(saved);
+    await Saved.photos.add('dress-up', await snapshot());
   };
-  $('albumBtn').onclick = () => {
+  let shown = [], bigPhoto = null;
+  $('albumBtn').onclick = async () => {
     Kit.sfx.pop();
-    $('photos').innerHTML = [...saved.photos].reverse().map(src => `<img src="${src}" alt="">`).join('');
+    shown.forEach(p => URL.revokeObjectURL(p.url));
+    shown = (await Saved.photos.list('dress-up')).reverse().map(p => ({ ...p, url: URL.createObjectURL(p.blob) }));
+    $('photos').innerHTML = '';
+    for (const p of shown) {
+      const img = document.createElement('img'); img.src = p.url; img.alt = '';
+      img.onclick = () => { Kit.sfx.pop(); bigPhoto = p; $('big').querySelector('img').src = p.url; $('big').classList.add('on'); };
+      $('photos').appendChild(img);
+    }
     $('album').classList.add('on'); Kit.say('du.album');
   };
   $('albumBack').onclick = () => { Kit.sfx.pop(); $('album').classList.remove('on'); };
+  $('bigBack').onclick = () => { Kit.sfx.pop(); $('big').classList.remove('on'); };
+  $('bigSave').onclick = () => { if (bigPhoto) { Kit.sfx.ding(); Saved.photos.save([bigPhoto]); } };
 
   Kit.soundButton('soundBtn');
   paintScene(); paintPanel();

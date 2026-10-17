@@ -227,6 +227,7 @@
 
 <script src="/shared/lines.js"></script>
 <script src="/shared/voice.js"></script>
+<script src="/shared/saved.js"></script>
 <script>
 (() => {
   // ================= data =================
@@ -258,9 +259,28 @@
   let saved = {};
   try { saved = JSON.parse(localStorage.getItem(SAVE_KEY)) || {}; } catch (e) { saved = {}; }
   let muted = !!saved.muted;
+  // the drawings themselves live in Saved.pictures (localStorage is too small for them); the save keeps their ids
   function persist() {
-    try { localStorage.setItem(SAVE_KEY, JSON.stringify(saved)); } catch (e) { /* storage full or blocked: keep playing */ }
+    const json = JSON.stringify(saved, function (k, v) { return k === 'img' && this.pic ? undefined : v; });
+    try { localStorage.setItem(SAVE_KEY, json); } catch (e) { /* storage full or blocked: keep playing */ }
   }
+  const allSaved = () => Object.values(saved).filter(Array.isArray).flat();
+  let picsLoaded = false;
+  const picsReady = (async () => {
+    // older versions kept the drawings in the save itself: move them out
+    let moved = false;
+    for (const d of allSaved()) if (d.img && !d.pic) {
+      const id = Saved.pictures.newId();
+      if (await Saved.pictures.put(id, d.img)) { d.pic = id; moved = true; }
+    }
+    if (moved) persist();
+    const pics = await Saved.pictures.all();
+    for (const d of allSaved()) if (!d.img && pics[d.pic]) d.img = pics[d.pic];
+    for (const key of Object.keys(saved)) if (Array.isArray(saved[key])) saved[key] = saved[key].filter(d => d.img);
+    // forget drawings of creatures that are gone
+    const used = new Set(allSaved().map(d => d.pic));
+    for (const id of Object.keys(pics)) if (!used.has(id)) Saved.pictures.remove(id);
+  })().catch(() => {}).then(() => { picsLoaded = true; });
 
   // ================= sound =================
   let ac = null;
@@ -351,9 +371,12 @@
     buildDecor(w);
     $('critters').innerHTML = '';
     creatures = [];
-    (saved[key] || []).forEach(d => spawn(d, false));
-    $('pencilBtn').classList.toggle('nudge', creatures.length === 0);
-    say(w.say, creatures.length ? null : 'md.tapPencil');
+    picsReady.then(() => {
+      if (worldKey !== key) return;
+      (saved[key] || []).forEach(d => spawn(d, false));
+      $('pencilBtn').classList.toggle('nudge', creatures.length === 0);
+      say(w.say, creatures.length ? null : 'md.tapPencil');
+    });
   }
 
   function buildDecor(w) {
@@ -435,6 +458,7 @@
   }
 
   function saveWorld() {
+    if (!picsLoaded) return; // the creatures aren't out yet
     saved[worldKey] = creatures.map(c => ({ ...c.d, fx: c.x / W, fy: c.y / H }));
     persist();
   }
@@ -760,8 +784,14 @@
   function release(move) {
     $('picker').classList.remove('on');
     closeDraw();
-    const d = { ...pending, move, fx: null, fy: null };
+    const d = { ...pending, move, fx: null, fy: null, pic: Saved.pictures.newId() };
     pending = null;
+    // if the drawing can't be stored on its own, it stays in the save
+    const id = d.pic;
+    Saved.pictures.put(id, d.img).then(ok => {
+      if (ok) return;
+      delete d.pic; allSaved().forEach(o => { if (o.pic === id) delete o.pic; }); persist();
+    });
     strokes = []; redraw();
     const c = spawn(d, true);
     // appear in the middle of the screen
