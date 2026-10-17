@@ -126,4 +126,11 @@ self.GAMES = [
     extras: ['🐶', '🩹', '🐱', '💊', '💖'],
     colors: ['#dcfce7', '#ecfeff', '#bae6fd'],
   },
+  {
+    name: 'Where\'s Teddy?',
+    path: 'games/wheres-teddy/',
+    art: '🧸',
+    extras: ['🛋️', '📦', '🛏️', '❓', '⭐'],
+    colors: ['#fef3c7', '#fde68a', '#fbcfe8'],
+  },
 ];
