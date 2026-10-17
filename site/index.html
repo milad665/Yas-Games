@@ -142,7 +142,7 @@
   <div id="sky" aria-hidden="true"></div>
 
   <header>
-    <h1 id="title" aria-label="Yas's Games"></h1>
+    <h1 id="title" aria-label="Yas's Games">Yas's Games</h1>
   </header>
 
   <main id="games"></main>
@@ -204,10 +204,12 @@
   // ---- title: bouncy rainbow letters ----
   const palette = ['#ff5c8a', '#ff9f1c', '#f5c400', '#3cc954', '#2f9bff', '#9b5cff'];
   const title = $('title');
+  const siteName = title.textContent;
+  title.textContent = '';
   const star = () => { const s = document.createElement('span'); s.className = 'sparkle'; s.textContent = '⭐'; return s; };
   title.appendChild(star());
   let li = 0;
-  for (const ch of "Yas's Games") {
+  for (const ch of siteName) {
     const s = document.createElement('span');
     if (ch === ' ') { s.className = 'sp'; }
     else {

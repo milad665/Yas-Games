@@ -1,8 +1,12 @@
 name: Build & Deploy
 
-# - Push to main      -> build image, deploy to the homelab
+# Two editions from one push (see tools/build.mjs):
+#   - Yas's own edition -> Docker image -> the homelab
+#   - the public edition (no Yas, with SEO and a donate button) -> Firebase Hosting
+#
+# - Push to main      -> deploy both
 # - Push a tag v1.2.3 -> same, plus a versioned image and a GitHub Release
-# - Run manually      -> optionally redeploy an existing image tag (rollback)
+# - Run manually      -> deploy both, or redeploy an existing homelab image tag (rollback, homelab only)
 on:
   push:
     branches: [main]
@@ -98,9 +102,65 @@ jobs:
         if: always()
         run: docker image prune -f
 
+  public:
+    # a homelab rollback leaves the public site alone
+    if: ${{ !inputs.image_tag }}
+    runs-on: ubuntu-latest
+    environment:
+      name: public
+      url: ${{ steps.site.outputs.url }}
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Check Firebase settings
+        id: site
+        env:
+          PROJECT: ${{ vars.FIREBASE_PROJECT_ID }}
+          HAS_KEY: ${{ secrets.FIREBASE_SERVICE_ACCOUNT != '' }}
+          SITE_URL: ${{ vars.PUBLIC_SITE_URL }}
+        run: |
+          if [ -z "$PROJECT" ] || [ "$HAS_KEY" != "true" ]; then
+            echo "::error::Set the FIREBASE_PROJECT_ID variable and FIREBASE_SERVICE_ACCOUNT secret (see docs/public-site.md)"
+            exit 1
+          fi
+          echo "url=${SITE_URL:-https://$PROJECT.web.app}" >> "$GITHUB_OUTPUT"
+
+      - name: Build the public edition
+        env:
+          SITE_URL: ${{ steps.site.outputs.url }}
+          DONATE_URL: ${{ vars.STRIPE_DONATE_URL }}
+        run: node tools/build.mjs public
+
+      - uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          projectId: ${{ vars.FIREBASE_PROJECT_ID }}
+          channelId: live
+
+      - name: Health check
+        env:
+          URL: ${{ steps.site.outputs.url }}
+        run: |
+          for i in $(seq 1 10); do
+            if curl -fsS "$URL/" -o page.html && curl -fsS "$URL/sitemap.xml" -o /dev/null; then
+              if grep -qiE "(^|[^[:alpha:]])yas" page.html; then echo "::error::The public site mentions Yas" >&2; exit 1; fi
+              exit 0
+            fi
+            sleep 3
+          done
+          echo "::error::$URL did not come up" >&2
+          exit 1
+
   release:
     if: startsWith(github.ref, 'refs/tags/v')
-    needs: deploy
+    needs: [deploy, public]
     runs-on: ubuntu-latest
     permissions:
       contents: write

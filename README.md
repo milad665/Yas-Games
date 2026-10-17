@@ -2,6 +2,9 @@
 
 A little collection of creative, no-reading-needed games for Yas, made for the iPad.
 
+There is also a public edition for every child, **Little Sparks**, with Yas taken out, a
+donate button and search-engine friendly pages. See [docs/public-site.md](docs/public-site.md).
+
 | Game | What it is |
 | --- | --- |
 | **Magic Doodles** | Draw anything with your finger, tap ✨, and it comes alive with googly eyes and hops, flies, swims, floats or crawls around one of five worlds. |
@@ -34,6 +37,7 @@ site/                     ← everything that gets served
   index.html              ← the Yas's Games home page
   sw.js, manifest.webmanifest, icon-*.png  ← installable app + offline support
   shared/games.js         ← the list of games
+  shared/edition.js       ← which edition this is (Yas's; the public build swaps it)
   shared/lines.js         ← every spoken line, in English, Dutch, German, Spanish and Persian
   shared/voice.js         ← plays the recorded voice clips
   shared/kit.js, kit.css  ← common buttons, sounds, sparkles and saving for games
@@ -42,10 +46,14 @@ site/                     ← everything that gets served
   voice/                  ← recorded clips (made by tools/record-voice.mjs)
   games/
     magic-doodles/index.html
+editions/public/         ← the public edition: name, home page extras for grown-ups
+tools/build.mjs           ← builds an edition into dist/ (node tools/build.mjs public)
+firebase.json             ← how Firebase serves the public edition
 Dockerfile, nginx.conf    ← container that serves site/
 deploy/docker-compose.yml ← how the homelab runs it
 .github/workflows/        ← build & deploy pipeline
 docs/homelab-setup.md     ← one-time server setup guide
+docs/public-site.md       ← the public edition: Firebase, Stripe donations, search engines
 ```
 
 ## Adding a new game
@@ -66,6 +74,7 @@ docs/homelab-setup.md     ← one-time server setup guide
    {
      name: 'My New Game',
      path: 'games/my-new-game/',
+     about: 'One sentence for grown-ups and search engines.',
      group: 'think',          // its row on the home page: make, think, words or pretend
      art: '🦄',
      extras: ['⭐', '🌈'],
@@ -74,7 +83,9 @@ docs/homelab-setup.md     ← one-time server setup guide
    ```
 
 5. If you added lines, record them: `node tools/record-voice.mjs` (see below).
-6. Commit and push to `main`. The pipeline deploys it to the homelab.
+6. Keep Yas out of the public edition: anything personal comes from `EDITION.kid`, and lines
+   that say her name get `kid: true` (see [docs/public-site.md](docs/public-site.md)).
+7. Commit and push to `main`. The pipeline deploys it to the homelab and the public site.
 
 ## Voice (English, Dutch, German, Spanish, Persian)
 
@@ -124,6 +135,7 @@ Then open http://localhost:8000. To try it on the iPad, use your computer's IP i
 ## Deploying
 
 Pushing to `main` builds a Docker image, pushes it to `ghcr.io/milad665/yas-games`, and a
-self-hosted runner on the homelab server pulls and restarts it. Tags like `v1.2.0` also
+self-hosted runner on the homelab server pulls and restarts it. At the same time the public
+edition is built and deployed to Firebase Hosting ([docs/public-site.md](docs/public-site.md)). Tags like `v1.2.0` also
 create a GitHub Release. See [docs/homelab-setup.md](docs/homelab-setup.md) for the
 one-time server setup, releases and rollbacks.

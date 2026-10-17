@@ -79,6 +79,7 @@
   </div>
 </section>
 
+<script src="/shared/edition.js"></script>
 <script src="/shared/lines.js"></script>
 <script src="/shared/voice.js"></script>
 <script src="/shared/saved.js"></script>
@@ -184,12 +185,15 @@
     V: { en: ['violin', '🎻'], nl: ['vis', '🐟'], de: ['vogel', '🐦'], es: ['vaca', '🐄'] },
     W: { en: ['whale', '🐳'], nl: ['walvis', '🐳'], de: ['wal', '🐳'], es: ['wafle', '🧇'] },
     X: { en: ['x-ray', '🩻'], nl: ['xylofoon', '🎶'], de: ['xylophon', '🎶'], es: ['taxi', '🚕'] },
-    Y: { en: ['Yas', '👧'], nl: ['Yas', '👧'], de: ['Yas', '👧'], es: ['Yas', '👧'] },
+    Y: { en: ['yo-yo', '🪀'], nl: ['yoga', '🧘'], de: ['yoga', '🧘'], es: ['yoyó', '🪀'] },
     Z: { en: ['zebra', '🦓'], nl: ['zon', '☀️'], de: ['zebra', '🦓'], es: ['zanahoria', '🥕'] },
   };
   // small letters that are easy to mix up, used in the "which one is small a?" question
   const LOOKALIKES = [['b', 'd', 'p', 'q'], ['m', 'n', 'u', 'h'], ['i', 'l', 'j', 't'], ['a', 'o', 'e', 'c'], ['v', 'w', 'y'], ['f', 't', 'k'], ['g', 'q', 'y', 'j'], ['s', 'z', 'c'], ['k', 'x', 'h'], ['r', 'n']];
-  const NAME = ['Y', 'A', 'S'];
+  // the child's own name goes first, and her name is the word for its first letter
+  const KID = self.EDITION && EDITION.kid;
+  const NAME = KID ? [...KID.name.toUpperCase()] : [];
+  if (KID) WORDS[NAME[0]] = Object.fromEntries(['en', 'nl', 'de', 'es'].map(l => [l, [KID.name, KID.emoji]]));
   const INKS = ['#ec4899', '#8b5cf6', '#3b82f6', '#10b981', '#f59e0b'];
 
   // resample every stroke so tracing is even
@@ -238,6 +242,7 @@
   }
   function paintPicker() {
     $('nameRow').innerHTML = ''; NAME.forEach(ch => $('nameRow').appendChild(tile(ch, true)));
+    $('nameRow').style.display = NAME.length ? '' : 'none';
     $('alphabet').innerHTML = ''; Object.keys(BIG).forEach(ch => $('alphabet').appendChild(tile(ch)));
   }
   paintPicker();
@@ -368,7 +373,8 @@
     $('word').classList.add('on');
     const nameDone = NAME.every(isDone);
     // names start with a big letter
-    Kit.say('lt.' + letter, letter === 'Y' ? 'lt.nameBig' : null, NAME.includes(letter) && nameDone && !saved.nameCheered ? 'lt.name' : null);
+    const isFirst = KID && letter === NAME[0];
+    Kit.say('lt.' + letter + (isFirst ? '.kid' : ''), isFirst ? 'lt.nameBig' : null, NAME.includes(letter) && nameDone && !saved.nameCheered ? 'lt.name' : null);
     if (NAME.includes(letter) && nameDone && !saved.nameCheered) { saved.nameCheered = true; save.set(saved); }
   }
 

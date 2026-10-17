@@ -1,14 +1,15 @@
 // ============================================================
-//  The games on Yas's Games. Add new games here.
+//  The list of games. Add new games here.
 //  Each game lives in /games/<folder>/
 //  art:    a big emoji for the cover
 //  extras: small emojis sprinkled around the cover
 //  colors: the cover's gradient
 //  group:  which row it sits in on the home page (see GAME_GROUPS below)
+//  about:  one sentence for grown-ups (the public site's search listing and game pages)
 //  (The offline cache in /sw.js also reads this list.)
 // ============================================================
 // The home page shows one sideways-scrolling row per group, with a big picture
-// header since Yas can't read yet. Games without a group go in a last row.
+// header since little ones can't read yet. Games without a group go in a last row.
 self.GAME_GROUPS = [
   { id: 'make', emoji: '🎨', name: 'Make & create' },
   { id: 'think', emoji: '🧠', name: 'Think & solve' },
@@ -21,6 +22,7 @@ self.GAMES = [
     name: 'Magic Doodles',
     group: 'make',
     path: 'games/magic-doodles/',
+    about: 'Draw anything with your finger, tap the magic wand and it comes alive with googly eyes, hopping, flying or swimming through five worlds.',
     art: '🖍️',
     extras: ['🐰', '🐠', '🚀', '🦕', '🏰'],
     colors: ['#ffb3d9', '#c4b5fd', '#8fd3ff'],
@@ -29,6 +31,7 @@ self.GAMES = [
     name: 'Beep Boop Robot',
     group: 'think',
     path: 'games/beep-boop-robot/',
+    about: 'Build your own robot, then program it with arrow cards to reach its battery. A gentle first step into coding, sequencing and debugging.',
     art: '🤖',
     extras: ['🔋', '⚙️', '⬆️', '➡️', '🔧'],
     colors: ['#a5f3fc', '#93c5fd', '#c4b5fd'],
@@ -37,6 +40,7 @@ self.GAMES = [
     name: 'Music Painter',
     group: 'make',
     path: 'games/music-painter/',
+    about: 'Colors are instruments and height is pitch: paint a picture, press play and hear it turn into a song.',
     art: '🎨',
     extras: ['🎵', '🎹', '🥁', '🎺', '🔔'],
     colors: ['#fde68a', '#fbcfe8', '#bfdbfe'],
@@ -45,6 +49,7 @@ self.GAMES = [
     name: 'Story Theater',
     group: 'pretend',
     path: 'games/story-theater/',
+    about: 'Pick a stage, add characters and props, make them act and film your own story with your own voice.',
     art: '🎭',
     extras: ['👸', '🐉', '🎬', '🧜‍♀️', '👽'],
     colors: ['#fca5a5', '#f9a8d4', '#fcd34d'],
@@ -53,6 +58,7 @@ self.GAMES = [
     name: 'Creature Lab',
     group: 'make',
     path: 'games/creature-lab/',
+    about: 'Mix heads, bodies, legs, tails and wings into a silly new creature, then feed it, bathe it and play with it.',
     art: '🧪',
     extras: ['🦄', '🦖', '👽', '🐰', '💖'],
     colors: ['#d9f99d', '#a7f3d0', '#fef08a'],
@@ -61,6 +67,7 @@ self.GAMES = [
     name: 'Pattern Train',
     group: 'think',
     path: 'games/pattern-train/',
+    about: 'Finish the pattern on each train car. Patterns grow from AB to AABB, big and small, and more.',
     art: '🚂',
     extras: ['🍎', '🍌', '🔴', '🔵', '❓'],
     colors: ['#bae6fd', '#bbf7d0', '#fef08a'],
@@ -69,6 +76,7 @@ self.GAMES = [
     name: 'Shadow Match',
     group: 'think',
     path: 'games/shadow-match/',
+    about: 'Drag each picture onto its shadow. Later shadows are turned, resized or tricky look-alikes.',
     art: '🔦',
     extras: ['🐘', '🦒', '🚀', '🦋', '⭐'],
     colors: ['#fef3c7', '#fde68a', '#fdba74'],
@@ -77,6 +85,7 @@ self.GAMES = [
     name: 'Robot Factory',
     group: 'think',
     path: 'games/robot-factory/',
+    about: "Build robots from picture recipes, or spot and fix the silly robot's mistakes.",
     art: '🏭',
     extras: ['🤖', '🦾', '⚙️', '📋', '🔧'],
     colors: ['#e2e8f0', '#bfdbfe', '#fde68a'],
@@ -85,6 +94,7 @@ self.GAMES = [
     name: 'Counting Garden',
     group: 'words',
     path: 'games/counting-garden/',
+    about: 'Plant exactly the number shown, then harvest and count from 1 to 10.',
     art: '🌻',
     extras: ['🌷', '🍓', '🥕', '🐝', '💧'],
     colors: ['#bbf7d0', '#fef08a', '#fbcfe8'],
@@ -93,6 +103,7 @@ self.GAMES = [
     name: 'Animal Safari',
     group: 'words',
     path: 'games/animal-safari/',
+    about: 'Where is the lion? Who says moo? Find animals by name and sound and fill a photo album.',
     art: '🦁',
     extras: ['🐘', '🦒', '🐄', '🐧', '📸'],
     colors: ['#fde68a', '#fdba74', '#bbf7d0'],
@@ -101,6 +112,7 @@ self.GAMES = [
     name: 'Feelings Friends',
     group: 'pretend',
     path: 'games/feelings-friends/',
+    about: 'Little stories about feelings: name the feeling, choose a kind way to help and build feeling faces.',
     art: '😊',
     extras: ['😢', '😠', '😨', '😮', '💖'],
     colors: ['#fce7f3', '#fbcfe8', '#ddd6fe'],
@@ -109,6 +121,7 @@ self.GAMES = [
     name: 'Letter Trace',
     group: 'words',
     path: 'games/letter-trace/',
+    about: 'Trace all 26 letters, big and small, with a finger. Every letter comes with a word and a picture.',
     art: '✍️',
     extras: ['🅰️', '🍎', '☀️', '👧', '⭐'],
     colors: ['#e0e7ff', '#fce7f3', '#fef9c3'],
@@ -117,6 +130,7 @@ self.GAMES = [
     name: 'Mirror Painter',
     group: 'make',
     path: 'games/mirror-painter/',
+    about: 'Paint once and a magic mirror copies it: butterfly, flower and snowflake symmetry, plus a gallery.',
     art: '🦋',
     extras: ['❄️', '🌸', '✨', '🪞', '💜'],
     colors: ['#ede9fe', '#fce7f3', '#e0f2fe'],
@@ -125,6 +139,7 @@ self.GAMES = [
     name: 'Doodle Puzzles',
     group: 'think',
     path: 'games/doodle-puzzles/',
+    about: 'Jigsaw puzzles made from your own drawings, from 4 to 12 pieces.',
     art: '🧩',
     extras: ['🖍️', '🦄', '🚀', '⭐', '🎨'],
     colors: ['#ccfbf1', '#e0f2fe', '#fef3c7'],
@@ -133,6 +148,7 @@ self.GAMES = [
     name: 'Cake Shop',
     group: 'pretend',
     path: 'games/cake-shop/',
+    about: 'Stack cake layers, frost and decorate, count the candles, then sing and blow them out.',
     art: '🎂',
     extras: ['🍓', '🕯️', '🧁', '🎉', '🍰'],
     colors: ['#fce7f3', '#fde68a', '#fbcfe8'],
@@ -141,6 +157,7 @@ self.GAMES = [
     name: 'Dress-Up Studio',
     group: 'pretend',
     path: 'games/dress-up/',
+    about: 'Dress up as a princess, astronaut, firefighter, mermaid and more, and take photos.',
     art: '👗',
     extras: ['👑', '🚀', '🧜‍♀️', '🦸', '🧚'],
     colors: ['#fae8ff', '#fce7f3', '#e0f2fe'],
@@ -149,6 +166,7 @@ self.GAMES = [
     name: 'Little Vet',
     group: 'pretend',
     path: 'games/little-vet/',
+    about: 'Help animal patients feel better by choosing the right tool for each one.',
     art: '🩺',
     extras: ['🐶', '🩹', '🐱', '💊', '💖'],
     colors: ['#dcfce7', '#ecfeff', '#bae6fd'],
@@ -157,6 +175,7 @@ self.GAMES = [
     name: 'Where\'s Teddy?',
     group: 'words',
     path: 'games/wheres-teddy/',
+    about: 'Learn position words like on, under, next to, in and behind by finding and placing Teddy.',
     art: '🧸',
     extras: ['🛋️', '📦', '🛏️', '❓', '⭐'],
     colors: ['#fef3c7', '#fde68a', '#fbcfe8'],
@@ -165,6 +184,7 @@ self.GAMES = [
     name: 'Memory Match',
     group: 'think',
     path: 'games/memory-match/',
+    about: 'Flip cards to find matching pairs, from 6 up to 16 cards.',
     art: '🃏',
     extras: ['🐶', '🐶', '⭐', '🍓', '🍓'],
     colors: ['#dbeafe', '#ede9fe', '#fce7f3'],
@@ -173,6 +193,7 @@ self.GAMES = [
     name: 'Sink or Float',
     group: 'think',
     path: 'games/sink-or-float/',
+    about: 'Guess whether it sinks or floats, drop it in the tub and see. Twenty real-life objects.',
     art: '🛁',
     extras: ['🦆', '🪨', '🍎', '🔑', '🫧'],
     colors: ['#e0f2fe', '#bae6fd', '#fef9c3'],
@@ -181,6 +202,7 @@ self.GAMES = [
     name: 'Maze Mouse',
     group: 'think',
     path: 'games/maze-mouse/',
+    about: 'Guide the mouse through growing mazes to the cheese, with keys and doors later on.',
     art: '🐭',
     extras: ['🧀', '🔑', '🚪', '🌿', '⭐'],
     colors: ['#dcfce7', '#bbf7d0', '#fef9c3'],
@@ -189,6 +211,7 @@ self.GAMES = [
     name: 'Rhythm Copy',
     group: 'make',
     path: 'games/rhythm-copy/',
+    about: 'The animal band plays a tune; listen and copy it as it grows longer.',
     art: '🥁',
     extras: ['🐸', '🐻', '🐱', '🐦', '🎵'],
     colors: ['#c7d2fe', '#a5b4fc', '#fbcfe8'],

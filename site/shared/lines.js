@@ -1,8 +1,10 @@
 // Every line the games speak, in English, Dutch, German, Spanish and Persian.
 // Games call Voice.say('<key>'). After changing or adding a line, re-record the clips:
 //   node tools/record-voice.mjs
+// Lines marked kid: true name the child of a personal edition (see shared/edition.js);
+// the public edition leaves them out.
 self.VOICE_LINES = {
-  // ---------- Yas's Games home ----------
+  // ---------- home page ----------
   'hub.lang':        { en: "Let's play in English!",                nl: 'We spelen in het Nederlands!',
                        de: 'Wir spielen auf Deutsch!',
                        es: '¡Vamos a jugar en español!',
@@ -1233,7 +1235,7 @@ self.VOICE_LINES = {
                        de: 'Jetzt die nächste Linie, vom grünen Punkt aus!',
                        es: '¡Ahora la siguiente línea, desde el punto verde!',
                        fa: 'حالا خط بعدی، از نقطه‌ی سبز!' },
-  'lt.name':         { en: 'You can write your whole name! Y, A, S. Yas!', nl: 'Jij kunt je hele naam schrijven! Y, A, S. Yas!',
+  'lt.name':         { kid: true, en: 'You can write your whole name! Y, A, S. Yas!', nl: 'Jij kunt je hele naam schrijven! Y, A, S. Yas!',
                        de: 'Du kannst deinen ganzen Namen schreiben! Y, A, S. Yas!',
                        es: '¡Ya sabes escribir tu nombre entero! Y, A, S. ¡Yas!',
                        fa: 'می‌تونی کل اسمتو بنویسی! وای، اِی، اِس. یاس!' },
@@ -1333,7 +1335,11 @@ self.VOICE_LINES = {
                        de: 'X! X wie Xylophon.',
                        es: '¡X! La X de taxi.',
                        fa: 'اِکس! اِکس مثل اِکس‌رِی، یعنی عکس استخونا.' },
-  'lt.Y':            { en: 'Y! Y is for Yas!', nl: 'Y! De Y van Yas!',
+  'lt.Y':            { en: 'Y! Y is for yo-yo!', nl: 'Y! De Y van yoga!',
+                       de: 'Y! Y wie Yoga!',
+                       es: '¡Y! ¡La Y de yoyó!',
+                       fa: 'وای! وای مثل یویو!' },
+  'lt.Y.kid':        { kid: true, en: 'Y! Y is for Yas!', nl: 'Y! De Y van Yas!',
                        de: 'Y! Y wie Yas!',
                        es: '¡Y! ¡Y de Yas!',
                        fa: 'وای! وای مثل یاس!' },
@@ -1507,11 +1513,19 @@ self.VOICE_LINES = {
                        de: 'Alles Gute zum Geburtstag, lieber Dino!',
                        es: '¡Feliz cumpleaños, Dino!',
                        fa: 'تولدت مبارک دایناسوری!' },
-  'cs.age.yas':      { en: 'Yas is turning five! Put on five candles.', nl: 'Yas wordt vijf! Zet er vijf kaarsjes op.',
+  'cs.age.kitty':    { en: 'Kitty is turning seven! Put on seven candles.', nl: 'Poesje wordt zeven! Zet er zeven kaarsjes op.',
+                       de: 'Das Kätzchen wird sieben! Steck sieben Kerzen drauf.',
+                       es: '¡Gatito cumple siete años! Pon siete velitas.',
+                       fa: 'پیشی داره هفت سالش می‌شه! هفت تا شمع بذار.' },
+  'cs.hb.kitty':     { en: 'Happy birthday, Kitty!', nl: 'Hoera, gefeliciteerd Poesje!',
+                       de: 'Alles Gute zum Geburtstag, liebes Kätzchen!',
+                       es: '¡Feliz cumpleaños, Gatito!',
+                       fa: 'تولدت مبارک پیشی!' },
+  'cs.age.kid':      { kid: true, en: 'Yas is turning five! Put on five candles.', nl: 'Yas wordt vijf! Zet er vijf kaarsjes op.',
                        de: 'Yas wird fünf! Steck fünf Kerzen drauf.',
                        es: '¡Yas cumple cinco años! Pon cinco velitas.',
                        fa: 'یاس داره پنج سالش می‌شه! پنج تا شمع بذار.' },
-  'cs.hb.yas':       { en: 'Happy birthday, Yas!', nl: 'Hoera, gefeliciteerd Yas!',
+  'cs.hb.kid':       { kid: true, en: 'Happy birthday, Yas!', nl: 'Hoera, gefeliciteerd Yas!',
                        de: 'Alles Gute zum Geburtstag, liebe Yas!',
                        es: '¡Feliz cumpleaños, Yas!',
                        fa: 'تولدت مبارک یاس!' },
@@ -2099,7 +2113,7 @@ self.VOICE_LINES = {
                        fa: 'یه آهنگ جدید! گوش کن...' },
 
   // ---------- Letter Trace: big and small letters ----------
-  'lt.nameBig':      { en: 'Names start with a big letter. Big Y for Yas!', nl: 'Namen beginnen met een hoofdletter. Een grote Y voor Yas!',
+  'lt.nameBig':      { kid: true, en: 'Names start with a big letter. Big Y for Yas!', nl: 'Namen beginnen met een hoofdletter. Een grote Y voor Yas!',
                        de: 'Namen fangen mit einem großen Buchstaben an. Großes Y für Yas!',
                        es: 'Los nombres empiezan con una letra grande. ¡Una Y grande para Yas!',
                        fa: 'اسما با حرف بزرگ شروع می‌شن. وای بزرگ برای یاس!' },

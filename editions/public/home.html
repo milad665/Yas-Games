@@ -1,0 +1,110 @@
+<!-- Added to the public home page by tools/build.mjs: a 💝 donate button and a section for grown-ups. -->
+<style>
+  /* the corner has one more button here, so the title moves down on narrower screens */
+  @media (max-width: 1200px) { header { margin-top: 64px; } }
+  #donateBtn { position: relative; width: 56px; height: 56px; font-size: 28px; touch-action: none; padding: 0; }
+  #donateBtn::after, .holdBtn::after { content: ''; position: absolute; inset: -4px; border-radius: inherit; border: 4px solid #ff5c8a; opacity: 0; pointer-events: none; }
+  #donateBtn.holding::after, .holdBtn.holding::after { animation: hold 1s linear forwards; }
+  #donateBtn.nope, .holdBtn.nope { animation: nope .4s; }
+
+  #grownups {
+    position: relative; z-index: 1; max-width: 900px; margin: clamp(28px, 6vh, 64px) auto 0; padding: 26px clamp(18px, 4vw, 40px) 30px;
+    background: rgba(255,255,255,.82); border-radius: 32px; box-shadow: 0 8px 0 rgba(90, 60, 140, .1);
+    font-family: system-ui, sans-serif; font-size: 17px; line-height: 1.5; color: #3b2f55;
+    -webkit-user-select: text; user-select: text;
+  }
+  #grownups h2 { margin: 0 0 8px; font-size: clamp(22px, 3vw, 30px); line-height: 1.2; }
+  #grownups h3 { margin: 24px 0 8px; font-size: 20px; }
+  #grownups p { margin: 6px 0; color: #5b4d78; }
+  #grownups ul.facts { padding-left: 1.2em; margin: 8px 0; color: #5b4d78; }
+  #grownups .list { list-style: none; padding: 0; margin: 8px 0 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px 22px; }
+  #grownups .list a { color: #4a3b6b; font-weight: 700; text-decoration: none; }
+  #grownups .list a:hover { text-decoration: underline; }
+  #grownups .list p { margin: 2px 0 0; font-size: 15px; }
+  .holdBtn {
+    position: relative; border: none; border-radius: 999px; padding: 14px 22px; margin-top: 12px; font: 700 18px system-ui, sans-serif;
+    background: #ff5c8a; color: #fff; box-shadow: 0 5px 0 rgba(180, 30, 80, .25); touch-action: none;
+  }
+  .hint { font-size: 14px; color: #8a7aa8 !important; }
+
+  #donate { position: fixed; inset: 0; z-index: 40; background: rgba(60, 40, 100, .35); display: grid; place-items: center; padding: 16px; -webkit-user-select: text; user-select: text; }
+  #donate[hidden] { display: none; }
+  #donate .panel { background: #fff; border-radius: 28px; width: min(100%, 520px); max-height: calc(100vh - 32px); overflow-y: auto; padding: 22px 24px 26px; box-shadow: 0 20px 50px rgba(60, 40, 100, .3); font: 17px/1.5 system-ui, sans-serif; color: #3b2f55; }
+  #donate h2 { margin: 0 0 8px; font-size: 24px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  #donate p { margin: 8px 0; color: #5b4d78; }
+  #donate .close { border: none; background: #f2eefa; width: 44px; height: 44px; border-radius: 50%; font-size: 22px; flex: none; }
+  #donate .go { display: block; text-align: center; margin-top: 16px; padding: 15px 20px; border-radius: 16px; background: #635bff; color: #fff; font-weight: 700; font-size: 18px; text-decoration: none; }
+</style>
+
+<section id="grownups" aria-labelledby="grownupsTitle">
+  <h2 id="grownupsTitle">Free learning games for kids, for everyone</h2>
+  <p>{{NAME}} is a collection of {{COUNT}} creative, educational games for young children, roughly ages 3 to 7. They need no reading: everything is spoken aloud in English, Dutch and Persian, and the games are made for little fingers on tablets and phones.</p>
+  <ul class="facts">
+    <li><b>Completely free</b> for every child, everywhere. No ads, no in-app purchases, no sign-up.</li>
+    <li><b>Private:</b> no tracking and no accounts. Progress, drawings and photos stay on your device.</li>
+    <li><b>Works offline:</b> add it to your home screen (📲) and it plays without internet.</li>
+    <li><b>Creativity first:</b> drawing, music, stories and building, alongside letters, counting, patterns, logic and feelings.</li>
+  </ul>
+
+  <h3>The games</h3>
+  <ul class="list">
+{{GAME_LIST}}
+  </ul>
+
+  <div data-donate>
+    <h3>Keep it free 💝</h3>
+    <p>{{NAME}} is made with love and will always be free, for kids from every family. If it brings joy to yours and you'd like to help keep it running and growing, you can give any amount you like. It's completely optional.</p>
+    <button class="holdBtn" id="donateBtn2">💝 Donate any amount</button>
+    <p class="hint">Press and hold for a second (so little fingers don't open it by accident).</p>
+  </div>
+</section>
+
+<div id="donate" hidden role="dialog" aria-modal="true" aria-labelledby="donateTitle">
+  <div class="panel">
+    <h2 id="donateTitle">Support {{NAME}} 💝 <button id="donateClose" class="close" aria-label="Close">✕</button></h2>
+    <p>Thank you for thinking of it! Every game here is free for every child, and will stay that way. Donations are voluntary and help pay for hosting, voice recordings and new games.</p>
+    <p>You choose the amount on the next page. Payment is handled securely by Stripe; we never see your card details.</p>
+    <a class="go" id="donateGo" target="_blank" rel="noopener">Choose an amount with Stripe →</a>
+  </div>
+</div>
+
+<script>
+(() => {
+  const DONATE_URL = {{DONATE_URL}};
+  const $ = id => document.getElementById(id);
+
+  if (!DONATE_URL) {
+    document.querySelectorAll('[data-donate]').forEach(el => el.remove());
+    return;
+  }
+  $('donateGo').href = DONATE_URL;
+
+  // a 💝 next to the ⚙️ in the corner
+  const pill = document.createElement('button');
+  pill.id = 'donateBtn'; pill.className = 'pill'; pill.textContent = '💝';
+  pill.setAttribute('aria-label', 'Donate (for grown-ups, press and hold)');
+  $('gearBtn').before(pill);
+
+  // press and hold for a second, like the ⚙️, so children don't wander into a payment page
+  function holdToOpen(btn) {
+    let timer = null;
+    btn.addEventListener('pointerdown', e => {
+      try { btn.setPointerCapture(e.pointerId); } catch (err) {}
+      btn.classList.add('holding');
+      timer = setTimeout(() => { timer = null; btn.classList.remove('holding'); $('donate').hidden = false; }, 1000);
+    });
+    const letGo = () => {
+      if (!timer) return;
+      clearTimeout(timer); timer = null; btn.classList.remove('holding');
+      btn.classList.remove('nope'); void btn.offsetWidth; btn.classList.add('nope');
+    };
+    btn.addEventListener('pointerup', letGo);
+    btn.addEventListener('pointercancel', letGo);
+    btn.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); $('donate').hidden = false; } });
+  }
+  holdToOpen(pill);
+  holdToOpen($('donateBtn2'));
+  $('donateClose').onclick = () => { $('donate').hidden = true; };
+  $('donate').addEventListener('click', e => { if (e.target === $('donate')) $('donate').hidden = true; });
+})();
+</script>

@@ -53,6 +53,7 @@
   <div id="panel"></div>
 </section>
 
+<script src="/shared/edition.js"></script>
 <script src="/shared/lines.js"></script>
 <script src="/shared/voice.js"></script>
 <script src="/shared/saved.js"></script>
@@ -64,7 +65,10 @@
   const FLAVORS = { chocolate: '#7c3f1d', strawberry: '#f9a8d4', vanilla: '#fef3c7', blueberry: '#a78bfa', lemon: '#fde047', mint: '#86efac' };
   const FROSTINGS = ['#ffffff', '#fbcfe8', '#93c5fd', '#fde68a', '#c4b5fd', '#6b3a1e'];
   const TOPPINGS = ['🍓', '🍒', '🫐', '⭐', '🌸', '🍬', '🍫', '❤️'];
-  const GUESTS = { bear: ['🐻', 3], bunny: ['🐰', 4], unicorn: ['🦄', 5], puppy: ['🐶', 2], dino: ['🦖', 6], yas: ['👧', 5] };
+  const GUESTS = { bear: ['🐻', 3], bunny: ['🐰', 4], unicorn: ['🦄', 5], puppy: ['🐶', 2], dino: ['🦖', 6], kitty: ['🐱', 7] };
+  // and the child the games are made for, on her own birthday
+  const KID = self.EDITION && EDITION.kid;
+  if (KID) GUESTS.kid = [KID.emoji, KID.age];
   const STEPS = [['layers', '🍰'], ['frosting', '🧁'], ['deco', '🍓'], ['candles', '🕯️']];
   const MAX_LAYERS = 4;
 

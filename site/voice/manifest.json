@@ -326,7 +326,6 @@
     "lt.V": "4131247cc0",
     "lt.W": "3e6c984bb7",
     "lt.X": "44c89b5f84",
-    "lt.Y": "56a3de8012",
     "lt.Z": "04eb39dcf8",
     "mi.intro": "36d90e68b4",
     "mi.butterfly": "f4d1874358",
@@ -368,8 +367,6 @@
     "cs.hb.puppy": "b82da1b606",
     "cs.age.dino": "aa810de10f",
     "cs.hb.dino": "23ee90d604",
-    "cs.age.yas": "0ca0c70b64",
-    "cs.hb.yas": "cecbabbea5",
     "du.intro": "f02a87f78b",
     "du.surprise": "4f3a472ba3",
     "du.photo": "596b44d27d",
@@ -616,7 +613,13 @@
     "lt.big.Z": "fb806548fc",
     "lt.small.Z": "379c502aed",
     "lt.find.Z": "63689bdb5b",
-    "lt.thatIs.z": "528bb0d33e"
+    "lt.thatIs.z": "528bb0d33e",
+    "lt.Y.kid": "56a3de8012",
+    "cs.age.kid": "0ca0c70b64",
+    "cs.hb.kid": "cecbabbea5",
+    "cs.hb.kitty": "ca6e688c71",
+    "lt.Y": "2f871dd435",
+    "cs.age.kitty": "669f5eb606"
   },
   "nl": {
     "hub.lang": "d1da1f5fa2",
@@ -945,7 +948,6 @@
     "lt.V": "f7f7e73e73",
     "lt.W": "4bc65235bf",
     "lt.X": "8ede1127ab",
-    "lt.Y": "5f2ee6a880",
     "lt.Z": "2e47e39251",
     "mi.intro": "442b8e9c3e",
     "mi.butterfly": "8574b58027",
@@ -987,8 +989,6 @@
     "cs.hb.puppy": "0ad8dd4b0d",
     "cs.age.dino": "f8e366a934",
     "cs.hb.dino": "68c3d369e7",
-    "cs.age.yas": "c19dcb70a7",
-    "cs.hb.yas": "1b1425b359",
     "du.intro": "52c662feba",
     "du.surprise": "c2cca09054",
     "du.photo": "a60a7160b0",
@@ -1235,7 +1235,13 @@
     "lt.big.Z": "58ff25ebbc",
     "lt.small.Z": "03428cbbf5",
     "lt.find.Z": "e1e948a43b",
-    "lt.thatIs.z": "6cbc7abaa8"
+    "lt.thatIs.z": "6cbc7abaa8",
+    "lt.Y.kid": "5f2ee6a880",
+    "cs.age.kid": "c19dcb70a7",
+    "cs.hb.kid": "1b1425b359",
+    "lt.Y": "72cdcfa228",
+    "cs.hb.kitty": "cfcfd0f218",
+    "cs.age.kitty": "22fee66498"
   },
   "voices": {
     "en": "Jessica (ElevenLabs eleven_v4)",
@@ -1569,7 +1575,6 @@
     "lt.V": "5b46fb245e",
     "lt.W": "9ccf1ed313",
     "lt.X": "86fbe736a6",
-    "lt.Y": "748582c07a",
     "mi.butterfly": "25e2a485fc",
     "lt.Z": "444a716856",
     "mi.flower": "687bd00e1e",
@@ -1611,8 +1616,6 @@
     "cs.age.puppy": "8ffc0346a7",
     "cs.hb.dino": "03f4215820",
     "cs.age.dino": "8825a662a1",
-    "cs.hb.yas": "0f8c08130c",
-    "cs.age.yas": "24d69e2d52",
     "du.surprise": "31d831b2ed",
     "du.album": "b6dbb9c441",
     "du.intro": "ac00f86f9c",
@@ -1859,6 +1862,12 @@
     "lt.big.Z": "b7d011c0f9",
     "lt.small.Z": "d0e6b3fa8b",
     "lt.find.Z": "eaafbb3b3b",
-    "lt.thatIs.z": "b7fbb29e9e"
+    "lt.thatIs.z": "b7fbb29e9e",
+    "lt.Y.kid": "748582c07a",
+    "cs.age.kid": "24d69e2d52",
+    "cs.hb.kid": "0f8c08130c",
+    "lt.Y": "025193fcae",
+    "cs.age.kitty": "5d7384fa9e",
+    "cs.hb.kitty": "4b126c5a40"
   }
 }
