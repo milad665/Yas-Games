@@ -485,4 +485,12 @@ self.VOICE_LINES = {
   'wt.which.next.sofa': { en: 'Which teddy is next to the sofa?', nl: 'Welke teddy zit naast de bank?' },
   'wt.put.next.sofa': { en: 'Put Teddy next to the sofa!', nl: 'Zet Teddy naast de bank!' },
   'wt.is.next.sofa': { en: 'Teddy is next to the sofa.', nl: 'Teddy zit naast de bank.' },
+
+  // ---------- Memory Match ----------
+  'mm.intro':        { en: 'Find the matching pairs! Tap two cards.', nl: 'Zoek de kaartjes die bij elkaar horen! Tik op twee kaartjes.' },
+  'mm.peek':         { en: 'Look carefully... now they hide!', nl: 'Kijk goed... nu verstoppen ze zich!' },
+  'mm.pair1':        { en: 'A pair!', nl: 'Een paar!' },
+  'mm.pair2':        { en: 'They match!', nl: 'Die horen bij elkaar!' },
+  'mm.done':         { en: 'You found all the pairs!', nl: 'Je hebt alle paren gevonden!' },
+  'mm.bigger':       { en: 'Now with more cards!', nl: 'Nu met meer kaartjes!' },
 };

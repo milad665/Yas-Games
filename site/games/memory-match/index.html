@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Memory Match">
+<meta name="theme-color" content="#dbeafe">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="stylesheet" href="/shared/kit.css">
+<title>Memory Match</title>
+<style>
+  body { background: linear-gradient(160deg, #dbeafe 0%, #ede9fe 50%, #fce7f3 100%); }
+  #game { flex-direction: column; align-items: center; padding: max(14px, env(safe-area-inset-top)) 14px max(14px, env(safe-area-inset-bottom)); gap: 2vh; }
+  #sizes { display: flex; gap: 12px; background: rgba(255,255,255,.7); padding: 8px 14px; border-radius: 26px; margin-top: 4px; }
+  .size { width: 70px; height: 70px; border-radius: 20px; display: grid; place-items: center; }
+  .size.sel { background: #bfdbfe; box-shadow: 0 6px 0 rgba(40,50,90,.18), 0 0 0 4px #3b82f6; }
+  .mini { display: grid; gap: 2px; }
+  .mini i { width: 9px; height: 12px; border-radius: 2px; background: #3b82f6; }
+  #board { flex: 1; min-height: 0; width: 100%; display: grid; place-items: center; }
+  #grid { display: grid; gap: clamp(8px, 1.6vw, 16px); }
+  .card { perspective: 800px; cursor: pointer; touch-action: manipulation; }
+  .card .in { position: relative; width: 100%; height: 100%; transition: transform .45s; transform-style: preserve-3d; }
+  .card.up .in { transform: rotateY(180deg); }
+  .card .face { position: absolute; inset: 0; border-radius: 18px; backface-visibility: hidden; -webkit-backface-visibility: hidden; display: grid; place-items: center; box-shadow: 0 5px 0 rgba(0,0,0,.12); }
+  .card .back { background: repeating-linear-gradient(45deg, #818cf8 0 14px, #a5b4fc 14px 28px); border: 5px solid #fff; font-size: 2.2em; }
+  .card .front { background: #fff; transform: rotateY(180deg); border: 5px solid #fff; line-height: 1; }
+  .card.done .front { border-color: #fde047; box-shadow: 0 0 0 4px #facc15, 0 5px 0 rgba(0,0,0,.12); }
+  .card.done { animation: kit-bob 2s ease-in-out infinite; }
+  #stars { position: absolute; top: max(24px, env(safe-area-inset-top)); right: 96px; font-size: 26px; background: rgba(255,255,255,.75); border-radius: 999px; padding: 4px 14px; }
+</style>
+</head>
+<body>
+
+<section id="game" class="screen on">
+  <a class="btn corner left" href="../../" aria-label="Back to Yas's Games">🏠</a>
+  <button id="soundBtn" class="btn corner right" aria-label="Sound on or off">🔊</button>
+  <div id="stars"></div>
+  <div id="sizes"></div>
+  <div id="board"><div id="grid"></div></div>
+</section>
+
+<script src="/shared/lines.js"></script>
+<script src="/shared/voice.js"></script>
+<script src="/shared/kit.js"></script>
+<script>
+(() => {
+  const { $, pick, shuffle, sleep } = Kit;
+  const SIZES = [[3, 2], [4, 2], [4, 3], [4, 4]];
+  const THEMES = [
+    ['🐶', '🐱', '🐰', '🦊', '🐻', '🐼', '🐸', '🐷'],
+    ['🐠', '🐙', '🐬', '🦀', '🐳', '🦈', '🐢', '🐚'],
+    ['🚀', '🌙', '⭐', '🪐', '👽', '🛸', '☀️', '🌍'],
+    ['🍎', '🍌', '🍓', '🍇', '🍉', '🥕', '🍪', '🍰'],
+    ['🦕', '🦖', '🌋', '🥚', '🌴', '🦴', '🐊', '🦎'],
+    ['👑', '🦄', '🏰', '🧚', '🪄', '💎', '🌸', '🐉'],
+  ];
+
+  const save = Kit.store('memory-match');
+  const saved = save.get({ size: 0, stars: 0 });
+  let cards = [], open = [], busy = false, found = 0;
+
+  function paintStars() { $('stars').textContent = '⭐ ' + saved.stars; }
+  function paintSizes() {
+    $('sizes').innerHTML = '';
+    SIZES.forEach(([c, r], i) => {
+      const b = document.createElement('button'); b.className = 'btn size' + (i === saved.size ? ' sel' : '');
+      b.innerHTML = `<div class="mini" style="grid-template-columns:repeat(${c},9px)">${'<i></i>'.repeat(c * r)}</div>`;
+      b.setAttribute('aria-label', c * r + ' cards');
+      b.onclick = () => { if (busy) return; saved.size = i; save.set(saved); Kit.sfx.pop(); paintSizes(); deal(); };
+      $('sizes').appendChild(b);
+    });
+  }
+
+  async function deal(first = false, lead = null) {
+    busy = true; open = []; found = 0;
+    const [cols, rows] = SIZES[saved.size], n = cols * rows;
+    const theme = pick(THEMES);
+    const faces = shuffle([...shuffle(theme).slice(0, n / 2), ...[]].flatMap(e => [e, e]));
+    // fit the cards to the screen
+    const box = $('board').getBoundingClientRect();
+    const portrait = innerHeight > innerWidth;
+    const [c, r] = portrait && cols > rows ? [rows, cols] : [cols, rows];
+    const size = Math.min((box.width - 40) / c - 14, (box.height - 20) / r - 14, 170);
+    const grid = $('grid'); grid.innerHTML = '';
+    grid.style.gridTemplateColumns = `repeat(${c}, ${size}px)`;
+    cards = faces.map((e, i) => {
+      const el = document.createElement('div'); el.className = 'card';
+      el.style.width = el.style.height = size + 'px'; el.style.fontSize = size * .55 + 'px';
+      el.innerHTML = `<div class="in"><div class="face back">⭐</div><div class="face front">${e}</div></div>`;
+      el.onclick = () => flip(i);
+      grid.appendChild(el);
+      return { e, el, done: false };
+    });
+    // a quick peek for the smaller boards
+    if (saved.size <= 1) {
+      Kit.say(first ? 'mm.intro' : lead, 'mm.peek');
+      await sleep(first ? 3800 : 1200);
+      cards.forEach(c => c.el.classList.add('up')); Kit.sfx.whoosh();
+      await sleep(2000);
+      cards.forEach(c => c.el.classList.remove('up')); Kit.sfx.whoosh();
+      await sleep(500);
+    } else if (first || lead) Kit.say(first ? 'mm.intro' : lead);
+    busy = false;
+  }
+
+  async function flip(i) {
+    const c = cards[i];
+    if (busy || c.done || open.includes(c)) return;
+    c.el.classList.add('up'); Kit.tone(520 + open.length * 140, .1, { type: 'triangle' });
+    open.push(c);
+    if (open.length < 2) return;
+    busy = true;
+    const [a, b] = open;
+    await sleep(650);
+    if (a.e === b.e) {
+      a.done = b.done = true; a.el.classList.add('done'); b.el.classList.add('done');
+      Kit.sfx.ding(); Kit.burstAt(b.el, ['✨', '⭐'], 8, 90);
+      found++;
+      if (found === cards.length / 2) return win();
+      if (Math.random() < .5) Kit.say(['mm.pair1', 'mm.pair2']);
+    } else {
+      await sleep(500);
+      a.el.classList.remove('up'); b.el.classList.remove('up'); Kit.tone(300, .12, { type: 'triangle' });
+    }
+    open = []; busy = false;
+  }
+
+  async function win() {
+    Kit.sfx.yay(); Kit.burstAt($('grid'), ['🎉', '⭐', '🌟', '✨'], 24, 280);
+    Kit.say('mm.done');
+    saved.stars++;
+    const bigger = saved.size < SIZES.length - 1 && saved.stars % 2 === 0;
+    if (bigger) saved.size++;
+    save.set(saved); paintStars(); paintSizes();
+    await sleep(3200);
+    deal(false, bigger ? 'mm.bigger' : null);
+  }
+
+  Kit.soundButton('soundBtn');
+  paintStars(); paintSizes();
+  addEventListener('resize', () => { if (!busy && !found && !open.length) deal(); });
+  deal(true);
+})();
+</script>
+</body>
+</html>

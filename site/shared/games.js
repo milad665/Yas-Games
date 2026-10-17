@@ -133,4 +133,11 @@ self.GAMES = [
     extras: ['🛋️', '📦', '🛏️', '❓', '⭐'],
     colors: ['#fef3c7', '#fde68a', '#fbcfe8'],
   },
+  {
+    name: 'Memory Match',
+    path: 'games/memory-match/',
+    art: '🃏',
+    extras: ['🐶', '🐶', '⭐', '🍓', '🍓'],
+    colors: ['#dbeafe', '#ede9fe', '#fce7f3'],
+  },
 ];

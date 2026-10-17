@@ -443,7 +443,13 @@
     "wt.is.behind.sofa": "5ef0edbf9b",
     "wt.which.next.sofa": "98e72d412e",
     "wt.put.next.sofa": "bd5a379ba9",
-    "wt.is.next.sofa": "92e7ce15c7"
+    "wt.is.next.sofa": "92e7ce15c7",
+    "mm.intro": "8820d84357",
+    "mm.peek": "8bbfdda8c3",
+    "mm.pair1": "5154740dd0",
+    "mm.pair2": "6f7d9a5517",
+    "mm.done": "92b002573b",
+    "mm.bigger": "9593174e7e"
   },
   "nl": {
     "hub.lang": "0eaed72984",
@@ -889,7 +895,13 @@
     "wt.is.behind.sofa": "9bb7e27567",
     "wt.which.next.sofa": "ab544ec83e",
     "wt.put.next.sofa": "2f9367109c",
-    "wt.is.next.sofa": "6d705e5c7c"
+    "wt.is.next.sofa": "6d705e5c7c",
+    "mm.intro": "a6147ca450",
+    "mm.peek": "11d8647d08",
+    "mm.pair1": "383858fe4a",
+    "mm.pair2": "647b6ffc0c",
+    "mm.done": "ca8b1e45bb",
+    "mm.bigger": "8e4c087660"
   },
   "voices": {
     "en": "Evan (Enhanced)",
