@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Letter Trace">
+<meta name="theme-color" content="#e0e7ff">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="stylesheet" href="/shared/kit.css">
+<title>Letter Trace</title>
+<style>
+  body { background: linear-gradient(160deg, #e0e7ff 0%, #fce7f3 55%, #fef9c3 100%); }
+
+  /* ---------- picker ---------- */
+  #pick { flex-direction: column; align-items: center; padding: max(24px, env(safe-area-inset-top)) 20px 20px; gap: 2.4vh; overflow-y: auto; touch-action: pan-y; }
+  #pick .title { margin-top: 46px; font-size: clamp(40px, 7vw, 76px); }
+  #nameRow { display: flex; gap: 16px; background: rgba(255,255,255,.7); padding: 12px 20px; border-radius: 32px; box-shadow: 0 6px 0 rgba(99, 102, 241, .15); }
+  .tile { width: 70px; height: 70px; border-radius: 20px; font-size: 40px; font-weight: 900; position: relative; color: #4f46e5; }
+  .tile.big { width: 104px; height: 104px; font-size: 66px; border-radius: 28px; color: #db2777; }
+  .tile .st { position: absolute; top: -10px; right: -8px; font-size: 26px; }
+  .tile.done { background: #fef3c7; }
+  #alphabet { display: grid; grid-template-columns: repeat(auto-fill, 70px); gap: 12px; width: min(100%, 860px); justify-content: center; }
+
+  /* ---------- tracing ---------- */
+  #trace { align-items: center; justify-content: center; gap: 3vw; padding: 90px 20px 20px; flex-wrap: wrap; }
+  #board { height: min(74vh, 120vw); aspect-ratio: 120 / 160; background: #fff; border-radius: 36px; box-shadow: 0 10px 30px rgba(79, 70, 229, .15); touch-action: none; position: relative; }
+  #board svg { width: 100%; height: 100%; display: block; }
+  #word { display: flex; flex-direction: column; align-items: center; gap: 10px; min-width: 200px; visibility: hidden; }
+  #word.on { visibility: visible; animation: kit-pop .5s cubic-bezier(.3,1.6,.5,1); }
+  #wordPic { font-size: clamp(90px, 16vh, 150px); line-height: 1; }
+  #wordText { font-size: 44px; font-weight: 900; color: #334155; background: #fff; padding: 6px 22px; border-radius: 999px; box-shadow: 0 5px 0 rgba(0,0,0,.08); }
+  #wordText b { color: #db2777; }
+  #wordBtns { display: flex; gap: 18px; margin-top: 8px; }
+  .startDot { animation: dotPulse 1s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+  @keyframes dotPulse { 50% { transform: scale(1.35); } }
+</style>
+</head>
+<body>
+
+<section id="pick" class="screen on">
+  <a class="btn corner left" href="../../" aria-label="Back to Yas's Games">🏠</a>
+  <button id="soundBtn" class="btn corner right" aria-label="Sound on or off">🔊</button>
+  <h1 id="title" class="title"></h1>
+  <div id="nameRow"></div>
+  <div id="alphabet"></div>
+</section>
+
+<section id="trace" class="screen">
+  <button id="backBtn" class="btn corner left" aria-label="All letters">🏠</button>
+  <div id="board"></div>
+  <div id="word">
+    <div id="wordPic"></div>
+    <div id="wordText"></div>
+    <div id="wordBtns">
+      <button id="againBtn" class="btn big" aria-label="Trace again">🔁</button>
+      <button id="nextBtn" class="btn big go" aria-label="Next letter">➡️</button>
+    </div>
+  </div>
+</section>
+
+<script src="/shared/lines.js"></script>
+<script src="/shared/voice.js"></script>
+<script src="/shared/kit.js"></script>
+<script>
+(() => {
+  const { $, sleep } = Kit;
+
+  // ---------- letter shapes: strokes in a 100 x 140 box, in writing order ----------
+  const L = (x1, y1, x2, y2) => [[x1, y1], [x2, y2]];
+  // arc from angle a0 to a1 (degrees, 0 = right, 90 = down), in either direction
+  const A = (cx, cy, rx, ry, a0, a1) => {
+    const n = Math.max(6, Math.round(Math.abs(a1 - a0) / 8)), pts = [];
+    for (let i = 0; i <= n; i++) { const a = (a0 + (a1 - a0) * i / n) * Math.PI / 180; pts.push([cx + rx * Math.cos(a), cy + ry * Math.sin(a)]); }
+    return pts;
+  };
+  const join = (...parts) => parts.reduce((all, p) => all.concat(all.length ? p.slice(1) : p), []);
+  const LETTERS = {
+    A: [L(50, 10, 15, 130), L(50, 10, 85, 130), L(30, 88, 70, 88)],
+    B: [L(20, 10, 20, 130), join(L(20, 10, 55, 10), A(55, 40, 30, 30, -90, 90), L(55, 70, 20, 70)), join(L(20, 70, 60, 70), A(60, 100, 30, 30, -90, 90), L(60, 130, 20, 130))],
+    C: [A(55, 70, 42, 60, -40, -320)],
+    D: [L(20, 10, 20, 130), join(L(20, 10, 40, 10), A(40, 70, 45, 60, -90, 90), L(40, 130, 20, 130))],
+    E: [L(20, 10, 20, 130), L(20, 10, 80, 10), L(20, 70, 70, 70), L(20, 130, 80, 130)],
+    F: [L(20, 10, 20, 130), L(20, 10, 80, 10), L(20, 70, 70, 70)],
+    G: [join(A(55, 70, 42, 60, -40, -315), L(85, 112, 86, 76), L(86, 76, 60, 76))],
+    H: [L(20, 10, 20, 130), L(80, 10, 80, 130), L(20, 70, 80, 70)],
+    I: [L(50, 10, 50, 130)],
+    J: [join(L(65, 10, 65, 100), A(42, 100, 23, 28, 0, 180))],
+    K: [L(20, 10, 20, 130), L(80, 10, 20, 78), L(40, 58, 82, 130)],
+    L: [join(L(20, 10, 20, 130), L(20, 130, 80, 130))],
+    M: [join(L(15, 130, 15, 10), L(15, 10, 50, 85), L(50, 85, 85, 10), L(85, 10, 85, 130))],
+    N: [join(L(20, 130, 20, 10), L(20, 10, 80, 130), L(80, 130, 80, 10))],
+    O: [A(50, 70, 38, 60, -90, -450)],
+    P: [L(20, 10, 20, 130), join(L(20, 10, 55, 10), A(55, 40, 30, 30, -90, 90), L(55, 70, 20, 70))],
+    Q: [A(50, 70, 38, 60, -90, -450), L(60, 104, 86, 136)],
+    R: [L(20, 10, 20, 130), join(L(20, 10, 55, 10), A(55, 40, 30, 30, -90, 90), L(55, 70, 20, 70)), L(45, 70, 82, 130)],
+    S: [join(A(50, 40, 30, 30, -30, -270), A(50, 100, 30, 30, -90, 150))],
+    T: [L(15, 10, 85, 10), L(50, 10, 50, 130)],
+    U: [join(L(20, 10, 20, 95), A(50, 95, 30, 35, 180, 0), L(80, 95, 80, 10))],
+    V: [join(L(15, 10, 50, 130), L(50, 130, 85, 10))],
+    W: [join(L(8, 10, 28, 130), L(28, 130, 50, 50), L(50, 50, 72, 130), L(72, 130, 92, 10))],
+    X: [L(20, 10, 80, 130), L(80, 10, 20, 130)],
+    Y: [L(20, 10, 50, 68), join(L(80, 10, 50, 68), L(50, 68, 50, 130))],
+    Z: [join(L(20, 10, 80, 10), L(80, 10, 20, 130), L(20, 130, 80, 130))],
+  };
+  // a word for each letter, in each language
+  const WORDS = {
+    A: { en: ['apple', '🍎'], nl: ['aap', '🐒'] },      B: { en: ['ball', '⚽'], nl: ['bal', '⚽'] },
+    C: { en: ['cat', '🐱'], nl: ['citroen', '🍋'] },     D: { en: ['dog', '🐶'], nl: ['dolfijn', '🐬'] },
+    E: { en: ['egg', '🥚'], nl: ['eend', '🦆'] },        F: { en: ['fish', '🐟'], nl: ['fiets', '🚲'] },
+    G: { en: ['giraffe', '🦒'], nl: ['giraf', '🦒'] },   H: { en: ['house', '🏠'], nl: ['huis', '🏠'] },
+    I: { en: ['ice cream', '🍦'], nl: ['inktvis', '🐙'] }, J: { en: ['juice', '🧃'], nl: ['jas', '🧥'] },
+    K: { en: ['kite', '🪁'], nl: ['koe', '🐄'] },        L: { en: ['lion', '🦁'], nl: ['leeuw', '🦁'] },
+    M: { en: ['moon', '🌙'], nl: ['maan', '🌙'] },       N: { en: ['nose', '👃'], nl: ['neus', '👃'] },
+    O: { en: ['octopus', '🐙'], nl: ['olifant', '🐘'] }, P: { en: ['pig', '🐷'], nl: ['paard', '🐴'] },
+    Q: { en: ['queen', '👸'], nl: ['quiz', '❓'] },      R: { en: ['rainbow', '🌈'], nl: ['regenboog', '🌈'] },
+    S: { en: ['sun', '☀️'], nl: ['slang', '🐍'] },       T: { en: ['tree', '🌳'], nl: ['taart', '🎂'] },
+    U: { en: ['umbrella', '☂️'], nl: ['uil', '🦉'] },    V: { en: ['violin', '🎻'], nl: ['vis', '🐟'] },
+    W: { en: ['whale', '🐳'], nl: ['walvis', '🐳'] },    X: { en: ['x-ray', '🩻'], nl: ['xylofoon', '🎶'] },
+    Y: { en: ['Yas', '👧'], nl: ['Yas', '👧'] },         Z: { en: ['zebra', '🦓'], nl: ['zon', '☀️'] },
+  };
+  const NAME = ['Y', 'A', 'S'];
+  const INKS = ['#ec4899', '#8b5cf6', '#3b82f6', '#10b981', '#f59e0b'];
+
+  // resample every stroke so tracing is even
+  function resample(pts, step = 3) {
+    const out = [pts[0]];
+    for (let i = 1; i < pts.length; i++) {
+      const [x0, y0] = pts[i - 1], [x1, y1] = pts[i], d = Math.hypot(x1 - x0, y1 - y0), n = Math.max(1, Math.round(d / step));
+      for (let k = 1; k <= n; k++) out.push([x0 + (x1 - x0) * k / n, y0 + (y1 - y0) * k / n]);
+    }
+    return out;
+  }
+  for (const k in LETTERS) LETTERS[k] = LETTERS[k].map(s => resample(s));
+
+  const save = Kit.store('letter-trace');
+  const saved = save.get({ done: [] });
+  const show = id => document.querySelectorAll('.screen').forEach(s => s.classList.toggle('on', s.id === id));
+
+  // ---------- picker ----------
+  Kit.title('title', 'Letter Trace');
+  Kit.soundButton('soundBtn');
+  function tile(ch, big) {
+    const b = document.createElement('button');
+    const done = saved.done.includes(ch);
+    b.className = 'btn tile' + (big ? ' big' : '') + (done ? ' done' : '');
+    b.innerHTML = ch + (done ? '<span class="st">⭐</span>' : '');
+    b.onclick = () => { Kit.sfx.pop(); open(ch); };
+    return b;
+  }
+  function paintPicker() {
+    $('nameRow').innerHTML = ''; NAME.forEach(ch => $('nameRow').appendChild(tile(ch, true)));
+    $('alphabet').innerHTML = ''; Object.keys(LETTERS).forEach(ch => $('alphabet').appendChild(tile(ch)));
+  }
+  paintPicker();
+  Kit.say(saved.done.length ? 'lt.pick' : 'lt.intro');
+
+  // ---------- tracing ----------
+  let letter = null, strokes = [], si = 0, prog = 0, tracing = false, ink = INKS[0];
+  const TOL = 15;
+
+  function open(ch) {
+    letter = ch; strokes = LETTERS[ch]; si = 0; prog = 0;
+    ink = INKS[Object.keys(LETTERS).indexOf(ch) % INKS.length];
+    $('word').classList.remove('on');
+    show('trace'); paint();
+    Kit.say('lt.start');
+  }
+  const pathD = pts => 'M' + pts.map(p => p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(' L');
+  function paint() {
+    let s = '<svg viewBox="-10 -10 120 160" xmlns="http://www.w3.org/2000/svg">';
+    s += '<line x1="-10" y1="10" x2="110" y2="10" stroke="#e0e7ff" stroke-width="1.5"/><line x1="-10" y1="130" x2="110" y2="130" stroke="#e0e7ff" stroke-width="1.5"/><line x1="-10" y1="70" x2="110" y2="70" stroke="#eef2ff" stroke-width="1.5" stroke-dasharray="4 4"/>';
+    // the letter's path, faint
+    for (const st of strokes) s += `<path d="${pathD(st)}" fill="none" stroke="#e2e8f0" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/>`;
+    for (const st of strokes) s += `<path d="${pathD(st)}" fill="none" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="3 5" stroke-linecap="round"/>`;
+    // finished strokes and the one in progress
+    for (let i = 0; i < si && i < strokes.length; i++) s += `<path d="${pathD(strokes[i])}" fill="none" stroke="${ink}" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>`;
+    if (si < strokes.length) {
+      const st = strokes[si];
+      if (prog > 0) s += `<path d="${pathD(st.slice(0, prog + 1))}" fill="none" stroke="${ink}" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>`;
+      // where to put the finger, and which way to go
+      const [x, y] = st[prog], ahead = st[Math.min(st.length - 1, prog + 6)];
+      const ang = Math.atan2(ahead[1] - y, ahead[0] - x) * 180 / Math.PI;
+      s += `<g transform="translate(${x} ${y})"><circle class="startDot" r="9" fill="#22c55e" stroke="#fff" stroke-width="3"/>`;
+      if (!tracing) s += `<path d="M14 -6 L24 0 L14 6 Z" fill="#22c55e" transform="rotate(${ang})"/>`;
+      s += '</g>';
+    }
+    $('board').innerHTML = s + '</svg>';
+  }
+  function toLetter(e) {
+    const svg = $('board').querySelector('svg'), pt = svg.createSVGPoint();
+    pt.x = e.clientX; pt.y = e.clientY;
+    const p = pt.matrixTransform(svg.getScreenCTM().inverse());
+    return [p.x, p.y];
+  }
+  // move forward along the stroke only while the finger stays near it
+  function follow(e) {
+    const st = strokes[si], [x, y] = toLetter(e);
+    let best = -1;
+    for (let i = prog; i < Math.min(st.length, prog + 10); i++) if (Math.hypot(st[i][0] - x, st[i][1] - y) < TOL) best = i;
+    if (best > prog) {
+      if (Math.floor(best / 6) > Math.floor(prog / 6)) Kit.tone(500 + best * 4, .05, { type: 'triangle', vol: .08 });
+      prog = best; paint();
+      if (prog >= st.length - 2) strokeDone();
+    }
+  }
+  async function strokeDone() {
+    tracing = false; si++; prog = 0; Kit.sfx.ding(); paint();
+    if (si < strokes.length) { Kit.say('lt.next'); return; }
+    // the whole letter!
+    Kit.sfx.yay(); Kit.burstAt($('board'), ['⭐', '✨', '🌟', '💖'], 20, 240);
+    const isNew = !saved.done.includes(letter);
+    if (isNew) { saved.done.push(letter); save.set(saved); }
+    const [word, pic] = WORDS[letter][Voice.lang] || WORDS[letter].en;
+    $('wordPic').textContent = pic;
+    const i = word.toLowerCase().indexOf(letter.toLowerCase());
+    $('wordText').innerHTML = i === 0 ? `<b>${word[0]}</b>${word.slice(1)}` : word;
+    $('word').classList.add('on');
+    const nameDone = NAME.every(ch => saved.done.includes(ch));
+    Kit.say('lt.' + letter, isNew && NAME.includes(letter) && nameDone ? 'lt.name' : null);
+  }
+  $('board').addEventListener('pointerdown', e => {
+    if (si >= strokes.length) return;
+    e.preventDefault();
+    const [x, y] = toLetter(e), st = strokes[si];
+    // must start at the green dot (where she left off)
+    if (Math.hypot(st[prog][0] - x, st[prog][1] - y) > TOL * 1.4) { Kit.sfx.oops(); return; }
+    tracing = true; try { $('board').setPointerCapture(e.pointerId); } catch (err) {}
+    follow(e);
+  });
+  $('board').addEventListener('pointermove', e => {
+    if (!tracing) return;
+    const evs = e.getCoalescedEvents ? e.getCoalescedEvents() : [];
+    (evs.length ? evs : [e]).forEach(ev => { if (tracing) follow(ev); });
+  });
+  const lift = () => { if (tracing) { tracing = false; paint(); } };
+  $('board').addEventListener('pointerup', lift);
+  $('board').addEventListener('pointercancel', lift);
+
+  $('againBtn').onclick = () => { Kit.sfx.pop(); open(letter); };
+  $('nextBtn').onclick = () => {
+    Kit.sfx.pop();
+    const order = [...NAME, ...Object.keys(LETTERS).filter(k => !NAME.includes(k))];
+    const next = order.find(k => !saved.done.includes(k)) || order[(order.indexOf(letter) + 1) % order.length];
+    open(next);
+  };
+  $('backBtn').onclick = () => { Kit.sfx.pop(); paintPicker(); show('pick'); };
+})();
+</script>
+</body>
+</html>

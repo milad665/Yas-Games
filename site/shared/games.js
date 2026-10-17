@@ -84,4 +84,11 @@ self.GAMES = [
     extras: ['😢', '😠', '😨', '😮', '💖'],
     colors: ['#fce7f3', '#fbcfe8', '#ddd6fe'],
   },
+  {
+    name: 'Letter Trace',
+    path: 'games/letter-trace/',
+    art: '✍️',
+    extras: ['🅰️', '🍎', '☀️', '👧', '⭐'],
+    colors: ['#e0e7ff', '#fce7f3', '#fef9c3'],
+  },
 ];
