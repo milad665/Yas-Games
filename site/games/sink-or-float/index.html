@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Sink or Float">
+<meta name="theme-color" content="#e0f2fe">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="stylesheet" href="/shared/kit.css">
+<title>Sink or Float</title>
+<style>
+  body { background: repeating-linear-gradient(0deg, #f0f9ff 0 50px, #e0f2fe 50px 52px), #f0f9ff; }
+  #lab { align-items: stretch; justify-content: center; gap: 2vw; padding: 90px 14px max(14px, env(safe-area-inset-bottom)); }
+  .shelf { width: clamp(90px, 14vw, 150px); background: rgba(255,255,255,.75); border-radius: 26px; padding: 10px; display: flex; flex-direction: column; align-items: center; gap: 6px; box-shadow: 0 6px 0 rgba(3, 105, 161, .12); }
+  .shelf .label { width: 70px; height: 70px; flex: none; }
+  .shelf .items { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px; font-size: clamp(28px, 4vw, 40px); align-content: flex-start; }
+  .center { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2vh; min-width: 0; }
+  #tubWrap { position: relative; flex: 1; width: 100%; max-width: 620px; min-height: 0; }
+  #item { position: absolute; left: 50%; translate: -50% -50%; font-size: clamp(70px, 13vh, 120px); line-height: 1; z-index: 3; top: 12%; transition: top 1.2s cubic-bezier(.5,0,.7,1); }
+  #item.float { animation: floaty 1.6s ease-in-out infinite; }
+  @keyframes floaty { 0%,100% { transform: translateY(0) rotate(-4deg); } 50% { transform: translateY(-6px) rotate(4deg); } }
+  #item.slow { transition: top 2.4s cubic-bezier(.3,.1,.4,1); }
+  #tub { position: absolute; left: 4%; right: 4%; bottom: 4%; height: 58%; border-radius: 0 0 140px 140px / 0 0 90px 90px; background: #fff; border: 10px solid #e2e8f0; box-shadow: 0 10px 0 #cbd5e1; overflow: hidden; z-index: 2; }
+  #water { position: absolute; left: 0; right: 0; bottom: 0; height: 80%; background: linear-gradient(rgba(125, 211, 252, .75), rgba(37, 99, 235, .75)); }
+  #water::before { content: ''; position: absolute; left: 0; right: 0; top: -6px; height: 12px; background: radial-gradient(ellipse at 50% 100%, rgba(255,255,255,.8) 40%, transparent 70%) 0 0 / 40px 12px repeat-x; animation: waves 3s linear infinite; }
+  @keyframes waves { to { background-position: 40px 0; } }
+  .splash { position: absolute; z-index: 4; font-size: 40px; pointer-events: none; animation: splash .8s ease-out forwards; }
+  @keyframes splash { from { opacity: 1; transform: translate(0, 0) scale(.6); } to { opacity: 0; transform: translate(var(--dx), -90px) scale(1.2); } }
+  .bubble { position: absolute; z-index: 1; font-size: 22px; pointer-events: none; animation: up 1.4s ease-in forwards; }
+  @keyframes up { to { opacity: 0; transform: translateY(-140px); } }
+  #choices { display: flex; gap: clamp(20px, 6vw, 60px); }
+  .guess { width: clamp(120px, 18vw, 150px); height: clamp(120px, 18vw, 150px); border-radius: 34px; padding: 14px; }
+  .guess svg, .shelf svg { width: 100%; height: 100%; }
+  .guess.glow { box-shadow: 0 6px 0 rgba(40,50,90,.18), 0 0 0 6px #22c55e; }
+</style>
+</head>
+<body>
+
+<section id="lab" class="screen on">
+  <a class="btn corner left" href="../../" aria-label="Back to Yas's Games">🏠</a>
+  <button id="soundBtn" class="btn corner right" aria-label="Sound on or off">🔊</button>
+  <div class="shelf"><div class="label" id="sinkLabel"></div><div class="items" id="sinks"></div></div>
+  <div class="center">
+    <div id="tubWrap"><div id="item"></div><div id="tub"><div id="water"></div></div></div>
+    <div id="choices">
+      <button class="btn guess" id="sinkBtn" aria-label="Sinks"></button>
+      <button class="btn guess" id="floatBtn" aria-label="Floats"></button>
+    </div>
+  </div>
+  <div class="shelf"><div class="label" id="floatLabel"></div><div class="items" id="floats"></div></div>
+</section>
+
+<script src="/shared/lines.js"></script>
+<script src="/shared/voice.js"></script>
+<script src="/shared/kit.js"></script>
+<script>
+(() => {
+  const { $, rand, shuffle, sleep } = Kit;
+
+  // what really happens in a tub of water
+  const ITEMS = [
+    ['duck', '🦆', 1], ['leaf', '🍃', 1], ['apple', '🍎', 1], ['wood', '🪵', 1], ['ball', '⚽', 1], ['boat', '⛵', 1],
+    ['feather', '🪶', 1], ['sponge', '🧽', 1], ['ice', '🧊', 1], ['orange', '🍊', 1],
+    ['rock', '🪨', 0], ['key', '🔑', 0], ['coin', '🪙', 0], ['spoon', '🥄', 0], ['anchor', '⚓', 0], ['ring', '💍', 0],
+    ['paperclip', '📎', 0], ['egg', '🥚', 0], ['bolt', '🔩', 0], ['grapes', '🍇', 0],
+  ].map(([key, e, floats]) => ({ key, e, floats: !!floats }));
+
+  // little pictures for the two answers: something sitting on top of the water, or at the bottom
+  const icon = up => `<svg viewBox="0 0 100 100"><rect x="8" y="34" width="84" height="60" rx="14" fill="#7dd3fc"/><path d="M8 40 Q29 30 50 40 T92 40" fill="none" stroke="#fff" stroke-width="5"/><circle cx="50" cy="${up ? 34 : 80}" r="13" fill="${up ? '#facc15' : '#64748b'}" stroke="#334155" stroke-width="4"/><path d="${up ? 'M50 86 L50 56 M41 65 L50 56 L59 65' : 'M50 44 L50 62 M41 53 L50 62 L59 53'}" stroke="#1e3a8a" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>`;
+  $('sinkBtn').innerHTML = icon(false); $('floatBtn').innerHTML = icon(true);
+  $('sinkLabel').innerHTML = icon(false); $('floatLabel').innerHTML = icon(true);
+
+  const save = Kit.store('sink-or-float');
+  const saved = save.get({ tested: [], order: [] });
+  let item = null, busy = false;
+
+  function paintShelves() {
+    const t = saved.tested.map(k => ITEMS.find(i => i.key === k)).filter(Boolean);
+    $('sinks').textContent = t.filter(i => !i.floats).map(i => i.e).join('');
+    $('floats').textContent = t.filter(i => i.floats).map(i => i.e).join('');
+  }
+
+  function next(first = false) {
+    if (!saved.order.length) saved.order = shuffle(ITEMS.map(i => i.key));
+    const key = saved.order.shift();
+    item = ITEMS.find(i => i.key === key); save.set(saved);
+    const el = $('item'); el.className = ''; el.style.transition = 'none'; el.style.top = '12%'; el.textContent = item.e;
+    void el.offsetWidth; el.style.transition = '';
+    el.classList.add('pop-in');
+    document.querySelectorAll('.guess').forEach(b => { b.disabled = false; b.classList.remove('glow'); });
+    busy = false;
+    Kit.say(first ? 'sf.intro' : null, 'sf.ask.' + item.key);
+  }
+
+  function splash() {
+    const w = $('tubWrap').getBoundingClientRect(), t = $('tub').getBoundingClientRect();
+    for (let i = 0; i < 8; i++) {
+      const s = document.createElement('div'); s.className = 'splash'; s.textContent = '💧';
+      s.style.left = (w.width / 2 - 20 + rand(-40, 40)) + 'px'; s.style.top = (t.top - w.top + t.height * .15) + 'px';
+      s.style.setProperty('--dx', rand(-120, 120) + 'px');
+      $('tubWrap').appendChild(s); setTimeout(() => s.remove(), 850);
+    }
+    Kit.tone(200, .4, { type: 'sawtooth', vol: .06, to: 60 }); Kit.tone(900, .3, { vol: .05, to: 300 });
+  }
+  function bubbles() {
+    const w = $('tubWrap').getBoundingClientRect(), t = $('tub').getBoundingClientRect();
+    for (let i = 0; i < 6; i++) setTimeout(() => {
+      const b = document.createElement('div'); b.className = 'bubble'; b.textContent = '🫧';
+      b.style.left = (w.width / 2 + rand(-30, 30)) + 'px'; b.style.top = (t.bottom - w.top - 40) + 'px';
+      $('tubWrap').appendChild(b); setTimeout(() => b.remove(), 1450);
+      Kit.tone(600 + rand(0, 500), .06, { vol: .05 });
+    }, i * 260);
+  }
+
+  async function guess(saysFloat, btn) {
+    if (busy) return;
+    busy = true;
+    document.querySelectorAll('.guess').forEach(b => b.disabled = b !== btn);
+    btn.classList.add('glow');
+    Kit.sfx.pop();
+    const el = $('item');
+    // drop it in
+    el.style.top = '48%';
+    await sleep(1200);
+    splash();
+    if (item.floats) { el.classList.add('float'); }
+    else { el.classList.add('slow'); el.style.top = '84%'; bubbles(); await sleep(2000); }
+    await sleep(500);
+    const right = saysFloat === item.floats;
+    if (right) { Kit.sfx.yay(); Kit.burstAt(btn, ['⭐', '✨', '🔬'], 12, 150); }
+    else Kit.sfx.ding();
+    Kit.say('sf.result.' + item.key, right ? ['sf.right1', 'sf.right2'] : 'sf.surprise');
+    if (!saved.tested.includes(item.key)) saved.tested.push(item.key);
+    save.set(saved); paintShelves();
+    await sleep(4200);
+    next();
+  }
+  $('sinkBtn').onclick = () => guess(false, $('sinkBtn'));
+  $('floatBtn').onclick = () => guess(true, $('floatBtn'));
+
+  Kit.soundButton('soundBtn');
+  paintShelves();
+  next(true);
+})();
+</script>
+</body>
+</html>

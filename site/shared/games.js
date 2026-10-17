@@ -140,4 +140,11 @@ self.GAMES = [
     extras: ['🐶', '🐶', '⭐', '🍓', '🍓'],
     colors: ['#dbeafe', '#ede9fe', '#fce7f3'],
   },
+  {
+    name: 'Sink or Float',
+    path: 'games/sink-or-float/',
+    art: '🛁',
+    extras: ['🦆', '🪨', '🍎', '🔑', '🫧'],
+    colors: ['#e0f2fe', '#bae6fd', '#fef9c3'],
+  },
 ];
