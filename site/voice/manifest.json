@@ -501,7 +501,15 @@
     "mz.yum1": "63a2216b04",
     "mz.yum2": "29df287360",
     "mz.bigger": "655584ab3b",
-    "mz.hint": "1a8b72261a"
+    "mz.hint": "1a8b72261a",
+    "rc.intro": "38cf095f29",
+    "rc.listen": "bd0e019ee0",
+    "rc.you": "ff6c0e8a29",
+    "rc.good1": "c4212a8b79",
+    "rc.good2": "d0fb59153e",
+    "rc.again": "71cf9565da",
+    "rc.memory": "a9c0983f46",
+    "rc.newSong": "0918649efd"
   },
   "nl": {
     "hub.lang": "0eaed72984",
@@ -1005,7 +1013,15 @@
     "mz.yum1": "2b5e4cc199",
     "mz.yum2": "d7ce1cbedd",
     "mz.bigger": "c06a283881",
-    "mz.hint": "b497e88e4d"
+    "mz.hint": "b497e88e4d",
+    "rc.intro": "bb287aa8df",
+    "rc.listen": "3574641b67",
+    "rc.you": "b9d2fab10c",
+    "rc.good1": "03963f387d",
+    "rc.good2": "ddd244fcc8",
+    "rc.again": "23cd37f583",
+    "rc.memory": "f371630956",
+    "rc.newSong": "7d4fadf089"
   },
   "voices": {
     "en": "Evan (Enhanced)",

@@ -14,6 +14,18 @@ A little collection of creative, no-reading-needed games for Yas, made for the i
 | **Robot Factory** | Build robots from picture recipes, or find and fix the silly robot's mistakes. |
 | **Counting Garden** | Plant exactly the number shown, then harvest and count, from 1 to 10. |
 | **Animal Safari** | "Where is the lion?" / "Who says moo?" in English or Dutch; found animals fill a photo album. |
+| **Feelings Friends** | Little stories: name the feeling, choose a kind way to help, and build feeling faces. |
+| **Letter Trace** | Trace all 26 letters with a finger, starting with Y-A-S; each letter has a word in both languages. |
+| **Mirror Painter** | Paint once and a magic mirror copies it: butterfly, flower or snowflake symmetry, plus a gallery. |
+| **Doodle Puzzles** | Jigsaw puzzles from her own Magic Doodles and Mirror Painter pictures (4 to 12 pieces). |
+| **Cake Shop** | Stack layers, frost and decorate, count the candles, sing and blow them out. |
+| **Dress-Up Studio** | Dress up as a princess, astronaut, firefighter, mermaid and more; take photos. |
+| **Little Vet** | Help animal patients with the right tool; every tool named in English and Dutch. |
+| **Where's Teddy?** | Position words (on, under, next to, in, behind) by finding and placing Teddy. |
+| **Memory Match** | Flip cards to find pairs, from 6 up to 16 cards. |
+| **Sink or Float** | Guess, drop it in the tub, and see; twenty real-life objects. |
+| **Maze Mouse** | Drag the mouse through growing mazes to the cheese, with keys and doors later. |
+| **Rhythm Copy** | The animal band plays a tune; copy it as it grows longer. |
 
 ## Project layout
 

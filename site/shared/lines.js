@@ -549,4 +549,14 @@ self.VOICE_LINES = {
   'mz.yum2':         { en: 'Nom nom nom! Delicious!', nl: 'Nom nom nom! Heerlijk!' },
   'mz.bigger':       { en: 'Here comes a bigger maze!', nl: 'Daar komt een groter doolhof!' },
   'mz.hint':         { en: 'Follow the dots!', nl: 'Volg de stippen!' },
+
+  // ---------- Rhythm Copy ----------
+  'rc.intro':        { en: 'Listen to the animal band, then copy them!', nl: 'Luister naar de dierenband, en doe ze dan na!' },
+  'rc.listen':       { en: 'Listen...', nl: 'Luister...' },
+  'rc.you':          { en: 'Your turn!', nl: 'Jouw beurt!' },
+  'rc.good1':        { en: 'Yes! Now one more note!', nl: 'Ja! Nu nog een noot erbij!' },
+  'rc.good2':        { en: 'Great listening! Here comes a longer song.', nl: 'Goed geluisterd! Daar komt een langer liedje.' },
+  'rc.again':        { en: 'Oops! Listen again.', nl: 'Oeps! Luister nog eens.' },
+  'rc.memory':       { en: 'Wow, what a great memory!', nl: 'Wauw, wat een goed geheugen!' },
+  'rc.newSong':      { en: 'A new song! Listen...', nl: 'Een nieuw liedje! Luister...' },
 };

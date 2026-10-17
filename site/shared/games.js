@@ -154,4 +154,11 @@ self.GAMES = [
     extras: ['🧀', '🔑', '🚪', '🌿', '⭐'],
     colors: ['#dcfce7', '#bbf7d0', '#fef9c3'],
   },
+  {
+    name: 'Rhythm Copy',
+    path: 'games/rhythm-copy/',
+    art: '🥁',
+    extras: ['🐸', '🐻', '🐱', '🐦', '🎵'],
+    colors: ['#c7d2fe', '#a5b4fc', '#fbcfe8'],
+  },
 ];
