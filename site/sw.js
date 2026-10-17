@@ -1,10 +1,15 @@
 // Offline support for Yas's Games.
 // Pages and scripts: network first (so new releases show up right away), cache as a fallback.
-// Voice clips: cache first (their URLs change whenever a clip changes).
+// Voice clips: cache first (their URLs change whenever a clip changes). Only the clips for the
+// language she's using are downloaded ahead of time; the pages tell us which one that is
+// (see /shared/voice.js), and switching languages fetches the other set.
 // Images: served from cache, refreshed in the background.
 importScripts('/shared/games.js');
 
-const CACHE = 'yas-games-v6';
+const CACHE = 'yas-games-v7';
+// survives version bumps: remembers the chosen language so a new version can precache its clips
+const SETTINGS = 'yas-games-settings';
+const LANGS = ['en', 'nl'];
 const CORE = [
   '/',
   '/manifest.webmanifest',
@@ -26,24 +31,60 @@ self.addEventListener('install', event => {
     const cache = await caches.open(CACHE);
     // add one by one so a single missing file doesn't stop the install
     await Promise.all(CORE.map(url => cache.add(url).catch(() => {})));
-    try {
-      const manifest = await (await fetch('/voice/manifest.json', { cache: 'no-cache' })).json();
-      const clips = [];
-      for (const lang of ['en', 'nl']) {
-        for (const [key, hash] of Object.entries(manifest[lang] || {})) clips.push(`/voice/${lang}/${encodeURIComponent(key)}.mp3?v=${hash}`);
-      }
-      await Promise.all(clips.map(url => cache.add(url).catch(() => {})));
-    } catch (e) { /* no clips yet: games fall back to the built-in voice */ }
+    // the language she used last time; on a first visit the page tells us once we're running
+    const lang = await savedLang();
+    if (lang) await cacheClips(lang);
     await self.skipWaiting();
   })());
 });
 
 self.addEventListener('activate', event => {
   event.waitUntil((async () => {
-    for (const key of await caches.keys()) if (key !== CACHE) await caches.delete(key);
+    for (const key of await caches.keys()) if (key !== CACHE && key !== SETTINGS) await caches.delete(key);
     await self.clients.claim();
   })());
 });
+
+// pages post { lang } on load and whenever the language switch is tapped
+self.addEventListener('message', event => {
+  const lang = event.data && event.data.lang;
+  if (!LANGS.includes(lang)) return;
+  event.waitUntil((async () => {
+    const settings = await caches.open(SETTINGS);
+    await settings.put('/__lang', new Response(lang));
+    await cacheClips(lang);
+  })());
+});
+
+async function savedLang() {
+  try {
+    const res = await (await caches.open(SETTINGS)).match('/__lang');
+    const lang = res && await res.text();
+    return LANGS.includes(lang) ? lang : null;
+  } catch (e) { return null; }
+}
+
+// download every clip of one language that isn't cached yet (also picks up newly recorded ones)
+const filling = {};
+function cacheClips(lang) {
+  if (!filling[lang]) {
+    filling[lang] = (async () => {
+      try {
+        const manifest = await (await fetch('/voice/manifest.json', { cache: 'no-cache' })).json();
+        const cache = await caches.open(CACHE);
+        const urls = Object.entries(manifest[lang] || {}).map(([key, hash]) => `/voice/${lang}/${encodeURIComponent(key)}.mp3?v=${hash}`);
+        // a few at a time so her first taps aren't stuck behind hundreds of downloads
+        const todo = [];
+        for (const url of urls) if (!(await cache.match(url))) todo.push(url);
+        await Promise.all(Array.from({ length: 6 }, async () => {
+          while (todo.length) await cache.add(todo.shift()).catch(() => {});
+        }));
+      } catch (e) { /* offline or no clips yet: games fall back to the built-in voice */ }
+      finally { delete filling[lang]; }
+    })();
+  }
+  return filling[lang];
+}
 
 self.addEventListener('fetch', event => {
   const req = event.request;

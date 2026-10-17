@@ -13,13 +13,14 @@
 <link rel="manifest" href="/manifest.webmanifest">
 <title>Yas's Games</title>
 <style>
+:root { --card: clamp(110px, min(14.5vh, 23vw), 200px); --badge: clamp(56px, min(9vh, 11vw), 96px); }
   * { box-sizing: border-box; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; }
   html, body { margin: 0; min-height: 100%; overscroll-behavior: none; }
   body {
     font-family: ui-rounded, "SF Pro Rounded", "Arial Rounded MT Bold", system-ui, sans-serif;
     background: linear-gradient(170deg, #ffd6ec 0%, #e6d9ff 40%, #c9ecff 75%, #d8ffe0 100%);
     background-attachment: fixed; color: #4a3b6b; overflow-x: hidden;
-    padding: max(24px, env(safe-area-inset-top)) max(20px, env(safe-area-inset-right)) max(32px, env(safe-area-inset-bottom)) max(20px, env(safe-area-inset-left));
+    padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(24px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
   }
 
   /* floating sky decorations */
@@ -32,9 +33,9 @@
   @keyframes rise { from { transform: translateY(0) rotate(-6deg); } 50% { transform: translateY(-60vh) rotate(6deg); } to { transform: translateY(-130vh) rotate(-6deg); } }
   @keyframes twinkle { 0%,100% { opacity: .9; scale: 1; } 50% { opacity: .25; scale: .6; } }
 
-  header { position: relative; z-index: 1; text-align: center; margin: 8px 0 clamp(24px, 5vh, 56px); }
+  header { position: relative; z-index: 1; text-align: center; margin: 0 0 clamp(4px, 1.5vh, 20px); }
   h1 {
-    margin: 0; font-size: clamp(52px, 11vw, 120px); line-height: 1.05; letter-spacing: 1px;
+    margin: 0; font-size: clamp(44px, min(9vw, 10vh), 110px); line-height: 1.05; letter-spacing: 1px;
     font-weight: 900;
   }
   h1 .l {
@@ -47,29 +48,44 @@
   @keyframes wave { 0%,100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(-12px) rotate(-3deg); } }
   @keyframes spin { to { rotate: 360deg; } }
 
-  main {
-    position: relative; z-index: 1; display: flex; flex-wrap: wrap; justify-content: center;
-    gap: clamp(20px, 4vw, 44px); max-width: 1200px; margin: 0 auto;
+  /* one row per group: a big picture header, then games that scroll sideways */
+  main { position: relative; z-index: 1; max-width: 1400px; margin: 0 auto; display: grid; grid-template-columns: minmax(0, 1fr); gap: clamp(4px, 1.2vh, 14px); }
+  .row { display: flex; align-items: center; gap: clamp(8px, 1.6vw, 18px); }
+  .badge {
+    flex: none; width: var(--badge); height: var(--badge); border-radius: 50%; display: grid; place-items: center;
+    font-size: calc(var(--badge) * .55); background: rgba(255,255,255,.8); border: 5px solid #fff;
+    box-shadow: 0 6px 0 rgba(90, 60, 140, .14); animation: bob 3.4s ease-in-out infinite;
   }
+  .shelf {
+    flex: 1; min-width: 0; display: flex; gap: clamp(26px, 3.4vw, 40px);
+    overflow-x: auto; overflow-y: hidden; scroll-snap-type: x proximity; scrollbar-width: none;
+    -webkit-overflow-scrolling: touch; overscroll-behavior-x: contain;
+    padding: 10px 40px 14px 16px; scroll-padding-left: 16px;
+    /* a soft fade on the right edge shows there's more to slide to */
+    -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 48px), transparent);
+    mask-image: linear-gradient(to right, #000 calc(100% - 48px), transparent);
+  }
+  .shelf::-webkit-scrollbar { display: none; }
   .game {
-    width: clamp(165px, 23vw, 250px); text-decoration: none; color: inherit; display: block;
+    flex: none; width: var(--card); text-decoration: none; color: inherit; display: block; scroll-snap-align: start;
     animation: bob 3.4s ease-in-out infinite; touch-action: manipulation;
   }
   .game:nth-child(2n) { animation-delay: -1.2s; }
   .game:nth-child(3n) { animation-delay: -2.3s; }
-  @keyframes bob { 0%,100% { translate: 0 0; } 50% { translate: 0 -10px; } }
+  @keyframes bob { 0%,100% { translate: 0 0; } 50% { translate: 0 -8px; } }
   .cover {
-    position: relative; aspect-ratio: 1; border-radius: 40px; border: 8px solid #fff; overflow: hidden;
-    box-shadow: 0 12px 0 rgba(90, 60, 140, .16), 0 18px 34px rgba(90, 60, 140, .2);
+    position: relative; aspect-ratio: 1; border-radius: 30%; border: 6px solid #fff; overflow: hidden;
+    box-shadow: 0 8px 0 rgba(90, 60, 140, .16), 0 12px 22px rgba(90, 60, 140, .2);
     display: grid; place-items: center; transition: transform .15s;
   }
   .game:active .cover, .game.tapped .cover { transform: scale(.92) rotate(-2deg); }
-  .cover .art { font-size: clamp(76px, 11vw, 116px); filter: drop-shadow(0 8px 6px rgba(0,0,0,.18)); animation: wiggle 2.8s ease-in-out infinite; }
+  .cover .art { font-size: calc(var(--card) * .5); filter: drop-shadow(0 8px 6px rgba(0,0,0,.18)); animation: wiggle 2.8s ease-in-out infinite; }
   @keyframes wiggle { 0%,100% { rotate: -6deg; } 50% { rotate: 6deg; } }
-  .cover .extra { position: absolute; font-size: clamp(24px, 3.6vw, 36px); animation: twinkle 3s ease-in-out infinite; }
+  .cover .extra { position: absolute; font-size: calc(var(--card) * .16); animation: twinkle 3s ease-in-out infinite; }
   .name {
-    margin-top: 14px; text-align: center; font-size: clamp(18px, 2.4vw, 26px); font-weight: 800;
-    background: #fff; border-radius: 999px; padding: 8px 20px; box-shadow: 0 5px 0 rgba(90, 60, 140, .12);
+    /* tucked over the bottom edge of the cover to keep rows short */
+    position: relative; margin: -14px -14px 0; text-align: center; font-size: clamp(14px, calc(var(--card) * .105), 21px); font-weight: 800;
+    background: #fff; border-radius: 999px; padding: 4px 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; box-shadow: 0 5px 0 rgba(90, 60, 140, .12);
   }
 
   .soon .cover { background: rgba(255,255,255,.45); border-style: dashed; box-shadow: none; }
@@ -184,8 +200,26 @@
     });
     return a;
   }
-  for (const g of GAMES) $('games').appendChild(card(g));
-  if (SHOW_COMING_SOON) $('games').appendChild(card({ name: 'Coming soon', art: '🎁' }, true));
+  // one row per group; games without a (known) group get a last row of their own
+  const groups = [...(self.GAME_GROUPS || [])];
+  const known = new Set(groups.map(gr => gr.id));
+  if (GAMES.some(g => !known.has(g.group))) groups.push({ id: null, emoji: '⭐', name: 'More games' });
+  let lastShelf = null;
+  for (const gr of groups) {
+    const games = GAMES.filter(g => (known.has(g.group) ? g.group : null) === gr.id);
+    if (!games.length) continue;
+    const row = document.createElement('section');
+    row.className = 'row'; row.setAttribute('aria-label', gr.name);
+    const badge = document.createElement('div');
+    badge.className = 'badge'; badge.textContent = gr.emoji; badge.setAttribute('aria-hidden', 'true');
+    const shelf = document.createElement('div');
+    shelf.className = 'shelf';
+    for (const g of games) shelf.appendChild(card(g));
+    row.append(badge, shelf);
+    $('games').appendChild(row);
+    lastShelf = shelf;
+  }
+  if (SHOW_COMING_SOON && lastShelf) lastShelf.appendChild(card({ name: 'Coming soon', art: '🎁' }, true));
 
   // ---- sky: drifting clouds, twinkling stars, rising balloons ----
   const sky = $('sky');

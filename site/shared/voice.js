@@ -121,18 +121,27 @@
     }
   }
 
+  // the offline cache (/sw.js) downloads only this language's clips, so tell it which one
+  function tellOfflineCache() {
+    navigator.serviceWorker.ready.then(reg => reg.active && reg.active.postMessage({ lang })).catch(() => {});
+  }
+
   function setLang(l) {
     if (!LANGS[l]) return;
     lang = l;
     try { localStorage.setItem(LANG_KEY, l); } catch (e) {}
     pickTtsVoice();
+    if ('serviceWorker' in navigator) tellOfflineCache();
   }
 
-  // warm up this language's clips in the background so speaking starts instantly
-  ready.then(() => {
-    const keys = Object.keys((manifest && manifest[lang]) || {});
-    keys.forEach(k => fetch(clipUrl(k)).catch(() => {}));
-  });
+  if ('serviceWorker' in navigator) tellOfflineCache();
+  else {
+    // no offline cache: warm up this language's clips in the background so speaking starts instantly
+    ready.then(() => {
+      const keys = Object.keys((manifest && manifest[lang]) || {});
+      keys.forEach(k => fetch(clipUrl(k)).catch(() => {}));
+    });
+  }
 
   self.Voice = { say, stop, setLang, get lang() { return lang; } };
 })();

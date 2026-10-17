@@ -65,6 +65,7 @@ docs/homelab-setup.md     ← one-time server setup guide
    {
      name: 'My New Game',
      path: 'games/my-new-game/',
+     group: 'think',          // its row on the home page: make, think, words or pretend
      art: '🦄',
      extras: ['⭐', '🌈'],
      colors: ['#ffd6a5', '#ffadad'],

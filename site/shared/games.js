@@ -4,11 +4,22 @@
 //  art:    a big emoji for the cover
 //  extras: small emojis sprinkled around the cover
 //  colors: the cover's gradient
+//  group:  which row it sits in on the home page (see GAME_GROUPS below)
 //  (The offline cache in /sw.js also reads this list.)
 // ============================================================
+// The home page shows one sideways-scrolling row per group, with a big picture
+// header since Yas can't read yet. Games without a group go in a last row.
+self.GAME_GROUPS = [
+  { id: 'make', emoji: '🎨', name: 'Make & create' },
+  { id: 'think', emoji: '🧠', name: 'Think & solve' },
+  { id: 'words', emoji: '📚', name: 'Words & numbers' },
+  { id: 'pretend', emoji: '💖', name: 'Pretend & care' },
+];
+
 self.GAMES = [
   {
     name: 'Magic Doodles',
+    group: 'make',
     path: 'games/magic-doodles/',
     art: '🖍️',
     extras: ['🐰', '🐠', '🚀', '🦕', '🏰'],
@@ -16,6 +27,7 @@ self.GAMES = [
   },
   {
     name: 'Beep Boop Robot',
+    group: 'think',
     path: 'games/beep-boop-robot/',
     art: '🤖',
     extras: ['🔋', '⚙️', '⬆️', '➡️', '🔧'],
@@ -23,6 +35,7 @@ self.GAMES = [
   },
   {
     name: 'Music Painter',
+    group: 'make',
     path: 'games/music-painter/',
     art: '🎨',
     extras: ['🎵', '🎹', '🥁', '🎺', '🔔'],
@@ -30,6 +43,7 @@ self.GAMES = [
   },
   {
     name: 'Story Theater',
+    group: 'pretend',
     path: 'games/story-theater/',
     art: '🎭',
     extras: ['👸', '🐉', '🎬', '🧜‍♀️', '👽'],
@@ -37,6 +51,7 @@ self.GAMES = [
   },
   {
     name: 'Creature Lab',
+    group: 'make',
     path: 'games/creature-lab/',
     art: '🧪',
     extras: ['🦄', '🦖', '👽', '🐰', '💖'],
@@ -44,6 +59,7 @@ self.GAMES = [
   },
   {
     name: 'Pattern Train',
+    group: 'think',
     path: 'games/pattern-train/',
     art: '🚂',
     extras: ['🍎', '🍌', '🔴', '🔵', '❓'],
@@ -51,6 +67,7 @@ self.GAMES = [
   },
   {
     name: 'Shadow Match',
+    group: 'think',
     path: 'games/shadow-match/',
     art: '🔦',
     extras: ['🐘', '🦒', '🚀', '🦋', '⭐'],
@@ -58,6 +75,7 @@ self.GAMES = [
   },
   {
     name: 'Robot Factory',
+    group: 'think',
     path: 'games/robot-factory/',
     art: '🏭',
     extras: ['🤖', '🦾', '⚙️', '📋', '🔧'],
@@ -65,6 +83,7 @@ self.GAMES = [
   },
   {
     name: 'Counting Garden',
+    group: 'words',
     path: 'games/counting-garden/',
     art: '🌻',
     extras: ['🌷', '🍓', '🥕', '🐝', '💧'],
@@ -72,6 +91,7 @@ self.GAMES = [
   },
   {
     name: 'Animal Safari',
+    group: 'words',
     path: 'games/animal-safari/',
     art: '🦁',
     extras: ['🐘', '🦒', '🐄', '🐧', '📸'],
@@ -79,6 +99,7 @@ self.GAMES = [
   },
   {
     name: 'Feelings Friends',
+    group: 'pretend',
     path: 'games/feelings-friends/',
     art: '😊',
     extras: ['😢', '😠', '😨', '😮', '💖'],
@@ -86,6 +107,7 @@ self.GAMES = [
   },
   {
     name: 'Letter Trace',
+    group: 'words',
     path: 'games/letter-trace/',
     art: '✍️',
     extras: ['🅰️', '🍎', '☀️', '👧', '⭐'],
@@ -93,6 +115,7 @@ self.GAMES = [
   },
   {
     name: 'Mirror Painter',
+    group: 'make',
     path: 'games/mirror-painter/',
     art: '🦋',
     extras: ['❄️', '🌸', '✨', '🪞', '💜'],
@@ -100,6 +123,7 @@ self.GAMES = [
   },
   {
     name: 'Doodle Puzzles',
+    group: 'think',
     path: 'games/doodle-puzzles/',
     art: '🧩',
     extras: ['🖍️', '🦄', '🚀', '⭐', '🎨'],
@@ -107,6 +131,7 @@ self.GAMES = [
   },
   {
     name: 'Cake Shop',
+    group: 'pretend',
     path: 'games/cake-shop/',
     art: '🎂',
     extras: ['🍓', '🕯️', '🧁', '🎉', '🍰'],
@@ -114,6 +139,7 @@ self.GAMES = [
   },
   {
     name: 'Dress-Up Studio',
+    group: 'pretend',
     path: 'games/dress-up/',
     art: '👗',
     extras: ['👑', '🚀', '🧜‍♀️', '🦸', '🧚'],
@@ -121,6 +147,7 @@ self.GAMES = [
   },
   {
     name: 'Little Vet',
+    group: 'pretend',
     path: 'games/little-vet/',
     art: '🩺',
     extras: ['🐶', '🩹', '🐱', '💊', '💖'],
@@ -128,6 +155,7 @@ self.GAMES = [
   },
   {
     name: 'Where\'s Teddy?',
+    group: 'words',
     path: 'games/wheres-teddy/',
     art: '🧸',
     extras: ['🛋️', '📦', '🛏️', '❓', '⭐'],
@@ -135,6 +163,7 @@ self.GAMES = [
   },
   {
     name: 'Memory Match',
+    group: 'think',
     path: 'games/memory-match/',
     art: '🃏',
     extras: ['🐶', '🐶', '⭐', '🍓', '🍓'],
@@ -142,6 +171,7 @@ self.GAMES = [
   },
   {
     name: 'Sink or Float',
+    group: 'think',
     path: 'games/sink-or-float/',
     art: '🛁',
     extras: ['🦆', '🪨', '🍎', '🔑', '🫧'],
@@ -149,6 +179,7 @@ self.GAMES = [
   },
   {
     name: 'Maze Mouse',
+    group: 'think',
     path: 'games/maze-mouse/',
     art: '🐭',
     extras: ['🧀', '🔑', '🚪', '🌿', '⭐'],
@@ -156,6 +187,7 @@ self.GAMES = [
   },
   {
     name: 'Rhythm Copy',
+    group: 'make',
     path: 'games/rhythm-copy/',
     art: '🥁',
     extras: ['🐸', '🐻', '🐱', '🐦', '🎵'],
