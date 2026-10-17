@@ -507,7 +507,7 @@
     if (running || !program.length) return;
     running = true; renderProg();
     const cards = [...document.querySelectorAll('#prog .card')];
-    let pos = { ...L.start };
+    let pos = { ...L.start }, passedGoal = -1;
     sfx.boop(); await sleep(350);
     for (let i = 0; i < program.length; i++) {
       const dir = program[i], d = DIRS[dir];
@@ -526,10 +526,21 @@
       pos = { x: nx, y: ny };
       placeBot(pos); sfx.step(d.note);
       await sleep(520);
-      if (pos.x === L.goal.x && pos.y === L.goal.y) return win();
+      if (pos.x === L.goal.x && pos.y === L.goal.y) passedGoal = i;
     }
-    say(['rb.more1', 'rb.more2']);
-    await sleep(1400);
+    cards.forEach(c => c.classList.remove('now'));
+    if (pos.x === L.goal.x && pos.y === L.goal.y) return win();
+    if (passedGoal >= 0) {
+      // reached the battery but kept walking: mark the extra arrows
+      cards.slice(passedGoal + 1).forEach(c => c.classList.add('bad'));
+      sfx.bump(); $('bot').classList.add('shake');
+      say(['rb.tooMany1', 'rb.tooMany2']);
+      await sleep(1600);
+      $('bot').classList.remove('shake');
+    } else {
+      say(['rb.more1', 'rb.more2']);
+      await sleep(1400);
+    }
     tryAgain(cards);
   }
   function tryAgain(cards) {
