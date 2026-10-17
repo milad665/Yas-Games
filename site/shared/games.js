@@ -147,4 +147,11 @@ self.GAMES = [
     extras: ['🦆', '🪨', '🍎', '🔑', '🫧'],
     colors: ['#e0f2fe', '#bae6fd', '#fef9c3'],
   },
+  {
+    name: 'Maze Mouse',
+    path: 'games/maze-mouse/',
+    art: '🐭',
+    extras: ['🧀', '🔑', '🚪', '🌿', '⭐'],
+    colors: ['#dcfce7', '#bbf7d0', '#fef9c3'],
+  },
 ];

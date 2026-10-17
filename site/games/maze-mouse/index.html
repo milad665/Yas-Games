@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Maze Mouse">
+<meta name="theme-color" content="#dcfce7">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="stylesheet" href="/shared/kit.css">
+<title>Maze Mouse</title>
+<style>
+  body { background: radial-gradient(circle at 50% 30%, #f0fdf4, #bbf7d0 70%, #86efac); }
+  #game { flex-direction: column; align-items: center; justify-content: center; padding: 86px 12px max(14px, env(safe-area-inset-bottom)); gap: 1.6vh; }
+  #cheeses { position: absolute; top: max(24px, env(safe-area-inset-top)); left: 50%; translate: -50% 0; font-size: 28px; background: rgba(255,255,255,.75); border-radius: 999px; padding: 4px 16px; min-height: 46px; max-width: 50vw; text-align: center; }
+  #maze { flex: 1; min-height: 0; width: 100%; display: grid; place-items: center; touch-action: none; }
+  #maze svg { max-width: 100%; max-height: 100%; display: block; }
+  .tok { pointer-events: none; }
+  #mouse.nom { animation: kit-wiggle .2s ease-in-out 6; transform-box: fill-box; transform-origin: center; }
+  .hintDot { animation: kit-pulse 1s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+  #hintBtn { width: 76px; height: 76px; font-size: 38px; background: #fde047; }
+</style>
+</head>
+<body>
+
+<section id="game" class="screen on">
+  <a class="btn corner left" href="../../" aria-label="Back to Yas's Games">🏠</a>
+  <button id="soundBtn" class="btn corner right" aria-label="Sound on or off">🔊</button>
+  <div id="cheeses"></div>
+  <div id="maze"></div>
+  <button id="hintBtn" class="btn" aria-label="Show the way">💡</button>
+</section>
+
+<script src="/shared/lines.js"></script>
+<script src="/shared/voice.js"></script>
+<script src="/shared/kit.js"></script>
+<script>
+(() => {
+  const { $, pick, shuffle, sleep } = Kit;
+  const LEVELS = [[3, 3, 0], [4, 3, 0], [4, 4, 0], [5, 4, 0], [5, 4, 1], [6, 4, 1], [6, 5, 1], [7, 5, 1], [8, 5, 1]];
+  const DIRS = [[0, -1], [1, 0], [0, 1], [-1, 0]];
+  const C = 100; // cell size in the picture
+
+  const save = Kit.store('maze-mouse');
+  const saved = save.get({ level: 0, cheese: 0 });
+  let M = null, trail = [], hasKey = false, busy = false, dragging = false, showHint = false;
+
+  function paintCheese() { const n = saved.cheese; $('cheeses').textContent = n ? (n > 10 ? '🧀 × ' + n : '🧀'.repeat(n)) : '🧀'; $('cheeses').style.opacity = n ? 1 : .45; }
+
+  // ---------- building a maze (random depth-first carving) ----------
+  function build(w, h, gate) {
+    const open = Array.from({ length: h }, () => Array.from({ length: w }, () => [false, false, false, false]));
+    const seen = Array.from({ length: h }, () => Array(w).fill(false));
+    const stack = [[0, 0]]; seen[0][0] = true;
+    while (stack.length) {
+      const [x, y] = stack[stack.length - 1];
+      const nexts = shuffle([0, 1, 2, 3]).filter(d => { const nx = x + DIRS[d][0], ny = y + DIRS[d][1]; return nx >= 0 && ny >= 0 && nx < w && ny < h && !seen[ny][nx]; });
+      if (!nexts.length) { stack.pop(); continue; }
+      const d = nexts[0], nx = x + DIRS[d][0], ny = y + DIRS[d][1];
+      open[y][x][d] = true; open[ny][nx][(d + 2) % 4] = true; seen[ny][nx] = true; stack.push([nx, ny]);
+    }
+    const m = { w, h, open, start: [0, 0], end: [w - 1, h - 1], gate: null, key: null };
+    m.path = route(m, m.start, m.end);
+    if (gate && m.path.length > 5) {
+      // a gate on the way, and its key somewhere you can reach before the gate
+      m.gate = m.path[Math.floor(m.path.length * .6)];
+      const reach = reachable(m, m.start, m.gate);
+      const onPath = new Set(m.path.map(String));
+      const off = reach.filter(c => !onPath.has(String(c)));
+      m.key = (off.length ? off : reach.filter(c => String(c) !== String(m.start))).sort((a, b) => route(m, m.start, b).length - route(m, m.start, a).length)[0];
+    }
+    return m;
+  }
+  const canGo = (m, [x, y], d) => m.open[y][x][d];
+  function neighbors(m, c, blocked) {
+    return [0, 1, 2, 3].filter(d => canGo(m, c, d)).map(d => [c[0] + DIRS[d][0], c[1] + DIRS[d][1]]).filter(n => !blocked || String(n) !== String(blocked));
+  }
+  function route(m, a, b, blocked) {
+    const prev = new Map([[String(a), null]]), q = [a];
+    while (q.length) { const c = q.shift(); if (String(c) === String(b)) break; for (const n of neighbors(m, c, blocked)) if (!prev.has(String(n))) { prev.set(String(n), c); q.push(n); } }
+    const out = []; let c = b; while (c) { out.unshift(c); c = prev.get(String(c)); } return out;
+  }
+  function reachable(m, a, blocked) {
+    const seen = new Set([String(a)]), q = [a], out = [];
+    while (q.length) { const c = q.shift(); out.push(c); for (const n of neighbors(m, c, blocked)) if (!seen.has(String(n))) { seen.add(String(n)); q.push(n); } }
+    return out;
+  }
+
+  // ---------- drawing ----------
+  const at = ([x, y]) => [x * C + C / 2, y * C + C / 2];
+  function paint() {
+    const { w, h } = M, pad = 14;
+    let s = `<svg viewBox="${-pad} ${-pad} ${w * C + pad * 2} ${h * C + pad * 2}" xmlns="http://www.w3.org/2000/svg">`;
+    s += `<rect x="${-pad}" y="${-pad}" width="${w * C + pad * 2}" height="${h * C + pad * 2}" rx="24" fill="#166534"/>`;
+    s += `<rect x="0" y="0" width="${w * C}" height="${h * C}" fill="#fef9c3"/>`;
+    // hedges
+    let walls = '';
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+      const X = x * C, Y = y * C, o = M.open[y][x];
+      if (!o[0]) walls += `M${X} ${Y} H${X + C} `;
+      if (!o[3]) walls += `M${X} ${Y} V${Y + C} `;
+      if (x === w - 1 && !o[1]) walls += `M${X + C} ${Y} V${Y + C} `;
+      if (y === h - 1 && !o[2]) walls += `M${X} ${Y + C} H${X + C} `;
+    }
+    s += `<path d="${walls}" stroke="#15803d" stroke-width="16" stroke-linecap="round"/>`;
+    // her trail
+    if (trail.length > 1) s += `<path d="M${trail.map(c => at(c).join(' ')).join(' L')}" fill="none" stroke="#f9a8d4" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" opacity=".8"/>`;
+    // hint dots
+    if (showHint) {
+      const p = M.key && !hasKey ? route(M, trail[trail.length - 1], M.key, M.gate) : route(M, trail[trail.length - 1], M.end, hasKey ? null : M.gate);
+      p.slice(1, -1).forEach((c, i) => { const [cx, cy] = at(c); s += `<circle class="hintDot" cx="${cx}" cy="${cy}" r="9" fill="#f59e0b" style="animation-delay:${i * .08}s"/>`; });
+    }
+    const emo = (e, c, size, id = '') => { const [x, y] = at(c); return `<text ${id} class="tok" x="${x}" y="${y}" font-size="${size}" text-anchor="middle" dominant-baseline="central">${e}</text>`; };
+    s += emo('🧀', M.end, 60);
+    if (M.gate && !hasKey) s += emo('🚪', M.gate, 62);
+    if (M.key && !hasKey) s += emo('🔑', M.key, 52);
+    s += emo('🐭', trail[trail.length - 1], 64, 'id="mouse"');
+    $('maze').innerHTML = s + '</svg>';
+  }
+
+  // ---------- moving the mouse ----------
+  function cellAt(e) {
+    const svg = $('maze').querySelector('svg'), pt = svg.createSVGPoint(); pt.x = e.clientX; pt.y = e.clientY;
+    const p = pt.matrixTransform(svg.getScreenCTM().inverse());
+    return [Math.floor(p.x / C), Math.floor(p.y / C)];
+  }
+  function stepTo(target) {
+    // walk one cell at a time toward the finger, as long as the hedges allow
+    for (let guard = 0; guard < 20; guard++) {
+      const cur = trail[trail.length - 1];
+      if (String(cur) === String(target)) return;
+      const prev = trail[trail.length - 2];
+      if (prev && String(prev) === String(target)) { trail.pop(); Kit.tone(380, .05, { type: 'triangle', vol: .06 }); return; }
+      const dx = Math.sign(target[0] - cur[0]), dy = Math.sign(target[1] - cur[1]);
+      const tries = Math.abs(target[0] - cur[0]) >= Math.abs(target[1] - cur[1]) ? [[dx, 0], [0, dy]] : [[0, dy], [dx, 0]];
+      let moved = false;
+      for (const [mx, my] of tries) {
+        if (!mx && !my) continue;
+        const d = DIRS.findIndex(([a, b]) => a === mx && b === my);
+        const n = [cur[0] + mx, cur[1] + my];
+        if (!canGo(M, cur, d)) continue;
+        if (M.gate && !hasKey && String(n) === String(M.gate)) { Kit.tone(160, .15, { type: 'square', vol: .06 }); return; }
+        if (prev && String(prev) === String(n)) trail.pop(); else trail.push(n);
+        moved = true; Kit.tone(520 + (trail.length % 8) * 40, .05, { type: 'triangle', vol: .07 });
+        arrived(n);
+        break;
+      }
+      if (!moved) return;
+    }
+  }
+  function arrived(c) {
+    if (M.key && !hasKey && String(c) === String(M.key)) { hasKey = true; Kit.sfx.ding(); Kit.say('mz.gotKey', 'mz.open'); showHint = false; }
+    if (String(c) === String(M.end)) win();
+  }
+  $('maze').addEventListener('pointerdown', e => {
+    if (busy || !M) return;
+    const c = cellAt(e), cur = trail[trail.length - 1];
+    // start dragging from the mouse (or right next to it)
+    if (Math.abs(c[0] - cur[0]) + Math.abs(c[1] - cur[1]) > 1) return;
+    e.preventDefault(); dragging = true;
+    try { $('maze').setPointerCapture(e.pointerId); } catch (err) {}
+    stepTo(c); paint();
+  });
+  $('maze').addEventListener('pointermove', e => { if (!dragging || busy) return; stepTo(cellAt(e)); paint(); });
+  const stop = () => { dragging = false; };
+  $('maze').addEventListener('pointerup', stop); $('maze').addEventListener('pointercancel', stop);
+  $('hintBtn').onclick = () => { if (busy || !M) return; showHint = true; Kit.sfx.pop(); Kit.say('mz.hint'); paint(); };
+
+  // ---------- rounds ----------
+  function newMaze(first = false, lead = null) {
+    const [w, h, gate] = LEVELS[Math.min(saved.level, LEVELS.length - 1)];
+    // lay mazes out the long way on tall screens
+    const portrait = innerHeight > innerWidth;
+    M = portrait ? build(h, w, gate) : build(w, h, gate);
+    trail = [M.start]; hasKey = false; busy = false; showHint = false;
+    paint();
+    Kit.say(first ? 'mz.intro' : lead, M.gate ? 'mz.keyIntro' : null);
+  }
+  async function win() {
+    busy = true; dragging = false; paint();
+    document.getElementById('mouse')?.classList.add('nom');
+    [0, 1, 2, 3, 4].forEach(i => Kit.tone(220, .07, { type: 'square', vol: .08, delay: i * .14 }));
+    await sleep(800);
+    Kit.sfx.yay(); Kit.burstAt($('maze'), ['🧀', '⭐', '✨', '🎉'], 20, 240);
+    Kit.say(['mz.yum1', 'mz.yum2']);
+    saved.cheese++; const up = saved.level < LEVELS.length - 1; if (up) saved.level++;
+    save.set(saved); paintCheese();
+    await sleep(2800);
+    newMaze(false, up ? 'mz.bigger' : null);
+  }
+
+  Kit.soundButton('soundBtn');
+  paintCheese();
+  newMaze(true);
+})();
+</script>
+</body>
+</html>

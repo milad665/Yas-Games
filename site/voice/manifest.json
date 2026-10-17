@@ -493,7 +493,15 @@
     "sf.ask.bolt": "71aa690f75",
     "sf.result.bolt": "6d8bfd3dbc",
     "sf.ask.grapes": "0f62789c33",
-    "sf.result.grapes": "ecfb389d3e"
+    "sf.result.grapes": "ecfb389d3e",
+    "mz.intro": "f975c2e920",
+    "mz.keyIntro": "00e0087f73",
+    "mz.gotKey": "a36e1c3199",
+    "mz.open": "1a327f820b",
+    "mz.yum1": "63a2216b04",
+    "mz.yum2": "29df287360",
+    "mz.bigger": "655584ab3b",
+    "mz.hint": "1a8b72261a"
   },
   "nl": {
     "hub.lang": "0eaed72984",
@@ -989,7 +997,15 @@
     "sf.ask.bolt": "b84b57f6a8",
     "sf.result.bolt": "b847ce6388",
     "sf.ask.grapes": "796e1c0734",
-    "sf.result.grapes": "fff841806d"
+    "sf.result.grapes": "fff841806d",
+    "mz.intro": "9ff8fc0cc6",
+    "mz.keyIntro": "f2f318f9e9",
+    "mz.gotKey": "1aaab5816d",
+    "mz.open": "bc06dacb7b",
+    "mz.yum1": "2b5e4cc199",
+    "mz.yum2": "d7ce1cbedd",
+    "mz.bigger": "c06a283881",
+    "mz.hint": "b497e88e4d"
   },
   "voices": {
     "en": "Evan (Enhanced)",

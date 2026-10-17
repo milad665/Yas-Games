@@ -539,4 +539,14 @@ self.VOICE_LINES = {
   'sf.result.bolt':  { en: 'The bolt sinks!', nl: 'De bout zinkt!' },
   'sf.ask.grapes':   { en: 'Will the grapes sink or float?', nl: 'Zullen de druiven zinken of drijven?' },
   'sf.result.grapes': { en: 'The grapes sink!', nl: 'De druiven zinken!' },
+
+  // ---------- Maze Mouse ----------
+  'mz.intro':        { en: 'Help the mouse find the cheese! Drag the mouse along the path.', nl: 'Help het muisje de kaas te vinden! Sleep het muisje over het pad.' },
+  'mz.keyIntro':     { en: 'Oh, a locked door! Find the key first.', nl: 'O, een deur op slot! Zoek eerst de sleutel.' },
+  'mz.gotKey':       { en: 'You found the key!', nl: 'Je hebt de sleutel gevonden!' },
+  'mz.open':         { en: 'The door is open!', nl: 'De deur is open!' },
+  'mz.yum1':         { en: 'Yum, cheese! Thank you!', nl: 'Mmm, kaas! Dankjewel!' },
+  'mz.yum2':         { en: 'Nom nom nom! Delicious!', nl: 'Nom nom nom! Heerlijk!' },
+  'mz.bigger':       { en: 'Here comes a bigger maze!', nl: 'Daar komt een groter doolhof!' },
+  'mz.hint':         { en: 'Follow the dots!', nl: 'Volg de stippen!' },
 };
