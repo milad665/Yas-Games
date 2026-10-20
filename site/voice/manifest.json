@@ -619,7 +619,16 @@
     "cs.hb.kid": "cecbabbea5",
     "cs.hb.kitty": "ca6e688c71",
     "lt.Y": "2f871dd435",
-    "cs.age.kitty": "669f5eb606"
+    "cs.age.kitty": "669f5eb606",
+    "rb.keys": "d8e207736a",
+    "rb.needGears": "99569046d9",
+    "rb.gears": "0efc03bdbe",
+    "rb.newWorld": "78aa77e8a5",
+    "rb.locked": "89532213a6",
+    "rb.portals": "33e1a664ee",
+    "rb.full": "665d5834c2",
+    "rb.repeat": "0666325541",
+    "rb.mix": "ec74a8519d"
   },
   "nl": {
     "hub.lang": "d1da1f5fa2",
@@ -1241,7 +1250,16 @@
     "cs.hb.kid": "1b1425b359",
     "lt.Y": "72cdcfa228",
     "cs.hb.kitty": "cfcfd0f218",
-    "cs.age.kitty": "22fee66498"
+    "cs.age.kitty": "22fee66498",
+    "rb.newWorld": "2f3d8c3e40",
+    "rb.needGears": "2c1bdc446a",
+    "rb.gears": "e2af4c1458",
+    "rb.keys": "651fa1dd5c",
+    "rb.locked": "aecf6de2d6",
+    "rb.portals": "d7a8ef9faf",
+    "rb.mix": "140bba7cfc",
+    "rb.full": "5769984e0a",
+    "rb.repeat": "5099cff6e8"
   },
   "voices": {
     "en": "Jessica (ElevenLabs eleven_v4)",
@@ -1868,6 +1886,15 @@
     "cs.hb.kid": "0f8c08130c",
     "lt.Y": "025193fcae",
     "cs.age.kitty": "5d7384fa9e",
-    "cs.hb.kitty": "4b126c5a40"
+    "cs.hb.kitty": "4b126c5a40",
+    "rb.newWorld": "fbe530c7c0",
+    "rb.keys": "8acfd156dc",
+    "rb.needGears": "12581293a4",
+    "rb.locked": "09fac72710",
+    "rb.gears": "823cf484fe",
+    "rb.portals": "ff71f0ce70",
+    "rb.full": "ba2700a133",
+    "rb.mix": "70c7d35f7d",
+    "rb.repeat": "5239cd28f9"
   }
 }
