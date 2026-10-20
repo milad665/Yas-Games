@@ -31,7 +31,7 @@ self.GAMES = [
     name: 'Beep Boop Robot',
     group: 'think',
     path: 'games/beep-boop-robot/',
-    about: 'Build your own robot, then program it with arrow cards to reach its battery. A gentle first step into coding, sequencing and debugging.',
+    about: 'Build your own robot, then program it with arrow cards to reach its battery, through six worlds of gears, keys, swirls and repeat loops. A gentle first step into coding, sequencing and debugging.',
     art: '🤖',
     extras: ['🔋', '⚙️', '⬆️', '➡️', '🔧'],
     colors: ['#a5f3fc', '#93c5fd', '#c4b5fd'],

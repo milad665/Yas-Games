@@ -8,7 +8,7 @@ donate button and search-engine friendly pages. See [docs/public-site.md](docs/p
 | Game | What it is |
 | --- | --- |
 | **Magic Doodles** | Draw anything with your finger, tap ✨, and it comes alive with googly eyes and hops, flies, swims, floats or crawls around one of five worlds. |
-| **Beep Boop Robot** | Build your own robot from parts, then program it with arrow cards to reach its battery. Teaches sequencing and debugging. |
+| **Beep Boop Robot** | Build your own robot, then program it with arrow cards to reach its battery: 64 levels in six worlds that add gears to collect, keys and doors, teleporting swirls and a repeat card. Teaches sequencing, loops and debugging (`node tools/check-robot-levels.mjs` checks every level). |
 | **Music Painter** | Colors are instruments and height is pitch: paint a picture, press play, and it becomes a song. |
 | **Story Theater** | Pick a stage, drag on characters and props, tap them to act, and film a story with her own voice. |
 | **Creature Lab** | Mix heads, bodies, legs, tails and wings into a creature with a silly name, then feed, bathe and play with it. |

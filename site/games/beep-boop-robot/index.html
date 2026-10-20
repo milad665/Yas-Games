@@ -78,13 +78,24 @@
   #doneBtn { background: #4ade80; }
 
   /* ---------- level picker ---------- */
-  #levels { flex-direction: column; align-items: center; justify-content: center; padding: 90px 20px 20px; }
+  #levels { flex-direction: column; align-items: center; justify-content: center; gap: 4vh; padding: 96px 20px 20px; }
+  #worldRow { display: flex; flex-wrap: wrap; justify-content: center; gap: clamp(10px, 2.4vw, 24px); }
+  .world { width: 84px; height: 84px; font-size: 42px; background: #fff; }
+  .world.sel { background: #bfdbfe; box-shadow: 0 0 0 5px #3b82f6, 0 6px 0 rgba(40,50,90,.18); }
+  .world.locked { opacity: .45; pointer-events: none; }
+  .world .lock { position: absolute; bottom: -8px; right: -8px; font-size: 26px; }
+  .world .st { position: absolute; top: -10px; right: -8px; font-size: 26px; }
   #levelGrid { display: grid; grid-template-columns: repeat(4, auto); gap: clamp(14px, 3vw, 30px); }
   @media (orientation: landscape) { #levelGrid { grid-template-columns: repeat(6, auto); } }
   .lvl { width: 104px; height: 104px; font-size: 44px; font-weight: 900; position: relative; background: #fff; }
   .lvl.done { background: #fde68a; }
   .lvl.locked { background: #e2e8f0; opacity: .6; pointer-events: none; font-size: 36px; }
   .lvl .st { position: absolute; top: -10px; right: -6px; font-size: 32px; }
+  @media (max-width: 520px) {
+    .lvl { width: 70px; height: 70px; font-size: 32px; }
+    .lvl .st { font-size: 24px; }
+    .world { width: 62px; height: 62px; font-size: 32px; }
+  }
 
   /* ---------- play ---------- */
   #play { flex-direction: column; padding: max(14px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(14px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left)); gap: 12px; }
@@ -95,15 +106,32 @@
   #boardWrap { flex: 1; min-height: 0; display: grid; place-items: center; }
   #board {
     position: relative; display: grid; gap: 5px; padding: 8px; border-radius: 26px;
-    background: #94a3b8; box-shadow: 0 10px 0 rgba(40,50,90,.18), inset 0 0 0 4px rgba(255,255,255,.3);
+    --frame: #94a3b8; --f1: #f1f5f9; --f2: #e6eef8; background: var(--frame); box-shadow: 0 10px 0 rgba(40,50,90,.18), inset 0 0 0 4px rgba(255,255,255,.3);
   }
-  .cell { border-radius: 14px; background: #f1f5f9; display: grid; place-items: center; position: relative; line-height: 1; }
-  .cell:nth-child(odd) { background: #e6eef8; }
+  .cell { border-radius: 14px; background: var(--f1); display: grid; place-items: center; position: relative; line-height: 1; }
+  .cell:nth-child(odd) { background: var(--f2); }
+  #board .cell.rock { background: var(--wall); box-shadow: inset 0 -6px 0 rgba(40,50,90,.12); }
   .cell.goal { background: #dcfce7; box-shadow: inset 0 0 0 4px #4ade80; }
-  .cell .goalItem { animation: hop 1.3s ease-in-out infinite; }
-  .hintArrow { position: absolute; width: 48%; height: 48%; opacity: .5; }
+  .cell .goalItem, .cell .item { display: inline-block; animation: hop 1.3s ease-in-out infinite; }
+  .cell.goal.sleep { background: #f1f5f9; box-shadow: inset 0 0 0 4px #cbd5e1; }
+  .cell.goal.sleep .goalItem { filter: grayscale(1); opacity: .45; animation: none; }
+  .cell .gear { animation: spin 4s linear infinite; }
+  .cell .swirl { display: inline-block; animation: spin 2.2s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .cell.door span { display: inline-block; transition: opacity .4s, transform .4s; }
+  .cell.door.open span { opacity: .22; transform: scale(.8); }
+  .cell.wiggle span { animation: shake .4s; }
+  #hints { position: absolute; inset: 0; pointer-events: none; z-index: 3; }
+  .hint { position: absolute; filter: drop-shadow(0 2px 2px rgba(40,50,90,.3)); animation: popIn .3s cubic-bezier(.3,1.6,.5,1) both; }
+  .hint svg { width: 100%; height: 100%; display: block; }
   #bot { position: absolute; left: 8px; top: 8px; transition: transform .42s cubic-bezier(.4,1.4,.6,1); z-index: 2; pointer-events: none; }
+  #bot .warp { width: 100%; height: 100%; transition: scale .25s, rotate .25s; }
+  #bot .warp.away { scale: 0; rotate: 360deg; }
   #bot .flip { width: 100%; height: 100%; transition: transform .2s; }
+  #inv { display: flex; gap: 6px; font-size: 34px; background: rgba(255,255,255,.7); border-radius: 999px; padding: 4px 14px; }
+  #inv:empty { display: none; }
+  #inv span { filter: grayscale(1); opacity: .35; transition: opacity .3s, filter .3s; }
+  #inv span.got { filter: none; opacity: 1; animation: popIn .3s cubic-bezier(.3,1.6,.5,1); }
   #bot.shake .flip { animation: shake .4s; }
   @keyframes shake { 20% { translate: -8px 0; } 40% { translate: 8px 0; } 60% { translate: -5px 0; } 80% { translate: 5px 0; } }
 
@@ -117,6 +145,12 @@
     box-shadow: 0 4px 0 rgba(40,50,90,.2); touch-action: manipulation; cursor: pointer; transition: transform .15s;
   }
   .card svg { width: 100%; height: 100%; }
+  .card { position: relative; }
+  .card.many { box-shadow: 6px -6px 0 -2px rgba(255,255,255,.75), 0 4px 0 rgba(40,50,90,.2); }
+  .card .times {
+    position: absolute; top: -12px; right: -10px; min-width: 32px; height: 32px; padding: 0 6px; border-radius: 16px;
+    background: #fff; color: #33415c; font-size: 22px; font-weight: 900; display: grid; place-items: center; box-shadow: 0 2px 0 rgba(40,50,90,.25);
+  }
   .card.now { transform: scale(1.2) translateY(-6px); box-shadow: 0 0 0 5px #fde047, 0 4px 0 rgba(40,50,90,.2); }
   .card.bad { box-shadow: 0 0 0 5px #ef4444; animation: shake .4s; }
   .card.pop { animation: popIn .25s cubic-bezier(.3,1.6,.5,1); }
@@ -127,6 +161,7 @@
   #pad { display: flex; justify-content: center; align-items: center; gap: clamp(10px, 2.4vw, 22px); }
   .arrow { width: 96px; height: 96px; border-radius: 26px; padding: 16px; position: relative; }
   .arrow svg { width: 100%; height: 100%; }
+  #repeatBtn { width: 96px; height: 96px; border-radius: 26px; background: #fde047; font-size: 46px; }
   #goBtn { width: 112px; height: 112px; background: #22c55e; margin-left: clamp(10px, 3vw, 40px); }
   #goBtn svg { width: 56%; height: 56%; margin-left: 8%; }
 
@@ -170,6 +205,7 @@
 <!-- LEVEL PICKER -->
 <section id="levels" class="screen">
   <button id="levelsBack" class="btn corner left" aria-label="Back">🏠</button>
+  <div id="worldRow"></div>
   <div id="levelGrid"></div>
 </section>
 
@@ -178,6 +214,7 @@
   <div class="topbar">
     <button id="playBack" class="btn" aria-label="Back to levels">🏠</button>
     <div id="lvlBadge"></div>
+    <div id="inv"></div>
     <div class="spacer"></div>
     <button id="hintBtn" class="btn" aria-label="Hint">💡</button>
   </div>
@@ -205,23 +242,91 @@
 <script src="/shared/robot.js"></script>
 <script>
 (() => {
-  // ================= levels =================
-  // R = robot start, B = battery (goal), # = rock, . = floor
-  const LEVELS = [
-    { map: ['R.B'] },
-    { map: ['R..B'] },
-    { map: ['R', '.', 'B'] },
-    { map: ['R..', '##.', '##B'] },
-    { map: ['B..', '##.', 'R..'] },
-    { map: ['R.#B', '..#.', '....'] },
-    { map: ['....B', '.###.', 'R....'] },
-    { map: ['R...', '##.#', 'B#..', '....'] },
-    { map: ['R.#..', '#...#', '..#..', '.##.B'] },
-    { map: ['B...#', '###.#', 'R....'] },
-    { map: ['R..#.', '#.##.', '#....', '####B'] },
-    { map: ['R#...', '.#.#.', '...#B'] },
+  // ==== engine: levels and rules, no DOM (tools/check-robot-levels.mjs loads this part) ====
+  // Map letters: R robot, B battery, # rock, . floor,
+  //   G gear (pick up every gear before the battery counts), K key, D door (opens once the key is picked up),
+  //   O swirl (the two swirls are joined: step on one, pop out of the other).
+  // max: how many cards fit in the program strip. repeat: the ×2 button is there. guide: point at each button.
+  const WORLDS = [
+    { icon: '🌱', say: 'rb.go1',    rocks: ['🪨', '🌵', '📦', '🧱'], wall: '#b8c4d4', frame: '#94a3b8', floor: ['#f1f5f9', '#e6eef8'] },
+    { icon: '⚙️', say: 'rb.gears',  rocks: ['🛢️', '📦', '🧰', '🪨'], wall: '#c8c0b8', frame: '#a8a29e', floor: ['#fafaf9', '#f0ebe5'] },
+    { icon: '🔑', say: 'rb.keys',   rocks: ['🧱', '🗿', '🪨', '🧱'], wall: '#dcb88f', frame: '#c4a484', floor: ['#fdf6ec', '#f6ead8'] },
+    { icon: '🌀', say: 'rb.portals', rocks: ['🪐', '☄️', '🌑', '🛸'], wall: '#a5b4fc', frame: '#6366f1', floor: ['#eef2ff', '#e0e7ff'] },
+    { icon: '🔁', say: 'rb.repeat', rocks: ['🌳', '🌲', '🍄', '🪵'], wall: '#a8d97e', frame: '#65a30d', floor: ['#f7fee7', '#ecfccb'] },
+    { icon: '🏆', say: 'rb.mix',    rocks: ['🍭', '🧁', '🍩', '🍬'], wall: '#f9a8d4', frame: '#ec4899', floor: ['#fdf2f8', '#fce7f3'] },
   ];
-  const ROCKS = ['🪨', '🌵', '📦', '🧱'];
+  const LEVELS = [
+    // 🌱 first steps (the original twelve; keep them first so saved stars stay put)
+    { w: 0, guide: true, map: ['R.B'] },
+    { w: 0, guide: true, map: ['R..B'] },
+    { w: 0, map: ['R', '.', 'B'] },
+    { w: 0, map: ['R..', '##.', '##B'] },
+    { w: 0, map: ['B..', '##.', 'R..'] },
+    { w: 0, map: ['R.#B', '..#.', '....'] },
+    { w: 0, map: ['....B', '.###.', 'R....'] },
+    { w: 0, map: ['R...', '##.#', 'B#..', '....'] },
+    { w: 0, map: ['R.#..', '#...#', '..#..', '.##.B'] },
+    { w: 0, map: ['B...#', '###.#', 'R....'] },
+    { w: 0, map: ['R..#.', '#.##.', '#....', '####B'] },
+    { w: 0, map: ['R#...', '.#.#.', '...#B'] },
+    // ⚙️ gears
+    { w: 1, guide: true, map: ['R.G.B'] },
+    { w: 1, map: ['R..', '.G.', '..B'] },
+    { w: 1, map: ['G.R.B'] },
+    { w: 1, map: ['R.#B', 'G.#.', '....'] },
+    { w: 1, map: ['R...#', '#G#.#', '...G.', '.##.B'] },
+    { w: 1, map: ['G...G', '.###.', 'R...B'] },
+    { w: 1, map: ['R.G#', '##.#', 'B..G'] },
+    { w: 1, map: ['.G..#.', '.##.G.', 'R#..#B', '...#..'] },
+    { w: 1, map: ['B..G', '.##.', '.##.', 'G..R'] },
+    { w: 1, map: ['G.#.G', '..#..', 'R...B'] },
+    { w: 1, map: ['G#..B', '.#.#.', '...#G', 'R.#..'] },
+    { w: 1, map: ['G...#G', '.##...', '...##.', 'R#G..B'] },
+    // 🔑 keys and doors
+    { w: 2, guide: true, map: ['R.K.DB'] },
+    { w: 2, map: ['R.D.B', '.####', 'K....'] },
+    { w: 2, map: ['K..R', '##D#', 'B...'] },
+    { w: 2, map: ['R#K', '...', '##D', 'B..'] },
+    { w: 2, map: ['B#K..', '.#.#.', '.D..R'] },
+    { w: 2, map: ['G.K#B', '.#.#.', 'R...D'] },
+    { w: 2, map: ['R..#B', '##.D.', 'K...#'] },
+    { w: 2, map: ['R.D.D.B', '#.#####', 'K.#####'] },
+    { w: 2, map: ['R....K', '###.##', 'B.D...'] },
+    { w: 2, map: ['K.#G..', '..#.#.', 'R...#D', '####.B'] },
+    // 🌀 swirls
+    { w: 3, guide: true, map: ['R.O#O.B'] },
+    { w: 3, map: ['R.O', '###', 'B.O'] },
+    { w: 3, map: ['R#O', '.#.', 'O#B'] },
+    { w: 3, map: ['O.R', '###', '.O.', '#.#', '..B'] },
+    { w: 3, map: ['G.O#B', '.R.#.', '...#O'] },
+    { w: 3, map: ['R.#.G', 'O.#.O', '..#.B'] },
+    { w: 3, map: ['R.#G.O', '..#.##', 'O.#..B'] },
+    { w: 3, map: ['R..#..', '##O#.#', '...#O.', 'B####.'] },
+    { w: 3, map: ['G..#..', '.#.#O.', 'R.O#..', '####.B'] },
+    { w: 3, map: ['R.O#K.', '...#.O', '####D#', 'B.....'] },
+    // 🔁 repeat
+    { w: 4, guide: true, repeat: true, max: 2, map: ['R.....B'] },
+    { w: 4, repeat: true, max: 3, map: ['R.....', '......', '.....B'] },
+    { w: 4, repeat: true, max: 3, map: ['R#####', '.#####', '.#####', '......', '#####B'] },
+    { w: 4, repeat: true, max: 4, map: ['R.....', '#####.', 'B.....'] },
+    { w: 4, repeat: true, max: 6, map: ['R.....#B', '.####.#.', '.#..#...', '.#..####', '........'] },
+    { w: 4, repeat: true, max: 5, map: ['R.#....', '..#.##.', '....##B'] },
+    { w: 4, repeat: true, max: 5, map: ['R....', '####.', '.....', '.####', '....B'] },
+    { w: 4, repeat: true, max: 5, map: ['R......', '######.', 'G.....G', '.######', '......B'] },
+    { w: 4, repeat: true, max: 7, map: ['B#.....', '.#.###.', '.#...#.', '.###.#.', '.....#R'] },
+    { w: 4, repeat: true, max: 8, map: ['R...#...', '###.#.#.', '....#.#.', '.####.#.', '......#B'] },
+    // 🏆 everything together
+    { w: 5, repeat: true, map: ['R..#G', '.#.#.', 'K.D.B'] },
+    { w: 5, repeat: true, map: ['G..O#B', '.##.#.', 'R...#O'] },
+    { w: 5, repeat: true, map: ['R......', '.#####.', '.#KGO#.', '.#####.', 'O..D..B'] },
+    { w: 5, repeat: true, map: ['R....#G', '####.#.', 'K....D.', '.#####B'] },
+    { w: 5, repeat: true, max: 7, map: ['R......#', '.#####.#', '.#G..#.#', '.#.###.#', '.......B'] },
+    { w: 5, repeat: true, map: ['O....#B', '.###.#.', 'R..G.#D', '####.#.', 'K....#O'] },
+    { w: 5, repeat: true, map: ['G#K..O#B', '.#.####.', '...#O.D.', '##.#####', 'R..#####'] },
+    { w: 5, repeat: true, map: ['R..#G..O', '.#.#.##.', '.#...#..', '.#####D#', 'O.K#...B'] },
+    { w: 5, repeat: true, map: ['K.#G.##B', '..#.#.#D', 'O...#.#.', '##.##..G', 'R...O.#.'] },
+    { w: 5, repeat: true, max: 8, map: ['R......G', '######.#', 'G......#', '.#######', '...O#..B', '####..O#'] },
+  ];
   const DIRS = {
     left:  { dx: -1, dy: 0, rot: 270, color: '#a78bfa', note: 523 },
     up:    { dx: 0, dy: -1, rot: 0,   color: '#34d399', note: 784 },
@@ -229,6 +334,88 @@
     right: { dx: 1, dy: 0,  rot: 90,  color: '#60a5fa', note: 659 },
   };
   const MAX_PROG = 20;
+
+  const at = (x, y) => x + ',' + y;
+  function parse(def) {
+    const map = def.map, rows = map.length, cols = map[0].length;
+    const L = { rows, cols, rocks: new Set(), doors: new Set(), gears: [], portals: [], key: null, start: null, goal: null,
+      repeat: !!def.repeat, max: def.max || MAX_PROG, guide: !!def.guide, w: def.w };
+    map.forEach((row, y) => [...row].forEach((ch, x) => {
+      if (ch === 'R') L.start = { x, y };
+      if (ch === 'B') L.goal = { x, y };
+      if (ch === '#') L.rocks.add(at(x, y));
+      if (ch === 'D') L.doors.add(at(x, y));
+      if (ch === 'G') L.gears.push({ x, y });
+      if (ch === 'K') L.key = { x, y };
+      if (ch === 'O') L.portals.push({ x, y });
+    }));
+    return L;
+  }
+  // where the robot is and what it has picked up: { x, y, gears (bitmask), key, dir (last move) }
+  const startState = L => ({ x: L.start.x, y: L.start.y, gears: 0, key: false, dir: null });
+  const allGears = L => (1 << L.gears.length) - 1;
+  const isDone = (L, s) => s.x === L.goal.x && s.y === L.goal.y && s.gears === allGears(L);
+  // one step. Returns { s, bump: 'rock' | 'door' | null, enter (the square stepped onto), swirl, gear, key }
+  function step(L, s, dir) {
+    const d = DIRS[dir], x = s.x + d.dx, y = s.y + d.dy;
+    if (x < 0 || y < 0 || x >= L.cols || y >= L.rows || L.rocks.has(at(x, y))) return { s, bump: 'rock' };
+    if (L.doors.has(at(x, y)) && !s.key) return { s, bump: 'door' };
+    const r = { s: { ...s, x, y, dir }, bump: null, enter: { x, y } };
+    const p = L.portals.findIndex(q => q.x === x && q.y === y);
+    if (p >= 0) { const o = L.portals[1 - p]; r.s.x = o.x; r.s.y = o.y; r.swirl = true; }
+    const g = L.gears.findIndex(q => q.x === r.s.x && q.y === r.s.y);
+    if (g >= 0 && !(s.gears & (1 << g))) { r.s.gears = s.gears | (1 << g); r.gear = g; }
+    if (L.key && L.key.x === r.s.x && L.key.y === r.s.y && !s.key) { r.s.key = true; r.key = true; }
+    return r;
+  }
+  // fewest steps to finish from state s0, and among those the fewest turns (so the fewest cards)
+  function solveFrom(L, s0) {
+    const id = s => [s.x, s.y, s.gears, s.key ? 1 : 0, s.dir].join(',');
+    const seen = new Set([id(s0)]);
+    let layer = [{ s: s0, turns: 0, prev: null, dir: null }];
+    for (let depth = 0; layer.length && depth < 400; depth++) {
+      let best = null;
+      for (const v of layer) if (isDone(L, v.s) && (!best || v.turns < best.turns)) best = v;
+      if (best) { const moves = []; for (let v = best; v.prev; v = v.prev) moves.unshift(v.dir); return moves; }
+      const next = new Map();
+      for (const v of layer) for (const dir of Object.keys(DIRS)) {
+        const r = step(L, v.s, dir); if (r.bump) continue;
+        const k = id(r.s); if (seen.has(k)) continue;
+        const turns = v.turns + (v.s.dir && v.s.dir !== dir ? 1 : 0), old = next.get(k);
+        if (!old || turns < old.turns) next.set(k, { s: r.s, turns, prev: v, dir });
+      }
+      next.forEach((_, k) => seen.add(k));
+      layer = [...next.values()];
+    }
+    return null;
+  }
+  // moves → cards: ['up','up','left'] → [{dir:'up',n:2},{dir:'left',n:1}]
+  function toCards(moves) {
+    const cards = [];
+    for (const dir of moves) {
+      const last = cards[cards.length - 1];
+      if (last && last.dir === dir && last.n < 9) last.n++; else cards.push({ dir, n: 1 });
+    }
+    return cards;
+  }
+  const toMoves = cards => cards.flatMap(c => Array(c.n).fill(c.dir));
+  const cardsFor = (L, moves) => L.repeat ? toCards(moves) : moves.map(dir => ({ dir, n: 1 }));
+  // the floor arrows: a shortest way to the battery that keeps as much of the child's own program as still works
+  function hintMoves(L, cards) {
+    const best = solveFrom(L, startState(L)), mine = toMoves(cards);
+    for (let k = Math.min(mine.length, best.length); k > 0; k--) {
+      let s = startState(L), ok = true;
+      for (let i = 0; i < k && ok; i++) { const r = step(L, s, mine[i]); ok = !r.bump && !isDone(L, s); s = r.s; }
+      if (!ok) continue;
+      const rest = solveFrom(L, s);
+      if (rest && k + rest.length === best.length) {
+        const moves = mine.slice(0, k).concat(rest);
+        if (cardsFor(L, moves).length <= L.max) return moves;
+      }
+    }
+    return best;
+  }
+  // ==== engine end ====
 
   // ================= robot parts =================
   const COLORS = ['#60a5fa', '#f87171', '#fbbf24', '#34d399', '#c084fc', '#f472b6', '#94a3b8'];
@@ -280,6 +467,10 @@
     remove: () => tone(500, .12, { type: 'sine', vol: .15, to: 200 }),
     win: () => [523, 659, 784, 1047, 784, 1047, 1319].forEach((f, i) => tone(f, .18, { type: 'triangle', vol: .16, delay: i * .1 })),
     boop: () => { tone(880, .07); tone(660, .07, { delay: .08 }); tone(990, .1, { delay: .16 }); },
+    gear: () => { tone(880, .1, { type: 'triangle', vol: .16 }); tone(1320, .14, { type: 'triangle', vol: .14, delay: .08 }); },
+    charged: () => [659, 784, 988, 1319].forEach((f, i) => tone(f, .14, { type: 'triangle', vol: .14, delay: .15 + i * .07 })),
+    key: () => [988, 1319, 1568].forEach((f, i) => tone(f, .12, { type: 'sine', vol: .18, delay: i * .07 })),
+    whoosh: () => tone(260, .45, { type: 'sine', vol: .2, to: 1400 }),
   };
   function say(...lines) { if (!muted) Voice.say(...lines); }
   document.addEventListener('pointerdown', () => audio());
@@ -296,8 +487,8 @@
 
   // ================= drawing the robot =================
   const robotSVG = RobotArt.svg;
-  function arrowSVG(dir) {
-    return `<svg viewBox="0 0 100 100" style="transform:rotate(${DIRS[dir].rot}deg)"><path d="M50 8 L90 52 H64 V92 H36 V52 H10 Z" fill="#fff" stroke="rgba(0,0,0,.15)" stroke-width="4" stroke-linejoin="round"/></svg>`;
+  function arrowSVG(dir, fill = '#fff', stroke = 'rgba(0,0,0,.15)') {
+    return `<svg viewBox="0 0 100 100" style="transform:rotate(${DIRS[dir].rot}deg)"><path d="M50 8 L90 52 H64 V92 H36 V52 H10 Z" fill="${fill}" stroke="${stroke}" stroke-width="${stroke === '#fff' ? 8 : 4}" stroke-linejoin="round"/></svg>`;
   }
   function paintRobots() {
     const svg = robotSVG(saved.design);
@@ -357,14 +548,32 @@
   $('doneBtn').onclick = () => { sfx.boop(); show('home'); say('rb.newLook'); };
 
   // ---------- level picker ----------
+  const worldLevels = w => LEVELS.map((_, i) => i).filter(i => LEVELS[i].w === w);
   function unlocked(i) { return i === 0 || saved.done.includes(i - 1) || saved.done.includes(i); }
-  function openLevels() {
+  let pickWorld = null;
+  function openLevels(w = pickWorld) {
+    if (w == null) {
+      // the world with the next level to play
+      const next = LEVELS.findIndex((_, i) => unlocked(i) && !saved.done.includes(i));
+      w = LEVELS[next >= 0 ? next : LEVELS.length - 1].w;
+    }
+    pickWorld = w;
+    const row = $('worldRow'); row.innerHTML = '';
+    WORLDS.forEach((W, wi) => {
+      const list = worldLevels(wi), open = unlocked(list[0]), all = list.every(i => saved.done.includes(i));
+      const b = document.createElement('button');
+      b.className = 'btn world' + (wi === w ? ' sel' : '') + (open ? '' : ' locked');
+      b.innerHTML = W.icon + (open ? (all ? '<span class="st">⭐</span>' : '') : '<span class="lock">🔒</span>');
+      b.setAttribute('aria-label', 'World ' + (wi + 1));
+      b.onclick = () => { sfx.pop(); openLevels(wi); say(W.say); };
+      row.appendChild(b);
+    });
     const g = $('levelGrid'); g.innerHTML = '';
-    LEVELS.forEach((_, i) => {
+    worldLevels(w).forEach((i, n) => {
       const b = document.createElement('button');
       const done = saved.done.includes(i), open = unlocked(i);
       b.className = 'btn lvl' + (done ? ' done' : '') + (open ? '' : ' locked');
-      b.innerHTML = open ? (i + 1) + (done ? '<span class="st">⭐</span>' : '') : '🔒';
+      b.innerHTML = open ? (n + 1) + (done ? '<span class="st">⭐</span>' : '') : '🔒';
       b.onclick = () => { sfx.pop(); startLevel(i); };
       g.appendChild(b);
     });
@@ -373,71 +582,88 @@
   $('levelsBack').onclick = () => { sfx.pop(); show('home'); };
 
   // ================= play =================
-  let cur = 0, L = null, program = [], running = false, fails = 0, showHint = false, cell = 80;
-
-  function parse(map) {
-    const rows = map.length, cols = map[0].length, rocks = new Set();
-    let start, goal;
-    map.forEach((row, y) => [...row].forEach((ch, x) => {
-      if (ch === 'R') start = { x, y };
-      if (ch === 'B') goal = { x, y };
-      if (ch === '#') rocks.add(x + ',' + y);
-    }));
-    return { rows, cols, rocks, start, goal };
-  }
-  function blocked(x, y) { return x < 0 || y < 0 || x >= L.cols || y >= L.rows || L.rocks.has(x + ',' + y); }
-  // shortest list of moves from start to goal (used for hints and the first-level guide)
-  function solve() {
-    const key = p => p.x + ',' + p.y, prev = new Map([[key(L.start), null]]), q = [L.start];
-    while (q.length) {
-      const p = q.shift();
-      if (p.x === L.goal.x && p.y === L.goal.y) break;
-      for (const [name, d] of Object.entries(DIRS)) {
-        const n = { x: p.x + d.dx, y: p.y + d.dy };
-        if (blocked(n.x, n.y) || prev.has(key(n))) continue;
-        prev.set(key(n), { from: p, dir: name }); q.push(n);
-      }
-    }
-    const path = []; let k = key(L.goal);
-    while (prev.get(k)) { const s = prev.get(k); path.unshift({ dir: s.dir, from: s.from }); k = key(s.from); }
-    return path;
-  }
+  // L: the level, S: where the robot is right now and what it has picked up
+  // program: the cards, [{ dir, n }] (n > 1 only with the repeat button)
+  // hint: the moves shown as arrows on the floor
+  let cur = 0, L = null, S = null, program = [], running = false, fails = 0, showHint = false, hint = null, cell = 80;
 
   function startLevel(i) {
-    cur = i; L = parse(LEVELS[i].map); L.solution = solve();
-    program = []; running = false; fails = 0; showHint = false;
-    $('lvlBadge').textContent = (i + 1) + ' / ' + LEVELS.length;
+    cur = i; L = parse(LEVELS[i]); L.solution = solveFrom(L, startState(L));
+    program = []; running = false; fails = 0; showHint = false; hint = null;
+    const list = worldLevels(L.w);
+    $('lvlBadge').textContent = WORLDS[L.w].icon + ' ' + (list.indexOf(i) + 1) + ' / ' + list.length;
+    $('repeatBtn').style.display = L.repeat ? '' : 'none';
     show('play');
     renderBoard(); renderProg();
     if (i === 0) say('rb.intro');
+    else if (i === list[0]) say(WORLDS[L.w].say);
     else say(['rb.go1', 'rb.go2', 'rb.go3']);
   }
 
+  const cellEl = (x, y) => $('c' + x + '_' + y);
   function renderBoard() {
+    S = startState(L);
     const wrap = $('boardWrap').getBoundingClientRect();
     cell = Math.floor(Math.min((wrap.width - 30) / L.cols, (wrap.height - 30) / L.rows, 130));
     cell = Math.max(44, cell);
-    const b = $('board');
+    const W = WORLDS[L.w], b = $('board');
+    b.style.setProperty('--frame', W.frame); b.style.setProperty('--wall', W.wall); b.style.setProperty('--f1', W.floor[0]); b.style.setProperty('--f2', W.floor[1]);
     b.style.gridTemplateColumns = `repeat(${L.cols}, ${cell}px)`;
     b.style.gridTemplateRows = `repeat(${L.rows}, ${cell}px)`;
     b.innerHTML = '';
-    const hintAt = new Map();
-    if (showHint) L.solution.forEach(s => hintAt.set(s.from.x + ',' + s.from.y, s.dir));
     for (let y = 0; y < L.rows; y++) for (let x = 0; x < L.cols; x++) {
-      const c = document.createElement('div'); c.className = 'cell';
+      const c = document.createElement('div'); c.className = 'cell'; c.id = 'c' + x + '_' + y;
       c.style.fontSize = Math.round(cell * .62) + 'px';
-      if (L.rocks.has(x + ',' + y)) c.textContent = ROCKS[(x * 7 + y * 3 + cur) % ROCKS.length];
-      if (x === L.goal.x && y === L.goal.y) { c.classList.add('goal'); c.innerHTML = '<span class="goalItem">🔋</span>'; }
-      const h = hintAt.get(x + ',' + y);
-      if (h) { const a = document.createElement('div'); a.className = 'hintArrow'; a.innerHTML = arrowSVG(h).replace('fill="#fff"', `fill="${DIRS[h].color}"`); c.appendChild(a); }
+      const k = at(x, y);
+      if (L.rocks.has(k)) c.classList.add('rock'), c.textContent = W.rocks[(x * 7 + y * 3 + cur) % W.rocks.length];
+      if (L.doors.has(k)) { c.classList.add('door'); c.innerHTML = '<span>🚪</span>'; }
+      if (L.gears.some(g => g.x === x && g.y === y)) c.innerHTML = '<span class="item"><span class="gear">⚙️</span></span>';
+      if (L.key && L.key.x === x && L.key.y === y) c.innerHTML = '<span class="item">🔑</span>';
+      if (L.portals.some(p => p.x === x && p.y === y)) c.innerHTML = '<span class="swirl">🌀</span>';
+      if (x === L.goal.x && y === L.goal.y) {
+        c.classList.add('goal'); if (L.gears.length) c.classList.add('sleep');
+        c.innerHTML = '<span class="goalItem">🔋</span>';
+      }
       b.appendChild(c);
     }
     const bot = document.createElement('div'); bot.id = 'bot';
     bot.style.width = bot.style.height = cell + 'px';
-    bot.innerHTML = '<div class="flip robot"></div>';
+    bot.innerHTML = '<div class="warp"><div class="flip robot"></div></div>';
     b.appendChild(bot);
+    if (showHint && hint) drawHints();
+    renderInv();
     paintRobots();
     placeBot(L.start, false);
+  }
+  // Floor arrows, one for every card step, drawn on the line between the two squares
+  // so it's clear where each step starts and which way it goes, even around corners.
+  function drawHints() {
+    const box = document.createElement('div'); box.id = 'hints';
+    const segs = [], edges = new Set();
+    let s = startState(L);
+    for (const dir of hint) {
+      const r = step(L, s, dir); if (r.bump) break;
+      segs.push({ from: { x: s.x, y: s.y }, to: r.enter, dir });
+      edges.add(at(s.x, s.y) + '>' + at(r.enter.x, r.enter.y));
+      s = r.s;
+    }
+    const size = Math.round(cell * .48), mid = v => 8 + v * (cell + 5) + cell / 2;
+    segs.forEach((g, i) => {
+      const d = DIRS[g.dir];
+      let x = (mid(g.from.x) + mid(g.to.x)) / 2, y = (mid(g.from.y) + mid(g.to.y)) / 2;
+      // walked there and back again: keep to one side, like cars on a road, so the arrows don't sit on top of each other
+      if (edges.has(at(g.to.x, g.to.y) + '>' + at(g.from.x, g.from.y))) { x -= d.dy * cell * .2; y += d.dx * cell * .2; }
+      const a = document.createElement('div'); a.className = 'hint';
+      a.style.cssText = `left:${x - size / 2}px;top:${y - size / 2}px;width:${size}px;height:${size}px;animation-delay:${i * .12}s`;
+      a.innerHTML = arrowSVG(g.dir, d.color, '#fff');
+      box.appendChild(a);
+    });
+    $('board').appendChild(box);
+  }
+  function renderInv() {
+    let h = L.gears.map((_, i) => `<span class="${S.gears & (1 << i) ? 'got' : ''}">⚙️</span>`).join('');
+    if (L.key) h += `<span class="${S.key ? 'got' : ''}">🔑</span>`;
+    $('inv').innerHTML = h;
   }
   function placeBot(p, animate = true, partial = null) {
     const bot = $('bot'); if (!bot) return;
@@ -451,30 +677,40 @@
     const f = document.querySelector('#bot .flip');
     if (f && (dir === 'left' || dir === 'right')) f.style.transform = dir === 'left' ? 'scaleX(-1)' : '';
   }
+  function burstAt(el, emojis, n = 10, spread = 120) {
+    const r = el.getBoundingClientRect();
+    burst(r.left + r.width / 2, r.top + r.height / 2, emojis, n, spread);
+  }
 
   // ---------- program strip ----------
   function renderProg(popLast = false) {
     const p = $('prog'); p.innerHTML = '';
-    program.forEach((dir, i) => {
-      const c = document.createElement('button');
-      c.className = 'card' + (popLast && i === program.length - 1 ? ' pop' : '');
-      c.style.background = DIRS[dir].color;
-      c.innerHTML = arrowSVG(dir);
-      c.onclick = () => { if (running) return; program.splice(i, 1); sfx.remove(); renderProg(); };
-      p.appendChild(c);
+    program.forEach((c, i) => {
+      const b = document.createElement('button');
+      b.className = 'card' + (c.n > 1 ? ' many' : '') + (popLast && i === program.length - 1 ? ' pop' : '');
+      b.style.background = DIRS[c.dir].color;
+      b.innerHTML = arrowSVG(c.dir) + (c.n > 1 ? `<span class="times">${c.n}</span>` : '');
+      b.onclick = () => { if (running) return; program.splice(i, 1); sfx.remove(); renderProg(); };
+      p.appendChild(b);
     });
-    if (program.length < MAX_PROG) { const s = document.createElement('div'); s.className = 'slot'; p.appendChild(s); }
+    // a short strip shows every empty slot, so she can see when it's nearly full
+    const free = L.max - program.length, slots = L.max < MAX_PROG ? free : Math.min(free, 1);
+    for (let i = 0; i < slots; i++) { const s = document.createElement('div'); s.className = 'slot'; p.appendChild(s); }
     $('undoBtn').disabled = $('clearBtn').disabled = !program.length || running;
-    $('goBtn').disabled = !program.length || running;
+    $('goBtn').disabled = $('repeatBtn').disabled = !program.length || running;
     guide();
   }
-  // first two levels: show exactly which button to tap next
+  // tutorial levels: show exactly which button to tap next
   function guide() {
     document.querySelectorAll('.pulse').forEach(e => e.classList.remove('pulse'));
-    if (cur > 1 || running) return;
-    const sol = L.solution.map(s => s.dir);
-    if (!program.every((d, i) => d === sol[i])) return;
-    if (program.length < sol.length) $('arrow-' + sol[program.length]).classList.add('pulse');
+    if (!L.guide || running) return;
+    const sol = cardsFor(L, L.solution);
+    for (let i = 0; i < program.length; i++) {
+      const p = program[i], s = sol[i];
+      if (!s || p.dir !== s.dir) return;
+      if (p.n !== s.n) { if (i === program.length - 1 && p.n < s.n) $('repeatBtn').classList.add('pulse'); return; }
+    }
+    if (program.length < sol.length) $('arrow-' + sol[program.length].dir).classList.add('pulse');
     else $('goBtn').classList.add('pulse');
   }
 
@@ -486,11 +722,22 @@
     b.innerHTML = arrowSVG(dir);
     b.setAttribute('aria-label', dir);
     b.onclick = () => {
-      if (running || program.length >= MAX_PROG) return;
-      program.push(dir); sfx.beep(DIRS[dir].note); renderProg(true);
+      if (running) return;
+      if (program.length >= L.max) { sfx.bump(); if (L.repeat) say('rb.full'); return; }
+      program.push({ dir, n: 1 }); sfx.beep(DIRS[dir].note); renderProg(true);
     };
     $('pad').appendChild(b);
   }
+  // repeat: the last card goes again (×2, ×3 ... ×9, then back to once)
+  const rep = document.createElement('button');
+  rep.className = 'btn'; rep.id = 'repeatBtn'; rep.setAttribute('aria-label', 'Repeat'); rep.textContent = '🔁';
+  rep.onclick = () => {
+    if (running || !program.length) return;
+    const last = program[program.length - 1];
+    last.n = last.n >= 9 ? 1 : last.n + 1;
+    sfx.beep(DIRS[last.dir].note * (1 + last.n * .06)); renderProg(true);
+  };
+  $('pad').appendChild(rep);
   const go = document.createElement('button');
   go.className = 'btn'; go.id = 'goBtn'; go.setAttribute('aria-label', 'Go');
   go.innerHTML = '<svg viewBox="0 0 100 100"><path d="M20 10 L90 50 L20 90 Z" fill="#fff" stroke="#fff" stroke-width="10" stroke-linejoin="round"/></svg>';
@@ -499,67 +746,114 @@
 
   $('undoBtn').onclick = () => { if (running || !program.length) return; program.pop(); sfx.remove(); renderProg(); };
   $('clearBtn').onclick = () => { if (running || !program.length) return; program = []; sfx.remove(); renderProg(); };
-  $('hintBtn').onclick = () => { if (running) return; sfx.pop(); showHint = true; renderBoard(); say('rb.followArrows'); };
-  $('playBack').onclick = () => { if (running) return; sfx.pop(); openLevels(); };
+  $('hintBtn').onclick = () => {
+    if (running) return;
+    sfx.pop(); showHint = true; hint = hintMoves(L, program); renderBoard(); say('rb.followArrows');
+  };
+  $('playBack').onclick = () => { if (running) return; sfx.pop(); openLevels(L.w); };
 
   // ---------- running the program ----------
   async function run() {
     if (running || !program.length) return;
     running = true; renderProg();
     const cards = [...document.querySelectorAll('#prog .card')];
-    let pos = { ...L.start }, passedGoal = -1;
+    let doneAt = null; // first card that came after the robot was already finished
     sfx.boop(); await sleep(350);
     for (let i = 0; i < program.length; i++) {
-      const dir = program[i], d = DIRS[dir];
+      const { dir, n } = program[i], d = DIRS[dir], times = cards[i].querySelector('.times');
       cards.forEach((c, j) => c.classList.toggle('now', j === i));
       face(dir);
-      const nx = pos.x + d.dx, ny = pos.y + d.dy;
-      if (blocked(nx, ny)) {
-        placeBot(pos, true, d); sfx.bump(); $('bot').classList.add('shake');
-        cards[i].classList.remove('now'); cards[i].classList.add('bad');
-        await sleep(250); placeBot(pos);
-        say(['rb.bump1', 'rb.bump2', 'rb.bump3']);
-        await sleep(1300);
-        $('bot').classList.remove('shake');
-        return tryAgain(cards);
+      for (let k = 0; k < n; k++) {
+        if (times) times.textContent = k + 1; // count the steps out loud, so to speak
+        const r = step(L, S, dir);
+        if (r.bump) {
+          placeBot(S, true, d); sfx.bump(); $('bot').classList.add('shake');
+          cards[i].classList.remove('now'); cards[i].classList.add('bad');
+          if (r.bump === 'door') cellEl(S.x + d.dx, S.y + d.dy).classList.add('wiggle');
+          await sleep(250); placeBot(S);
+          say(r.bump === 'door' ? 'rb.locked' : ['rb.bump1', 'rb.bump2', 'rb.bump3']);
+          await sleep(1300);
+          return tryAgain();
+        }
+        placeBot(r.enter); sfx.step(d.note);
+        await sleep(r.swirl ? 430 : 260);
+        if (r.swirl) await swirl(r.s);
+        S = r.s;
+        if (r.gear != null) pickGear(r.gear);
+        if (r.key) pickKey();
+        if (!r.swirl) await sleep(260);
+        if (doneAt === null && isDone(L, S)) doneAt = k === n - 1 ? i + 1 : i;
       }
-      pos = { x: nx, y: ny };
-      placeBot(pos); sfx.step(d.note);
-      await sleep(520);
-      if (pos.x === L.goal.x && pos.y === L.goal.y) passedGoal = i;
+      if (times) times.textContent = n;
     }
     cards.forEach(c => c.classList.remove('now'));
-    if (pos.x === L.goal.x && pos.y === L.goal.y) return win();
-    if (passedGoal >= 0) {
+    if (isDone(L, S)) return win();
+    if (doneAt !== null) {
       // reached the battery but kept walking: mark the extra arrows
-      cards.slice(passedGoal + 1).forEach(c => c.classList.add('bad'));
+      cards.slice(doneAt).forEach(c => c.classList.add('bad'));
       sfx.bump(); $('bot').classList.add('shake');
       say(['rb.tooMany1', 'rb.tooMany2']);
       await sleep(1600);
-      $('bot').classList.remove('shake');
+    } else if (S.x === L.goal.x && S.y === L.goal.y) {
+      // at the battery, but some gears are still lying around
+      sfx.bump();
+      L.gears.forEach((g, i) => { if (!(S.gears & (1 << i))) cellEl(g.x, g.y).classList.add('wiggle'); });
+      say('rb.needGears');
+      await sleep(2000);
     } else {
       say(['rb.more1', 'rb.more2']);
       await sleep(1400);
     }
-    tryAgain(cards);
+    tryAgain();
   }
-  function tryAgain(cards) {
+  async function swirl(to) {
+    const w = document.querySelector('#bot .warp');
+    w.classList.add('away'); sfx.whoosh();
+    await sleep(260);
+    placeBot(to, false); w.classList.remove('away');
+    await sleep(300);
+  }
+  function pickGear(i) {
+    const c = cellEl(L.gears[i].x, L.gears[i].y), item = c.querySelector('.item');
+    if (item) { burstAt(c, ['⚙️', '✨'], 8, 110); item.remove(); }
+    sfx.gear(); renderInv();
+    if (S.gears === allGears(L)) {
+      const goal = cellEl(L.goal.x, L.goal.y);
+      goal.classList.remove('sleep'); burstAt(goal, ['⚡', '✨'], 10, 120); sfx.charged();
+    }
+  }
+  function pickKey() {
+    const c = cellEl(L.key.x, L.key.y), item = c.querySelector('.item');
+    if (item) { burstAt(c, ['🔑', '✨'], 8, 110); item.remove(); }
+    sfx.key(); renderInv();
+    L.doors.forEach(k => { const [x, y] = k.split(',').map(Number); cellEl(x, y).classList.add('open'); });
+  }
+  async function tryAgain() {
     fails++;
-    cards.forEach(c => c.classList.remove('now', 'bad'));
+    $('bot').classList.remove('shake');
     face('right'); placeBot(L.start);
+    await sleep(450);
+    const firstHint = fails >= 2 && !showHint;
+    if (firstHint) showHint = true;
+    // the arrows keep whatever part of her program still works, and show the way from there
+    if (showHint) hint = hintMoves(L, program);
+    renderBoard(); // puts the gears, key and doors back
     running = false;
-    if (fails >= 2 && !showHint) { showHint = true; setTimeout(() => { renderBoard(); say('rb.help'); }, 500); }
     renderProg();
+    if (firstHint) say('rb.help');
   }
   function win() {
     sfx.win();
     const r = $('bot').getBoundingClientRect();
     burst(r.left + r.width / 2, r.top + r.height / 2, ['⚡', '⭐', '✨', '🔋', '🎉'], 18, 220);
-    if (!saved.done.includes(cur)) { saved.done.push(cur); persist(); }
-    say(['rb.win1', 'rb.win2', 'rb.win3']);
+    const fresh = !saved.done.includes(cur);
+    if (fresh) { saved.done.push(cur); persist(); }
+    const next = LEVELS[cur + 1], newWorld = next && next.w !== L.w;
+    if (fresh && newWorld) say(['rb.win1', 'rb.win2', 'rb.win3'], 'rb.newWorld');
+    else say(['rb.win1', 'rb.win2', 'rb.win3']);
     setTimeout(() => {
       running = false;
-      $('nextBtn').textContent = cur === LEVELS.length - 1 ? '🏆' : '➡️';
+      $('nextBtn').textContent = !next ? '🏆' : newWorld ? WORLDS[next.w].icon : '➡️';
       $('win').classList.add('on');
       burst(innerWidth / 2, innerHeight / 3, ['⭐', '🌟', '✨', '🎉'], 24, 300);
     }, 1100);
