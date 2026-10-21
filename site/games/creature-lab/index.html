@@ -13,6 +13,27 @@
 <link rel="stylesheet" href="/shared/kit.css">
 <title>Creature Lab</title>
 <style>
+  /* ---------- cartoon scenery behind each screen (see /shared/scenery.js) ---------- */
+  .screen { isolation: isolate; }
+  .scene { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
+  .scene > div { position: absolute; inset: 0; }
+  .cl-bub { opacity: 0; transform-box: fill-box; transform-origin: center; animation: cl-bub 2.6s ease-in infinite; }
+  @keyframes cl-bub { 0% { transform: translateY(0) scale(.5); opacity: 0; } 15% { opacity: .9; } 100% { transform: translateY(-120px) scale(1.2); opacity: 0; } }
+  .cl-spin { animation: cl-spin 6s linear infinite; }
+  .cl-spin.rev { animation-direction: reverse; animation-duration: 4s; }
+  .sc-prop.t-fast .cl-spin { animation-duration: .5s; }
+  @keyframes cl-spin { to { transform: rotate(360deg); } }
+  .cl-pulse { stroke-dasharray: 46 254; animation: cl-pulse 1.8s linear infinite; }
+  @keyframes cl-pulse { from { stroke-dashoffset: 300; } to { stroke-dashoffset: 0; } }
+  .cl-needle { animation: cl-needle 2.4s ease-in-out infinite; }
+  @keyframes cl-needle { 0%,100% { transform: rotate(-50deg); } 50% { transform: rotate(50deg); } }
+  .cl-zap { animation: cl-zap 1.4s ease-in-out infinite; }
+  .sc-prop.t-fast .cl-zap { animation-duration: .25s; }
+  @keyframes cl-zap { 0%,100% { opacity: .35; } 50% { opacity: 1; } }
+  .cl-swing { animation: cl-swing 5s ease-in-out infinite; }
+  @keyframes cl-swing { 0%,100% { transform: rotate(-4deg); } 50% { transform: rotate(4deg); } }
+  .cl-tube { animation: cl-swing 3s ease-in-out infinite; }
+
   body { background: radial-gradient(circle at 20% 10%, #fef9c3 0%, #d9f99d 40%, #a7f3d0 100%); }
   .creature svg { width: 100%; height: 100%; display: block; overflow: visible; }
   .bob { animation: kit-bob 2.4s ease-in-out infinite; }
@@ -49,7 +70,6 @@
   #habitat.night { filter: brightness(.45) saturate(.7); }
   #nameTag { position: absolute; top: max(22px, env(safe-area-inset-top)); left: 50%; translate: -50% 0; font-size: 34px; font-weight: 900; background: #fff; border-radius: 999px; padding: 6px 26px; box-shadow: 0 5px 0 rgba(0,0,0,.1); z-index: 5; }
   #hearts { position: absolute; top: calc(max(22px, env(safe-area-inset-top)) + 70px); left: 50%; translate: -50% 0; font-size: 34px; letter-spacing: 4px; z-index: 5; }
-  .scenery span { position: absolute; translate: -50% -50%; line-height: 1; pointer-events: none; }
   #pet { position: absolute; left: 50%; top: 52%; width: min(52vh, 60vw); height: min(52vh, 60vw); translate: -50% -50%; cursor: pointer; touch-action: none; }
   #pet.chomp svg { animation: chomp .5s ease-in-out 2; }
   #pet.jump svg { animation: jump .6s cubic-bezier(.3,1.5,.5,1); }
@@ -99,11 +119,6 @@
 <section id="habitat" class="screen">
   <button id="habBack" class="btn corner left" aria-label="Back">🏠</button>
   <button id="byeBtn" class="btn corner right" aria-label="Say goodbye">🗑️</button>
-  <div class="scenery" aria-hidden="true">
-    <span style="left:8%;top:44%;font-size:16vmin">🌳</span><span style="left:88%;top:46%;font-size:13vmin">🏡</span>
-    <span style="left:84%;top:10%;font-size:10vmin">☀️</span><span style="left:20%;top:12%;font-size:9vmin">☁️</span>
-    <span style="left:16%;top:80%;font-size:6vmin">🌼</span><span style="left:76%;top:84%;font-size:6vmin">🌷</span><span style="left:58%;top:90%;font-size:5vmin">🍄</span>
-  </div>
   <div id="nameTag"></div>
   <div id="hearts"></div>
   <div id="pet" class="creature"></div>
@@ -131,6 +146,7 @@
 <script src="/shared/voice.js"></script>
 <script src="/shared/saved.js"></script>
 <script src="/shared/kit.js"></script>
+<script src="/shared/scenery.js"></script>
 <script>
 (() => {
   const { $, rand, pick, sleep } = Kit;
@@ -218,6 +234,148 @@
     out += `<path d="M${hx - 12} ${hy + 20} Q${hx} ${hy + 32} ${hx + 12} ${hy + 20}" fill="none" stroke="#1e293b" stroke-width="4" stroke-linecap="round"/>`;
     return out + '</svg>';
   }
+
+  // ================= scenery: a cartoon lab and a garden, drawn with /shared/scenery.js =================
+  const { kit } = Scenery, OL = kit.OL, ol = kit.ol;
+  // a gear with one soft outline around teeth and wheel together
+  function gear(cx, cy, r, n, fill) {
+    const teeth = (f, e) => Array.from({ length: n }, (_, i) => `<rect x="${(cx - r * .2 - e).toFixed(1)}" y="${(cy - r * 1.3 - e).toFixed(1)}" width="${(r * .4 + 2 * e).toFixed(1)}" height="${(r * .6).toFixed(1)}" rx="${(r * .08).toFixed(1)}" fill="${f}" transform="rotate(${(i * 360 / n).toFixed(1)} ${cx} ${cy})"/>`).join('');
+    return `<g opacity=".55">${teeth(OL, 3)}<circle cx="${cx}" cy="${cy}" r="${r + 3}" fill="${OL}"/></g>${teeth(fill, 0)}<circle cx="${cx}" cy="${cy}" r="${r}" fill="${fill}"/>` +
+      `<circle cx="${cx}" cy="${cy}" r="${r * .62}" fill="#fff" opacity=".2"/><circle cx="${cx}" cy="${cy}" r="${r * .28}" fill="${OL}" opacity=".45"/>`;
+  }
+  const bubbles = (xs, y) => xs.map((x, i) => `<circle class="cl-bub" style="animation-delay:${(i * .85).toFixed(2)}s" cx="${x}" cy="${y}" r="${4 + i}" fill="#fff"/>`).join('');
+
+  Scenery.addBackdrop('lab', ['#bff0dc', '#e6fbf1'], () => {
+    let s = kit.sky('lab');
+    for (let i = 0; i < 20; i++) s += `<rect x="${i * 50 + 14}" y="0" width="22" height="610" fill="#fff" opacity=".22"/>`;
+    s += kit.dots(14, 7, 60, 560, ['#ffffff'], [4, 8], 1);
+    s += `<rect y="626" width="1000" height="134" fill="#a9e6cf"/>`;
+    for (let i = 0; i < 17; i++) s += `<rect x="${i * 62}" y="626" width="3" height="134" fill="#8fd3b9"/>`;
+    s += `<rect y="670" width="1000" height="3" fill="#8fd3b9"/><rect y="715" width="1000" height="3" fill="#8fd3b9"/>`;
+    s += `<rect y="604" width="1000" height="22" fill="#7cc8ae"/><rect y="604" width="1000" height="6" fill="#fff" opacity=".35"/>`;
+    s += `<rect y="760" width="1000" height="240" fill="#f4eaff"/>`;
+    for (let r = 0; r < 4; r++) for (let c = 0; c < 10; c++) if ((r + c) % 2) s += `<rect x="${c * 100}" y="${770 + r * 60}" width="100" height="60" fill="#e4d4fb"/>`;
+    return s + `<rect y="752" width="1000" height="18" fill="#6fb89e"/>`;
+  });
+  // a cone flask with a happy potion inside
+  Scenery.add('flask', (liq = '#7af0c8') => [120, 170,
+    `<path d="M46 14 V64 L12 146 Q6 164 26 164 H94 Q114 164 108 146 L74 64 V14Z" fill="#eafcff" ${ol()}/>` +
+    `<path d="M32 106 Q46 98 60 106 T88 106 L104 146 Q108 158 92 158 H28 Q12 158 16 146Z" fill="${liq}"/>` +
+    `<path d="M26 138 L42 98" stroke="#fff" stroke-width="7" stroke-linecap="round" opacity=".7"/>` +
+    `<rect x="40" y="6" width="40" height="14" rx="6" fill="#d8f3ff" ${ol(2.5)}/>` + kit.face(62, 134, .6) + bubbles([52, 62, 70], 112)]);
+  // a round flask bubbling over a little burner
+  Scenery.add('potion', (liq = '#ff8ad8') => [140, 200,
+    `<path d="M30 196 L44 140 M110 196 L96 140" stroke="#7a6a9a" stroke-width="7" stroke-linecap="round"/>` +
+    `<g class="sc-flame" style="transform-origin:70px 190px"><path d="M58 190 Q70 150 82 190Z" fill="#7ab8ff"/><path d="M64 190 Q70 166 76 190Z" fill="#fff"/></g>` +
+    `<rect x="52" y="186" width="36" height="12" rx="4" fill="#6a5a8a"/><rect x="26" y="134" width="88" height="10" rx="5" fill="#9a8aba" ${ol(2)}/>` +
+    `<rect x="58" y="16" width="24" height="56" fill="#eafcff" ${ol()}/><circle cx="70" cy="96" r="44" fill="#eafcff" ${ol()}/>` +
+    `<path d="M32 98 Q51 88 70 98 T108 98 A38 38 0 0 1 32 98Z" fill="${liq}"/>` +
+    `<rect x="52" y="8" width="36" height="12" rx="6" fill="#d8f3ff" ${ol(2.5)}/>` +
+    `<path d="M40 82 Q44 68 56 62" stroke="#fff" stroke-width="6" fill="none" stroke-linecap="round" opacity=".8"/>` +
+    kit.face(70, 114, .55) + bubbles([62, 72, 80], 96)]);
+  // three test tubes in a rack
+  Scenery.add('tubes', () => {
+    let s = '';
+    ['#ff7aa8', '#ffd23f', '#7ab8ff'].forEach((c, i) => {
+      const x = 22 + i * 44;
+      s += `<g class="cl-tube" style="transform-origin:${x + 12}px 126px;animation-delay:${-i * .7}s"><rect x="${x}" y="14" width="24" height="112" rx="12" fill="#eafcff" ${ol(2.5)}/>` +
+        `<path d="M${x + 3} ${64 - i * 10} H${x + 21} V114 A9 9 0 0 1 ${x + 3} 114Z" fill="${c}"/>` +
+        `<rect x="${x + 6}" y="22" width="5" height="34" rx="2.5" fill="#fff" opacity=".8"/><rect x="${x - 3}" y="8" width="30" height="9" rx="4" fill="#d8f3ff" ${ol(2)}/></g>`;
+    });
+    s += `<rect x="6" y="54" width="148" height="12" rx="5" fill="#c9a0ff" ${ol(2)}/>`;
+    s += `<rect x="16" y="124" width="10" height="16" fill="#8a5ad8"/><rect x="134" y="124" width="10" height="16" fill="#8a5ad8"/><rect x="6" y="110" width="148" height="16" rx="6" fill="#a77bf0" ${ol(2)}/>`;
+    return [160, 142, s];
+  });
+  // the creature machine: turning gears, a heartbeat screen, blinking lights and a buzzing bulb
+  Scenery.add('machine', () => [220, 280,
+    `<g class="cl-spin" style="transform-origin:190px 120px">${gear(190, 120, 26, 8, '#ffcf3a')}</g>` +
+    `<g class="cl-spin rev" style="transform-origin:28px 204px">${gear(28, 204, 18, 7, '#ff9ad5')}</g>` +
+    `<path d="M110 66 V30" stroke="#7a6a9a" stroke-width="6"/><path d="M98 56 h24 M98 46 h24 M98 36 h24" stroke="#c9a0ff" stroke-width="5" stroke-linecap="round"/>` +
+    `<circle class="cl-zap" cx="110" cy="20" r="24" fill="url(#sc-beam-glow)"/><circle cx="110" cy="20" r="11" fill="#fff36b" ${ol(2.5)}/>` +
+    `<rect x="24" y="62" width="172" height="200" rx="22" fill="#9ec5ff" ${ol()}/><rect x="34" y="68" width="152" height="18" rx="9" fill="#fff" opacity=".3"/>` +
+    `<rect x="44" y="96" width="132" height="70" rx="12" fill="#22305a" ${ol(2.5)}/>` +
+    `<path d="M54 131 H86 L94 111 L102 151 L110 121 L116 131 H166" stroke="#7af0c8" stroke-width="3" fill="none" opacity=".3"/>` +
+    `<path class="cl-pulse" pathLength="300" d="M54 131 H86 L94 111 L102 151 L110 121 L116 131 H166" stroke="#7af0c8" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>` +
+    ['#ff5a6a', '#ffd23f', '#5ce08a'].map((c, i) => `<circle class="sc-blinky" style="animation-delay:${i * .33}s" cx="${70 + i * 40}" cy="188" r="10" fill="${c}" ${ol(2)}/>`).join('') +
+    `<circle cx="74" cy="230" r="20" fill="#fff" ${ol(2.5)}/><path class="cl-needle" style="transform-origin:74px 234px" d="M74 234 V218" stroke="#ff5a6a" stroke-width="4" stroke-linecap="round"/><circle cx="74" cy="234" r="4" fill="${OL}"/>` +
+    `<rect x="116" y="218" width="58" height="26" rx="13" fill="#7a6a9a"/><circle cx="132" cy="231" r="8" fill="#ff9ad5"/><circle cx="158" cy="231" r="8" fill="#7ab8ff"/>` +
+    `<rect x="40" y="258" width="34" height="16" rx="6" fill="#7a6a9a"/><rect x="146" y="258" width="34" height="16" rx="6" fill="#7a6a9a"/>`]);
+  // a shelf with a jar of stars, a bottle and a little plant
+  Scenery.add('shelf', () => [260, 150,
+    `<rect x="18" y="58" width="60" height="70" rx="14" fill="#eafcff" ${ol()}/><rect x="14" y="50" width="68" height="14" rx="5" fill="#ff9ad5" ${ol(2)}/>` +
+    [[34, 90], [54, 104], [60, 80], [36, 114]].map(([x, y]) => `<path d="M${x} ${y - 9} l3 6 7 1 -5 5 1 7 -6 -3 -6 3 1 -7 -5 -5 7 -1Z" fill="#ffd23f"/>`).join('') +
+    `<path d="M104 128 V70 Q104 56 116 52 V30 H128 V52 Q140 56 140 70 V128Z" fill="#eafcff" ${ol()}/><path d="M107 128 V92 H137 V128Z" fill="#a77bf0"/>` +
+    `<rect x="113" y="22" width="18" height="12" rx="4" fill="#c98a5a" ${ol(2)}/>` + bubbles([116, 126], 112) +
+    `<g class="sc-sway" style="transform-origin:200px 100px"><path d="M200 100 Q196 70 204 50" stroke="#3fa34d" stroke-width="5" fill="none"/>` +
+    `<ellipse cx="190" cy="66" rx="14" ry="7" fill="#5cc04a" transform="rotate(-30 190 66)"/><ellipse cx="214" cy="56" rx="14" ry="7" fill="#5cc04a" transform="rotate(30 214 56)"/><circle cx="204" cy="44" r="9" fill="#ff8ad8" ${ol(2)}/></g>` +
+    `<path d="M176 98 H226 L220 130 H182Z" fill="#ff9a5a" ${ol()}/>` +
+    `<path d="M30 140 V150 M230 140 V150" stroke="#9a6a3a" stroke-width="8"/><rect x="0" y="128" width="260" height="14" rx="5" fill="#c98a5a" ${ol()}/>`]);
+  // a lamp hanging from the ceiling, swinging a little
+  Scenery.add('pendant', (c = '#ff9ad5') => [100, 200,
+    `<g class="cl-swing" style="transform-origin:50px 0px"><line x1="50" y1="0" x2="50" y2="130" stroke="#5a4a7a" stroke-width="4"/>` +
+    `<ellipse class="sc-glowpulse" cx="50" cy="176" rx="50" ry="26" fill="url(#sc-beam-glow)"/><circle cx="50" cy="164" r="12" fill="#fff6b0" ${ol(2)}/>` +
+    `<path d="M14 166 Q14 128 50 126 Q86 128 86 166Z" fill="${c}" ${ol()}/><rect x="42" y="118" width="16" height="12" rx="3" fill="#5a4a7a"/></g>`]);
+  // the creature's little house in the garden (somebody peeks out of the door)
+  Scenery.add('pethouse', () => [220, 220,
+    [0, 1, 2].map(i => `<circle class="sc-smoke" style="animation-delay:${i * 1.3}s" cx="167" cy="36" r="${10 + i * 3}" fill="#fff"/>`).join('') +
+    `<rect x="154" y="34" width="26" height="46" fill="#c98a5a" ${ol()}/>` +
+    `<rect x="30" y="90" width="160" height="124" rx="8" fill="#ffe2a8" ${ol()}/>` +
+    `<path d="M8 104 L110 16 L212 104Z" fill="#ff7aa8" ${ol()}/><path d="M8 104 L110 16 L86 104Z" fill="#fff" opacity=".18"/>` +
+    `<circle cx="110" cy="72" r="16" fill="#bfe9ff" ${ol(2.5)}/><path d="M110 80 c-10 -8 -10 -16 -4 -17 c3 0 4 2 4 4 c0 -2 1 -4 4 -4 c6 1 6 9 -4 17Z" fill="#ff5a8a"/>` +
+    `<path d="M84 214 V160 A26 26 0 0 1 136 160 V214Z" fill="#6a4a8a" ${ol()}/>` +
+    `<g class="sc-blink"><circle cx="101" cy="178" r="4.5" fill="#fff6a8"/><circle cx="119" cy="178" r="4.5" fill="#fff6a8"/></g>` +
+    `<rect x="40" y="148" width="34" height="28" fill="#bfe9ff" ${ol(2.5)}/><rect x="146" y="148" width="34" height="28" fill="#bfe9ff" ${ol(2.5)}/>` +
+    `<path d="M57 148 V176 M40 162 H74 M163 148 V176 M146 162 H180" stroke="#fff" stroke-width="3"/>`]);
+
+  const P = (art, x, y, h, o = {}) => ({ art, x, y, h, ...o });
+  const SCENES = {
+    home: ['lab', [P('window', 15, 30, 22, { at: 'center' }), P('shelf', 84, 32, 17),
+      P('machine', 10, 98, 32, { tap: 'zap' }), P('potion', 28, 98, 17, { tap: 'bubble' }),
+      P('tubes', 74, 98, 11, { tap: 'wiggle' }), P('flask', 90, 98, 21, { tap: 'bubble', args: ['#ffd23f'] })]],
+    lab: ['lab', [P('pendant', 50, 0, 17, { at: 'top' }), P('window', 85, 24, 20, { at: 'center' }), P('shelf', 15, 30, 16),
+      P('machine', 8, 98, 30, { tap: 'zap' }), P('tubes', 24, 98, 10, { tap: 'wiggle' }),
+      P('potion', 78, 98, 16, { tap: 'bubble' }), P('flask', 92, 98, 19, { tap: 'bubble', args: ['#ff8ad8'] })]],
+    habitat: ['garden', [P('sun', 74, 18, 17, { at: 'center', tap: 'spin' }), P('cloud', 18, 14, 12, { at: 'center', anim: 'drift', tap: 'wiggle' }),
+      P('cloud', 54, 26, 7, { at: 'center', anim: 'drift' }), P('tree', 9, 75, 50, { tap: 'wiggle' }), P('pethouse', 90, 75, 30, { tap: 'boing' }),
+      P('bush', 26, 77, 10), P('bush', 72, 78, 9, { args: ['#5cc04a', '#ffd23f'] }),
+      P('flower', 16, 93, 12, { tap: 'bloom' }), P('flower', 84, 95, 11, { args: ['#ffd23f', '#ff8a3c'], tap: 'bloom' }),
+      P('mushroom', 64, 94, 7, { tap: 'boing' }), P('butterfly', 70, 42, 6, { at: 'center', anim: 'flutter' })]],
+  };
+  function paintScenes() {
+    const W = innerWidth, H = innerHeight;
+    for (const [id, [bd, props]] of Object.entries(SCENES)) {
+      const sec = $(id);
+      let sc = sec.querySelector(':scope > .scene');
+      if (!sc) { sc = document.createElement('div'); sc.className = 'scene'; sc.setAttribute('aria-hidden', 'true'); sec.prepend(sc); }
+      sc.innerHTML = '<div>' + Scenery.backdrop(bd) + '</div><div></div>';
+      Scenery.place(sc.lastChild, props, W, H).forEach(el => {
+        if (el.dataset.tap) el.addEventListener('pointerdown', e => { e.stopPropagation(); tapDecor(el); });
+      });
+    }
+  }
+  function tapDecor(el) {
+    const r = el.getBoundingClientRect(), x = r.left + r.width / 2, y = r.top + r.height * .3;
+    const react = (cls, ms) => Scenery.react(el, cls, ms);
+    switch (el.dataset.tap) {
+      case 'zap':
+        react('t-rumble', 700); react('t-fast', 1600);
+        [0, 1, 2, 3].forEach(i => Kit.tone(300 + i * 220, .08, { type: 'square', vol: .06, delay: i * .07 }));
+        Kit.burst(x, r.top + 10, ['⚡', '✨'], 6, 90); break;
+      case 'bubble':
+        react('t-boing', 600); [0, 1, 2].forEach(i => Kit.tone(600 + Math.random() * 500, .08, { vol: .12, delay: i * .12 }));
+        Kit.burst(x, y, ['🫧'], 5, 90); break;
+      case 'spin': react('t-spin', 900); Kit.sfx.ding(); break;
+      case 'bloom': react('t-bloom', 900); Kit.tone(880, .15, { type: 'triangle' }); Kit.tone(1175, .2, { type: 'triangle', delay: .1 }); break;
+      case 'boing': react('t-boing', 600); Kit.sfx.boing(); break;
+      default: react('t-wiggle', 600); Kit.sfx.pop();
+    }
+  }
+  paintScenes();
+  let sceneW = innerWidth, sceneH = innerHeight, sceneT = 0;
+  addEventListener('resize', () => {
+    clearTimeout(sceneT);
+    sceneT = setTimeout(() => { if (innerWidth !== sceneW || innerHeight !== sceneH) { sceneW = innerWidth; sceneH = innerHeight; paintScenes(); } }, 150);
+  });
 
   // ================= saving =================
   const save = Kit.store('creature-lab');

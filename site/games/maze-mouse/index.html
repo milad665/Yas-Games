@@ -13,7 +13,25 @@
 <link rel="stylesheet" href="/shared/kit.css">
 <title>Maze Mouse</title>
 <style>
-  body { background: radial-gradient(circle at 50% 30%, #f0fdf4, #bbf7d0 70%, #86efac); }
+  body { background: #bfe9ff; }
+  /* the garden around the maze (drawn with /shared/scenery.js) */
+  .scene { position: absolute; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
+  .scene > div { position: absolute; inset: 0; }
+  .mz-z { animation: mz-z 3s ease-out infinite; opacity: 0; }
+  @keyframes mz-z { 0% { transform: translate(0, 0) scale(.5); opacity: 0; } 20% { opacity: 1; } 100% { transform: translate(14px, -40px) scale(1.2); opacity: 0; } }
+  .mz-breathe { animation: mz-breathe 3s ease-in-out infinite; }
+  @keyframes mz-breathe { 0%,100% { transform: scaleY(1); } 50% { transform: scaleY(1.05); } }
+  .mz-flick { animation: mz-flick 4s ease-in-out infinite; }
+  @keyframes mz-flick { 0%, 70%, 100% { transform: rotate(0); } 80% { transform: rotate(-16deg); } 90% { transform: rotate(6deg); } }
+  /* the mouse, cheese, key and gate inside the maze picture */
+  .mz-tail { animation: mz-tail 1.6s ease-in-out infinite; transform-box: fill-box; transform-origin: 100% 75%; }
+  @keyframes mz-tail { 0%,100% { transform: rotate(-8deg); } 50% { transform: rotate(10deg); } }
+  .mz-whisk { animation: mz-whisk 1.2s ease-in-out infinite; transform-box: fill-box; transform-origin: 0 50%; }
+  @keyframes mz-whisk { 0%,100% { transform: rotate(0); } 50% { transform: rotate(6deg); } }
+  .mz-bob { animation: mz-bob 1.8s ease-in-out infinite; }
+  @keyframes mz-bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+  .mz-twinkle { animation: mz-twinkle 1.6s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+  @keyframes mz-twinkle { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: .2; transform: scale(.5); } }
   #game { flex-direction: column; align-items: center; justify-content: center; padding: 86px 12px max(14px, env(safe-area-inset-bottom)); gap: 1.6vh; }
   #cheeses { position: absolute; top: max(24px, env(safe-area-inset-top)); left: 50%; translate: -50% 0; font-size: 28px; background: rgba(255,255,255,.75); border-radius: 999px; padding: 4px 16px; min-height: 46px; max-width: 50vw; text-align: center; }
   #maze { flex: 1; min-height: 0; width: 100%; display: grid; place-items: center; touch-action: none; }
@@ -29,6 +47,7 @@
 <section id="game" class="screen on">
   <a class="btn corner left" href="../../" aria-label="Back to Yas's Games">🏠</a>
   <button id="soundBtn" class="btn corner right" aria-label="Sound on or off">🔊</button>
+  <div class="scene" aria-hidden="true"><div id="backdrop"></div><div id="decor"></div></div>
   <div id="cheeses"></div>
   <div id="maze"></div>
   <button id="hintBtn" class="btn" aria-label="Show the way">💡</button>
@@ -38,6 +57,65 @@
 <script src="/shared/voice.js"></script>
 <script src="/shared/saved.js"></script>
 <script src="/shared/kit.js"></script>
+<script src="/shared/scenery.js"></script>
+<script>
+// ---------- the garden around the maze (decoration only) ----------
+(() => {
+  if (!self.Scenery || !Scenery.add) return;
+  const { face, ol, sky, hillsPath, dots, grassTufts } = Scenery.kit;
+
+  Scenery.addBackdrop('mzgarden', ['#8fd8ff', '#d2f1ff', '#f2fff0'], () => sky('mzgarden') +
+    `<path d="${hillsPath(560, 140, 101, 4)}" fill="#bfe9a4"/>` +
+    `<path d="${hillsPath(640, 90, 103, 3)}" fill="#97d97a"/>` +
+    `<path d="M0 720 Q500 690 1000 724 V1000 H0Z" fill="#73c757"/>` +
+    `<path d="M0 890 Q500 870 1000 895 V1000 H0Z" fill="#62b84a"/>` +
+    grassTufts(60, 47, 725, 990, '#4f9f3a') + dots(60, 43, 730, 990, ['#ffffff', '#ffe066', '#ff8ad8', '#c49bff'], [3, 6]));
+
+  // a sleepy cat curled up in the corner
+  Scenery.add('cat', () => [170, 126,
+    `<g class="mz-flick" style="transform-origin:140px 98px"><path d="M140 98 Q172 88 160 56 Q156 44 146 50" stroke="#3a2d52" stroke-opacity=".55" stroke-width="16" fill="none" stroke-linecap="round"/>` +
+    `<path d="M140 98 Q172 88 160 56 Q156 44 146 50" stroke="#ffb36b" stroke-width="10" fill="none" stroke-linecap="round"/></g>` +
+    `<g class="mz-breathe" style="transform-origin:90px 116px"><ellipse cx="90" cy="88" rx="62" ry="30" fill="#ffb36b" ${ol()}/>` +
+    `<path d="M84 60 q6 14 0 26 M104 59 q6 14 0 26 M124 64 q5 12 0 22" stroke="#f08a3a" stroke-width="5" fill="none" stroke-linecap="round"/></g>` +
+    `<ellipse cx="70" cy="114" rx="12" ry="7" fill="#ffd2a3" ${ol(2)}/><ellipse cx="94" cy="116" rx="12" ry="7" fill="#ffd2a3" ${ol(2)}/>` +
+    `<path d="M22 70 L24 36 L46 56Z M54 56 L72 36 L74 70Z" fill="#ffb36b" ${ol()}/><path d="M27 61 L28 45 L40 56Z M59 56 L69 45 L70 63Z" fill="#ffb3c6"/>` +
+    `<circle cx="48" cy="84" r="30" fill="#ffb36b" ${ol()}/>` + face(48, 88, .55, { sleepy: true }) +
+    `<path class="mz-z" d="M80 30 h12 l-12 12 h12" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>` +
+    `<path class="mz-z" style="animation-delay:1.5s" d="M96 14 h9 l-9 9 h9" stroke="#fff" stroke-width="3.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`]);
+
+  const P = (art, x, y, h, o = {}) => ({ art, x, y, h, ...o });
+  const props = () => [
+    P('sun', 24, 7, 13, { at: 'center', tap: 'spin' }),
+    P('cloud', 76, 8, 10, { at: 'center', anim: 'drift', tap: 'boing' }),
+    P('cloud', 50, 30, 8, { at: 'center', anim: 'drift', args: ['#ffffff', '#dcecff', false] }),
+    P('tree', 4, 86, 40),
+    P('bush', 96, 88, 12),
+    P('cat', 12, 99, 13, { tap: 'meow' }),
+    P('flower', 26, 100, 10, { args: ['#ffd23f', '#ff8a3c'], tap: 'bloom' }),
+    P('mushroom', 80, 99, 8, { tap: 'boing' }),
+    P('flower', 91, 100, 12, { args: ['#b07aff'], tap: 'bloom' }),
+    P('butterfly', 70, 45, 6, { at: 'center', anim: 'flutter' }),
+  ];
+  const giggle = () => [660, 880, 740, 990].forEach((f, i) => Kit.tone(f, .09, { type: 'triangle', vol: .12, delay: i * .07 }));
+  function tap(el) {
+    switch (el.dataset.tap) {
+      case 'spin': Scenery.react(el, 't-spin', 900); giggle(); break;
+      case 'bloom': Scenery.react(el, 't-bloom', 900); Kit.tone(700, .25, { type: 'triangle', vol: .12, to: 1300 }); break;
+      case 'meow': Scenery.react(el, 't-wiggle', 600); Kit.tone(620, .18, { type: 'triangle', vol: .13, to: 900 }); Kit.tone(900, .32, { type: 'triangle', vol: .11, to: 520, delay: .17 }); break;
+      default: Scenery.react(el, 't-boing', 600); Kit.sfx.boing();
+    }
+  }
+  function build() {
+    const box = document.getElementById('decor'); box.innerHTML = '';
+    Scenery.place(box, props(), innerWidth, innerHeight).forEach(el => {
+      if (el.dataset.tap) el.addEventListener('pointerdown', e => { e.stopPropagation(); tap(el); });
+    });
+  }
+  document.getElementById('backdrop').innerHTML = Scenery.backdrop('mzgarden');
+  build();
+  let t = 0; addEventListener('resize', () => { clearTimeout(t); t = setTimeout(build, 200); });
+})();
+</script>
 <script>
 (() => {
   const { $, pick, shuffle, sleep } = Kit;
@@ -92,21 +170,57 @@
 
   // ---------- drawing ----------
   const at = ([x, y]) => [x * C + C / 2, y * C + C / 2];
+  // cartoon pieces (pictures only), each drawn around (0, 0) = the middle of a cell
+  const OL = '#3a2d52', ol = (w = 3) => `stroke="${OL}" stroke-opacity=".55" stroke-width="${w}" stroke-linejoin="round"`;
+  const sparkle = (x, y, r) => `<path class="mz-twinkle" d="M${x} ${y - r} q${r * .2} ${r * .8} ${r} ${r} q${-r * .8} ${r * .2} ${-r} ${r} q${-r * .2} ${-r * .8} ${-r} ${-r} q${r * .8} ${-r * .2} ${r} ${-r}Z" fill="#fff" stroke="#f2b01e" stroke-width="2"/>`;
+  const PIECE = {
+    cheese: `<ellipse cx="0" cy="31" rx="34" ry="6" fill="#000" opacity=".12"/><g class="mz-bob"><path d="M-38 28 V2 L32 -24 L38 -20 V28Z" fill="#ffd23f" ${ol()}/>` +
+      `<path d="M-36 3 L32 -22 L36 -19 L-30 6Z" fill="#ffe680"/>` +
+      `<circle cx="-16" cy="15" r="6" fill="#f2b01e"/><circle cx="10" cy="6" r="7" fill="#f2b01e"/><circle cx="25" cy="18" r="4.5" fill="#f2b01e"/><circle cx="-29" cy="21" r="3.5" fill="#f2b01e"/></g>` + sparkle(30, -36, 9),
+    key: `<g class="mz-bob"><path d="M-4 -5 H32 V5 H28 V16 H21 V5 H15 V12 H8 V5 H-4Z" fill="#ffd23f" ${ol()}/>` +
+      `<circle cx="-18" cy="0" r="15" fill="#ffd23f" ${ol()}/><circle cx="-18" cy="0" r="6" fill="#f6eac2" ${ol(2)}/><ellipse cx="-23" cy="-8" rx="4" ry="2.5" fill="#fff" opacity=".7"/></g>` + sparkle(26, -24, 8),
+    // a wooden garden gate with a padlock
+    gate: `<rect x="-36" y="-40" width="72" height="80" rx="10" fill="#c98a4a" ${ol()}/>` +
+      `<path d="M-12 -38 V38 M12 -38 V38" stroke="#a8692f" stroke-width="3"/><path d="M-28 -28 L28 28" stroke="#a8692f" stroke-width="8" stroke-linecap="round"/>` +
+      `<path d="M-8 -6 V-14 A8 8 0 0 1 8 -14 V-6" stroke="#9aa6c8" stroke-width="5" fill="none"/>` +
+      `<rect x="-14" y="-7" width="28" height="24" rx="5" fill="#ffd23f" ${ol(2)}/><circle cx="0" cy="2" r="3.5" fill="#7a5a10"/><rect x="-1.5" y="3" width="3" height="8" fill="#7a5a10"/>`,
+    // the mouse, facing right
+    mouse: `<g class="mz-tail"><path d="M-20 12 Q-42 22 -40 2 Q-38 -10 -48 -14" stroke="#ff9ab6" stroke-width="5" fill="none" stroke-linecap="round"/></g>` +
+      `<ellipse cx="-10" cy="28" rx="7" ry="4" fill="#ff9ab6"/><ellipse cx="10" cy="28" rx="7" ry="4" fill="#ff9ab6"/>` +
+      `<ellipse cx="-4" cy="10" rx="24" ry="19" fill="#bcb6d0" ${ol()}/><ellipse cx="2" cy="16" rx="13" ry="10" fill="#ebe6f6"/>` +
+      `<circle cx="8" cy="-24" r="11" fill="#bcb6d0" ${ol(2)}/><circle cx="8" cy="-24" r="6" fill="#ffb3c6"/>` +
+      `<circle cx="30" cy="-26" r="11" fill="#bcb6d0" ${ol(2)}/><circle cx="30" cy="-26" r="6" fill="#ffb3c6"/>` +
+      `<circle cx="20" cy="-6" r="19" fill="#bcb6d0" ${ol()}/><circle cx="39" cy="-2" r="4.5" fill="#ff6fa0"/>` +
+      `<g class="sc-blink"><ellipse cx="17" cy="-10" rx="3.2" ry="4.4" fill="#3a2a2a"/><ellipse cx="29" cy="-10" rx="3.2" ry="4.4" fill="#3a2a2a"/><circle cx="18" cy="-12" r="1.2" fill="#fff"/><circle cx="30" cy="-12" r="1.2" fill="#fff"/></g>` +
+      `<ellipse cx="12" cy="2" rx="4" ry="2.5" fill="#ff8fa8" opacity=".7"/><path d="M24 3 q4 4 8 0" stroke="#3a2a2a" stroke-width="2" fill="none" stroke-linecap="round"/>` +
+      `<path class="mz-whisk" d="M36 0 l14 -5 M36 3 l15 2" stroke="#3a2d52" stroke-width="1.6" stroke-opacity=".6" stroke-linecap="round"/>`,
+  };
+  const FLOOR = `<pattern id="mz-floor" width="50" height="50" patternUnits="userSpaceOnUse"><rect width="50" height="50" fill="#f6eac2"/>` +
+    `<ellipse cx="12" cy="14" rx="4" ry="2.6" fill="#e6d29c"/><ellipse cx="36" cy="38" rx="3" ry="2" fill="#e6d29c"/><circle cx="8" cy="40" r="1.6" fill="#d8c08a"/>` +
+    `<path d="M34 12 q2 -6 3 -8 q1 5 1 8 q2 -4 4 -5 q-1 4 -1 6Z" fill="#c2e096"/></pattern>`;
+  const FLOWER_COLORS = ['#ff6fb5', '#ffffff', '#b07aff', '#ff9a3c'];
+  const flower = (x, y, k) => `<circle cx="${x}" cy="${y}" r="5" fill="none" stroke="${FLOWER_COLORS[k % 4]}" stroke-width="7" stroke-dasharray="4.4 3.45"/><circle cx="${x}" cy="${y}" r="3.2" fill="#ffd23f"/>`;
+  // which way she last walked, so the mouse looks where it is going
+  function facing() { for (let i = trail.length - 1; i > 0; i--) { const dx = trail[i][0] - trail[i - 1][0]; if (dx) return dx; } return 1; }
+
   function paint() {
-    const { w, h } = M, pad = 14;
-    let s = `<svg viewBox="${-pad} ${-pad} ${w * C + pad * 2} ${h * C + pad * 2}" xmlns="http://www.w3.org/2000/svg">`;
-    s += `<rect x="${-pad}" y="${-pad}" width="${w * C + pad * 2}" height="${h * C + pad * 2}" rx="24" fill="#166534"/>`;
-    s += `<rect x="0" y="0" width="${w * C}" height="${h * C}" fill="#fef9c3"/>`;
-    // hedges
-    let walls = '';
+    const { w, h } = M, pad = 22;
+    let s = `<svg viewBox="${-pad} ${-pad} ${w * C + pad * 2} ${h * C + pad * 2}" xmlns="http://www.w3.org/2000/svg"><defs>${FLOOR}</defs>`;
+    s += `<rect x="${-pad}" y="${-pad}" width="${w * C + pad * 2}" height="${h * C + pad * 2}" rx="26" fill="#3c8f37"/>`;
+    s += `<rect x="0" y="0" width="${w * C}" height="${h * C}" fill="url(#mz-floor)"/>`;
+    // hedges: round leafy bushes along every wall, with a few flowers
+    let walls = '', flowers = '', k = 0;
+    const seg = (x1, y1, x2, y2) => { walls += `M${x1} ${y1} L${x2} ${y2} `; if (k++ % 7 === 3) flowers += flower((x1 + x2) / 2, (y1 + y2) / 2, k); };
     for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
       const X = x * C, Y = y * C, o = M.open[y][x];
-      if (!o[0]) walls += `M${X} ${Y} H${X + C} `;
-      if (!o[3]) walls += `M${X} ${Y} V${Y + C} `;
-      if (x === w - 1 && !o[1]) walls += `M${X + C} ${Y} V${Y + C} `;
-      if (y === h - 1 && !o[2]) walls += `M${X} ${Y + C} H${X + C} `;
+      if (!o[0]) seg(X, Y, X + C, Y);
+      if (!o[3]) seg(X, Y, X, Y + C);
+      if (x === w - 1 && !o[1]) seg(X + C, Y, X + C, Y + C);
+      if (y === h - 1 && !o[2]) seg(X, Y + C, X + C, Y + C);
     }
-    s += `<path d="${walls}" stroke="#15803d" stroke-width="16" stroke-linecap="round"/>`;
+    const hedge = (col, width, extra = '') => `<path d="${walls}" stroke="${col}" stroke-width="${width}" stroke-linecap="round" fill="none" ${extra}/>`;
+    s += hedge('#2c6a2a', 30) + hedge('#2c6a2a', 36, 'stroke-dasharray="0.1 25"') + hedge('#4fb84a', 24) + hedge('#5cc04a', 30, 'stroke-dasharray="0.1 25"') +
+      hedge('#8fdc6e', 9, 'stroke-dasharray="0.1 25" opacity=".75" transform="translate(-3 -4)"') + flowers;
     // her trail
     if (trail.length > 1) s += `<path d="M${trail.map(c => at(c).join(' ')).join(' L')}" fill="none" stroke="#f9a8d4" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" opacity=".8"/>`;
     // hint dots
@@ -114,11 +228,11 @@
       const p = M.key && !hasKey ? route(M, trail[trail.length - 1], M.key, M.gate) : route(M, trail[trail.length - 1], M.end, hasKey ? null : M.gate);
       p.slice(1, -1).forEach((c, i) => { const [cx, cy] = at(c); s += `<circle class="hintDot" cx="${cx}" cy="${cy}" r="9" fill="#f59e0b" style="animation-delay:${i * .08}s"/>`; });
     }
-    const emo = (e, c, size, id = '') => { const [x, y] = at(c); return `<text ${id} class="tok" x="${x}" y="${y}" font-size="${size}" text-anchor="middle" dominant-baseline="central">${e}</text>`; };
-    s += emo('🧀', M.end, 60);
-    if (M.gate && !hasKey) s += emo('🚪', M.gate, 62);
-    if (M.key && !hasKey) s += emo('🔑', M.key, 52);
-    s += emo('🐭', trail[trail.length - 1], 64, 'id="mouse"');
+    const put = (art, c, more = '') => { const [x, y] = at(c); return `<g class="tok" transform="translate(${x} ${y})${more}">${art}</g>`; };
+    s += put(PIECE.cheese, M.end);
+    if (M.gate && !hasKey) s += put(PIECE.gate, M.gate);
+    if (M.key && !hasKey) s += put(PIECE.key, M.key);
+    s += put(`<g id="mouse">${PIECE.mouse}</g>`, trail[trail.length - 1], ` scale(${facing() * .8} .8)`);
     $('maze').innerHTML = s + '</svg>';
   }
 

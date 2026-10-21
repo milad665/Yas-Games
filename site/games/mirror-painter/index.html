@@ -13,13 +13,30 @@
 <link rel="stylesheet" href="/shared/kit.css">
 <title>Mirror Painter</title>
 <style>
-  body { background: linear-gradient(160deg, #ede9fe 0%, #fce7f3 50%, #e0f2fe 100%); }
+  body { background: #f1e8ff; }
+  /* the art studio behind everything; paint pots and brushes stand beside the paper when there is room */
+  #scene { position: absolute; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+  #sceneBack { position: absolute; inset: 0; }
+  .gut { position: absolute; }
+  #app > .bar, #paper { position: relative; z-index: 1; }
+  /* the bars let taps through to the scenery between their buttons */
+  #app > .bar { pointer-events: none; }
+  #app > .bar > * { pointer-events: auto; }
+  .mi-brushes { transform-box: fill-box; transform-origin: 50% 100%; animation: mi-sway 4s ease-in-out infinite; }
+  @keyframes mi-sway { 0%, 100% { transform: rotate(-4deg); } 50% { transform: rotate(4deg); } }
+  .mi-drop { position: fixed; left: 0; top: 0; border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%; pointer-events: none; z-index: 40; border: 2px solid rgba(58,45,82,.35); }
   #app { flex-direction: column; gap: 10px; padding: max(12px, env(safe-area-inset-top)) max(14px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(14px, env(safe-area-inset-left)); }
   .bar { display: flex; align-items: center; gap: 10px; justify-content: center; flex-wrap: wrap; }
   .bar .btn { width: 62px; height: 62px; font-size: 30px; }
   .spacer { flex: 1; }
   .mode.sel, .tool.sel { background: #ddd6fe; box-shadow: 0 6px 0 rgba(40,50,90,.18), 0 0 0 4px #8b5cf6; }
-  #paper { flex: 1; min-height: 0; position: relative; border-radius: 28px; overflow: hidden; background: #fff; box-shadow: 0 8px 30px rgba(91, 33, 182, .12); }
+  #paper {
+    flex: 1; min-height: 0; position: relative; border-radius: 28px; overflow: hidden; background: #fff; margin: 4px 8px;
+    /* a wooden frame like a canvas on an easel */
+    box-shadow: 0 0 0 8px #e9b872, 0 0 0 11px rgba(58,45,82,.45), 0 14px 30px rgba(91, 33, 182, .2);
+  }
+  /* wide screens: leave room on both sides for the paint pots */
+  @media (min-aspect-ratio: 5/4) and (min-width: 900px) { #paper { margin: 4px clamp(100px, 14vw, 190px); } }
   #paper canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
   #ink { touch-action: none; }
   .swatch { width: 58px; height: 58px; border-radius: 50%; border: 5px solid #fff; padding: 0; box-shadow: 0 4px 0 rgba(0,0,0,.15); touch-action: manipulation; transition: transform .12s; }
@@ -44,6 +61,7 @@
 <body>
 
 <section id="app" class="screen on">
+  <div id="scene" aria-hidden="true"><div id="sceneBack"></div><div id="gutL" class="gut"></div><div id="gutR" class="gut"></div><div id="cornL" class="gut"></div><div id="cornR" class="gut"></div></div>
   <div class="bar">
     <a class="btn" href="../../" aria-label="Back to Yas's Games">🏠</a>
     <button id="undoBtn" class="btn" aria-label="Undo">↩️</button>
@@ -72,6 +90,7 @@
 <script src="/shared/voice.js"></script>
 <script src="/shared/saved.js"></script>
 <script src="/shared/kit.js"></script>
+<script src="/shared/scenery.js"></script>
 <script>
 (() => {
   const { $ } = Kit;
@@ -88,6 +107,125 @@
   let W = 0, H = 0, dpr = 1;
   let mode = 'mirror', color = COLORS[0], size = SIZES[1], glitter = false, stencil = 0;
   let strokes = [], cur = null, curId = null, hue = 0;
+
+  // ---------- the art studio around the paper (see /shared/scenery.js) ----------
+  const { ol, face, blob } = Scenery.kit;
+  Scenery.addBackdrop('miStudio', ['#f1e8ff', '#ffe6f2', '#e2f2ff'], () => {
+    const K = Scenery.kit, cols = ['#ef4444', '#f97316', '#facc15', '#22c55e', '#06b6d4', '#3b82f6', '#a855f7', '#ec4899'];
+    let s = K.sky('miStudio');
+    // a big round studio window letting in the light
+    s += `<path d="M300 700 V260 A200 200 0 0 1 700 260 V700Z" fill="#fff" opacity=".35"/><path d="M340 700 V270 A160 160 0 0 1 660 270 V700Z" fill="#cdeaff" opacity=".45"/>` +
+      `<path d="M500 110 V700 M340 420 H660" stroke="#fff" stroke-width="16" opacity=".5"/>`;
+    // paint splats on the wall
+    const r = K.seeded(5);
+    for (let i = 0; i < 12; i++) {
+      const x = 40 + (i % 6) * 180 + r() * 60, y = 80 + Math.floor(i / 6) * 330 + r() * 120, c = cols[i % cols.length], z = 18 + r() * 22;
+      s += `<g opacity=".22" fill="${c}"><circle cx="${x}" cy="${y}" r="${z}"/><circle cx="${x + z * 1.1}" cy="${y - z * .5}" r="${z * .35}"/><circle cx="${x - z}" cy="${y + z * .8}" r="${z * .28}"/><circle cx="${x + z * .4}" cy="${y + z * 1.3}" r="${z * .2}"/></g>`;
+    }
+    // shelf line, skirting and wooden floor with drips of paint
+    s += `<rect y="730" width="1000" height="70" fill="#e6d6ff" opacity=".6"/><rect y="792" width="1000" height="14" fill="#fff"/>` +
+      `<rect y="806" width="1000" height="194" fill="#e8b77d"/>` + Array.from({ length: 5 }, (_, i) => `<rect y="${838 + i * 36}" width="1000" height="4" fill="#c99560" opacity=".6"/>`).join('') +
+      [[120, 880, 0], [330, 950, 3], [610, 900, 6], [840, 960, 1], [930, 860, 4]].map(([x, y, c]) => `<ellipse cx="${x}" cy="${y}" rx="34" ry="10" fill="${cols[c]}" opacity=".55"/><ellipse cx="${x + 40}" cy="${y + 6}" rx="8" ry="3" fill="${cols[c]}" opacity=".55"/>`).join('');
+    return s;
+  });
+  Scenery.add('miPot', (c = '#ef4444') => [110, 120,
+    `<path d="M14 40 L22 110 Q55 120 88 110 L96 40Z" fill="#eef3fb" ${ol()}/>` +
+    `<path d="M17 60 H93 L90 92 H20Z" fill="${c}"/><rect x="26" y="46" width="7" height="58" rx="3.5" fill="#fff" opacity=".7"/>` +
+    face(55, 76, .55, { cheeks: '#fff' }) +
+    `<ellipse cx="55" cy="40" rx="44" ry="12" fill="#cfd9ea" ${ol()}/><ellipse cx="55" cy="40" rx="36" ry="8" fill="${c}"/>` +
+    `<path d="M24 38 q2 18 -3 26 q-5 6 -9 -1 q-1 -12 4 -25Z" fill="${c}" ${ol(2)}/><ellipse cx="44" cy="37" rx="10" ry="3" fill="#fff" opacity=".5"/>`]);
+  Scenery.add('miBrushJar', () => {
+    const brush = (x1, y1, x2, y2, c) => `<path d="M${x1} ${y1} L${x2} ${y2}" stroke="#3a2d52" stroke-opacity=".5" stroke-width="11" stroke-linecap="round"/><path d="M${x1} ${y1} L${x2} ${y2}" stroke="#d99b62" stroke-width="7" stroke-linecap="round"/>` +
+      `<circle cx="${x2}" cy="${y2}" r="7" fill="#c8cfe0" ${ol(2)}/><path d="M${x2 - 7} ${y2 - 2} Q${x2} ${y2 - 34} ${x2 + 7} ${y2 - 2}Z" fill="${c}" ${ol(2)} transform="rotate(${(x2 - x1) * 1.2} ${x2} ${y2})"/>`;
+    return [110, 196,
+      `<g class="mi-brushes">${brush(50, 130, 28, 44, '#ef4444')}${brush(56, 130, 60, 30, '#3b82f6')}${brush(62, 130, 88, 50, '#facc15')}</g>` +
+      `<path d="M16 96 Q14 186 28 190 H82 Q96 186 94 96Z" fill="#c8ecff" ${ol()}/><path d="M17 132 Q55 124 93 132 V184 Q55 194 18 184Z" fill="#7cc8f4" opacity=".75"/>` +
+      `<ellipse cx="55" cy="96" rx="39" ry="9" fill="#e9f8ff" ${ol()}/><rect x="24" y="104" width="7" height="70" rx="3.5" fill="#fff" opacity=".6"/>` + face(57, 152, .6)];
+  });
+  Scenery.add('miPalette', () => [170, 120,
+    `<path fill-rule="evenodd" d="M22 62 Q10 12 84 8 Q160 6 162 58 Q164 102 122 106 Q96 108 100 90 Q103 74 84 78 Q62 84 68 100 Q72 116 44 112 Q26 106 22 62Z M40 70 a11 11 0 1 0 22 0 a11 11 0 1 0 -22 0Z" fill="#f2c98a" ${ol()}/>` +
+    [[56, 36, '#ef4444'], [86, 26, '#facc15'], [118, 30, '#22c55e'], [142, 52, '#3b82f6'], [132, 82, '#a855f7']].map(([x, y, c]) => `<circle cx="${x}" cy="${y}" r="12" fill="${c}" ${ol(2)}/><circle cx="${x - 4}" cy="${y - 4}" r="3.5" fill="#fff" opacity=".6"/>`).join('') +
+    face(100, 60, .5)]);
+
+  const P = (art, x, y, h, o = {}) => ({ art, x, y, h, ...o });
+  const GUTTERS = {
+    gutL: [P('butterfly', 50, 10, 40, { at: 'center', anim: 'bob', args: ['#ffd23f', '#ff6fb5'], tap: 'flutter' }),
+           P('miBrushJar', 50, 64, 82, { tap: 'brushes' }),
+           P('miPot', 30, 100, 46, { args: ['#ef4444'], tap: 'pot' }),
+           P('miPot', 74, 100, 38, { args: ['#facc15'], tap: 'pot' })],
+    gutR: [P('miPalette', 50, 16, 50, { at: 'center', tap: 'palette' }),
+           P('butterfly', 60, 42, 30, { at: 'center', anim: 'bob', args: ['#8ad4ff', '#b07aff'], tap: 'flutter' }),
+           P('sunflower', 68, 100, 110, { tap: 'bloom' }),
+           P('miPot', 26, 100, 40, { args: ['#3b82f6'], tap: 'pot' })],
+  };
+  // no room beside the paper (portrait, phones): paint things at each end of the bottom row instead
+  const CORNERS = { cornL: [P('miPot', 34, 100, 74, { args: ['#ef4444'], tap: 'pot' }), P('miPot', 76, 100, 62, { args: ['#facc15'], tap: 'pot' })], cornR: [P('miBrushJar', 36, 100, 100, { tap: 'brushes' }), P('miPot', 76, 100, 64, { args: ['#3b82f6'], tap: 'pot' })] };
+  $('sceneBack').innerHTML = Scenery.backdrop('miStudio');
+  // props never wider than their space; shrink them all when the space is short
+  function fitPlace(layer, props, w, h, squeeze = true) {
+    const unit = Math.min(w, h) / 100, k = squeeze ? Math.min(1, h / (w * 3.2)) : 1;
+    return Scenery.place(layer, props.map(p => {
+      const a = Scenery.art(p.art, ...(p.args || []));
+      return { ...p, h: Math.min(p.h * k, w * .9 / (unit * a.w / a.h)) };
+    }), w, h);
+  }
+  function layoutScene() {
+    const pr = $('paper').getBoundingClientRect(), W = innerWidth;
+    for (const [id, x0, x1] of [['gutL', 6, pr.left - 18], ['gutR', pr.right + 18, W - 6]]) {
+      const g = $(id), w = x1 - x0; g.innerHTML = '';
+      if (w < 90 || pr.height < 160) continue;
+      Object.assign(g.style, { left: x0 + 'px', top: pr.top + 'px', width: w + 'px', height: pr.height + 'px' });
+      fitPlace(g, GUTTERS[id], w, pr.height).forEach((el, i) => {
+        el.dataset.color = (GUTTERS[id][i].args || [])[0] || '';
+        el.addEventListener('pointerdown', e => { e.stopPropagation(); tapProp(el); });
+      });
+    }
+    const gutters = $('gutL').childElementCount + $('gutR').childElementCount;
+    $('cornL').innerHTML = $('cornR').innerHTML = '';
+    if (!gutters) {
+      const kids = [...$('palette').children].map(e => e.getBoundingClientRect()).filter(r => r.width);
+      const lastTop = Math.max(...kids.map(r => r.top)), row = kids.filter(r => r.top > lastTop - 12);
+      const top = Math.min(...row.map(r => r.top)) - 10, bottom = Math.max(...row.map(r => r.bottom)) + 2;
+      const zones = [['cornL', 6, Math.min(...row.map(r => r.left)) - 16], ['cornR', Math.max(...row.map(r => r.right)) + 16, W - 6]];
+      for (const [id, x0, x1] of zones) {
+        const g = $(id), w = x1 - x0;
+        if (w < 70 || !row.length) continue;
+        Object.assign(g.style, { left: x0 + 'px', top: top + 'px', width: w + 'px', height: (bottom - top) + 'px' });
+        fitPlace(g, CORNERS[id], w, bottom - top, false).forEach((el, i) => {
+          el.dataset.color = (CORNERS[id][i].args || [])[0] || '';
+          el.addEventListener('pointerdown', e => { e.stopPropagation(); tapProp(el); });
+        });
+      }
+    }
+  }
+  // little drops of paint that jump out and fall
+  function drops(x, y, colors, n = 10) {
+    for (let i = 0; i < n; i++) {
+      const el = document.createElement('div'); el.className = 'mi-drop';
+      const z = 9 + Math.random() * 9; el.style.width = el.style.height = z + 'px'; el.style.background = colors[i % colors.length];
+      document.body.appendChild(el);
+      const vx = (Math.random() - .5) * 220, vy = -180 - Math.random() * 220, frames = [];
+      for (let k = 0; k <= 8; k++) { const t = k / 8 * .9; frames.push({ transform: `translate(${x + vx * t}px, ${y + vy * t + 700 * t * t}px)`, opacity: k < 6 ? 1 : 1 - (k - 5) / 3 }); }
+      el.animate(frames, { duration: 900, delay: Math.random() * 120, fill: 'both' });
+      setTimeout(() => el.remove(), 1100);
+    }
+  }
+  function tapProp(el) {
+    const kind = el.dataset.tap, r = el.getBoundingClientRect(), cx = r.left + r.width / 2, top = r.top + r.height * .3;
+    switch (kind) {
+      case 'pot': {
+        // the pots match the paint in the palette: tap one to paint with its colour
+        Scenery.react(el, 't-boing', 600); Kit.tone(300, .18, { type: 'sine', to: 700, vol: .16 });
+        const c = el.dataset.color || '#ef4444'; drops(cx, r.top + r.height * .3, [c, c, '#fff']);
+        if (COLORS.includes(c)) { color = c; glitter = false; paintTools(); }
+        break;
+      }
+      case 'brushes': Scenery.react(el, 't-wiggle', 600); Kit.sfx.whoosh(); drops(cx, top, ['#ef4444', '#3b82f6', '#facc15'], 6); break;
+      case 'palette': Scenery.react(el, 't-spin', 900); [392, 494, 587, 784].forEach((f, i) => Kit.tone(f, .14, { type: 'triangle', delay: i * .08 })); break;
+      case 'bloom': Scenery.react(el, 't-bloom', 900); Kit.sfx.ding(); break;
+      default: Scenery.react(el, 't-boing', 600); Kit.tone(1200, .1, { type: 'triangle', to: 1800, vol: .1 }); Kit.tone(1500, .1, { type: 'triangle', to: 2100, vol: .08, delay: .1 });
+    }
+  }
 
   // ---------- symmetry: every point becomes several ----------
   function copies(m, x, y) {
@@ -168,7 +306,7 @@
     const r = $('paper').getBoundingClientRect();
     W = r.width; H = r.height; dpr = Math.min(2, devicePixelRatio || 1);
     for (const c of [ink, guide]) { c.width = Math.round(W * dpr); c.height = Math.round(H * dpr); }
-    paintGuide(); redraw();
+    paintGuide(); redraw(); layoutScene();
   }
 
   // ---------- painting ----------

@@ -13,7 +13,7 @@
 <link rel="stylesheet" href="/shared/kit.css">
 <title>Where's Teddy?</title>
 <style>
-  body { background: #fef3c7; }
+  body { background: radial-gradient(circle at 22px 22px, #fde3a7 5px, transparent 6px) 0 0 / 44px 44px, linear-gradient(#fff4da, #fde7b0); }
   #game { flex-direction: column; align-items: center; justify-content: center; padding: 84px 12px 16px; gap: 2vh; }
   #stars { position: absolute; top: max(24px, env(safe-area-inset-top)); left: 50%; translate: -50% 0; font-size: 28px; background: rgba(255,255,255,.75); border-radius: 999px; padding: 4px 16px; min-height: 46px; max-width: 50vw; text-align: center; }
   #room { width: min(96vw, 160vh); aspect-ratio: 1000 / 560; border-radius: 30px; overflow: hidden; box-shadow: 0 10px 30px rgba(146, 64, 14, .2); border: 6px solid #fff; touch-action: none; }
@@ -22,6 +22,39 @@
   .teddy.yay { animation: tjump .7s cubic-bezier(.3,1.5,.5,1); transform-box: fill-box; transform-origin: 50% 100%; }
   .teddy.no { animation: kit-shake .45s; transform-box: fill-box; }
   .teddy.glow { filter: drop-shadow(0 0 10px #facc15) drop-shadow(0 0 10px #facc15); }
+  .wt-ring { display: none; }
+  .teddy.glow .wt-ring { display: block; transform-box: fill-box; transform-origin: center; animation: wt-ring 1s ease-in-out infinite; }
+  @keyframes wt-ring { 50% { transform: scale(1.15); opacity: .35; } }
+  .wt-idle { transform-box: fill-box; transform-origin: 50% 100%; animation: wt-idle 3.6s ease-in-out infinite; }
+  @keyframes wt-idle { 0%,100% { transform: rotate(-3deg); } 50% { transform: rotate(3deg); } }
+
+  /* the room around the furniture (drawn in paint(); things with data-deco can be tapped for fun) */
+  [data-deco] { cursor: pointer; }
+  .wt-cloud { animation: wt-cloud 18s linear infinite; }
+  @keyframes wt-cloud { from { transform: translateX(-90px); } to { transform: translateX(170px); } }
+  .wt-curtL { transform-origin: 420px 52px; animation: wt-curt 5s ease-in-out infinite; }
+  .wt-curtR { transform-origin: 580px 52px; animation: wt-curt 5s ease-in-out infinite reverse; }
+  [data-deco="window"].t-swish .wt-curtL, [data-deco="window"].t-swish .wt-curtR { animation-duration: .45s; }
+  @keyframes wt-curt { 0%,100% { transform: skewX(-3deg); } 50% { transform: skewX(3deg); } }
+  .wt-min { transform-origin: 300px 100px; animation: wt-turn 10s linear infinite; }
+  .wt-hour { transform-origin: 300px 100px; animation: wt-turn 120s linear infinite; }
+  [data-deco="clock"].t-whirl .wt-min { animation-duration: .4s; }
+  [data-deco="clock"].t-whirl .wt-hour { animation-duration: 3s; }
+  @keyframes wt-turn { to { transform: rotate(360deg); } }
+  [data-deco="frame"] { transform-origin: 120px 46px; }
+  [data-deco="frame"].t-swing { animation: wt-swing 1.2s ease-out; }
+  @keyframes wt-swing { 20% { transform: rotate(10deg); } 45% { transform: rotate(-7deg); } 70% { transform: rotate(4deg); } 100% { transform: rotate(0); } }
+  .wt-leaves { transform-origin: 885px 200px; animation: wt-sway 4s ease-in-out infinite; }
+  [data-deco="plant"].t-wiggle .wt-leaves { animation: wt-wig .7s ease-in-out; }
+  @keyframes wt-sway { 0%,100% { transform: rotate(-3deg); } 50% { transform: rotate(3deg); } }
+  @keyframes wt-wig { 25% { transform: rotate(-12deg); } 50% { transform: rotate(12deg); } 75% { transform: rotate(-6deg); } }
+  .wt-glow { animation: wt-glow 2.4s ease-in-out infinite; transition: opacity .3s; }
+  @keyframes wt-glow { 50% { opacity: .6; } }
+  .wt-bulb { transition: fill .3s; }
+  [data-deco="lamp"].off .wt-glow { opacity: 0; animation: none; }
+  [data-deco="lamp"].off .wt-bulb { fill: #d8d2c0; }
+  [data-deco="lamp"] { transform-origin: 680px 0px; }
+  [data-deco="lamp"].t-swing { animation: wt-swing 1.2s ease-out; }
   @keyframes tjump { 40% { transform: translateY(-30%) scale(1.15); } }
   #askBtn { width: 84px; height: 84px; font-size: 44px; background: #fde047; }
 </style>
@@ -40,35 +73,52 @@
 <script src="/shared/voice.js"></script>
 <script src="/shared/saved.js"></script>
 <script src="/shared/kit.js"></script>
+<script src="/shared/scenery.js"></script>
 <script>
 (() => {
   const { $, pick, shuffle, sleep } = Kit;
-  const FLOOR = 500, T = 74; // teddy size
+  const FLOOR = 500; // where the wall meets the floor
+  const { blob, ol } = Scenery.kit;
 
   // objects, what Teddy can do with each, where he sits, and the areas that count as that place
   const OBJECTS = {
     table: {
       preps: ['on', 'under', 'next'],
-      draw: cx => `<rect x="${cx - 130}" y="330" width="260" height="26" rx="8" fill="#a16207" stroke="#713f12" stroke-width="5"/><rect x="${cx - 118}" y="354" width="20" height="146" fill="#92400e"/><rect x="${cx + 98}" y="354" width="20" height="146" fill="#92400e"/>`,
+      draw: cx => `<rect x="${cx - 118}" y="350" width="20" height="150" rx="6" fill="#a8693a" ${ol(4)}/><rect x="${cx + 98}" y="350" width="20" height="150" rx="6" fill="#a8693a" ${ol(4)}/>` +
+        `<rect x="${cx - 104}" y="354" width="208" height="16" fill="#b97d48" ${ol(3)}/>` +
+        `<rect x="${cx - 130}" y="330" width="260" height="26" rx="10" fill="#d99b62" ${ol(4)}/><rect x="${cx - 118}" y="335" width="190" height="6" rx="3" fill="#fff" opacity=".35"/>`,
       spot: { on: [0, 296], under: [0, 462], next: [205, 462] },
       zone: (p, x, y) => p === 'on' ? x > -135 && x < 135 && y > 180 && y < 335 : p === 'under' ? x > -112 && x < 112 && y > 356 && y < 520 : Math.abs(x) > 135 && Math.abs(x) < 320 && y > 360 && y < 540,
     },
     box: {
       preps: ['in', 'next'],
-      draw: cx => `<path d="M${cx - 88} 392 L${cx - 130} 352 L${cx - 70} 352 L${cx - 40} 392 Z M${cx + 88} 392 L${cx + 130} 352 L${cx + 70} 352 L${cx + 40} 392 Z" fill="#d6a467" stroke="#92400e" stroke-width="4" stroke-linejoin="round"/><rect x="${cx - 88}" y="392" width="176" height="108" rx="6" fill="#e0b47a" stroke="#92400e" stroke-width="5"/><path d="M${cx - 50} 430 h100" stroke="#92400e" stroke-width="4" opacity=".4"/>`,
+      draw: cx => `<path d="M${cx - 88} 392 L${cx - 130} 352 L${cx - 70} 352 L${cx - 40} 392 Z M${cx + 88} 392 L${cx + 130} 352 L${cx + 70} 352 L${cx + 40} 392 Z" fill="#d6a467" ${ol(4)}/>` +
+        `<rect x="${cx - 88}" y="392" width="176" height="108" rx="8" fill="#e8b97a" ${ol(4)}/><rect x="${cx - 85}" y="395" width="170" height="12" fill="#c98f52" opacity=".45"/>` +
+        `<rect x="${cx - 14}" y="395" width="28" height="102" fill="#f6dcae" opacity=".85"/>` +
+        `<path d="M${cx + 52} 446 c-6 -8 -18 -2 -11 7 l11 10 l11 -10 c7 -9 -5 -15 -11 -7Z" fill="#ff6b8a"/><circle cx="${cx - 52}" cy="456" r="9" fill="#7ad6ff"/>`,
       spot: { in: [0, 402], next: [190, 462] },
       behind: ['in'],
       zone: (p, x, y) => p === 'in' ? x > -95 && x < 95 && y > 280 && y < 505 : Math.abs(x) > 95 && Math.abs(x) < 300 && y > 360 && y < 540,
     },
     bed: {
       preps: ['on', 'under', 'next'],
-      draw: cx => `<rect x="${cx - 168}" y="292" width="24" height="208" rx="8" fill="#7c3aed"/><rect x="${cx + 140}" y="352" width="18" height="148" rx="6" fill="#7c3aed"/><rect x="${cx - 150}" y="356" width="300" height="52" rx="14" fill="#ddd6fe" stroke="#7c3aed" stroke-width="5"/><rect x="${cx - 140}" y="334" width="70" height="30" rx="12" fill="#fff" stroke="#a78bfa" stroke-width="4"/><rect x="${cx - 60}" y="350" width="200" height="22" rx="8" fill="#f9a8d4"/>`,
+      draw: cx => `<path d="M${cx - 172} 500 V302 Q${cx - 172} 284 ${cx - 156} 284 Q${cx - 140} 284 ${cx - 140} 302 V500Z" fill="#9b6bd8" ${ol(4)}/><circle cx="${cx - 156}" cy="302" r="7" fill="#ffd23f"/>` +
+        `<path d="M${cx + 138} 500 V366 Q${cx + 138} 350 ${cx + 149} 350 Q${cx + 160} 350 ${cx + 160} 366 V500Z" fill="#9b6bd8" ${ol(4)}/>` +
+        `<rect x="${cx - 150}" y="356" width="300" height="52" rx="14" fill="#efe9ff" ${ol(4)}/>` +
+        `<rect x="${cx - 140}" y="332" width="72" height="32" rx="14" fill="#fff" ${ol(3)}/><path d="M${cx - 128} 346 q12 6 24 0" stroke="#d9cff5" stroke-width="3" fill="none"/>` +
+        `<path d="M${cx - 60} 350 H${cx + 136} Q${cx + 146} 350 ${cx + 146} 362 V398 Q${cx + 40} 412 ${cx - 60} 398Z" fill="#ff9cc8" ${ol(3)}/>` +
+        [[-30, 366], [10, 382], [50, 364], [90, 384], [120, 368]].map(([x, y]) => `<circle cx="${cx + x}" cy="${y}" r="5" fill="#fff" opacity=".8"/>`).join(''),
       spot: { on: [30, 318], under: [10, 466], next: [228, 462] },
       zone: (p, x, y) => p === 'on' ? x > -155 && x < 155 && y > 190 && y < 360 : p === 'under' ? x > -142 && x < 140 && y > 408 && y < 520 : Math.abs(x) > 165 && Math.abs(x) < 330 && y > 360 && y < 540,
     },
     sofa: {
       preps: ['on', 'behind', 'next'],
-      draw: cx => `<rect x="${cx - 150}" y="318" width="300" height="96" rx="26" fill="#14b8a6" stroke="#0f766e" stroke-width="5"/><rect x="${cx - 165}" y="372" width="54" height="104" rx="20" fill="#0d9488" stroke="#0f766e" stroke-width="5"/><rect x="${cx + 111}" y="372" width="54" height="104" rx="20" fill="#0d9488" stroke="#0f766e" stroke-width="5"/><rect x="${cx - 112}" y="398" width="224" height="62" rx="16" fill="#2dd4bf" stroke="#0f766e" stroke-width="5"/><rect x="${cx - 150}" y="476" width="14" height="24" fill="#334155"/><rect x="${cx + 136}" y="476" width="14" height="24" fill="#334155"/>`,
+      draw: cx => `<rect x="${cx - 150}" y="474" width="14" height="26" rx="3" fill="#7a4a25"/><rect x="${cx + 136}" y="474" width="14" height="26" rx="3" fill="#7a4a25"/>` +
+        `<rect x="${cx - 150}" y="318" width="300" height="96" rx="28" fill="#2fc4b2" ${ol(4)}/><path d="M${cx} 332 V398" stroke="#1f9e90" stroke-width="4" stroke-linecap="round"/>` +
+        `<circle cx="${cx - 75}" cy="356" r="4" fill="#1f9e90"/><circle cx="${cx + 75}" cy="356" r="4" fill="#1f9e90"/>` +
+        `<rect x="${cx - 165}" y="372" width="54" height="104" rx="22" fill="#24b3a2" ${ol(4)}/><rect x="${cx + 111}" y="372" width="54" height="104" rx="22" fill="#24b3a2" ${ol(4)}/>` +
+        `<rect x="${cx - 112}" y="398" width="224" height="62" rx="18" fill="#5fe0cf" ${ol(4)}/><path d="M${cx} 403 V455" stroke="#2fc4b2" stroke-width="4" stroke-linecap="round"/>` +
+        `<rect x="${cx + 62}" y="364" width="40" height="34" rx="11" fill="#ffd23f" ${ol(3)} transform="rotate(14 ${cx + 82} 381)"/>`,
       spot: { on: [0, 372], behind: [40, 300], next: [235, 462] },
       behind: ['behind'],
       zone: (p, x, y) => p === 'on' ? x > -112 && x < 112 && y > 345 && y < 470 : p === 'behind' ? x > -150 && x < 150 && y > 160 && y < 345 : Math.abs(x) > 168 && Math.abs(x) < 330 && y > 360 && y < 540,
@@ -82,22 +132,93 @@
 
   function paintStars() { const n = saved.stars; $('stars').textContent = n ? (n > 10 ? '🧸 × ' + n : '🧸'.repeat(n)) : '🧸'; $('stars').style.opacity = n ? 1 : .45; }
 
+  // Teddy himself, about 80 tall around (0, 0) like the old 🧸; the clear circle makes him easy to grab
+  const TEDDY = `<circle class="wt-ring" r="46" fill="#fde047" opacity=".6"/><circle r="44" fill="transparent"/>` +
+    blob([[-21, -27, 10], [21, -27, 10], [0, -12, 22], [0, 18, 20], [-21, 12, 8], [21, 12, 8], [-12, 31, 9], [12, 31, 9]], '#c98a4a') +
+    `<circle cx="-21" cy="-27" r="5" fill="#f2c79a"/><circle cx="21" cy="-27" r="5" fill="#f2c79a"/>` +
+    `<ellipse cx="0" cy="22" rx="12" ry="10" fill="#f2c79a"/><ellipse cx="-12" cy="33" rx="5" ry="4" fill="#f2c79a"/><ellipse cx="12" cy="33" rx="5" ry="4" fill="#f2c79a"/>` +
+    `<ellipse cx="0" cy="-5" rx="10" ry="7.5" fill="#f6dcb6"/><ellipse cx="0" cy="-8" rx="4.5" ry="3.2" fill="#3a2a2a"/>` +
+    `<path d="M0 -5 v3 M-4 -1 q4 3 8 0" stroke="#3a2a2a" stroke-width="2" fill="none" stroke-linecap="round"/>` +
+    `<g class="sc-blink"><circle cx="-8" cy="-17" r="3.2" fill="#3a2a2a"/><circle cx="8" cy="-17" r="3.2" fill="#3a2a2a"/><circle cx="-7" cy="-18" r="1" fill="#fff"/><circle cx="9" cy="-18" r="1" fill="#fff"/></g>` +
+    `<ellipse cx="-15" cy="-5" rx="4" ry="2.5" fill="#ff8fa8" opacity=".6"/><ellipse cx="15" cy="-5" rx="4" ry="2.5" fill="#ff8fa8" opacity=".6"/>` +
+    `<path d="M0 6 L-10 1 L-10 11Z M0 6 L10 1 L10 11Z" fill="#ff4d6d" ${ol(1.5)}/><circle cy="6" r="3" fill="#ff4d6d"/>`;
   function teddySVG(id, x, y, cls = '') {
-    return `<text class="teddy ${cls}" data-id="${id}" x="${x}" y="${y}" font-size="${T}" text-anchor="middle" dominant-baseline="central">🧸</text>`;
+    return `<g class="teddy ${cls}" data-id="${id}"><g transform="translate(${x} ${y})"><g class="wt-idle">${TEDDY}</g></g></g>`;
   }
-  // teddies that are "in" or "behind" are drawn before the object so it hides part of them
+
+  // the room itself: wallpaper, floor, window, clock, picture, lamp and a plant shelf
+  const bunting = (x0, x1) => { let d = ''; const n = 7, c = ['#ff6b8a', '#ffd23f', '#7ad6ff', '#8ee08a', '#c49bff'];
+    for (let i = 0; i < n; i++) { const x = x0 + (x1 - x0) * (i + .5) / n, y = 14 + Math.sin((i + .5) / n * Math.PI) * 16; d += `<path d="M${x - 16} ${y} L${x + 16} ${y} L${x} ${y + 28}Z" fill="${c[i % 5]}" ${ol(2)}/>`; }
+    return `<path d="M${x0} 10 Q${(x0 + x1) / 2} 46 ${x1} 10" stroke="#a8693a" stroke-width="3" fill="none"/>` + d; };
+  const leaf = (tx, ty, c) => { const bx = 885, by = 200, mx = (bx + tx) / 2, my = (by + ty) / 2, dx = tx - bx, dy = ty - by, L = Math.hypot(dx, dy), px = -dy / L * 12, py = dx / L * 12;
+    return `<path d="M${bx} ${by} Q${(mx + px).toFixed(1)} ${(my + py).toFixed(1)} ${tx} ${ty} Q${(mx - px).toFixed(1)} ${(my - py).toFixed(1)} ${bx} ${by}Z" fill="${c}" ${ol(2.5)}/>`; };
+  const ROOM = `<defs>
+      <pattern id="wt-paper" width="80" height="80" patternUnits="userSpaceOnUse"><rect width="80" height="80" fill="#ffe6c0"/><rect width="40" height="80" fill="#ffedd2"/><circle cx="20" cy="20" r="4" fill="#ffd3a1"/><circle cx="60" cy="60" r="4" fill="#ffc9c9"/></pattern>
+      <linearGradient id="wt-sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7fcbff"/><stop offset="1" stop-color="#d4f0ff"/></linearGradient>
+      <radialGradient id="wt-lamp"><stop offset="0" stop-color="#fff3a0" stop-opacity=".7"/><stop offset="1" stop-color="#fff3a0" stop-opacity="0"/></radialGradient>
+      <clipPath id="wt-win"><rect x="440" y="70" width="120" height="90"/></clipPath>
+    </defs>
+    <rect width="1000" height="${FLOOR}" fill="url(#wt-paper)"/><rect width="1000" height="10" fill="#fff" opacity=".6"/>
+    ${bunting(0, 380)}${bunting(620, 1000)}
+    <rect y="${FLOOR}" width="1000" height="${560 - FLOOR}" fill="#d99b62"/>
+    ${[520, 540].map(y => `<rect y="${y}" width="1000" height="3" fill="#b97d48" opacity=".7"/>`).join('')}
+    ${[60, 210, 330, 470, 620, 760, 880].map((x, i) => `<rect x="${x}" y="${[503, 523, 543][i % 3]}" width="3" height="17" fill="#b97d48" opacity=".7"/>`).join('')}
+    <ellipse cx="500" cy="536" rx="240" ry="22" fill="#8fc7ff"/><ellipse cx="500" cy="536" rx="190" ry="15" fill="#b8dcff"/><ellipse cx="500" cy="536" rx="120" ry="8" fill="#8fc7ff"/>
+    <rect y="${FLOOR - 22}" width="1000" height="24" fill="#fff"/><rect y="${FLOOR - 1}" width="1000" height="3" fill="#3a2d52" opacity=".25"/>
+    <g data-deco="frame">
+      <path d="M120 46 L76 64 M120 46 L164 64" stroke="#8a5a2b" stroke-width="2.5"/><circle cx="120" cy="46" r="4" fill="#8a5a2b"/>
+      <rect x="70" y="62" width="100" height="84" rx="6" fill="#ffc94a" ${ol(3)}/><rect x="80" y="72" width="80" height="64" fill="#bfe8ff"/>
+      <circle cx="140" cy="88" r="9" fill="#ffe14d"/><path d="M80 136 V118 Q104 98 126 116 Q144 104 160 116 V136Z" fill="#7ccc58"/>
+      <path d="M100 112 c-3 -4 -8 -1 -5 3 l5 4 l5 -4 c3 -4 -2 -7 -5 -3Z" fill="#ff6b8a"/>
+    </g>
+    <g data-deco="clock">
+      <path d="M268 72 L262 50 L284 62Z M332 72 L338 50 L316 62Z" fill="#7ab8ff" ${ol(3)}/>
+      <circle cx="300" cy="100" r="40" fill="#fff" stroke="#7ab8ff" stroke-width="9"/><circle cx="300" cy="100" r="45" fill="none" ${ol(3)}/>
+      ${Array.from({ length: 12 }, (_, i) => `<circle cx="${(300 + Math.sin(i * Math.PI / 6) * 29).toFixed(1)}" cy="${(100 - Math.cos(i * Math.PI / 6) * 29).toFixed(1)}" r="${i % 3 ? 2 : 3.5}" fill="#a0a8c8"/>`).join('')}
+      <g class="wt-hour"><rect x="297" y="82" width="6" height="21" rx="3" fill="#3a2d52"/></g>
+      <g class="wt-min"><rect x="298.5" y="72" width="3" height="31" rx="1.5" fill="#ff6b8a"/></g>
+      <circle cx="300" cy="100" r="4.5" fill="#ffd23f"/>
+    </g>
+    <g data-deco="window">
+      <rect x="430" y="60" width="140" height="110" rx="8" fill="#fff" ${ol(3)}/><rect x="440" y="70" width="120" height="90" fill="url(#wt-sky)"/>
+      <g clip-path="url(#wt-win)"><circle cx="535" cy="94" r="13" fill="#ffe14d"/>
+        <g class="wt-cloud">${blob([[462, 100, 10], [476, 93, 13], [490, 101, 9]], '#fff', { w: 2, op: .15 })}</g>
+        <path d="M440 160 V146 Q480 128 520 144 Q545 134 560 140 V160Z" fill="#7ccc58"/></g>
+      <path d="M500 70 V160 M440 115 H560" stroke="#fff" stroke-width="6"/>
+      <rect x="418" y="166" width="164" height="12" rx="5" fill="#fff" ${ol(3)}/>
+      <path d="M402 52 H598" stroke="#a8693a" stroke-width="6" stroke-linecap="round"/><circle cx="400" cy="52" r="6" fill="#ffd23f"/><circle cx="600" cy="52" r="6" fill="#ffd23f"/>
+      <path class="wt-curtL" d="M412 52 H452 Q446 120 456 186 Q434 196 412 188Z" fill="#ff8ab0" ${ol(3)}/>
+      <path class="wt-curtR" d="M588 52 H548 Q554 120 544 186 Q566 196 588 188Z" fill="#ff8ab0" ${ol(3)}/>
+    </g>
+    <g data-deco="lamp">
+      <ellipse class="wt-glow" cx="680" cy="122" rx="90" ry="54" fill="url(#wt-lamp)"/>
+      <path d="M680 0 V64" stroke="#5a4a6a" stroke-width="3"/>
+      <circle class="wt-bulb" cx="680" cy="104" r="9" fill="#fff6a8"/>
+      <path d="M660 64 H700 L722 104 H638Z" fill="#7ad6a0" ${ol(3)}/><path d="M646 96 H714" stroke="#fff" stroke-width="4" opacity=".7"/>
+    </g>
+    <g data-deco="plant">
+      <rect x="846" y="230" width="128" height="12" rx="4" fill="#c98a4a" ${ol(3)}/><path d="M862 242 v14 h10 M958 242 v14 h-10" stroke="#a8693a" stroke-width="5" fill="none"/>
+      <g class="wt-leaves">${leaf(850, 150, '#4fb84a')}${leaf(872, 132, '#5fc85a')}${leaf(900, 128, '#4fb84a')}${leaf(922, 156, '#5fc85a')}${leaf(886, 140, '#3fa34d')}</g>
+      <path d="M866 196 H904 L898 230 H872Z" fill="#ff9a6a" ${ol(3)}/><rect x="862" y="192" width="46" height="10" rx="4" fill="#ff8a5a" ${ol(2)}/>
+      <rect x="924" y="196" width="12" height="34" rx="2" fill="#7ad6ff" ${ol(2)}/><rect x="938" y="200" width="12" height="30" rx="2" fill="#ffd23f" ${ol(2)}/><rect x="950" y="190" width="12" height="40" rx="2" fill="#ff6b8a" ${ol(2)} transform="rotate(10 956 230)"/>
+    </g>`;
+  let roomKey = null;
+  // teddies that are "in" or "behind" are drawn before the object so it hides part of them;
+  // the room is only rebuilt when the furniture changes, so dragging just redraws Teddy
   function paint() {
-    let back = '', objs = '', front = '';
-    scene.objects.forEach((k, i) => { objs += OBJECTS[k].draw(SLOTS[i]); });
+    let back = '', front = '';
     for (const t of scene.teddies) {
       const svg = teddySVG(t.id, t.x, t.y, t.cls || '');
       if (t.place && OBJECTS[t.place.obj].behind && OBJECTS[t.place.obj].behind.includes(t.place.prep)) back += svg; else front += svg;
     }
-    $('room').innerHTML = `<svg viewBox="0 0 1000 560" xmlns="http://www.w3.org/2000/svg">
-      <rect width="1000" height="${FLOOR}" fill="#fde68a"/><rect y="${FLOOR - 4}" width="1000" height="${560 - FLOOR + 4}" fill="#d97706"/>
-      <rect x="430" y="60" width="140" height="110" rx="10" fill="#bae6fd" stroke="#fff" stroke-width="10"/><line x1="500" y1="60" x2="500" y2="170" stroke="#fff" stroke-width="6"/>
-      <text x="120" y="110" font-size="60" text-anchor="middle" dominant-baseline="central">🖼️</text><text x="890" y="250" font-size="70" text-anchor="middle" dominant-baseline="central">🪴</text>
-      ${back}${objs}${front}</svg>`;
+    const key = scene.objects.join();
+    if (key !== roomKey || !$('tBack')) {
+      roomKey = key;
+      let objs = '';
+      scene.objects.forEach((k, i) => { objs += OBJECTS[k].draw(SLOTS[i]); });
+      $('room').innerHTML = `<svg viewBox="0 0 1000 560" xmlns="http://www.w3.org/2000/svg">${ROOM}<g id="tBack"></g>${objs}<g id="tFront"></g></svg>`;
+    }
+    $('tBack').innerHTML = back; $('tFront').innerHTML = front;
   }
   // where a teddy sits for a given object and word
   function spot(objIndex, prep) {
@@ -143,7 +264,22 @@
     return null;
   }
 
+  // tapping the room's decorations: just for fun, never part of the question
+  const rustle = () => [0, 1, 2].forEach(i => Kit.tone(1800 + i * 300, .06, { type: 'sawtooth', vol: .025, to: 1200, delay: i * .05 }));
+  function decoTap(el) {
+    const play = (cls, ms) => { el.classList.remove(cls); el.getBoundingClientRect(); el.classList.add(cls); clearTimeout(el._t); el._t = setTimeout(() => el.classList.remove(cls), ms); };
+    switch (el.dataset.deco) {
+      case 'clock': play('t-whirl', 1600); Kit.sfx.ding(); break;
+      case 'lamp': el.classList.toggle('off'); play('t-swing', 1200); Kit.tone(el.classList.contains('off') ? 500 : 900, .06, { type: 'square', vol: .06 }); break;
+      case 'plant': play('t-wiggle', 700); rustle(); break;
+      case 'frame': play('t-swing', 1200); Kit.sfx.boing(); break;
+      case 'window': play('t-swish', 1400); Kit.sfx.whoosh(); break;
+    }
+  }
+
   $('room').addEventListener('pointerdown', e => {
+    const deco = e.target.closest('[data-deco]');
+    if (deco) decoTap(deco);
     if (busy || !round) return;
     const tEl = e.target.closest('.teddy');
     if (round.type === 'find') {

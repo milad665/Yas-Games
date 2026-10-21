@@ -15,12 +15,25 @@
 <style>
   body { background: linear-gradient(160deg, #fce7f3 0%, #fbcfe8 40%, #ddd6fe 100%); }
   #game { flex-direction: column; align-items: center; padding: max(14px, env(safe-area-inset-top)) 16px max(14px, env(safe-area-inset-bottom)); gap: 2vh; }
-  #hearts { position: absolute; top: max(24px, env(safe-area-inset-top)); left: 50%; translate: -50% 0; font-size: 28px; background: rgba(255,255,255,.7); border-radius: 999px; padding: 4px 16px; min-height: 46px; max-width: 50vw; text-align: center; }
+  #hearts { position: absolute; top: max(24px, env(safe-area-inset-top)); left: 50%; translate: -50% 0; font-size: 28px; background: rgba(255,255,255,.8); border-radius: 999px; padding: 4px 16px; min-height: 46px; max-width: 50vw; text-align: center; }
 
+  /* a soft cartoon sky all around, and a little scene for every story */
+  #sky { position: fixed; inset: 0; z-index: 0; }
+  #sky > div { position: absolute; inset: 0; }
+  #skyDecor { pointer-events: none; }
+  #hearts { z-index: 2; }
+  #choices, #builder { position: relative; z-index: 1; }
   #stage {
-    margin-top: 80px; flex: 1; width: min(94vw, 900px); max-height: 50vh; min-height: 0; position: relative;
-    background: rgba(255,255,255,.65); border-radius: 40px; box-shadow: 0 10px 30px rgba(190, 24, 93, .12);
+    margin-top: 80px; flex: 1; width: min(94vw, 900px); max-height: 50vh; min-height: 0; position: relative; z-index: 1;
+    background: #fff; border-radius: 40px; border: 6px solid #fff; box-shadow: 0 10px 30px rgba(190, 24, 93, .18);
   }
+  #scenery { position: absolute; inset: 0; border-radius: 34px; overflow: hidden; }
+  #scenery > div { position: absolute; inset: 0; }
+  #sceneDecor { pointer-events: none; }
+  .ff-rain { animation: ff-rain .7s linear infinite; }
+  @keyframes ff-rain { to { transform: translate(-30px, 120px); } }
+  #mirror { position: absolute; left: 50%; top: 50%; width: calc(min(42vh, 60vw) * 1.2); aspect-ratio: 1; translate: -50% -50%; pointer-events: none; }
+  #mirror svg { width: 100%; height: 100%; display: block; overflow: visible; }
   .thing { position: absolute; translate: -50% -50%; line-height: 1; }
   .hero { animation: kit-bob 2.4s ease-in-out infinite; }
   .hero.cheer { animation: cheer .8s cubic-bezier(.3,1.5,.5,1) 2; }
@@ -45,20 +58,23 @@
   #face svg, .part svg { width: 100%; height: 100%; display: block; }
   #parts { display: flex; flex-direction: column; gap: 10px; align-items: center; }
   .partRow { display: flex; gap: 10px; background: rgba(255,255,255,.6); border-radius: 24px; padding: 6px 10px; }
-  .part { width: 74px; height: 74px; border-radius: 20px; background: #fff; border: 4px solid transparent; padding: 2px; touch-action: manipulation; cursor: pointer; box-shadow: 0 4px 0 rgba(0,0,0,.1); }
+  .part { width: clamp(52px, 14.5vw, 74px); height: clamp(52px, 14.5vw, 74px); border-radius: 20px; background: #fff; border: 4px solid transparent; padding: 2px; touch-action: manipulation; cursor: pointer; box-shadow: 0 4px 0 rgba(0,0,0,.1); }
   .part.sel { border-color: #ec4899; }
-  .faceRow { display: flex; gap: 20px; align-items: center; }
+  .faceRow { display: flex; gap: 14px 20px; align-items: center; flex-wrap: wrap; justify-content: center; max-width: 100%; }
   #checkBtn { width: 100px; height: 100px; font-size: 52px; background: #4ade80; }
   .hidden { display: none !important; }
+  .ff-flag { transform-box: fill-box; transform-origin: 50% 0; animation: ff-flag 2.6s ease-in-out infinite; }
+  @keyframes ff-flag { 0%,100% { transform: rotate(-7deg); } 50% { transform: rotate(7deg); } }
 </style>
 </head>
 <body>
 
 <section id="game" class="screen on">
+  <div id="sky"><div id="skyBack"></div><div id="skyDecor"></div></div>
   <a class="btn corner left" href="../../" aria-label="Back to Yas's Games">🏠</a>
   <button id="soundBtn" class="btn corner right" aria-label="Sound on or off">🔊</button>
   <div id="hearts"></div>
-  <div id="stage"><div id="bubble"></div></div>
+  <div id="stage"><div id="scenery"><div id="sceneBack"></div><div id="sceneDecor"></div></div><div id="bubble"></div></div>
   <div id="choices"></div>
   <div class="faceRow hidden" id="builder"><div id="parts"></div><button id="checkBtn" class="btn" aria-label="Done">✅</button></div>
 </section>
@@ -67,6 +83,7 @@
 <script src="/shared/voice.js"></script>
 <script src="/shared/saved.js"></script>
 <script src="/shared/kit.js"></script>
+<script src="/shared/scenery.js"></script>
 <script>
 (() => {
   const { $, pick, shuffle, sleep } = Kit;
@@ -88,6 +105,105 @@
     { id: 11, hero: '🐭', things: [['🐈‍⬛', 72, 52, 22]], feel: ['scared'], help: ['🏠', '🤗'], unkind: '📢' },
     { id: 12, hero: '🐨', things: [['🌈', 66, 28, 22], ['☀️', 88, 18, 10]], feel: ['surprised', 'happy'] },
   ];
+
+  // ---------- where each little story happens (cartoon scenery; see /shared/scenery.js) ----------
+  // props stay at the edges so the friend (left) and the story things (right) are clear
+  const P = (art, x, y, h, o = {}) => ({ art, x, y, h, ...o });
+  const SCENES = {
+    park: { back: 'meadow', props: [P('tree', 7, 82, 52, { tap: 'wiggle' }), P('cloud', 48, 13, 12, { at: 'center', anim: 'drift', tap: 'boing' }),
+      P('flower', 16, 99, 13, { tap: 'bloom' }), P('flower', 95, 99, 11, { args: ['#ffd23f', '#ff8a3c'], tap: 'bloom' }), P('butterfly', 46, 30, 6, { at: 'center', anim: 'flutter' })] },
+    party: { back: 'room', props: [P('ff-bunting', 50, 0, 13, { at: 'top', tap: 'flags' }), P('window', 46, 34, 26, { at: 'center' }),
+      P('lamp', 6, 80, 40, { tap: 'shine' }), P('balloons', 95, 82, 32, { tap: 'boing' })] },
+    storm: { back: 'ff-storm', props: [P('cloud', 18, 14, 14, { at: 'center', anim: 'drift', args: ['#c9cfe0', '#a9b0c8', false] }),
+      P('tree', 7, 82, 48, { args: ['#4f9a5a', '#6fb070', ''], tap: 'wiggle' }), P('bush', 94, 84, 14, { args: ['#4f9a5a', ''] })] },
+    room: { back: 'room', props: [P('window', 48, 30, 24, { at: 'center' }), P('bookshelf', 6, 78, 36, { tap: 'wiggle' }), P('lamp', 95, 80, 38, { tap: 'shine' })] },
+    garden: { back: 'garden', props: [P('sun', 50, 13, 14, { at: 'center', tap: 'spin' }), P('bush', 7, 82, 16, { tap: 'wiggle' }),
+      P('sunflower', 94, 86, 34, { tap: 'bloom' }), P('flower', 16, 99, 12, { args: ['#c49bff'], tap: 'bloom' }), P('butterfly', 44, 30, 6, { at: 'center', anim: 'flutter', args: ['#ffd23f', '#ff6fb5'] })] },
+    playground: { back: 'garden', props: [P('tree', 7, 82, 52, { args: ['#5cc04a', '#86da6c', ''], tap: 'wiggle' }), P('sun', 48, 13, 14, { at: 'center', tap: 'spin' }),
+      P('fence', 92, 80, 12), P('flower', 16, 99, 12, { args: ['#ff8ad8'], tap: 'bloom' })] },
+    night: { back: 'camp', extras: { stars: 24, fireflies: 5 }, props: [P('pine', 6, 84, 48, { args: ['#1e3a3a', false], tap: 'wiggle' }),
+      P('pine', 95, 84, 42, { args: ['#1e3a3a', false], tap: 'wiggle' }), P('owl', 90, 40, 18, { at: 'center', tap: 'hoot' })] },
+    jungle: { back: 'jungle', props: [P('vine', 5, 0, 44, { at: 'top' }), P('vine', 52, 0, 26, { at: 'top' }), P('bigleaf', 6, 100, 34, { tap: 'wiggle' }),
+      P('parrot', 46, 22, 16, { at: 'center', tap: 'squawk' })] },
+    rainbow: { back: 'meadow', props: [P('tree', 7, 82, 50, { tap: 'wiggle' }), P('cloud', 34, 14, 10, { at: 'center', anim: 'drift', tap: 'boing' }),
+      P('flower', 18, 99, 12, { args: ['#b07aff'], tap: 'bloom' }), P('flower', 94, 99, 11, { tap: 'bloom' })] },
+    mirror: { back: 'room', props: [P('lamp', 6, 80, 38, { tap: 'shine' }), P('bookshelf', 95, 78, 34, { tap: 'wiggle' })] },
+  };
+  const STORY_SCENE = { 1: 'park', 2: 'party', 3: 'storm', 4: 'room', 5: 'garden', 6: 'playground', 7: 'night', 8: 'park', 9: 'jungle', 10: 'room', 11: 'room', 12: 'rainbow' };
+
+  const SK = Scenery.kit, ol = SK.ol;
+  Scenery.add('ff-heart', (c = '#ff7aa8') => [100, 96,
+    `<path d="M50 90 C10 62 2 36 16 20 C28 8 44 12 50 28 C56 12 72 8 84 20 C98 36 90 62 50 90Z" fill="${c}" ${ol()}/>` +
+    `<ellipse cx="28" cy="30" rx="8" ry="5" fill="#fff" opacity=".6" transform="rotate(-30 28 30)"/>` + SK.face(50, 50, .5, { cheeks: '#ff4d7a' })]);
+  Scenery.add('ff-bunting', () => {
+    const cols = ['#ff6fb5', '#ffd23f', '#7ad6ff', '#8de08a', '#b48aff'];
+    let s = `<path d="M0 6 Q300 66 600 6" stroke="#8a5a9a" stroke-width="4" fill="none"/>`;
+    for (let i = 0; i < 9; i++) {
+      const t = (i + .5) / 9, x = 600 * t, y = 6 + 120 * t * (1 - t);
+      s += `<path class="ff-flag" style="animation-delay:${-i * .41}s" d="M${(x - 26).toFixed(0)} ${y.toFixed(0)} L${(x + 26).toFixed(0)} ${y.toFixed(0)} L${x.toFixed(0)} ${(y + 52).toFixed(0)}Z" fill="${cols[i % 5]}" ${ol(2)}/>`;
+    }
+    return [600, 100, s];
+  });
+  // a round wall mirror for making faces (the face sits in the glass)
+  Scenery.add('ff-mirror', () => {
+    let rim = '';
+    for (let i = 0; i < 18; i++) { const a = i / 18 * Math.PI * 2; rim += `<circle cx="${(120 + Math.cos(a) * 112).toFixed(1)}" cy="${(120 + Math.sin(a) * 112).toFixed(1)}" r="9" fill="#ffbe4a" ${ol(2)}/>`; }
+    return [240, 240, rim + `<circle cx="120" cy="120" r="112" fill="#ffd27a" ${ol()}/><circle cx="120" cy="120" r="104" fill="#ff9fc6"/><circle cx="120" cy="120" r="98" fill="#e3f6ff"/>` +
+      `<path d="M58 78 Q74 46 108 34" stroke="#fff" stroke-width="12" stroke-linecap="round" fill="none" opacity=".9"/><path d="M52 104 L58 94" stroke="#fff" stroke-width="10" stroke-linecap="round" opacity=".9"/>` +
+      `<path d="M120 12 c-7 -10 -21 -2 -12 8 l12 10 l12 -10 c9 -10 -5 -18 -12 -8Z" fill="#ff5a8a" ${ol(2)}/>`];
+  });
+  Scenery.addBackdrop('ff-storm', ['#6f7fa8', '#9aa8c8', '#c8d0e0'], () => {
+    let rain = '';
+    for (let row = -2; row < 9; row++) for (let j = -1; j < 12; j++) {
+      const x = j * 90 + 30 - row * 30, y = row * 120 + (j % 2) * 60;
+      rain += `<path d="M${x} ${y} l-8 34" stroke="#e6eeff" stroke-width="4" stroke-linecap="round" opacity=".55"/>`;
+    }
+    return SK.sky('ff-storm') + `<path d="${SK.hillsPath(650, 140, 77, 4)}" fill="#7a9a8a"/>` +
+      `<path d="M0 760 Q500 730 1000 765 V1000 H0Z" fill="#5f8a5a"/><path d="M0 900 Q500 880 1000 905 V1000 H0Z" fill="#557d50"/>` +
+      SK.grassTufts(40, 6, 770, 990, '#4a7046') + `<g class="ff-rain">${rain}</g>`;
+  });
+  Scenery.addBackdrop('ff-sky', ['#ffe3f1', '#f3dcff', '#e3e6ff'], () => SK.sky('ff-sky') +
+    SK.dots(14, 21, 60, 700, ['#ffffff'], [30, 60], 1).replace(/fill="#ffffff"/g, 'fill="#ffffff" opacity=".35"') +
+    `<path d="${SK.hillsPath(840, 90, 81, 4)}" fill="#c8f0c8"/><path d="M0 920 Q500 880 1000 920 V1000 H0Z" fill="#a9e3a9"/>` +
+    SK.dots(40, 22, 860, 990, ['#ffffff', '#ff9fd2', '#fff3a0', '#c49bff'], [4, 7]));
+
+  // tapping the scenery
+  const T = (f, d, o) => Kit.tone(f, d, o);
+  function tapDecor(el) {
+    const re = (cls, ms) => Scenery.react(el, cls, ms), r = el.getBoundingClientRect(), cx = r.left + r.width / 2;
+    switch (el.dataset.tap) {
+      case 'spin': re('t-spin', 900); Kit.sfx.whoosh(); break;
+      case 'boing': re('t-boing', 600); Kit.sfx.boing(); break;
+      case 'wiggle': re('t-wiggle', 600); [0, 1, 2].forEach(i => T(1800 + i * 300, .06, { type: 'sawtooth', vol: .025, to: 1200, delay: i * .05 })); break;
+      case 'bloom': re('t-bloom', 900); [0, 1, 2, 3].forEach(i => T(760 + i * 40, .07, { type: 'square', vol: .05, to: 980, delay: i * .08 })); break;
+      case 'flags': re('t-wiggle', 600); [0, 1, 2].forEach(i => T(520 + i * 130, .12, { type: 'triangle', vol: .1, delay: i * .08 })); break;
+      case 'shine': re('t-boing', 600); Kit.sfx.ding(); break;
+      case 'hoot': re('t-hoot', 900); [0, 1].forEach(i => T(420, .35, { vol: .16, to: 360, delay: i * .45, attack: .06 })); break;
+      case 'squawk': re('t-flap', 700); [0, 1].forEach(i => T(1100, .16, { type: 'sawtooth', vol: .08, to: 1600, delay: i * .2 })); break;
+      case 'heart': re('t-boing', 600); Kit.sfx.ding(); Kit.burst(cx, r.top + r.height / 2, ['💖', '💕'], 5, 80); break;
+    }
+  }
+  const hookTaps = els => els.forEach(el => el.dataset.tap && el.addEventListener('pointerdown', e => { e.stopPropagation(); tapDecor(el); }));
+
+  // the sky around the game
+  const SKY_PROPS = [P('cloud', 14, 11, 11, { at: 'center', anim: 'drift', tap: 'boing' }), P('cloud', 78, 17, 9, { at: 'center', anim: 'drift', args: ['#fff', '#f2dcff'], tap: 'boing' }),
+    P('ff-heart', 6, 92, 9, { at: 'bottom', anim: 'bob', tap: 'heart' }), P('ff-heart', 94, 90, 7, { at: 'bottom', anim: 'bob', args: ['#b48aff'], tap: 'heart' })];
+  function paintSky() {
+    $('skyBack').innerHTML = Scenery.backdrop('ff-sky');
+    $('skyDecor').innerHTML = '';
+    hookTaps(Scenery.place($('skyDecor'), SKY_PROPS, innerWidth, innerHeight));
+  }
+  // the little scene inside the story box
+  let sceneKey = null;
+  function paintScenery(key = sceneKey) {
+    sceneKey = key;
+    const sc = SCENES[key], r = $('stage').getBoundingClientRect();
+    $('sceneBack').innerHTML = Scenery.backdrop(sc.back);
+    const d = $('sceneDecor'); d.innerHTML = '';
+    if (sc.extras) Scenery.extras(d, sc.extras);
+    hookTaps(Scenery.place(d, sc.props, r.width || 600, r.height || 400));
+    if (key === 'mirror') { const m = document.createElement('div'); m.id = 'mirror'; m.innerHTML = Scenery.art('ff-mirror').svg; d.appendChild(m); }
+  }
 
   // ---------- faces for the face-making rounds ----------
   const BROWS = ['none', 'up', 'angry', 'sad'];
@@ -154,6 +270,7 @@
     $('builder').classList.add('hidden'); $('choices').classList.remove('hidden');
     story = nextStory();
     clearStage();
+    paintScenery(STORY_SCENE[story.id] || 'park');
     addThing(story.hero, 30, 54, 22, 'hero');
     const things = story.things.map(([e, x, y, s]) => addThing(e, x, y, s));
     $('choices').innerHTML = '';
@@ -224,6 +341,7 @@
     $('choices').classList.add('hidden'); $('builder').classList.remove('hidden');
     want = pick(Object.keys(FEELINGS));
     face = { brows: 'none', eyes: 'normal', mouth: 'flat' };
+    paintScenery('mirror');
     const f = document.createElement('div'); f.id = 'face'; $('stage').appendChild(f);
     paintFace();
     Kit.say('ff.make.' + want);
@@ -263,8 +381,15 @@
   function next(first = false) { (saved.rounds % 3 === 2 && !first ? faceRound : storyRound)(first); }
 
   Kit.soundButton('soundBtn');
+  paintSky();
   paintHearts();
   next(true);
+  let lastSize = innerWidth + 'x' + innerHeight;
+  addEventListener('resize', () => {
+    const size = innerWidth + 'x' + innerHeight;
+    if (size === lastSize) return;
+    lastSize = size; paintSky(); if (sceneKey) paintScenery();
+  });
 })();
 </script>
 </body>

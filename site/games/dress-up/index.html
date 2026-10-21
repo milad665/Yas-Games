@@ -15,21 +15,26 @@
 <style>
   body { background: linear-gradient(160deg, #fae8ff 0%, #fce7f3 50%, #e0f2fe 100%); }
   #studio { align-items: center; justify-content: center; gap: 3vw; padding: 86px 16px 16px; flex-wrap: wrap; overflow-y: auto; touch-action: pan-y; }
-  #scene { position: relative; height: min(76vh, 560px); aspect-ratio: 3 / 4; border-radius: 36px; overflow: hidden; box-shadow: 0 10px 30px rgba(134, 25, 143, .18); border: 6px solid #fff; }
+  /* the dressing room all around (behind everything) */
+  #room { position: fixed; inset: 0; z-index: 0; }
+  #room > div { position: absolute; inset: 0; }
+  #roomDecor { pointer-events: none; }
+  #scene { position: relative; z-index: 1; height: min(76vh, 560px); aspect-ratio: 3 / 4; border-radius: 36px; overflow: hidden; box-shadow: 0 10px 30px rgba(134, 25, 143, .25); border: 6px solid #fff; background: #fae8ff; }
   @media (orientation: portrait) { #scene { height: min(48vh, 520px); } }
-  #scene .deco { position: absolute; translate: -50% -50%; line-height: 1; pointer-events: none; }
-  #doll { position: absolute; inset: 4% 8% 0; }
+  #sceneBack, #sceneDecor { position: absolute; inset: 0; }
+  #sceneDecor { pointer-events: none; }
+  #doll { position: absolute; inset: 4% 8% 0; pointer-events: none; }
+  #doll svg * { pointer-events: visiblePainted; }
   #doll svg, .opt svg { width: 100%; height: 100%; display: block; overflow: visible; }
   #doll.cheer svg { animation: kit-bob .5s ease-in-out 3; }
-  .bg-studio { background: radial-gradient(circle at 50% 30%, #fff 0%, #fae8ff 60%, #f0abfc 100%); }
-  .bg-castle { background: linear-gradient(#fbcfe8 0%, #ddd6fe 70%, #bbf7d0 70%); }
-  .bg-space  { background: radial-gradient(circle at 30% 20%, #4c1d95, #1e1b4b 50%, #020617); }
-  .bg-ocean  { background: linear-gradient(#67e8f9, #2563eb 70%, #fde68a 70%); }
-  .bg-fire   { background: linear-gradient(#fecaca 0%, #fca5a5 65%, #9ca3af 65%); }
-  .bg-ship   { background: linear-gradient(#7dd3fc 0%, #bae6fd 60%, #1d4ed8 60%); }
-  .bg-city   { background: linear-gradient(#fde68a 0%, #fdba74 55%, #64748b 55%); }
+  .du-flag { transform-box: fill-box; transform-origin: 50% 0; animation: du-flag 2.6s ease-in-out infinite; }
+  @keyframes du-flag { 0%,100% { transform: rotate(-7deg); } 50% { transform: rotate(7deg); } }
+  .du-rock { animation: du-rock 5s ease-in-out infinite; }
+  @keyframes du-rock { 0%,100% { transform: rotate(-12deg); } 50% { transform: rotate(12deg); } }
+  .sc-prop.t-shine .sc-in { animation: du-shine .9s ease-out; }
+  @keyframes du-shine { 0% { filter: brightness(1); } 30% { filter: brightness(1.6); } 100% { filter: brightness(1); } }
 
-  #panel { display: flex; flex-direction: column; gap: 12px; align-items: center; max-width: 480px; }
+  #panel { position: relative; z-index: 1; display: flex; flex-direction: column; gap: 12px; align-items: center; max-width: min(480px, calc(100vw - 24px)); background: rgba(255,255,255,.5); border-radius: 30px; padding: 12px; }
   #tabs { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
   .tab { width: 58px; height: 58px; font-size: 28px; }
   .tab.sel { background: #f5d0fe; box-shadow: 0 6px 0 rgba(40,50,90,.18), 0 0 0 4px #c026d3; }
@@ -38,7 +43,9 @@
   .opt.sel { border-color: #c026d3; }
   .opt.swatch { width: 70px; height: 70px; border-radius: 50%; border: 5px solid #fff; }
   .opt.swatch.sel { border-color: #33415c; }
-  .opt.bgopt { width: 92px; height: 92px; }
+  .opt.bgopt { width: 92px; height: 92px; padding: 0; position: relative; }
+  .opt.bgopt .thumb { position: absolute; inset: 0; pointer-events: none; }
+  .opt.bgopt .icon { position: relative; font-size: 40px; filter: drop-shadow(0 3px 2px rgba(0,0,0,.3)); pointer-events: none; }
   .actions { display: flex; gap: 20px; }
   .flash { position: fixed; inset: 0; background: #fff; z-index: 50; pointer-events: none; animation: flash .5s ease-out forwards; }
   @keyframes flash { from { opacity: .9; } to { opacity: 0; } }
@@ -55,9 +62,10 @@
 <body>
 
 <section id="studio" class="screen on">
+  <div id="room"><div id="roomBack"></div><div id="roomDecor"></div></div>
   <a class="btn corner left" href="../../" aria-label="Back to Yas's Games">🏠</a>
   <button id="soundBtn" class="btn corner right" aria-label="Sound on or off">🔊</button>
-  <div id="scene" class="bg-studio"><div id="decor"></div><div id="doll"></div></div>
+  <div id="scene"><div id="sceneBack"></div><div id="sceneDecor"></div><div id="doll"></div></div>
   <div id="panel">
     <div id="tabs"></div>
     <div id="opts"></div>
@@ -75,6 +83,7 @@
 <script src="/shared/voice.js"></script>
 <script src="/shared/saved.js"></script>
 <script src="/shared/kit.js"></script>
+<script src="/shared/scenery.js"></script>
 <script>
 (() => {
   const { $, pick } = Kit;
@@ -90,11 +99,162 @@
     hand: ['none', '🪄', '🧯', '🔭', '🔱', '🩺', '🌂', '🍭'],
     bg: ['studio', 'castle', 'space', 'ocean', 'fire', 'ship', 'city'],
   };
-  const BG_DECOR = {
-    studio: [['✨', 15, 12, 7], ['⭐', 86, 18, 6]], castle: [['🏰', 22, 52, 22], ['🌈', 84, 14, 12]], space: [['🪐', 82, 14, 14], ['🌙', 16, 12, 10], ['⭐', 30, 40, 5]],
-    ocean: [['🐠', 16, 30, 9], ['🫧', 84, 24, 8], ['🪸', 86, 86, 12]], fire: [['🚒', 84, 76, 18], ['🔥', 14, 70, 9]], ship: [['⛵', 18, 58, 16], ['☀️', 84, 12, 10], ['🦜', 86, 40, 9]],
-    city: [['🏙️', 20, 58, 20], ['🌆', 84, 58, 14]],
+  // ---------- scenery (cartoon backdrops and props; see /shared/scenery.js) ----------
+  const P = (art, x, y, h, o = {}) => ({ art, x, y, h, ...o });
+  const BGS = {
+    studio: { icon: '✨', back: 'du-studio',
+      props: [P('du-softbox', 8, 97, 40, { tap: 'flash' }), P('du-softbox', 92, 97, 40, { flip: true, tap: 'flash' }),
+              P('sparkle', 24, 12, 6, { at: 'center', anim: 'twinkle' }), P('sparkle', 80, 16, 7, { at: 'center', anim: 'twinkle' }), P('sparkle', 66, 6, 5, { at: 'center', anim: 'twinkle' })] },
+    castle: { icon: '🏰', back: 'castle',
+      props: [P('castle', 20, 62, 36, { tap: 'sparkle' }), P('rainbow', 80, 14, 24, { at: 'center' }), P('sparkle', 62, 7, 5, { at: 'center', anim: 'twinkle' }),
+              P('blossom', 90, 100, 44, { tap: 'wiggle' }), P('flower', 8, 100, 16, { args: ['#ff8ad8'], tap: 'bloom' }), P('flower', 20, 100, 12, { args: ['#fff3a0'], tap: 'bloom' })] },
+    space: { icon: '🪐', back: 'space', stars: true,
+      props: [P('planet', 80, 12, 26, { at: 'center', anim: 'bob', tap: 'spin' }), P('moon', 16, 10, 18, { at: 'center', tap: 'boing' }),
+              P('earth', 11, 58, 14, { at: 'center', tap: 'spin' }), P('rocket', 90, 99, 34, { tap: 'launch' })] },
+    ocean: { icon: '🐠', back: 'ocean', bubbles: true,
+      props: [P('fish', 0, 18, 10, { at: 'center', anim: 'across', dur: 14, photoX: 30 }), P('jellyfish', 86, 34, 16, { at: 'center', anim: 'bob', tap: 'boing' }),
+              P('coral', 10, 100, 22), P('seaweed', 92, 100, 36, { tap: 'wiggle' }), P('starfish', 24, 100, 10, { tap: 'spin' }), P('shell', 78, 100, 8, { tap: 'boing' })] },
+    fire: { icon: '🚒', back: 'du-fire',
+      props: [P('du-truck', 82, 100, 24, { tap: 'siren' }), P('du-hydrant', 10, 100, 18, { tap: 'splash' })] },
+    ship: { icon: '⛵', back: 'du-ship',
+      props: [P('sun', 84, 11, 18, { at: 'center', tap: 'spin' }), P('cloud', 22, 12, 13, { at: 'center', anim: 'drift', tap: 'boing' }),
+              P('du-boat', 24, 57, 12, { anim: 'patrol' }), P('du-wheel', 12, 76, 22, { at: 'center', tap: 'spin' }), P('parrot', 88, 48, 22, { at: 'center', tap: 'squawk' })] },
+    city: { icon: '🏙️', back: 'du-city',
+      props: [P('du-streetlamp', 8, 100, 70, { tap: 'lamp' }), P('du-streetlamp', 92, 100, 62, { flip: true, tap: 'lamp' }),
+              P('cloud', 72, 10, 12, { at: 'center', anim: 'drift', args: ['#fff4ea', '#ffd9c2'], tap: 'boing' })] },
   };
+  // the dressing room around the photo spot
+  const ROOM = [P('du-bunting', 25, 0, 11, { at: 'top', tap: 'flags' }), P('du-bunting', 75, 0, 11, { at: 'top', tap: 'flags' }),
+    P('du-rack', 10, 97, 44, { tap: 'rack' }), P('du-mirror', 91, 97, 52, { tap: 'mirror' })];
+
+  const SK = Scenery.kit, ol = SK.ol, add = Scenery.add;
+  add('du-softbox', () => [120, 300,
+    `<path d="M60 150 L22 296 M60 150 L98 296 M60 150 V296" stroke="#4a4a5a" stroke-width="6" stroke-linecap="round"/><rect x="55" y="92" width="10" height="64" fill="#5a5a6a"/>` +
+    `<ellipse class="sc-glowpulse" cx="60" cy="60" rx="60" ry="50" fill="url(#sc-beam-glow)"/>` +
+    `<path d="M8 18 H112 L100 102 H20Z" fill="#fff" ${ol()}/><path d="M20 28 H100 L91 92 H29Z" fill="#fffbe0"/><path d="M30 34 H52 L48 60 H32Z" fill="#fff" opacity=".9"/>`]);
+  add('du-bunting', () => {
+    const cols = ['#ff6fb5', '#ffd23f', '#7ad6ff', '#8de08a', '#b48aff'];
+    let s = `<path d="M0 10 Q300 70 600 10" stroke="#8a5a9a" stroke-width="4" fill="none"/>`;
+    for (let i = 0; i < 10; i++) {
+      const t = (i + .5) / 10, x = 600 * t, y = 10 + 120 * t * (1 - t);
+      s += `<path class="du-flag" style="animation-delay:${-i * .37}s" d="M${(x - 24).toFixed(0)} ${y.toFixed(0)} L${(x + 24).toFixed(0)} ${y.toFixed(0)} L${x.toFixed(0)} ${(y + 50).toFixed(0)}Z" fill="${cols[i % 5]}" ${ol(2)}/>`;
+    }
+    return [600, 110, s];
+  });
+  add('du-rack', () => {
+    const cols = ['#ff8ad8', '#7ad6ff', '#ffd23f', '#b07aff'];
+    let s = `<rect x="16" y="30" width="10" height="250" rx="4" fill="#c0c4d6" ${ol(2)}/><rect x="194" y="30" width="10" height="250" rx="4" fill="#c0c4d6" ${ol(2)}/>` +
+      `<rect x="6" y="276" width="40" height="10" rx="5" fill="#9aa0b8" ${ol(2)}/><rect x="174" y="276" width="40" height="10" rx="5" fill="#9aa0b8" ${ol(2)}/>` +
+      [12, 40, 180, 208].map(x => `<circle cx="${x}" cy="292" r="6" fill="#5a5a6a"/>`).join('') +
+      `<rect x="8" y="24" width="204" height="12" rx="6" fill="#d8dbe8" ${ol(2)}/>`;
+    [50, 90, 130, 170].forEach((x, i) => {
+      const c = cols[i];
+      s += `<g class="sc-sway" style="transform-origin:${x}px 30px;animation-delay:${-i * .8}s"><path d="M${x} 44 V34 q0 -10 7 -10" stroke="#777" stroke-width="3" fill="none"/>` +
+        `<path d="M${x - 18} 54 L${x} 42 L${x + 18} 54" stroke="#8a5a2b" stroke-width="4" fill="none" stroke-linecap="round"/>` +
+        (i % 2 ? `<path d="M${x - 14} 50 L${x + 14} 50 L${x + 20} 70 L${x + 12} 74 L${x + 12} 112 L${x - 12} 112 L${x - 12} 74 L${x - 20} 70Z" fill="${c}" ${ol(2)}/><circle cx="${x}" cy="66" r="4" fill="#fff" opacity=".8"/>`
+               : `<path d="M${x - 11} 50 L${x + 11} 50 L${x + 9} 72 L${x + 22} 140 Q${x} 148 ${x - 22} 140 L${x - 9} 72Z" fill="${c}" ${ol(2)}/><path d="M${x - 18} 128 Q${x} 136 ${x + 18} 128" stroke="#fff" stroke-width="3" fill="none" opacity=".7"/>`) +
+        `</g>`;
+    });
+    return [220, 300, s];
+  });
+  add('du-mirror', () => {
+    let bulbs = '';
+    for (let i = 0; i < 12; i++) { const a = i / 12 * Math.PI * 2; bulbs += `<circle class="sc-blinky" style="animation-delay:${(i % 3) * .33}s" cx="${(80 + Math.cos(a) * 64).toFixed(1)}" cy="${(140 + Math.sin(a) * 110).toFixed(1)}" r="6" fill="#fff7c2"/>`; }
+    return [160, 320,
+      `<path d="M80 250 L40 316 M80 250 L120 316" stroke="#c98a4a" stroke-width="9" stroke-linecap="round"/>` +
+      `<ellipse cx="80" cy="140" rx="72" ry="120" fill="#f6c76a" ${ol()}/><ellipse cx="80" cy="140" rx="54" ry="100" fill="#cfefff" ${ol(2)}/>` +
+      `<path d="M48 84 Q56 62 74 54" stroke="#fff" stroke-width="10" stroke-linecap="round" fill="none" opacity=".85"/><path d="M46 110 L54 98" stroke="#fff" stroke-width="8" stroke-linecap="round" opacity=".85"/>` +
+      bulbs + `<path d="M80 30 c-6 -9 -18 -2 -10 7 l10 9 l10 -9 c8 -9 -4 -16 -10 -7Z" fill="#ff5a8a"/>`];
+  });
+  add('du-truck', () => [300, 170,
+    `<rect x="40" y="24" width="160" height="14" rx="4" fill="#d8dbe8" ${ol(2)}/>` + [60, 90, 120, 150, 180].map(x => `<line x1="${x}" y1="24" x2="${x}" y2="38" stroke="#9aa0b8" stroke-width="3"/>`).join('') +
+    `<rect x="20" y="44" width="200" height="96" rx="12" fill="#e8322f" ${ol()}/>` +
+    `<path d="M220 140 V54 Q220 44 232 44 H260 Q282 44 292 84 V140Z" fill="#e8322f" ${ol()}/><path d="M232 56 H258 Q272 56 280 86 H232Z" fill="#bfeaff" ${ol(2)}/>` +
+    `<rect x="20" y="104" width="272" height="10" fill="#fff"/><rect x="34" y="58" width="56" height="34" rx="6" fill="#c22a28"/><rect x="104" y="58" width="56" height="34" rx="6" fill="#c22a28"/>` +
+    `<rect class="sc-blinky" x="234" y="30" width="26" height="14" rx="6" fill="#4fb3ff" ${ol(2)}/><circle cx="286" cy="118" r="7" fill="#fff4a8" ${ol(2)}/>` +
+    [70, 244].map(x => `<circle cx="${x}" cy="142" r="24" fill="#333" ${ol()}/><circle cx="${x}" cy="142" r="10" fill="#d8dbe8"/>`).join('')]);
+  add('du-hydrant', () => [80, 120,
+    `<path d="M16 36 Q40 -2 64 36Z" fill="#ff4d4d" ${ol()}/><rect x="20" y="30" width="40" height="78" rx="10" fill="#ff4d4d" ${ol()}/>` +
+    `<rect x="4" y="54" width="72" height="16" rx="8" fill="#e8322f" ${ol(2)}/><rect x="12" y="104" width="56" height="12" rx="4" fill="#c22a28" ${ol(2)}/><circle cx="40" cy="14" r="5" fill="#ffd23f"/>` +
+    SK.face(40, 84, .42)]);
+  add('du-wheel', () => [200, 200,
+    `<g class="du-rock" style="transform-origin:100px 100px">` +
+    Array.from({ length: 8 }, (_, i) => `<rect x="93" y="4" width="14" height="62" rx="7" fill="#b07a43" ${ol(2)} transform="rotate(${i * 45} 100 100)"/>`).join('') +
+    `<circle cx="100" cy="100" r="64" fill="none" stroke="${SK.OL}" stroke-opacity=".55" stroke-width="22"/><circle cx="100" cy="100" r="64" fill="none" stroke="#c98a4a" stroke-width="16"/>` +
+    `<circle cx="100" cy="100" r="22" fill="#8a5a2b" ${ol()}/><circle cx="100" cy="100" r="9" fill="#ffd23f"/></g>`]);
+  add('du-boat', () => [160, 150,
+    `<line x1="80" y1="10" x2="80" y2="110" stroke="#7a4a25" stroke-width="5"/><path d="M80 8 L104 16 L80 24Z" fill="#ff4d6d"/>` +
+    `<path d="M84 22 Q130 60 132 104 H84Z" fill="#fff" ${ol(2)}/><path d="M76 34 Q40 70 34 104 H76Z" fill="#fff3d6" ${ol(2)}/>` +
+    `<path d="M10 108 H150 Q138 146 108 146 H50 Q22 146 10 108Z" fill="#b8743a" ${ol()}/><path d="M18 120 H142" stroke="#fff" stroke-width="5" opacity=".7"/>`]);
+  add('du-streetlamp', () => [80, 360,
+    `<rect x="34" y="66" width="12" height="284" rx="5" fill="#4a3f6b" ${ol(2)}/><rect x="20" y="340" width="40" height="16" rx="6" fill="#4a3f6b" ${ol(2)}/>` +
+    `<ellipse class="sc-glowpulse lampglow" cx="40" cy="50" rx="40" ry="36" fill="url(#sc-beam-glow)"/>` +
+    `<path d="M20 30 H60 L54 72 H26Z" fill="#fff3a0" ${ol()}/><path d="M12 32 L40 8 L68 32Z" fill="#4a3f6b" ${ol(2)}/><rect x="24" y="70" width="32" height="8" rx="3" fill="#4a3f6b"/>`]);
+
+  // backdrops for the photo spot and the room
+  const AB = Scenery.addBackdrop;
+  AB('du-studio', ['#fff0fa', '#ffd9f2'], () => SK.sky('du-studio') +
+    SK.dots(26, 7, 30, 640, ['#ffd0ee', '#fff3a0', '#ffffff'], [6, 11], 1) +
+    `<path d="M140 0 H860 V620 Q860 760 1000 790 V1000 H0 V790 Q140 760 140 620Z" fill="#fff" opacity=".6"/>` +
+    `<ellipse cx="500" cy="905" rx="320" ry="56" fill="#f3c1e6" opacity=".7"/>`);
+  AB('du-fire', ['#ffd2b0', '#ffeedd'], () => SK.sky('du-fire') +
+    `<rect x="60" y="230" width="880" height="570" fill="#e0563f"/>` +
+    Array.from({ length: 13 }, (_, i) => `<rect x="60" y="${270 + i * 40}" width="880" height="4" fill="#b8402f" opacity=".55"/>`).join('') +
+    (() => { const r = SK.seeded(4); let b = ''; for (let i = 0; i < 24; i++) b += `<rect x="${(80 + r() * 800).toFixed(0)}" y="${(276 + Math.floor(r() * 12) * 40 + 8).toFixed(0)}" width="44" height="22" rx="4" fill="#ec7a5f"/>`; return b; })() +
+    `<rect x="40" y="200" width="920" height="50" rx="10" fill="#b8352e"/><circle cx="500" cy="225" r="58" fill="#ffd23f"/><circle cx="500" cy="225" r="36" fill="#e8322f"/>` +
+    [140, 560].map(x => `<path d="M${x} 800 V480 Q${x} 400 ${x + 150} 400 Q${x + 300} 400 ${x + 300} 480 V800Z" fill="#f4f4f8"/>` +
+      [520, 600, 680].map(y => `<rect x="${x + 16}" y="${y}" width="268" height="8" fill="#cdd0dc"/>`).join('') + `<rect x="${x + 40}" y="440" width="220" height="56" rx="10" fill="#bfeaff"/>`).join('') +
+    `<rect y="800" width="1000" height="200" fill="#b9bec9"/><rect y="800" width="1000" height="16" fill="#9aa0ae"/>` +
+    [200, 450, 700].map(x => `<rect x="${x}" y="816" width="6" height="184" fill="#a3a9b6"/>`).join(''));
+  AB('du-ship', ['#6fcaff', '#c4ecff'], () => SK.sky('du-ship') +
+    `<rect y="470" width="1000" height="200" fill="#2f8fe0"/><rect y="470" width="1000" height="26" fill="#5fb6ff"/>` +
+    `<g class="sc-waves">${Array.from({ length: 14 }, (_, i) => `<path d="M${i * 90 - 60} ${540 + (i % 3) * 30} q20 -12 40 0 t40 0" stroke="#fff" stroke-width="5" fill="none" opacity=".55"/>`).join('')}</g>` +
+    `<rect y="700" width="1000" height="300" fill="#c08a52"/>` + [760, 830, 910].map(y => `<rect y="${y}" width="1000" height="5" fill="#9a6a3a"/>`).join('') +
+    Array.from({ length: 13 }, (_, i) => `<rect x="${i * 80 + 4}" y="650" width="18" height="56" fill="#a8703a"/>`).join('') +
+    `<rect y="636" width="1000" height="22" rx="10" fill="#8a5a2b"/><rect y="700" width="1000" height="12" fill="#7a4a25"/>`);
+  AB('du-city', ['#ffb36b', '#ffcf9a', '#ffe6c8'], () => {
+    const r = SK.seeded(9);
+    let far = '', near = '';
+    for (let x = -20; x < 1000; x += 90 + r() * 40) { const h = 220 + r() * 240; far += `<rect x="${x.toFixed(0)}" y="${(800 - h).toFixed(0)}" width="${(80 + r() * 50).toFixed(0)}" height="${h.toFixed(0)}" fill="#d48aa8" opacity=".7"/>`; }
+    for (let x = 0; x < 1000; x += 170) {
+      const w = 130, h = 180 + r() * 220, y = 800 - h, c = ['#8a6aa8', '#6f5a9a', '#9a6a9a'][Math.floor(r() * 3)];
+      near += `<rect x="${x}" y="${y.toFixed(0)}" width="${w}" height="${h.toFixed(0)}" rx="6" fill="${c}"/>`;
+      for (let wy = y + 24; wy < 770; wy += 52) for (let wx = x + 18; wx < x + w - 20; wx += 38) near += `<rect x="${wx.toFixed(0)}" y="${wy.toFixed(0)}" width="20" height="26" rx="3" fill="${r() < .6 ? '#ffe27a' : '#5a4a7a'}"/>`;
+    }
+    return SK.sky('du-city') + `<circle cx="720" cy="560" r="130" fill="#ffe27a" opacity=".9"/>` + far + near +
+      `<rect y="800" width="1000" height="200" fill="#cfc6d6"/><rect y="800" width="1000" height="18" fill="#a99dbb"/>` +
+      [150, 400, 650, 900].map(x => `<rect x="${x}" y="818" width="6" height="182" fill="#b8adc8"/>`).join('');
+  });
+  AB('du-room', ['#ffe4f2', '#fcd3ec'], () => SK.sky('du-room') +
+    Array.from({ length: 20 }, (_, i) => `<rect x="${i * 50 + 14}" y="0" width="22" height="640" fill="#fff" opacity=".32"/>`).join('') +
+    SK.dots(40, 3, 40, 600, ['#ffb8dc', '#ffffff'], [5, 8], 1) +
+    `<rect y="612" width="1000" height="100" fill="#f9b8d8"/><rect y="604" width="1000" height="14" fill="#fff"/>` +
+    Array.from({ length: 8 }, (_, i) => `<rect x="${i * 125 + 15}" y="632" width="95" height="56" rx="10" fill="none" stroke="#f19ac4" stroke-width="5"/>`).join('') +
+    `<rect y="710" width="1000" height="290" fill="#e9b47c"/>` + [770, 840, 920].map(y => `<rect y="${y}" width="1000" height="5" fill="#cf9660"/>`).join('') +
+    `<ellipse cx="500" cy="890" rx="380" ry="80" fill="#c9a8ff"/><ellipse cx="500" cy="890" rx="300" ry="56" fill="#e2d1ff"/>`);
+
+  // tapping the scenery
+  const T = (f, d, o) => Kit.tone(f, d, o);
+  function tapDecor(el) {
+    const re = (cls, ms) => Scenery.react(el, cls, ms), r = el.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+    switch (el.dataset.tap) {
+      case 'spin': re('t-spin', 900); Kit.sfx.whoosh(); break;
+      case 'boing': re('t-boing', 600); Kit.sfx.boing(); break;
+      case 'wiggle': case 'rack': re('t-wiggle', 600); [0, 1, 2].forEach(i => T(1800 + i * 300, .06, { type: 'sawtooth', vol: .025, to: 1200, delay: i * .05 })); break;
+      case 'bloom': re('t-bloom', 900); [0, 1, 2, 3].forEach(i => T(760 + i * 40, .07, { type: 'square', vol: .05, to: 980, delay: i * .08 })); break;
+      case 'sparkle': re('t-boing', 600); Kit.sfx.yay(); Kit.burst(cx, r.top + r.height * .2, ['✨', '⭐', '🌟'], 8, 120); break;
+      case 'launch': re('t-launch', 3400); T(120, 1.3, { type: 'sawtooth', vol: .07, to: 900 }); break;
+      case 'flash': re('t-shine', 900); T(1800, .05, { type: 'square', vol: .08 }); T(1200, .08, { type: 'square', vol: .06, delay: .06 }); break;
+      case 'mirror': re('t-shine', 900); Kit.sfx.ding(); Kit.burst(cx, cy - r.height * .1, ['✨', '💖'], 6, 90); break;
+      case 'lamp': re('t-shine', 900); Kit.sfx.ding(); break;
+      case 'flags': re('t-wiggle', 600); [0, 1, 2].forEach(i => T(520 + i * 130, .12, { type: 'triangle', vol: .1, delay: i * .08 })); break;
+      case 'siren': re('t-boing', 600); [0, 1, 2, 3].forEach(i => T(i % 2 ? 700 : 950, .25, { type: 'triangle', vol: .08, delay: i * .26 })); break;
+      case 'splash': re('t-boing', 600); T(1500, .4, { type: 'triangle', vol: .08, to: 200 }); Kit.burst(cx, r.top, ['💧'], 6, 90); break;
+      case 'squawk': re('t-flap', 700); [0, 1].forEach(i => T(1100, .16, { type: 'sawtooth', vol: .08, to: 1600, delay: i * .2 })); break;
+    }
+  }
+  const hookTaps = els => els.forEach(el => el.dataset.tap && el.addEventListener('pointerdown', e => { e.stopPropagation(); tapDecor(el); }));
+
   // a costume is complete when these pieces match
   const THEMES = {
     princess: { outfit: 'gown', head: 'crown', hand: '🪄' },
@@ -176,11 +336,34 @@
   }
 
   // ---------- screen ----------
+  // the backdrop and props only change when the background (or the screen size) does
+  let paintedBg = '', paintedRoom = '';
   function paintScene() {
-    $('scene').className = 'bg-' + look.bg;
-    $('decor').innerHTML = (BG_DECOR[look.bg] || []).map(([e, x, y, sz]) => `<div class="deco" style="left:${x}%;top:${y}%;font-size:${sz}vmin">${e}</div>`).join('');
+    const r = $('scene').getBoundingClientRect(), key = look.bg + Math.round(r.width) + 'x' + Math.round(r.height);
+    if (key !== paintedBg && r.width) {
+      paintedBg = key;
+      const bg = BGS[look.bg] || BGS.studio;
+      $('sceneBack').innerHTML = Scenery.backdrop(bg.back);
+      const d = $('sceneDecor'); d.innerHTML = '';
+      if (bg.stars) Scenery.extras(d, { stars: 30 });
+      if (bg.bubbles) Scenery.extras(d, { bubbles: 6 });
+      hookTaps(Scenery.place(d, bg.props, r.width, r.height));
+    }
     $('doll').innerHTML = dollSVG(look);
   }
+  function paintRoom() {
+    const key = innerWidth + 'x' + innerHeight;
+    if (key === paintedRoom) return;
+    paintedRoom = key;
+    $('roomBack').innerHTML = Scenery.backdrop('du-room');
+    $('roomDecor').innerHTML = '';
+    hookTaps(Scenery.place($('roomDecor'), ROOM, innerWidth, innerHeight));
+  }
+  // a little hello when she taps the doll
+  $('doll').addEventListener('pointerdown', () => {
+    $('doll').classList.remove('cheer'); void $('doll').offsetWidth; $('doll').classList.add('cheer');
+    [0, 1, 2, 3].forEach(i => T(760 + i * 40, .07, { type: 'square', vol: .05, to: 980, delay: i * .08 }));
+  });
   function paintPanel() {
     $('tabs').innerHTML = '';
     for (const [k, icon] of TABS) {
@@ -194,7 +377,7 @@
       const b = document.createElement('button');
       const sel = look[tab] === o;
       if (['skin', 'hairColor', 'color'].includes(tab)) { b.className = 'opt swatch' + (sel ? ' sel' : ''); b.style.background = o; }
-      else if (tab === 'bg') { b.className = 'opt bgopt bg-' + o + (sel ? ' sel' : ''); b.textContent = (BG_DECOR[o][0] || ['✨'])[0]; }
+      else if (tab === 'bg') { b.className = 'opt bgopt' + (sel ? ' sel' : ''); b.innerHTML = '<div class="thumb">' + Scenery.backdrop(BGS[o].back) + '</div><span class="icon">' + BGS[o].icon + '</span>'; }
       else if (tab === 'hand') { b.className = 'opt' + (sel ? ' sel' : ''); b.textContent = o === 'none' ? '🚫' : o; }
       else { b.className = 'opt' + (sel ? ' sel' : ''); b.innerHTML = o === 'none' ? '🚫' : dollSVG({ ...look, [tab]: o, bg: 'studio' }); }
       b.setAttribute('aria-label', tab + ' ' + o);
@@ -226,17 +409,36 @@
   };
 
   // ---------- photos ----------
+  // the whole picture as one SVG: backdrop, props (standing still) and the doll, 450 x 600
+  function photoSVG(W, H) {
+    const bg = BGS[look.bg] || BGS.studio, unit = Math.min(W, H) / 100;
+    const defs = (document.querySelector('#sc-defs defs') || {}).innerHTML || '';
+    const nest = (svg, x, y, w, h) => svg.replace('<svg ', `<svg x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${w.toFixed(1)}" height="${h.toFixed(1)}" `);
+    let s = `<svg xmlns="http://www.w3.org/2000/svg" width="${W * 2}" height="${H * 2}" viewBox="0 0 ${W} ${H}"><defs>${defs}</defs>`;
+    s += nest(Scenery.backdrop(bg.back), 0, 0, W, H);
+    if (bg.stars) { const r = SK.seeded(11); for (let i = 0; i < 30; i++) s += `<circle cx="${(r() * W).toFixed(0)}" cy="${(r() * H * .8).toFixed(0)}" r="${(1 + r() * 1.6).toFixed(1)}" fill="#fff"/>`; }
+    if (bg.bubbles) { const r = SK.seeded(12); for (let i = 0; i < 6; i++) s += `<circle cx="${(r() * W).toFixed(0)}" cy="${(r() * H).toFixed(0)}" r="${(6 + r() * 9).toFixed(0)}" fill="#fff" fill-opacity=".15" stroke="#fff" stroke-opacity=".7" stroke-width="2"/>`; }
+    for (const p of bg.props) {
+      const a = Scenery.art(p.art, ...(p.args || [])), h = p.h * unit, w = h * a.w / a.h;
+      const x = (p.photoX != null ? p.photoX : p.x) / 100 * W - w / 2, y = p.y / 100 * H - (p.at === 'center' ? h / 2 : p.at === 'top' ? 0 : h);
+      s += p.flip ? `<g transform="translate(${(x + w).toFixed(1)} ${y.toFixed(1)}) scale(-1 1)">${nest(a.svg, 0, 0, w, h)}</g>` : nest(a.svg, x, y, w, h);
+    }
+    s += nest(dollSVG(look), W * .08, H * .04, W * .84, H * .96);
+    return s + '</svg>';
+  }
+  const loadImg = src => new Promise(ok => { const img = new Image(); img.onload = () => ok(img); img.onerror = () => ok(null); img.src = src; });
+  const svgURL = svg => 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
   async function snapshot() {
-    const r = $('scene').getBoundingClientRect(), W = 450, H = 600, c = document.createElement('canvas');
+    const W = 450, H = 600, c = document.createElement('canvas');
     c.width = W * 2; c.height = H * 2; const x = c.getContext('2d'); x.scale(2, 2);
-    // background colors
-    const bgCols = { studio: ['#fff', '#f0abfc'], castle: ['#fbcfe8', '#bbf7d0'], space: ['#4c1d95', '#020617'], ocean: ['#67e8f9', '#2563eb'], fire: ['#fecaca', '#9ca3af'], ship: ['#7dd3fc', '#1d4ed8'], city: ['#fde68a', '#64748b'] }[look.bg];
-    const g = x.createLinearGradient(0, 0, 0, H); g.addColorStop(0, bgCols[0]); g.addColorStop(1, bgCols[1]); x.fillStyle = g; x.fillRect(0, 0, W, H);
-    x.textAlign = 'center'; x.textBaseline = 'middle';
-    for (const [e, px, py, sz] of BG_DECOR[look.bg]) { x.font = `${sz * 6}px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif`; x.fillText(e, px / 100 * W, py / 100 * H); }
-    const img = new Image();
-    await new Promise(ok => { img.onload = ok; img.onerror = ok; img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(dollSVG(look)); });
-    try { x.drawImage(img, W * .08, H * .04, W * .84, H * .96); } catch (e) {}
+    x.fillStyle = '#fae8ff'; x.fillRect(0, 0, W, H);
+    let img = null;
+    try { img = await loadImg(svgURL(photoSVG(W, H))); } catch (e) {}
+    if (img) { try { x.drawImage(img, 0, 0, W, H); } catch (e) { img = null; } }
+    if (!img) {   // if the full picture can't be drawn, at least keep the doll
+      const doll = await loadImg(svgURL(dollSVG(look)));
+      if (doll) try { x.drawImage(doll, W * .08, H * .04, W * .84, H * .96); } catch (e) {}
+    }
     return c;
   }
   $('photoBtn').onclick = async () => {
@@ -263,7 +465,9 @@
   $('bigSave').onclick = () => { if (bigPhoto) { Kit.sfx.ding(); Saved.photos.save([bigPhoto]); } };
 
   Kit.soundButton('soundBtn');
-  paintScene(); paintPanel();
+  paintRoom(); paintScene(); paintPanel();
+  addEventListener('resize', () => { paintRoom(); paintScene(); });
+  if (self.ResizeObserver) new ResizeObserver(() => paintScene()).observe($('scene'));
   Kit.say('du.intro');
 })();
 </script>

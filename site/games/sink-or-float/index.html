@@ -13,9 +13,11 @@
 <link rel="stylesheet" href="/shared/kit.css">
 <title>Sink or Float</title>
 <style>
-  body { background: repeating-linear-gradient(0deg, #f0f9ff 0 50px, #e0f2fe 50px 52px), #f0f9ff; }
+  body { background: #d6f1ff; }
+  .layer { position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 0; }
+  .shelf, .center { position: relative; z-index: 1; }
   #lab { align-items: stretch; justify-content: center; gap: 2vw; padding: 90px 14px max(14px, env(safe-area-inset-bottom)); }
-  .shelf { width: clamp(90px, 14vw, 150px); background: rgba(255,255,255,.75); border-radius: 26px; padding: 10px; display: flex; flex-direction: column; align-items: center; gap: 6px; box-shadow: 0 6px 0 rgba(3, 105, 161, .12); }
+  .shelf { width: clamp(90px, 14vw, 150px); background: rgba(255,255,255,.82); border: 4px solid rgba(58,45,82,.18); border-radius: 26px; padding: 10px; display: flex; flex-direction: column; align-items: center; gap: 6px; box-shadow: 0 6px 0 rgba(3, 105, 161, .12); }
   .shelf .label { width: 70px; height: 70px; flex: none; }
   .shelf .items { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px; font-size: clamp(28px, 4vw, 40px); align-content: flex-start; }
   .center { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2vh; min-width: 0; }
@@ -24,10 +26,37 @@
   #item.float { animation: floaty 1.6s ease-in-out infinite; }
   @keyframes floaty { 0%,100% { transform: translateY(0) rotate(-4deg); } 50% { transform: translateY(-6px) rotate(4deg); } }
   #item.slow { transition: top 2.4s cubic-bezier(.3,.1,.4,1); }
-  #tub { position: absolute; left: 4%; right: 4%; bottom: 4%; height: 58%; border-radius: 0 0 140px 140px / 0 0 90px 90px; background: #fff; border: 10px solid #e2e8f0; box-shadow: 0 10px 0 #cbd5e1; overflow: hidden; z-index: 2; }
-  #water { position: absolute; left: 0; right: 0; bottom: 0; height: 80%; background: linear-gradient(rgba(125, 211, 252, .75), rgba(37, 99, 235, .75)); }
-  #water::before { content: ''; position: absolute; left: 0; right: 0; top: -6px; height: 12px; background: radial-gradient(ellipse at 50% 100%, rgba(255,255,255,.8) 40%, transparent 70%) 0 0 / 40px 12px repeat-x; animation: waves 3s linear infinite; }
-  @keyframes waves { to { background-position: 40px 0; } }
+  /* the bathtub: a white tub, water behind the item and a see-through layer of water in front of it */
+  #tub { position: absolute; left: 4%; right: 4%; bottom: 4%; height: 58%; border-radius: 0 0 140px 140px / 0 0 90px 90px; background: linear-gradient(#f7fbff, #e2f0fa); border: 10px solid #fff; box-shadow: 0 0 0 4px rgba(58,45,82,.45), 0 12px 0 4px rgba(58,45,82,.12); overflow: hidden; }
+  #water { position: absolute; left: 0; right: 0; bottom: 0; height: 80%; z-index: 1; background: linear-gradient(#9be0ff, #4a9cf0); }
+  #waterFront { position: absolute; left: 0; right: 0; bottom: 0; height: 80%; z-index: 4; pointer-events: none; background: rgba(40, 120, 220, .22); }
+  #water::before, #waterFront::before { content: ''; position: absolute; left: 0; right: 0; top: -13px; height: 14px; animation: waves 3s linear infinite;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='14'%3E%3Cpath d='M0 8 Q20 0 40 8 T80 8 V14 H0Z' fill='%239be0ff'/%3E%3C/svg%3E") 0 0 / 80px 14px repeat-x; }
+  #waterFront::before { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='14'%3E%3Cpath d='M0 8 Q20 0 40 8 T80 8 V14 H0Z' fill='%232878dc' fill-opacity='.22'/%3E%3C/svg%3E"); }
+  #water::after { content: ''; position: absolute; left: 0; right: 0; top: -8px; height: 10px; opacity: .8; animation: waves2 4.4s linear infinite;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='10'%3E%3Cpath d='M0 6 Q15 1 30 6 T60 6' stroke='%23fff' stroke-width='2.5' fill='none'/%3E%3C/svg%3E") 0 0 / 60px 10px repeat-x; }
+  @keyframes waves { to { background-position: 80px 0; } }
+  @keyframes waves2 { to { background-position: -60px 0; } }
+  .foam { position: absolute; top: -12px; border-radius: 50%; background: #fff; box-shadow: inset -3px -3px 0 rgba(150,200,240,.6); animation: foam 2.6s ease-in-out infinite; }
+  @keyframes foam { 50% { transform: translateY(-4px) scale(1.06); } }
+  .rim { position: absolute; left: 2%; right: 2%; bottom: calc(62% - 12px); height: 20px; border-radius: 10px; background: #fff; box-shadow: 0 0 0 4px rgba(58,45,82,.45); }
+  .foot { position: absolute; bottom: 0; width: 10%; max-width: 60px; aspect-ratio: 60 / 50; }
+  .foot.l { left: 14%; } .foot.r { right: 14%; }
+  .tubprop { position: absolute; }
+  .tubprop svg, .foot svg { width: 100%; height: 100%; display: block; overflow: visible; }
+  .tubprop.tap { z-index: 2; cursor: pointer; touch-action: manipulation; }
+  #faucet { left: 1%; bottom: calc(62% + 2px); width: 17%; max-width: 100px; aspect-ratio: 120 / 110; }
+  #bottle { right: 5%; bottom: calc(62% + 2px); width: 8%; max-width: 52px; min-width: 22px; aspect-ratio: 60 / 110; }
+  #towel { left: 0; top: 0; width: 16%; max-width: 100px; aspect-ratio: 110 / 170; }
+  .tubprop.t-boing { animation: sf-boing .6s cubic-bezier(.3,1.6,.5,1); transform-origin: 50% 100%; }
+  .tubprop.t-wiggle { animation: sf-wig .6s ease-in-out; transform-origin: 50% 0; }
+  @keyframes sf-boing { 30% { transform: scale(1.2, .8); } 60% { transform: scale(.9, 1.12); } }
+  @keyframes sf-wig { 25% { transform: rotate(-9deg); } 50% { transform: rotate(9deg); } 75% { transform: rotate(-5deg); } }
+  .sf-drip { animation: sf-drip 3.6s ease-in infinite; }
+  @keyframes sf-drip { 0%, 55% { transform: translateY(0) scale(.2); opacity: 0; } 70% { transform: translateY(0) scale(1); opacity: 1; } 100% { transform: translateY(70px); opacity: 0; } }
+  .sf-swing { animation: sf-swing 4.5s ease-in-out infinite; }
+  @keyframes sf-swing { 0%,100% { transform: rotate(-2deg); } 50% { transform: rotate(2deg); } }
+  .drop { position: absolute; z-index: 3; width: 9px; height: 12px; border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%; background: #6cc8ff; pointer-events: none; }
   .splash { position: absolute; z-index: 4; font-size: 40px; pointer-events: none; animation: splash .8s ease-out forwards; }
   @keyframes splash { from { opacity: 1; transform: translate(0, 0) scale(.6); } to { opacity: 0; transform: translate(var(--dx), -90px) scale(1.2); } }
   .bubble { position: absolute; z-index: 1; font-size: 22px; pointer-events: none; animation: up 1.4s ease-in forwards; }
@@ -43,9 +72,16 @@
 <section id="lab" class="screen on">
   <a class="btn corner left" href="../../" aria-label="Back to Yas's Games">🏠</a>
   <button id="soundBtn" class="btn corner right" aria-label="Sound on or off">🔊</button>
+  <div id="backdrop" class="layer"></div>
   <div class="shelf"><div class="label" id="sinkLabel"></div><div class="items" id="sinks"></div></div>
   <div class="center">
-    <div id="tubWrap"><div id="item"></div><div id="tub"><div id="water"></div></div></div>
+    <div id="tubWrap">
+      <div class="foot l"></div><div class="foot r"></div><div id="towel" class="tubprop"></div>
+      <div id="item"></div>
+      <div id="tub"><div id="water"></div><div id="waterFront"><i class="foam" style="left:5%;width:18px;height:18px"></i><i class="foam" style="left:11%;width:12px;height:12px;animation-delay:-1s"></i><i class="foam" style="right:6%;width:20px;height:20px;animation-delay:-.6s"></i><i class="foam" style="right:13%;width:11px;height:11px;animation-delay:-1.8s"></i></div></div>
+      <div class="rim"></div>
+      <div id="faucet" class="tubprop tap" aria-hidden="true"></div><div id="bottle" class="tubprop tap" aria-hidden="true"></div>
+    </div>
     <div id="choices">
       <button class="btn guess" id="sinkBtn" aria-label="Sinks"></button>
       <button class="btn guess" id="floatBtn" aria-label="Floats"></button>
@@ -58,6 +94,7 @@
 <script src="/shared/voice.js"></script>
 <script src="/shared/saved.js"></script>
 <script src="/shared/kit.js"></script>
+<script src="/shared/scenery.js"></script>
 <script>
 (() => {
   const { $, rand, shuffle, sleep } = Kit;
@@ -142,6 +179,54 @@
   }
   $('sinkBtn').onclick = () => guess(false, $('sinkBtn'));
   $('floatBtn').onclick = () => guess(true, $('floatBtn'));
+
+  // ---------- the bathroom around the tub (see /shared/scenery.js) ----------
+  const { ol, sky, face } = Scenery.kit;
+  Scenery.addBackdrop('bath', ['#c6ecff', '#e4f6ff'], () => sky('bath') +
+    Array.from({ length: 19 }, (_, i) => `<rect x="${(i + 1) * 50 - 1.5}" width="3" height="790" fill="#fff" opacity=".8"/>`).join('') +
+    Array.from({ length: 15 }, (_, i) => `<rect y="${(i + 1) * 50 - 1.5}" width="1000" height="3" fill="#fff" opacity=".8"/>`).join('') +
+    Array.from({ length: 20 }, (_, i) => `<rect x="${i * 50 + 3}" y="453" width="44" height="44" fill="${['#9fdcff', '#ffd6ea', '#fff3b0', '#c9f2d6'][i % 4]}"/>`).join('') +
+    [[120, 160], [330, 260], [610, 120], [860, 310], [460, 660], [80, 610]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="9" fill="#fff" opacity=".7"/><circle cx="${x + 16}" cy="${y + 12}" r="5" fill="#fff" opacity=".6"/>`).join('') +
+    `<rect y="790" width="1000" height="210" fill="#a7cdea"/>` +
+    Array.from({ length: 20 }, (_, i) => { const r = Math.floor(i / 10), c = i % 10; return (c + r) % 2 ? '' : `<rect x="${c * 100}" y="${800 + r * 100}" width="100" height="100" fill="#94bfe2"/>`; }).join('') +
+    `<rect y="784" width="1000" height="16" fill="#fff"/>`);
+  Scenery.add('sf-faucet', () => [120, 110,
+    `<rect x="14" y="86" width="40" height="22" rx="6" fill="#d9e4f2" ${ol()}/>` +
+    `<path d="M26 88 V40 Q26 24 44 24 H98 Q110 24 110 36 V48 H94 V40 H44 Q42 40 42 42 V88Z" fill="#eef3fa" ${ol()}/>` +
+    `<rect x="90" y="46" width="24" height="8" rx="3" fill="#c6d3e6" ${ol(2)}/><path d="M30 84 V44" stroke="#fff" stroke-width="4" stroke-linecap="round"/>` +
+    `<rect x="31" y="12" width="6" height="14" fill="#c6d3e6"/><rect x="20" y="4" width="28" height="11" rx="5.5" fill="#ff6b8a" ${ol(2)}/>` +
+    `<ellipse class="sf-drip" style="transform-box:fill-box;transform-origin:50% 0" cx="102" cy="62" rx="4" ry="5.5" fill="#6cc8ff"/>`]);
+  Scenery.add('sf-bottle', () => [60, 110,
+    `<path d="M30 6 H46 V12 H36 V20" stroke="#8a7aa8" stroke-width="4" fill="none" stroke-linejoin="round"/><rect x="20" y="18" width="20" height="18" rx="4" fill="#ffd23f" ${ol(2)}/>` +
+    `<rect x="8" y="34" width="44" height="72" rx="14" fill="#b48aff" ${ol()}/><rect x="14" y="40" width="7" height="46" rx="3.5" fill="#fff" opacity=".4"/>` +
+    `<circle cx="30" cy="72" r="15" fill="#fff"/>` + face(30, 72, .4)]);
+  Scenery.add('sf-towel', () => [110, 170,
+    `<rect x="5" y="4" width="100" height="10" rx="5" fill="#c6d3e6" ${ol(2)}/>` +
+    `<g class="sf-swing" style="transform-origin:55px 9px"><path d="M14 9 H96 V150 Q80 160 55 154 Q30 160 14 150Z" fill="#ff9cc8" ${ol()}/>` +
+    `<path d="M14 9 H96 V30 Q55 38 14 30Z" fill="#ff86b8"/><rect x="14" y="118" width="82" height="9" fill="#fff" opacity=".75"/><rect x="14" y="132" width="82" height="4" fill="#fff" opacity=".75"/></g>`]);
+  Scenery.add('sf-foot', () => [60, 50,
+    `<path d="M16 0 H44 Q48 22 56 38 Q60 48 50 48 H10 Q0 48 4 38 Q12 22 16 0Z" fill="#ffd36b" ${ol()}/><path d="M20 48 v-8 M30 48 v-9 M40 48 v-8" stroke="#e0a83a" stroke-width="3" stroke-linecap="round"/>`]);
+  $('backdrop').innerHTML = Scenery.backdrop('bath');
+  Scenery.extras($('backdrop'), { bubbles: 8 });
+  document.querySelectorAll('.foot').forEach(f => { f.innerHTML = Scenery.art('sf-foot').svg; });
+  $('towel').innerHTML = Scenery.art('sf-towel').svg;
+  $('faucet').innerHTML = Scenery.art('sf-faucet').svg;
+  $('bottle').innerHTML = Scenery.art('sf-bottle').svg;
+  function react(el, cls, ms) { el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls); clearTimeout(el._t); el._t = setTimeout(() => el.classList.remove(cls), ms); }
+  // tap the tap: a few drops plip into the water
+  $('faucet').addEventListener('pointerdown', () => {
+    const w = $('tubWrap').getBoundingClientRect(), f = $('faucet').getBoundingClientRect(), t = $('tub').getBoundingClientRect();
+    const x = f.left - w.left + f.width * .85, y = f.top - w.top + f.height * .5, fall = (t.top - w.top + t.height * .2) - y;
+    react($('faucet'), 't-wiggle', 600);
+    for (let i = 0; i < 4; i++) {
+      const d = document.createElement('div'); d.className = 'drop'; d.style.left = (x - 4) + 'px'; d.style.top = y + 'px';
+      $('tubWrap').appendChild(d);
+      d.animate([{ transform: 'translateY(0)', opacity: 1 }, { transform: `translateY(${Math.max(20, fall)}px)`, opacity: .4 }], { duration: 500, delay: i * 220, easing: 'ease-in', fill: 'both' });
+      setTimeout(() => d.remove(), 560 + i * 220);
+      Kit.tone(1400 + rand(0, 400), .08, { vol: .07, to: 700, delay: .45 + i * .22 });
+    }
+  });
+  $('bottle').addEventListener('pointerdown', () => { react($('bottle'), 't-boing', 600); Kit.sfx.boing(); Kit.burstAt($('bottle'), ['🫧'], 5, 70); });
 
   Kit.soundButton('soundBtn');
   paintShelves();

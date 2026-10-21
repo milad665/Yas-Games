@@ -13,41 +13,59 @@
 <link rel="stylesheet" href="/shared/kit.css">
 <title>Pattern Train</title>
 <style>
-  body {
-    background:
-      radial-gradient(ellipse 60% 18% at 20% 62%, #86efac 99%, transparent 100%),
-      radial-gradient(ellipse 70% 22% at 85% 64%, #4ade80 99%, transparent 100%),
-      linear-gradient(#7dd3fc 0%, #e0f2fe 60%, #4ade80 60%, #16a34a 100%);
-  }
+  body { background: #8fd6ff; }
   #game { flex-direction: column; }
-  .deco { position: absolute; translate: -50% -50%; line-height: 1; pointer-events: none; }
-  .cloud { animation: drift 40s linear infinite; }
-  @keyframes drift { from { transform: translateX(-30vw); } to { transform: translateX(130vw); } }
+  /* the cartoon countryside behind everything (drawn with /shared/scenery.js) */
+  .scene { position: absolute; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
+  .scene > div { position: absolute; inset: 0; }
+  .pt-flap { animation: pt-flap .3s ease-in-out infinite alternate; }
+  @keyframes pt-flap { to { transform: scaleY(-.5); } }
+  .pt-lamp1 { animation: pt-blink 3s steps(1) infinite; }
+  .pt-lamp2 { animation: pt-blink 3s steps(1) infinite reverse; }
+  @keyframes pt-blink { 0% { opacity: 1; } 50% { opacity: .2; } }
+  .sc-prop.t-switch .pt-lamp1, .sc-prop.t-switch .pt-lamp2 { animation-duration: .3s; }
 
   #stickers { position: absolute; top: max(22px, env(safe-area-inset-top)); left: 50%; translate: -50% 0; display: flex; gap: 2px; font-size: 30px; background: rgba(255,255,255,.7); border-radius: 999px; padding: 6px 16px; min-height: 52px; min-width: 120px; justify-content: center; z-index: 5; flex-wrap: wrap; max-width: 60vw; }
 
-  #trackWrap { position: absolute; left: 0; right: 0; top: 34%; height: 30%; }
-  #rails { position: absolute; left: 0; right: 0; bottom: 0; height: 26px;
+  #trackWrap { position: absolute; left: 0; right: 0; top: 34%; height: 30%; pointer-events: none; }
+  #rails { position: absolute; left: 0; right: 0; bottom: -10px; height: 36px;
     background:
-      linear-gradient(#57534e, #57534e) 0 4px / 100% 6px no-repeat,
-      linear-gradient(#57534e, #57534e) 0 18px / 100% 6px no-repeat,
-      repeating-linear-gradient(90deg, #92400e 0 14px, transparent 14px 44px);
+      linear-gradient(#8a8fa8, #8a8fa8) 0 6px / 100% 5px no-repeat,
+      linear-gradient(#c9cde0, #c9cde0) 0 4px / 100% 3px no-repeat,
+      linear-gradient(#8a8fa8, #8a8fa8) 0 20px / 100% 5px no-repeat,
+      linear-gradient(#c9cde0, #c9cde0) 0 18px / 100% 3px no-repeat,
+      repeating-linear-gradient(90deg, #a8692f 0 16px, transparent 16px 42px) 0 2px / 100% 24px no-repeat,
+      repeating-linear-gradient(90deg, rgba(58,45,82,.35) 0 1px, transparent 1px 15px, rgba(58,45,82,.35) 15px 16px, transparent 16px 42px) 0 2px / 100% 24px no-repeat,
+      linear-gradient(transparent 22px, #b9a77e 22px 30px, transparent 30px),
+      radial-gradient(circle at 6px 8px, #9c8a64 2px, transparent 3px) 0 0 / 14px 12px,
+      #d8c49a;
+    border-radius: 6px; box-shadow: 0 3px 0 rgba(58,45,82,.18);
   }
   #train { position: absolute; left: 0; bottom: 20px; display: flex; align-items: flex-end; gap: 6px; padding-left: 20px; will-change: transform; }
   #train.arrive { transition: transform 1.6s cubic-bezier(.2,.8,.3,1); }
   #train.leave { transition: transform 1.8s cubic-bezier(.6,0,.9,.5); }
-  .engine { line-height: .8; position: relative; }
-  .car { position: relative; display: grid; place-items: center; border-radius: 14px 14px 8px 8px; border: 5px solid rgba(0,0,0,.18); }
-  .car::before, .car::after { content: ''; position: absolute; bottom: -22%; width: 26%; aspect-ratio: 1; border-radius: 50%; background: #334155; border: 5px solid #94a3b8; }
+  .engine { line-height: .8; position: relative; flex: none; }
+  .engine .sc-svg { overflow: visible; }
+  .pt-wheel { animation: none; }
+  #train.rolling .pt-wheel { animation: pt-roll .5s linear infinite; }
+  @keyframes pt-roll { to { transform: rotate(-360deg); } }
+  .puff { position: fixed; z-index: 4; pointer-events: none; border-radius: 50%; background: #fff; box-shadow: inset -5px -5px 0 #dbe6f5, 0 0 0 3px rgba(58,45,82,.18); }
+  .car { position: relative; display: grid; place-items: center; border-radius: 16px 16px 10px 10px; border: clamp(2px, .5vw, 4px) solid rgba(58,45,82,.55);
+    box-shadow: inset 0 -12px 0 rgba(0,0,0,.13), inset 0 9px 0 rgba(255,255,255,.35); }
+  .car::before, .car::after { content: ''; position: absolute; bottom: -22%; width: 26%; aspect-ratio: 1; border-radius: 50%; z-index: 1;
+    background: radial-gradient(circle, #ffd23f 0 17%, transparent 19%), repeating-conic-gradient(#4a4a68 0 30deg, #6b6b8c 30deg 60deg);
+    border: clamp(2px, .5vw, 4px) solid rgba(58,45,82,.7); box-shadow: inset 0 0 0 clamp(1px, .35vw, 3px) #9aa6c8; }
+  #train.rolling .car::before, #train.rolling .car::after { animation: pt-roll .5s linear infinite; }
   .car::before { left: 10%; } .car::after { right: 10%; }
   .car .item { line-height: 1; transition: transform .3s; }
   .car.blank { background: rgba(255,255,255,.75) !important; border-style: dashed; border-color: #64748b; }
   .car.blank .item { opacity: .45; font-weight: 900; color: #475569; font-family: inherit; }
   .car.now { box-shadow: 0 0 0 6px #fde047, 0 0 24px 8px rgba(253, 224, 71, .7); }
   .car.filled .item { animation: kit-pop .45s cubic-bezier(.3,1.6,.5,1); }
-  .link { width: 10px; height: 8px; background: #475569; align-self: center; margin-top: 30px; }
+  .link { width: 12px; height: 8px; background: #4a4a68; border-radius: 4px; align-self: center; margin-top: 30px; box-shadow: 0 0 0 2px rgba(58,45,82,.25); }
 
-  #choices { position: absolute; left: 0; right: 0; bottom: max(28px, env(safe-area-inset-bottom)); display: flex; justify-content: center; gap: clamp(20px, 5vw, 60px); z-index: 5; }
+  #choices { position: absolute; left: 0; right: 0; bottom: max(28px, env(safe-area-inset-bottom)); display: flex; justify-content: center; gap: clamp(20px, 5vw, 60px); z-index: 5; pointer-events: none; }
+  #choices .choice { pointer-events: auto; }
   .choice { width: clamp(110px, 16vw, 150px); height: clamp(110px, 16vw, 150px); border-radius: 32px; font-size: clamp(60px, 9vw, 86px); background: #fff; }
   .choice .item { line-height: 1; display: inline-block; }
   .choice.hint { animation: kit-pulse 1s ease-in-out infinite; box-shadow: 0 6px 0 rgba(40,50,90,.18), 0 0 0 6px #fde047; }
@@ -59,11 +77,7 @@
 <section id="game" class="screen on">
   <a class="btn corner left" href="../../" aria-label="Back to Yas's Games">🏠</a>
   <button id="soundBtn" class="btn corner right" aria-label="Sound on or off">🔊</button>
-  <div class="deco cloud" style="left:20%;top:10%;font-size:12vmin">☁️</div>
-  <div class="deco cloud" style="left:60%;top:16%;font-size:9vmin;animation-delay:-20s">☁️</div>
-  <div class="deco" style="left:88%;top:9%;font-size:10vmin">☀️</div>
-  <div class="deco" style="left:8%;top:56%;font-size:12vmin">🌳</div>
-  <div class="deco" style="left:92%;top:58%;font-size:10vmin">🌲</div>
+  <div class="scene" aria-hidden="true"><div id="backdrop"></div><div id="decor"></div></div>
   <div id="stickers"></div>
   <div id="trackWrap"><div id="rails"></div><div id="train"></div></div>
   <div id="choices"></div>
@@ -73,6 +87,95 @@
 <script src="/shared/voice.js"></script>
 <script src="/shared/saved.js"></script>
 <script src="/shared/kit.js"></script>
+<script src="/shared/scenery.js"></script>
+<script>
+// ---------- the cartoon engine and the countryside around the track (decoration only) ----------
+(() => {
+  if (!self.Scenery || !Scenery.add) return;
+  const { face, ol, sky, hillsPath, dots, grassTufts } = Scenery.kit;
+
+  // the engine faces left (it leads the train)
+  const wheel = (x, y, r) => `<g class="pt-wheel" style="transform-origin:${x}px ${y}px"><circle cx="${x}" cy="${y}" r="${r}" fill="#4a4a68" ${ol()}/>` +
+    `<circle cx="${x}" cy="${y}" r="${r - 5}" fill="none" stroke="#9aa6c8" stroke-width="3"/>` +
+    `<path d="M${x - r + 4} ${y} H${x + r - 4} M${x} ${y - r + 4} V${y + r - 4}" stroke="#9aa6c8" stroke-width="3"/><circle cx="${x}" cy="${y}" r="${r * .28}" fill="#ffd23f"/></g>`;
+  Scenery.add('engine', () => [210, 176,
+    [0, 1, 2].map(i => `<circle class="sc-smoke" style="animation-delay:${i * 1.1}s" cx="62" cy="26" r="${12 + i * 3}" fill="#fff"/>`).join('') +
+    `<path d="M48 74 L42 34 Q62 24 82 34 L76 74Z" fill="#4a4a68" ${ol()}/><rect x="40" y="28" width="44" height="10" rx="5" fill="#ff5a5a" ${ol(2)}/>` +
+    `<path d="M4 158 L28 116 H46 V158Z" fill="#ffd23f" ${ol()}/>` +
+    `<rect x="22" y="72" width="116" height="68" rx="30" fill="#ff5a5a" ${ol()}/>` +
+    `<path d="M40 82 H124" stroke="#fff" stroke-width="7" stroke-linecap="round" opacity=".35"/>` +
+    `<rect x="60" y="72" width="8" height="68" fill="#ffd23f" opacity=".9"/><rect x="104" y="72" width="8" height="68" fill="#ffd23f" opacity=".9"/>` +
+    `<path d="M90 74 A15 15 0 0 1 120 74Z" fill="#ffd23f" ${ol(2)}/>` +
+    `<circle cx="24" cy="92" r="10" fill="#fff6a8" ${ol(2)}/><circle cx="21" cy="89" r="3" fill="#fff"/>` +
+    `<rect x="132" y="46" width="68" height="96" rx="8" fill="#4f8cff" ${ol()}/>` +
+    `<rect x="124" y="32" width="84" height="18" rx="7" fill="#ffd23f" ${ol()}/>` +
+    `<rect x="146" y="60" width="38" height="34" rx="7" fill="#c8f0ff" ${ol(2)}/><path d="M152 66 l10 -2" stroke="#fff" stroke-width="4" stroke-linecap="round"/>` +
+    `<rect x="14" y="136" width="190" height="14" rx="7" fill="#4a4a68" ${ol(2)}/>` +
+    face(86, 108, .72) +
+    `<path d="M50 156 H104" stroke="#9aa6c8" stroke-width="6" stroke-linecap="round"/>` +
+    wheel(50, 154, 17) + wheel(102, 154, 17) + wheel(168, 150, 22)]);
+
+  // a little bird that flies over the hills
+  Scenery.add('bird', (c = '#ff8a5a') => [90, 70,
+    `<g class="pt-flap" style="transform-origin:44px 36px"><path d="M44 34 Q24 4 6 12 Q22 26 40 42Z M48 34 Q66 4 84 12 Q68 26 52 42Z" fill="${c}" ${ol(2)}/></g>` +
+    `<ellipse cx="46" cy="42" rx="20" ry="15" fill="${c}" ${ol()}/><path d="M64 40 L76 44 L64 48Z" fill="#ffd23f" ${ol(1.5)}/>` +
+    `<circle cx="56" cy="38" r="3" fill="#3a2a2a"/><ellipse cx="54" cy="46" rx="4" ry="2.5" fill="#ff8fa8" opacity=".7"/>`]);
+
+  // a railway signal: two lamps that take turns
+  Scenery.add('signal', () => [70, 230,
+    `<rect x="30" y="80" width="10" height="146" fill="#9aa6c8" ${ol(2)}/><rect x="16" y="220" width="38" height="10" rx="4" fill="#6b6b8c"/>` +
+    `<rect x="8" y="6" width="54" height="96" rx="20" fill="#3f3f5a" ${ol()}/>` +
+    `<circle cx="35" cy="32" r="14" fill="#ff4d4d" class="pt-lamp1"/><circle cx="35" cy="74" r="14" fill="#4cd964" class="pt-lamp2"/>` +
+    `<circle cx="31" cy="28" r="4" fill="#fff" opacity=".6"/><circle cx="31" cy="70" r="4" fill="#fff" opacity=".6"/>`]);
+
+  Scenery.addBackdrop('ptrain', ['#6cc6ff', '#bfe8ff', '#eefaff'], () => sky('ptrain') +
+    `<path d="M0 520 L110 400 L210 480 L330 350 L470 490 L600 370 L720 470 L850 360 L1000 500 V700 H0Z" fill="#b9c4f0" opacity=".75"/>` +
+    `<path d="M330 350 L300 382 Q318 376 330 390 Q344 376 362 384Z M850 360 L822 390 Q838 384 850 396 Q864 384 880 392Z" fill="#fff" opacity=".9"/>` +
+    `<path d="${hillsPath(560, 120, 81, 4)}" fill="#a9e28e"/>` +
+    `<path d="${hillsPath(605, 70, 83, 3)}" fill="#86d06a"/>` +
+    `<path d="M0 640 H1000 V1000 H0Z" fill="#6cc552"/>` +
+    `<path d="M0 780 Q500 750 1000 785 V1000 H0Z" fill="#5ab544"/>` +
+    grassTufts(60, 27, 680, 990, '#4c9f3a') + dots(50, 31, 690, 990, ['#ffffff', '#ffe066', '#ff8ad8'], [3, 6]));
+
+  const P = (art, x, y, h, o = {}) => ({ art, x, y, h, ...o });
+  const props = () => [
+    P('sun', 76, 14, 15, { at: 'center', tap: 'spin' }),
+    P('cloud', 16, 10, 12, { at: 'center', anim: 'drift', tap: 'boing' }),
+    P('cloud', 52, 22, 8, { at: 'center', anim: 'drift', args: ['#ffffff', '#dcecff', false] }),
+    P('bird', 0, 19, 5, { at: 'center', anim: 'across', dur: 26 }),
+    P('bird', 0, 26, 4, { at: 'center', anim: 'across', dur: 32, delay: -14, args: ['#7ad6ff'] }),
+    P('windmill', 84, 61, 30),
+    P('cow', 30, 61, 7),
+    P('tree', 7, 62, 30),
+    P('pine', 95, 62, 24),
+    P('signal', 2, 63, 20, { tap: 'switch' }),
+    P('fence', 18, 80, 9),
+    P('bush', 86, 81, 10),
+    P('flower', 4, 100, 13, { tap: 'bloom' }),
+    P('mushroom', 13, 99, 7, { tap: 'boing' }),
+    P('flower', 96, 100, 12, { args: ['#b07aff'], tap: 'bloom' }),
+    P('butterfly', 60, 74, 5, { at: 'center', anim: 'flutter' }),
+  ];
+  const giggle = () => [660, 880, 740, 990].forEach((f, i) => Kit.tone(f, .09, { type: 'triangle', vol: .12, delay: i * .07 }));
+  function tap(el) {
+    switch (el.dataset.tap) {
+      case 'spin': Scenery.react(el, 't-spin', 900); giggle(); break;
+      case 'bloom': Scenery.react(el, 't-bloom', 900); Kit.tone(700, .25, { type: 'triangle', vol: .12, to: 1300 }); break;
+      case 'switch': Scenery.react(el, 't-wiggle', 600); Scenery.react(el, 't-switch', 1500); Kit.tone(1100, .08, { type: 'square', vol: .05 }); Kit.tone(800, .08, { type: 'square', vol: .05, delay: .12 }); break;
+      default: Scenery.react(el, 't-boing', 600); Kit.sfx.boing();
+    }
+  }
+  function build() {
+    const box = document.getElementById('decor'); box.innerHTML = '';
+    Scenery.place(box, props(), innerWidth, innerHeight).forEach(el => {
+      if (el.dataset.tap) el.addEventListener('pointerdown', e => { e.stopPropagation(); tap(el); });
+    });
+  }
+  document.getElementById('backdrop').innerHTML = Scenery.backdrop('ptrain');
+  build();
+  let t = 0; addEventListener('resize', () => { clearTimeout(t); t = setTimeout(build, 200); });
+})();
+</script>
 <script>
 (() => {
   const { $, pick, shuffle, sleep } = Kit;
@@ -143,8 +246,12 @@
   function paintTrain() {
     const t = $('train'); t.innerHTML = '';
     const { car, font } = sizes();
-    const eng = document.createElement('div'); eng.className = 'engine'; eng.textContent = '🚂';
-    eng.style.fontSize = car * 1.25 + 'px';
+    const eng = document.createElement('div'); eng.className = 'engine';
+    if (self.Scenery && Scenery.ARTS.includes('engine')) {
+      const h = car * 1.2;
+      eng.innerHTML = Scenery.art('engine').svg;
+      eng.style.height = h + 'px'; eng.style.width = h * 210 / 176 + 'px'; eng.style.marginBottom = -car * .2 + 'px';
+    } else { eng.textContent = '🚂'; eng.style.fontSize = car * 1.25 + 'px'; }
     t.appendChild(eng);
     train.seq.forEach((it, i) => {
       const link = document.createElement('div'); link.className = 'link'; t.appendChild(link);
@@ -176,18 +283,32 @@
 
   function whistle() { Kit.tone(587, .35, { type: 'triangle', vol: .14 }); Kit.tone(740, .35, { type: 'triangle', vol: .1 }); Kit.tone(587, .4, { type: 'triangle', vol: .14, delay: .4 }); Kit.tone(740, .4, { type: 'triangle', vol: .1, delay: .4 }); }
   function chug(n = 6, gap = .16) { for (let i = 0; i < n; i++) Kit.tone(110, .1, { type: 'sawtooth', vol: .05, to: 60, delay: i * gap }); }
-  function smoke() { const e = document.querySelector('.engine'); if (e) Kit.burstAt(e, ['☁️', '💨'], 4, 70); }
+  // round white puffs from the chimney that stay behind as the train rolls
+  function smoke() {
+    const e = document.querySelector('.engine'); if (!e) return;
+    const r = e.getBoundingClientRect(), x = r.left + r.width * .3, y = r.top + r.height * .14;
+    for (let i = 0; i < 4; i++) {
+      const p = document.createElement('div'); p.className = 'puff';
+      const z = r.height * Kit.rand(.16, .28);
+      p.style.width = p.style.height = z + 'px'; p.style.left = x - z / 2 + 'px'; p.style.top = y - z / 2 + 'px';
+      document.body.appendChild(p);
+      p.animate([{ transform: 'translate(0, 0) scale(.4)', opacity: .95 }, { transform: `translate(${Kit.rand(-10, 50)}px, ${-Kit.rand(60, 130)}px) scale(1.5)`, opacity: 0 }],
+        { duration: 1200, delay: i * 130, easing: 'ease-out', fill: 'both' });
+      setTimeout(() => p.remove(), 1400 + i * 130);
+    }
+  }
 
   async function arrive(first = false) {
     busy = true; misses = 0;
     train = makeTrain();
     paintTrain(); $('choices').innerHTML = '';
     const t = $('train');
-    t.classList.remove('arrive', 'leave'); t.style.transform = `translateX(${innerWidth + 50}px)`;
+    t.classList.remove('arrive', 'leave', 'rolling'); t.style.transform = `translateX(${innerWidth + 50}px)`;
     void t.offsetWidth;
-    t.classList.add('arrive'); t.style.transform = `translateX(${Math.max(0, (innerWidth - t.scrollWidth) / 2)}px)`;
+    t.classList.add('arrive', 'rolling'); t.style.transform = `translateX(${Math.max(0, (innerWidth - t.scrollWidth) / 2)}px)`;
     chug(9); setTimeout(smoke, 500); setTimeout(smoke, 1100);
     await sleep(1650);
+    t.classList.remove('rolling');
     whistle(); paintChoices(); busy = false;
     Kit.say(first ? 'pt.intro' : LEVELS[level].blanks === 'middle' ? 'pt.missing' : 'pt.next');
   }
@@ -231,7 +352,7 @@
     saved.level = level; save.set(saved); paintStickers();
     await sleep(1500);
     const t = $('train');
-    t.classList.remove('arrive'); t.classList.add('leave');
+    t.classList.remove('arrive'); t.classList.add('leave', 'rolling');
     t.style.transform = `translateX(${-t.scrollWidth - 80}px)`;
     chug(10, .13); smoke(); setTimeout(smoke, 400);
     await sleep(1900);

@@ -15,10 +15,10 @@
 <style>
   body { background: radial-gradient(circle at 50% 20%, #6366f1 0%, #312e81 60%, #1e1b4b 100%); }
   #stage { flex-direction: column; align-items: center; justify-content: center; padding: 86px 16px max(16px, env(safe-area-inset-bottom)); gap: 3vh; }
-  .light { position: absolute; top: 0; width: 34vw; height: 70vh; background: linear-gradient(rgba(253, 224, 71, .25), transparent); clip-path: polygon(45% 0, 55% 0, 100% 100%, 0 100%); pointer-events: none; }
   #status { min-height: 64px; display: flex; align-items: center; gap: 14px; font-size: 44px; color: #fff; font-weight: 900; }
   #status .ear { animation: kit-pulse 1s infinite; }
-  #notes { font-size: 30px; letter-spacing: 4px; color: #fde047; min-height: 40px; }
+  #status { text-shadow: 0 3px 6px rgba(30,10,50,.5); }
+  #notes { font-size: 30px; letter-spacing: 4px; color: #fde047; min-height: 40px; text-shadow: 0 2px 0 #3a2d52, 0 0 10px rgba(30,10,50,.8); }
   #pads { display: grid; grid-template-columns: repeat(2, 1fr); gap: clamp(16px, 3vw, 34px); }
   .pad {
     width: clamp(140px, min(30vw, 30vh), 230px); aspect-ratio: 1; border-radius: 50%; border: 10px solid rgba(255,255,255,.85);
@@ -27,12 +27,32 @@
   }
   .pad.on { transform: scale(1.12); filter: saturate(1.3) brightness(1.15); box-shadow: 0 0 0 8px #fff, 0 0 50px 20px rgba(255,255,255,.6); }
   .pad.wait { pointer-events: none; }
+  /* the band: a cartoon animal on each drum; it sings (mouth open) while its pad lights up */
+  .pad svg { width: 84%; height: 84%; display: block; overflow: visible; animation: rc-sway 2.4s ease-in-out infinite; transform-origin: 50% 90%; }
+  .pad:nth-child(2) svg { animation-delay: -.6s; } .pad:nth-child(3) svg { animation-delay: -1.2s; } .pad:nth-child(4) svg { animation-delay: -1.8s; }
+  .pad .mo { display: none; } .pad.on .mo { display: inline; } .pad.on .mc { display: none; }
+  @keyframes rc-sway { 0%,100% { transform: rotate(-4deg); } 50% { transform: rotate(4deg); } }
+
+  /* ---------- the concert stage behind everything (see /shared/scenery.js) ---------- */
+  #stage { isolation: isolate; }
+  .scene { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
+  .scene > div { position: absolute; inset: 0; }
+  .rc-facets { animation: rc-facets 1.6s linear infinite; }
+  .sc-prop.t-fast .rc-facets { animation-duration: .3s; }
+  @keyframes rc-facets { to { transform: translateX(-26px); } }
+  .rc-thump { transform-box: fill-box; transform-origin: center; animation: rc-thump .5s ease-in-out infinite alternate; }
+  .sc-prop.t-boing .rc-thump { animation-duration: .12s; }
+  @keyframes rc-thump { from { transform: scale(.94); } to { transform: scale(1.05); } }
+  .rc-bop { animation: rc-bop .9s ease-in-out infinite alternate; }
+  .scene.cheer .rc-bop { animation-duration: .22s; }
+  @keyframes rc-bop { from { transform: translateY(0); } to { transform: translateY(-8px); } }
+  .rc-wave { animation: rc-wave .7s ease-in-out infinite alternate; }
+  @keyframes rc-wave { from { transform: rotate(-12deg); } to { transform: rotate(12deg); } }
 </style>
 </head>
 <body>
 
 <section id="stage" class="screen on">
-  <div class="light" style="left:2vw"></div><div class="light" style="right:2vw"></div>
   <a class="btn corner left" href="../../" aria-label="Back to Yas's Games">🏠</a>
   <button id="soundBtn" class="btn corner right" aria-label="Sound on or off">🔊</button>
   <div id="status"></div>
@@ -44,6 +64,7 @@
 <script src="/shared/voice.js"></script>
 <script src="/shared/saved.js"></script>
 <script src="/shared/kit.js"></script>
+<script src="/shared/scenery.js"></script>
 <script>
 (() => {
   const { $, pick, sleep } = Kit;
@@ -57,12 +78,119 @@
   ];
   const START = 2;
 
+  // ================= the band and the stage, drawn with /shared/scenery.js =================
+  const { kit } = Scenery, OL = kit.OL, ol = kit.ol;
+  const eyes = (x1, x2, y, r = 9) => `<g class="sc-blink">${[x1, x2].map(x => `<ellipse cx="${x}" cy="${y}" rx="${r}" ry="${r * 1.25}" fill="#2a1f3a"/><circle cx="${x + r * .35}" cy="${y - r * .45}" r="${r * .38}" fill="#fff"/>`).join('')}</g>`;
+  const cheeks = (x1, x2, y) => `<ellipse cx="${x1}" cy="${y}" rx="11" ry="7" fill="#ff8fa8" opacity=".65"/><ellipse cx="${x2}" cy="${y}" rx="11" ry="7" fill="#ff8fa8" opacity=".65"/>`;
+  // mouth: closed smile (.mc) and singing (.mo)
+  const mouth = (x, y, w = 16) => `<path class="mc" d="M${x - w} ${y} Q${x} ${y + w} ${x + w} ${y}" stroke="#2a1f3a" stroke-width="5" fill="none" stroke-linecap="round"/>` +
+    `<g class="mo"><ellipse cx="${x}" cy="${y + 6}" rx="${w * .8}" ry="${w}" fill="#7a1f3a" ${ol(3)}/><ellipse cx="${x}" cy="${y + 12}" rx="${w * .5}" ry="${w * .4}" fill="#ff7a9a"/></g>`;
+  const ANIMALS = [
+    // frog
+    () => kit.blob([[100, 122, 82], [58, 62, 34], [142, 62, 34]], '#a6e36a', { w: 5 }) +
+      `<circle cx="58" cy="60" r="22" fill="#fff"/><circle cx="142" cy="60" r="22" fill="#fff"/>` + eyes(60, 140, 62, 10) +
+      `<ellipse cx="100" cy="150" rx="58" ry="30" fill="#d6f5b0"/>` + cheeks(46, 154, 120) + mouth(100, 128, 26) +
+      `<circle cx="88" cy="104" r="3" fill="#4a7a2a"/><circle cx="112" cy="104" r="3" fill="#4a7a2a"/>`,
+    // bear
+    () => kit.blob([[100, 112, 74], [44, 50, 26], [156, 50, 26]], '#b8794a', { w: 5 }) +
+      `<circle cx="44" cy="50" r="14" fill="#e8b98a"/><circle cx="156" cy="50" r="14" fill="#e8b98a"/>` +
+      `<ellipse cx="100" cy="142" rx="40" ry="32" fill="#f0cfa6"/>` + eyes(72, 128, 100) + cheeks(56, 144, 128) +
+      `<ellipse cx="100" cy="124" rx="13" ry="9" fill="#3a2a2a"/>` + mouth(100, 142, 14),
+    // cat
+    () => `<path d="M34 96 L40 16 L86 52Z M166 96 L160 16 L114 52Z" fill="#ffc46b" ${ol(5)}/><path d="M46 74 L48 34 L72 54Z M154 74 L152 34 L128 54Z" fill="#ff9ab6"/>` +
+      kit.blob([[100, 116, 74]], '#ffc46b', { w: 5 }) + `<path d="M74 52 q6 14 0 26 M100 46 v24 M126 52 q-6 14 0 26" stroke="#f0a040" stroke-width="7" fill="none" stroke-linecap="round"/>` +
+      eyes(72, 128, 108) + cheeks(56, 144, 134) + `<path d="M93 126 h14 l-7 8Z" fill="#ff7a9a"/>` + mouth(100, 140, 13) +
+      `<path d="M20 124 h34 M22 140 l32 -8 M180 124 h-34 M178 140 l-32 -8" stroke="#8a5a2a" stroke-width="3" stroke-linecap="round" opacity=".6"/>`,
+    // bird
+    () => `<path d="M92 34 Q86 6 100 4 Q104 22 100 36 M104 36 Q116 12 128 18 Q116 30 108 40" fill="#ff7a5a" ${ol(3)}/>` +
+      kit.blob([[100, 112, 76]], '#ffe14d', { w: 5 }) +
+      `<path d="M28 120 Q8 150 34 170 Q46 150 44 126Z M172 120 Q192 150 166 170 Q154 150 156 126Z" fill="#ffc21a" ${ol(3)}/>` +
+      eyes(74, 126, 98) + cheeks(56, 144, 124) +
+      `<path class="mc" d="M82 120 L100 146 L118 120Z" fill="#ff9a3c" ${ol(3)}/>` +
+      `<g class="mo"><path d="M80 114 L120 114 L100 128Z" fill="#ff9a3c" ${ol(3)}/><path d="M84 134 L116 134 L100 156Z" fill="#ff9a3c" ${ol(3)}/><ellipse cx="100" cy="131" rx="12" ry="5" fill="#7a1f3a"/></g>`,
+  ].map(f => `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">${f()}</svg>`);
+
+  Scenery.add('discoball', () => {
+    let facets = '';
+    for (let r = 0; r < 8; r++) for (let c = 0; c < 9; c++) facets += `<rect x="${4 + c * 13}" y="${78 + r * 13}" width="12" height="12" fill="${(r + c) % 3 ? '#c9d4ee' : (r + c) % 2 ? '#ffffff' : '#9aa8d0'}"/>`;
+    return [120, 190, `<line x1="60" y1="0" x2="60" y2="80" stroke="#c9b8e8" stroke-width="4"/>` +
+      `<circle cx="60" cy="130" r="58" fill="url(#sc-beam-glow)" class="sc-glowpulse"/>` +
+      `<defs><clipPath id="rc-ball"><circle cx="60" cy="130" r="44"/></clipPath></defs>` +
+      `<circle cx="60" cy="130" r="44" fill="#9aa8d0" ${ol()}/><g clip-path="url(#rc-ball)"><g class="rc-facets">${facets}</g></g>` +
+      `<ellipse cx="44" cy="112" rx="12" ry="8" fill="#fff" opacity=".7"/><rect x="50" y="78" width="20" height="10" rx="3" fill="#7a6a9a"/>`];
+  });
+  Scenery.add('speaker', () => [120, 190,
+    `<rect x="8" y="8" width="104" height="176" rx="16" fill="#4a3d6a" ${ol()}/><rect x="16" y="14" width="88" height="10" rx="5" fill="#fff" opacity=".15"/>` +
+    `<circle cx="60" cy="56" r="22" fill="#2a2040"/><circle class="rc-thump" cx="60" cy="56" r="16" fill="#8a7ab8"/><circle cx="60" cy="56" r="6" fill="#c9b8ff"/>` +
+    `<circle cx="60" cy="128" r="40" fill="#2a2040"/><g class="rc-thump" style="animation-delay:-.25s"><circle cx="60" cy="128" r="32" fill="#8a7ab8"/><circle cx="60" cy="128" r="22" fill="#6a5a9a"/><circle cx="60" cy="128" r="12" fill="#c9b8ff"/></g>` +
+    `<circle class="sc-blinky" cx="96" cy="170" r="5" fill="#5ce08a"/>`]);
+  // the audience: a row of animal heads seen from behind, bopping along
+  Scenery.add('crowd', (k = 0) => {
+    const C = '#24123a', heads = [
+      x => `<ellipse cx="${x - 12}" cy="40" rx="8" ry="24" fill="${C}"/><ellipse cx="${x + 12}" cy="40" rx="8" ry="24" fill="${C}"/>`,
+      x => `<path d="M${x - 30} 70 L${x - 24} 34 L${x - 6} 52Z M${x + 30} 70 L${x + 24} 34 L${x + 6} 52Z" fill="${C}"/>`,
+      x => `<circle cx="${x - 24}" cy="52" r="13" fill="${C}"/><circle cx="${x + 24}" cy="52" r="13" fill="${C}"/>`,
+      x => `<circle cx="${x - 28}" cy="54" r="17" fill="${C}"/><circle cx="${x + 28}" cy="54" r="17" fill="${C}"/>`,
+    ];
+    let s = '';
+    for (let i = 0; i < 6; i++) {
+      const x = 35 + i * 70, y = i % 2 ? 6 : 0;
+      s += `<g class="rc-bop" style="animation-delay:${(-((i * 37 + k * 13) % 9) / 10).toFixed(1)}s"><g transform="translate(0 ${y})">${heads[(i + k) % 4](x)}<circle cx="${x}" cy="88" r="34" fill="${C}"/><rect x="${x - 40}" y="100" width="80" height="40" rx="20" fill="${C}"/>` +
+        ((i + k) % 3 === 1 ? `<g class="rc-wave" style="transform-origin:${x + 30}px 110px"><path d="M${x + 30} 110 L${x + 46} 50" stroke="${C}" stroke-width="14" stroke-linecap="round"/><circle cx="${x + 47}" cy="46" r="10" fill="${C}"/></g>` : '') + `</g></g>`;
+    }
+    return [420, 130, s];
+  });
+  Scenery.add('musicnote', (c = '#ffd23f') => [70, 90,
+    `<path d="M26 70 V14 L62 4 V58" stroke="${OL}" stroke-opacity=".55" stroke-width="12" fill="none" stroke-linejoin="round"/>` +
+    `<path d="M26 70 V14 L62 4 V58" stroke="${c}" stroke-width="7" fill="none" stroke-linejoin="round"/>` +
+    `<ellipse cx="17" cy="72" rx="15" ry="11" fill="${c}" ${ol()} transform="rotate(-20 17 72)"/><ellipse cx="53" cy="60" rx="15" ry="11" fill="${c}" ${ol()} transform="rotate(-20 53 60)"/>` +
+    `<ellipse cx="12" cy="68" rx="5" ry="3" fill="#fff" opacity=".6" transform="rotate(-20 12 68)"/>`]);
+
+  const P = (art, x, y, h, o = {}) => ({ art, x, y, h, ...o });
+  const SCENE = [P('spotlight', 24, 0, 85, { at: 'top' }), P('spotlight', 76, 0, 85, { at: 'top' }),
+    P('discoball', 50, 0, 13, { at: 'top', tap: 'disco' }),
+    P('sparkle', 37, 9, 3, { at: 'center', anim: 'twinkle' }), P('sparkle', 64, 13, 3, { at: 'center', anim: 'twinkle' }),
+    P('musicnote', 14, 40, 7, { at: 'center', anim: 'bob', tap: 'note' }), P('musicnote', 86, 34, 6, { at: 'center', anim: 'bob', tap: 'note', args: ['#7ad6ff'] }),
+    P('musicnote', 19, 64, 5, { at: 'center', anim: 'bob', tap: 'note', args: ['#ff8ad8'] }), P('musicnote', 82, 62, 6, { at: 'center', anim: 'bob', tap: 'note', args: ['#7af0a8'] }),
+    P('speaker', 8, 97, 26, { tap: 'thump' }), P('speaker', 92, 97, 26, { tap: 'thump', flip: true }),
+    P('crowd', 18, 102, 13), P('crowd', 50, 102, 13, { args: [1] }), P('crowd', 82, 102, 13, { args: [2] })];
+  let listening = false;
+  function paintScene() {
+    const st = $('stage');
+    let sc = st.querySelector(':scope > .scene');
+    if (!sc) { sc = document.createElement('div'); sc.className = 'scene'; sc.setAttribute('aria-hidden', 'true'); st.prepend(sc); }
+    sc.innerHTML = '<div>' + Scenery.backdrop('stage') + '</div><div></div>';
+    Scenery.place(sc.lastChild, SCENE, innerWidth, innerHeight).forEach((el, i) => {
+      if (SCENE[i].art === 'spotlight') el.style.rotate = SCENE[i].x < 50 ? '-16deg' : '16deg';
+      if (el.dataset.tap) el.addEventListener('pointerdown', e => { e.stopPropagation(); tapDecor(el); });
+    });
+  }
+  // decorations wiggle any time, but stay quiet while she is listening to the tune
+  function tapDecor(el) {
+    const r = el.getBoundingClientRect(), x = r.left + r.width / 2, y = r.top + r.height / 2;
+    switch (el.dataset.tap) {
+      case 'thump': Scenery.react(el, 't-boing', 600); if (!listening) Kit.tone(110, .25, { type: 'sine', vol: .35, to: 60 }); break;
+      case 'disco': Scenery.react(el, 't-fast', 2000); Scenery.react(el, 't-wiggle', 600); if (!listening) Kit.sfx.ding(); Kit.burst(x, r.bottom - r.width * .4, ['✨', '⭐'], 6, 100); break;
+      case 'note': Scenery.react(el, 't-spin', 900); if (!listening) Kit.tone(pick([523, 659, 784, 1047]), .3, { type: 'triangle', vol: .16 }); break;
+    }
+  }
+  function cheer() {
+    const sc = $('stage').querySelector('.scene'); if (!sc) return;
+    sc.classList.add('cheer'); clearTimeout(cheer.t); cheer.t = setTimeout(() => sc.classList.remove('cheer'), 1400);
+  }
+  paintScene();
+  let sceneW = innerWidth, sceneH = innerHeight, sceneT = 0;
+  addEventListener('resize', () => {
+    clearTimeout(sceneT);
+    sceneT = setTimeout(() => { if (innerWidth !== sceneW || innerHeight !== sceneH) { sceneW = innerWidth; sceneH = innerHeight; paintScene(); } }, 150);
+  });
+
   const save = Kit.store('rhythm-copy');
   const saved = save.get({ best: 0 });
   let song = [], pos = 0, turn = false, slips = 0;
 
   const pads = BAND.map((b, i) => {
-    const el = document.createElement('div'); el.className = 'pad wait'; el.textContent = b.e; el.style.background = b.color;
+    const el = document.createElement('div'); el.className = 'pad wait'; el.innerHTML = ANIMALS[i]; el.style.background = b.color;
     el.addEventListener('pointerdown', () => tap(i));
     $('pads').appendChild(el); return el;
   });
@@ -71,12 +199,12 @@
   function paintNotes() { $('notes').textContent = song.length ? '♪'.repeat(song.length) : ''; }
 
   async function playSong(lead) {
-    turn = false; pads.forEach(p => p.classList.add('wait'));
+    turn = false; listening = true; pads.forEach(p => p.classList.add('wait'));
     status('<span class="ear">👂</span>');
     Kit.say(lead || 'rc.listen');
     await sleep(lead ? 2600 : 1300);
     for (const i of song) { await flash(i); await sleep(220); }
-    pos = 0; turn = true; pads.forEach(p => p.classList.remove('wait'));
+    pos = 0; turn = true; listening = false; pads.forEach(p => p.classList.remove('wait'));
     status('👉'); Kit.say('rc.you');
   }
 
@@ -94,7 +222,7 @@
     if (pos < song.length) return;
     // whole song right: one more note
     turn = false; slips = 0; pads.forEach(p => p.classList.add('wait'));
-    Kit.burstAt($('pads'), ['🎵', '🎶', '⭐'], 10, 160); Kit.sfx.ding();
+    Kit.burstAt($('pads'), ['🎵', '🎶', '⭐'], 10, 160); Kit.sfx.ding(); cheer();
     if (song.length > saved.best) { saved.best = song.length; save.set(saved); }
     await sleep(700);
     song.push(Math.floor(Math.random() * 4)); paintNotes();
@@ -104,7 +232,7 @@
   async function finish() {
     const got = song.length - 1;
     status('🏆 ' + Math.max(got, 1));
-    Kit.sfx.yay(); Kit.burstAt($('pads'), ['🎉', '⭐', '🎵', '🌟'], 22, 260);
+    Kit.sfx.yay(); Kit.burstAt($('pads'), ['🎉', '⭐', '🎵', '🌟'], 22, 260); cheer();
     Kit.say('rc.memory');
     // the band does a little victory dance
     for (let k = 0; k < 8; k++) { flash(k % 4, 160); await sleep(180); }

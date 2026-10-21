@@ -13,14 +13,24 @@
 <link rel="stylesheet" href="/shared/kit.css">
 <title>Shadow Match</title>
 <style>
-  body { background: linear-gradient(160deg, #fef3c7 0%, #fde68a 45%, #fdba74 100%); }
+  body { background: #ffe9a8; }
+  /* the sunny park behind everything (drawn with /shared/scenery.js) */
+  .scene { position: absolute; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
+  .scene > div { position: absolute; inset: 0; }
+  .sm-rays { animation: sm-turn 80s linear infinite; }
+  @keyframes sm-turn { to { transform: rotate(360deg); } }
+  .sm-tail { animation: sm-tail 2.4s ease-in-out infinite; }
+  @keyframes sm-tail { 0%,100% { transform: rotate(-8deg); } 50% { transform: rotate(8deg); } }
+  .sm-sway { animation: sm-sway 5s ease-in-out infinite; }
+  @keyframes sm-sway { 0%,100% { transform: rotate(-5deg); } 50% { transform: rotate(5deg); } }
   #game { flex-direction: column; padding: max(14px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(14px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left)); gap: 14px; }
-  .top { display: flex; align-items: center; gap: 14px; }
+  .top { display: flex; align-items: center; gap: 14px; pointer-events: none; }
+  .top .btn { pointer-events: auto; }
   .top .btn { width: 66px; height: 66px; font-size: 32px; }
   .spacer { flex: 1; }
   #stars { font-size: 30px; background: rgba(255,255,255,.7); border-radius: 999px; padding: 6px 18px; min-width: 70px; text-align: center; }
 
-  #board { flex: 1; min-height: 0; position: relative; border-radius: 34px; background: rgba(255,255,255,.55); box-shadow: inset 0 0 0 6px rgba(255,255,255,.8), 0 10px 30px rgba(146, 64, 14, .15); overflow: hidden; }
+  #board { flex: 1; min-height: 0; position: relative; border-radius: 34px; background: rgba(255,253,245,.7); box-shadow: inset 0 0 0 6px rgba(255,255,255,.85), 0 0 0 3px rgba(58,45,82,.18), 0 10px 30px rgba(146, 64, 14, .15); overflow: hidden; }
   #board.lit { animation: lit 1.2s ease-out; }
   @keyframes lit { 30% { background: rgba(255,255,255,.95); } }
   .slot { position: absolute; translate: -50% -50%; display: grid; place-items: center; border-radius: 50%; }
@@ -29,7 +39,10 @@
   .slot.hint { animation: kit-pulse 1s ease-in-out infinite; background: radial-gradient(circle, rgba(253, 224, 71, .6), transparent 70%); }
   .slot.over { background: radial-gradient(circle, rgba(255,255,255,.9), transparent 70%); }
 
-  #tray { display: flex; justify-content: center; gap: 14px; flex-wrap: wrap; background: rgba(255,255,255,.6); border-radius: 30px; padding: 12px; min-height: 120px; align-items: center; }
+  /* a picnic blanket for the pieces */
+  #tray { display: flex; justify-content: center; gap: 14px; flex-wrap: wrap; border-radius: 30px; padding: 12px; min-height: 120px; align-items: center;
+    background-color: #fff7f2; background-image: linear-gradient(90deg, rgba(255,99,99,.26) 50%, transparent 50%), linear-gradient(rgba(255,99,99,.26) 50%, transparent 50%); background-size: 40px 40px;
+    box-shadow: inset 0 0 0 6px rgba(255,255,255,.9), 0 0 0 3px rgba(58,45,82,.18), 0 8px 0 rgba(146, 64, 14, .15); }
   .piece { width: 104px; height: 104px; border-radius: 26px; background: #fff; display: grid; place-items: center; font-size: 66px; line-height: 1; touch-action: none; cursor: grab; box-shadow: 0 5px 0 rgba(146, 64, 14, .2); }
   .piece.gone { visibility: hidden; }
   .dragging { position: fixed; z-index: 40; pointer-events: none; line-height: 1; filter: drop-shadow(0 12px 8px rgba(0,0,0,.25)); }
@@ -39,6 +52,7 @@
 <body>
 
 <section id="game" class="screen on">
+  <div class="scene" aria-hidden="true"><div id="backdrop"></div><div id="decor"></div></div>
   <div class="top">
     <a class="btn" href="../../" aria-label="Back to Yas's Games">🏠</a>
     <div class="spacer"></div>
@@ -54,6 +68,66 @@
 <script src="/shared/voice.js"></script>
 <script src="/shared/saved.js"></script>
 <script src="/shared/kit.js"></script>
+<script src="/shared/scenery.js"></script>
+<script>
+// ---------- a sunny park around the game (decoration only) ----------
+(() => {
+  if (!self.Scenery || !Scenery.add) return;
+  const { face, ol, sky, hillsPath, dots, grassTufts } = Scenery.kit;
+
+  Scenery.addBackdrop('sunny', ['#8fdcff', '#d4f1ff', '#fff2c4'], () => sky('sunny') +
+    `<g class="sm-rays" style="transform-origin:280px 60px">${Array.from({ length: 12 }, (_, i) =>
+      `<path d="M280 60 L${280 + Math.cos(i * Math.PI / 6) * 1400} ${60 + Math.sin(i * Math.PI / 6) * 1400} L${280 + Math.cos(i * Math.PI / 6 + .16) * 1400} ${60 + Math.sin(i * Math.PI / 6 + .16) * 1400}Z" fill="#fff" opacity=".22"/>`).join('')}</g>` +
+    `<path d="${hillsPath(600, 170, 91, 4)}" fill="#c4eba4"/>` +
+    `<path d="${hillsPath(690, 110, 93, 3)}" fill="#a0dd80"/>` +
+    `<path d="M0 790 Q500 755 1000 792 V1000 H0Z" fill="#7dcc5c"/>` +
+    `<path d="M0 910 Q500 890 1000 915 V1000 H0Z" fill="#6cbf4c"/>` +
+    grassTufts(60, 37, 795, 990, '#5aae3e') + dots(70, 41, 700, 990, ['#ffffff', '#ffe066', '#ff8ad8', '#ff9a3c'], [3, 6]));
+
+  // a kite with a wavy tail
+  Scenery.add('kite', () => [110, 230,
+    `<g class="sm-tail" style="transform-origin:55px 116px"><path d="M55 116 Q30 146 56 170 T50 226" stroke="#7a5aa0" stroke-width="3" fill="none"/>` +
+    [[42, 142, '#ffd23f'], [56, 172, '#4cd964'], [48, 204, '#7ad6ff']].map(([x, y, c]) => `<path d="M${x} ${y} l-12 -8 v16Z M${x} ${y} l12 -8 v16Z" fill="${c}" ${ol(1.5)}/>`).join('') + `</g>` +
+    `<path d="M55 4 L102 60 L55 118 L8 60Z" fill="#ff6fb5"/><path d="M55 4 L102 60 H55Z" fill="#ffd23f"/><path d="M55 60 H8 L55 118Z" fill="#7ad6ff"/>` +
+    `<path d="M55 4 L102 60 L55 118 L8 60Z M55 4 V118 M8 60 H102" fill="none" ${ol()}/>` + face(55, 62, .55)]);
+
+  // a hot-air balloon with a happy face
+  Scenery.add('hotair', () => [140, 200,
+    `<path d="M58 146 L54 170 M82 146 L86 170" stroke="#7a4a25" stroke-width="3"/>` +
+    `<path d="M70 6 C20 6 4 50 14 84 C22 114 50 130 58 148 H82 C90 130 118 114 126 84 C136 50 120 6 70 6Z" fill="#ff5a6a" ${ol()}/>` +
+    `<path d="M70 7 C50 30 46 110 62 147 H78 C94 110 90 30 70 7Z" fill="#ffd23f"/>` +
+    `<path d="M70 6 C20 6 4 50 14 84 C22 114 50 130 58 148 H82 C90 130 118 114 126 84 C136 50 120 6 70 6Z" fill="none" ${ol()}/>` +
+    `<ellipse cx="44" cy="40" rx="10" ry="16" fill="#fff" opacity=".35" transform="rotate(20 44 40)"/>` + face(70, 78, .8) +
+    `<rect x="50" y="168" width="40" height="28" rx="6" fill="#c98a4a" ${ol()}/><path d="M50 178 H90 M50 186 H90" stroke="#a8692f" stroke-width="3"/>`]);
+
+  const P = (art, x, y, h, o = {}) => ({ art, x, y, h, ...o });
+  // only around the edges: the middle of the board stays calm so the shadows are easy to read
+  const props = () => [
+    P('sun', 28, 6, 15, { at: 'center', tap: 'spin' }),
+    P('cloud', 72, 6, 9, { at: 'center', anim: 'drift', tap: 'boing' }),
+    P('hotair', 0, 7, 10, { at: 'center', anim: 'across', dur: 40, delay: -12 }),
+    ...(innerWidth > 700 ? [P('kite', 60, 1, 11, { at: 'top', anim: 'bob' })] : []),
+    P('bush', 8, 101, 12),
+    P('sunflower', 3, 101, 22, { tap: 'bloom' }),
+    P('sunflower', 90, 101, 18, { tap: 'bloom' }),
+  ];
+  const giggle = () => [660, 880, 740, 990].forEach((f, i) => Kit.tone(f, .09, { type: 'triangle', vol: .12, delay: i * .07 }));
+  function tap(el) {
+    if (el.dataset.tap === 'spin') { Scenery.react(el, 't-spin', 900); giggle(); }
+    else if (el.dataset.tap === 'bloom') { Scenery.react(el, 't-bloom', 900); Kit.tone(700, .25, { type: 'triangle', vol: .12, to: 1300 }); }
+    else { Scenery.react(el, 't-boing', 600); Kit.sfx.boing(); }
+  }
+  function build() {
+    const box = document.getElementById('decor'); box.innerHTML = '';
+    Scenery.place(box, props(), innerWidth, innerHeight).forEach(el => {
+      if (el.dataset.tap) el.addEventListener('pointerdown', e => { e.stopPropagation(); tap(el); });
+    });
+  }
+  document.getElementById('backdrop').innerHTML = Scenery.backdrop('sunny');
+  build();
+  let t = 0; addEventListener('resize', () => { clearTimeout(t); t = setTimeout(build, 200); });
+})();
+</script>
 <script>
 (() => {
   const { $, rand, pick, shuffle, sleep } = Kit;

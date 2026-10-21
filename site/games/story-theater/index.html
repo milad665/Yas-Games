@@ -17,35 +17,49 @@
 
   /* ---------- stage picker ---------- */
   #pick {
-    flex-direction: column; align-items: center; justify-content: center; gap: 4vh;
-    background: radial-gradient(ellipse at 50% 0%, #fca5a5 0%, #b91c1c 45%, #7f1d1d 100%);
+    flex-direction: column; align-items: center; justify-content: center; gap: 4vh; background: #3a1450;
   }
+  #pick > .title, #stages { position: relative; z-index: 1; }
+  #pickBg, #pickBg .fill { position: absolute; inset: 0; }
+  #pickBg .fill:last-child { pointer-events: none; }
   #pick .title span { -webkit-text-stroke: 3px #7f1d1d; }
   #stages { display: flex; flex-wrap: wrap; gap: clamp(16px, 3vw, 34px); justify-content: center; padding: 0 20px; }
   .stagePick {
-    width: clamp(130px, 18vw, 180px); height: clamp(130px, 18vw, 180px); border-radius: 30px; border: 7px solid #fde68a;
-    font-size: clamp(60px, 9vw, 90px); display: grid; place-items: center; cursor: pointer; position: relative;
+    width: clamp(130px, 18vw, 180px); height: clamp(130px, 18vw, 180px); border-radius: 30px; border: 7px solid #fde68a; padding: 0; overflow: hidden;
+    font-size: clamp(56px, 8vw, 80px); display: grid; place-items: center; cursor: pointer; position: relative; background: #fff;
     box-shadow: 0 10px 0 rgba(0,0,0,.25); animation: kit-bob 3s ease-in-out infinite; touch-action: manipulation;
   }
-  .stagePick .film { position: absolute; right: -10px; top: -12px; font-size: 38px; }
-  .curtainL, .curtainR {
-    position: absolute; top: 0; bottom: 0; width: 9vw; pointer-events: none;
-    background: repeating-linear-gradient(90deg, #991b1b 0 18px, #b91c1c 18px 36px); box-shadow: 0 0 30px rgba(0,0,0,.4);
-  }
-  .curtainL { left: 0; border-radius: 0 0 60% 0; } .curtainR { right: 0; border-radius: 0 0 0 60%; }
+  .stagePick .thumb { position: absolute; inset: 0; pointer-events: none; }
+  .stagePick .icon { position: relative; filter: drop-shadow(0 4px 3px rgba(0,0,0,.3)); pointer-events: none; }
+  .stagePick .film { position: absolute; right: 6px; top: 4px; font-size: 34px; filter: drop-shadow(0 2px 2px rgba(0,0,0,.3)); }
 
   /* ---------- stage ---------- */
   #stage { flex-direction: column; }
-  #scene { position: relative; flex: 1; overflow: hidden; }
-  .bg-castle { background: radial-gradient(ellipse 80% 22% at 50% 92%, #bbf7d0 99%, transparent 100%), linear-gradient(#fbcfe8 0%, #ddd6fe 62%, #a7f3d0 72%, #86efac 100%); }
-  .bg-ocean  { background: radial-gradient(ellipse 90% 16% at 50% 100%, #fde68a 99%, transparent 100%), linear-gradient(#67e8f9 0%, #2563eb 60%, #1e3a8a 100%); }
-  .bg-space  { background: radial-gradient(circle at 30% 25%, #4c1d95 0%, #1e1b4b 45%, #020617 100%); }
-  .bg-forest { background: linear-gradient(#bae6fd 0%, #dcfce7 45%, #4ade80 62%, #15803d 100%); }
-  .bg-farm   { background: radial-gradient(ellipse 60% 20% at 25% 66%, #a3e635 99%, transparent 100%), linear-gradient(#7dd3fc 0%, #e0f2fe 60%, #84cc16 60%, #4d7c0f 100%); }
-  .deco { position: absolute; translate: -50% -50%; line-height: 1; pointer-events: none; }
-  .tw { animation: twinkle 2s ease-in-out infinite; }
-  @keyframes twinkle { 50% { opacity: .3; } }
-
+  #scene { position: relative; flex: 1; overflow: hidden; background: #3a1450; }
+  #backdrop, #decor, #frame { position: absolute; inset: 0; }
+  #decor { pointer-events: none; }
+  /* the theatre around every set: side curtains, a swag on top, footlights */
+  #frame { pointer-events: none; z-index: 8; --cw: 60px; --vh: 50px; }
+  #frame .side { position: absolute; top: 0; bottom: 0; width: var(--cw); transform-origin: 50% 0; animation: st-sway 7s ease-in-out infinite; }
+  #frame .side.l { left: 0; } #frame .side.r { right: 0; animation-delay: -3.5s; }
+  #frame .side.r svg { transform: scaleX(-1); }
+  #frame .top { position: absolute; left: 0; right: 0; top: 0; height: var(--vh); }
+  #frame svg { width: 100%; height: 100%; display: block; }
+  #frame .lights {
+    position: absolute; left: 0; right: 0; bottom: 0; height: 12px; background: #5a2a14; border-top: 3px solid #ffcf6b;
+    background-image: radial-gradient(circle at 50% 0, #fffbd0 0 4px, rgba(255,230,120,.55) 5px, transparent 11px);
+    background-size: 56px 12px; background-position: 28px 0; animation: st-glow 2.4s ease-in-out infinite;
+  }
+  @keyframes st-sway { 0%,100% { transform: skewX(0deg); } 50% { transform: skewX(1.2deg); } }
+  @keyframes st-glow { 50% { filter: brightness(1.25); } }
+  /* curtains that part when a stage opens */
+  #drapes { position: absolute; inset: 0; z-index: 19; pointer-events: none; overflow: hidden; }
+  #drapes .drape { position: absolute; top: 0; bottom: 0; width: 51%; transition: translate 1.3s cubic-bezier(.6,0,.3,1); }
+  #drapes .drape.l { left: 0; } #drapes .drape.r { right: 0; }
+  #drapes .drape.r svg { transform: scaleX(-1); }
+  #drapes svg { width: 100%; height: 100%; display: block; }
+  #drapes.open .drape.l { translate: -101% 0; } #drapes.open .drape.r { translate: 101% 0; }
+  #drapes.snap .drape { transition: none; }
   .actor { position: absolute; left: 0; top: 0; line-height: 1; touch-action: none; cursor: grab; will-change: transform; }
   .actor .face { display: inline-block; filter: drop-shadow(0 6px 4px rgba(0,0,0,.25)); }
   .actor.lift .face { filter: drop-shadow(0 16px 10px rgba(0,0,0,.3)); }
@@ -98,7 +112,7 @@
 
 <!-- STAGE PICKER -->
 <section id="pick" class="screen on">
-  <div class="curtainL"></div><div class="curtainR"></div>
+  <div id="pickBg"></div>
   <a class="btn corner left" href="../../" aria-label="Back to Yas's Games">🏠</a>
   <button id="soundBtn" class="btn corner right" aria-label="Sound on or off">🔊</button>
   <h1 id="title" class="title"></h1>
@@ -108,8 +122,11 @@
 <!-- STAGE -->
 <section id="stage" class="screen">
   <div id="scene">
+    <div id="backdrop"></div>
     <div id="decor"></div>
+    <div id="frame"></div>
     <div id="actors"></div>
+    <div id="drapes"><div class="drape l"></div><div class="drape r"></div></div>
     <div class="topbar">
       <button id="backBtn" class="btn" aria-label="Choose another stage">🏠</button>
       <div class="spacer"></div>
@@ -128,22 +145,111 @@
 <script src="/shared/voice.js"></script>
 <script src="/shared/saved.js"></script>
 <script src="/shared/kit.js"></script>
+<script src="/shared/scenery.js"></script>
 <script>
 (() => {
   const { $, rand, pick, sleep } = Kit;
 
+  // ---------- the sets: a cartoon backdrop plus props (see /shared/scenery.js) ----------
+  const P = (art, x, y, h, o = {}) => ({ art, x, y, h, ...o });
   const STAGES = {
-    castle: { icon: '🏰', cast: ['👸', '🤴', '🧚', '🦄', '🐉', '🧙'],
-      decor: [['🏰', 50, 38, 26], ['🌈', 14, 16, 12], ['✨', 82, 12, 5, 'tw'], ['⭐', 66, 8, 4, 'tw'], ['🌸', 8, 84, 6], ['🌸', 93, 86, 6]] },
-    ocean:  { icon: '🌊', cast: ['🧜‍♀️', '🐬', '🐙', '🦈', '🐠', '🐢'],
-      decor: [['🪸', 8, 86, 13], ['🌿', 24, 84, 11], ['🐚', 46, 94, 6], ['🪸', 82, 86, 14], ['🌿', 93, 82, 10]] },
-    space:  { icon: '🚀', cast: ['👩‍🚀', '👽', '🛸', '🤖', '🚀', '☄️'],
-      decor: [['🪐', 82, 18, 14], ['🌙', 14, 14, 12], ['🌍', 60, 74, 11], ['✨', 40, 20, 4, 'tw'], ['✨', 70, 46, 4, 'tw']], stars: true },
-    forest: { icon: '🌳', cast: ['🦊', '🐻', '🦉', '🐿️', '🐰', '🦔'],
-      decor: [['🌳', 8, 50, 26], ['🌲', 90, 46, 26], ['🌲', 74, 54, 16], ['🍄', 30, 88, 6], ['🌼', 58, 92, 5], ['☀️', 50, 10, 10]] },
-    farm:   { icon: '🐄', cast: ['🐄', '🐷', '🐔', '🐴', '🐑', '🧑‍🌾'],
-      decor: [['🏡', 20, 46, 18], ['🌻', 6, 70, 8], ['🚜', 86, 60, 13], ['☀️', 84, 10, 10], ['☁️', 40, 12, 10]] },
+    castle: { icon: '🏰', cast: ['👸', '🤴', '🧚', '🦄', '🐉', '🧙'], back: 'castle',
+      props: [P('rainbow', 24, 24, 20, { at: 'center' }), P('cloud', 70, 14, 10, { at: 'center', anim: 'drift', args: ['#fff0fa', '#ffd6ee'], tap: 'wiggle' }),
+              P('castle', 52, 70, 44, { tap: 'sparkle' }), P('blossom', 16, 82, 30, { tap: 'wiggle' }), P('blossom', 86, 84, 26, { flip: true, tap: 'wiggle' }),
+              P('sparkle', 80, 32, 4, { at: 'center', anim: 'twinkle' }), P('sparkle', 34, 44, 3, { at: 'center', anim: 'twinkle' }), P('sparkle', 62, 10, 4, { at: 'center', anim: 'twinkle' }),
+              P('flower', 27, 97, 10, { args: ['#ff8ad8'], tap: 'bloom' }), P('flower', 73, 98, 9, { args: ['#fff3a0'], tap: 'bloom' }),
+              P('butterfly', 40, 56, 5, { at: 'center', anim: 'flutter', args: ['#ffd23f', '#ff6fb5'] })] },
+    ocean:  { icon: '🌊', cast: ['🧜‍♀️', '🐬', '🐙', '🦈', '🐠', '🐢'], back: 'ocean', extras: { bubbles: 10 },
+      props: [P('fish', 0, 30, 7, { at: 'center', anim: 'across', dur: 22 }), P('fish', 0, 52, 5, { at: 'center', anim: 'across', dur: 16, delay: -8, args: ['#7ad6ff', '#ffe14d'] }),
+              P('jellyfish', 78, 30, 13, { at: 'center', anim: 'bob', tap: 'boing' }),
+              P('seaweed', 12, 99, 28, { tap: 'wiggle' }), P('coral', 24, 99, 16), P('seaweed', 34, 99, 18, { args: ['#5ad08a'] }),
+              P('chest', 62, 98, 13, { tap: 'open' }), P('starfish', 46, 99, 7, { tap: 'spin' }), P('shell', 74, 99, 5, { tap: 'boing' }),
+              P('coral', 82, 99, 15, { args: ['#b07aff'] }), P('seaweed', 90, 99, 24, { tap: 'wiggle' })] },
+    space:  { icon: '🚀', cast: ['👩‍🚀', '👽', '🛸', '🤖', '🚀', '☄️'], back: 'space', extras: { stars: 50, shooting: true },
+      props: [P('planet', 76, 24, 20, { at: 'center', anim: 'bob', tap: 'spin' }), P('moon', 18, 20, 15, { at: 'center', tap: 'boing' }),
+              P('earth', 60, 60, 11, { at: 'center', tap: 'spin' }), P('ufo', 40, 26, 14, { at: 'center', anim: 'bob', tap: 'beam' }),
+              P('rocket', 88, 95, 24, { tap: 'launch' })] },
+    forest: { icon: '🌳', cast: ['🦊', '🐻', '🦉', '🐿️', '🐰', '🦔'], back: 'st-forest',
+      props: [P('sun', 50, 12, 13, { at: 'center', tap: 'spin' }),
+              P('pine', 27, 75, 22, { args: ['#3f9a5a', false] }), P('pine', 71, 73, 26, { args: ['#3f9a5a', false] }), P('bush', 42, 80, 10),
+              P('pine', 13, 85, 44, { args: ['#2f8a5a', false], tap: 'wiggle' }), P('tree', 87, 85, 46, { args: ['#4fb84a', '#7ad66a', ''], tap: 'wiggle' }),
+              P('owl', 84, 46, 13, { at: 'center', tap: 'hoot' }),
+              P('mushroom', 33, 95, 7, { tap: 'boing' }), P('mushroom', 64, 97, 5, { tap: 'boing' }), P('flower', 52, 97, 9, { args: ['#ffd23f', '#ff8a3c'], tap: 'bloom' }),
+              P('butterfly', 30, 44, 5, { at: 'center', anim: 'flutter' })] },
+    farm:   { icon: '🐄', cast: ['🐄', '🐷', '🐔', '🐴', '🐑', '🧑‍🌾'], back: 'farm',
+      props: [P('sun', 60, 13, 13, { at: 'center', tap: 'spin' }), P('cloud', 30, 15, 10, { at: 'center', anim: 'drift', tap: 'wiggle' }),
+              P('barn', 22, 75, 34, { tap: 'loft' }), P('windmill', 82, 75, 42, { tap: 'fast' }), P('fence', 52, 77, 9),
+              P('hay', 63, 83, 7, { tap: 'boing' }), P('sunflower', 10, 97, 22, { tap: 'bloom' }), P('sunflower', 92, 98, 18, { tap: 'bloom' })] },
   };
+
+  // a forest set for the woodland stage, drawn in the same style as the shared backdrops
+  const SK = Scenery.kit;
+  Scenery.addBackdrop('st-forest', ['#8fd6ff', '#cdefff', '#ecfbe2'], () => {
+    const r = SK.seeded(5);
+    let trees = '';
+    for (const [y, col, off] of [[560, '#8fd08a', 0], [650, '#5fb469', 45]]) {
+      trees += `<rect x="0" y="${y}" width="1000" height="${1000 - y}" fill="${col}"/>`;
+      for (let i = 0; i < 12; i++) {
+        const x = i * 90 + off + r() * 20, rr = 46 + r() * 34;
+        trees += `<circle cx="${x.toFixed(0)}" cy="${(y - rr * .45).toFixed(0)}" r="${rr.toFixed(0)}" fill="${col}"/><circle cx="${(x + rr * .55).toFixed(0)}" cy="${(y - rr * .1).toFixed(0)}" r="${(rr * .7).toFixed(0)}" fill="${col}"/>`;
+      }
+    }
+    return SK.sky('st-forest') + trees +
+      `<g class="sc-rays">${[120, 380, 650].map(x => `<path d="M${x} 0 H${x + 70} L${x + 280} 820 H${x + 130}Z" fill="#fffbe0" opacity=".16"/>`).join('')}</g>` +
+      `<path d="M0 745 Q500 712 1000 748 V1000 H0Z" fill="#7ccc58"/>` +
+      `<path d="M455 1000 Q480 860 520 745 L552 745 Q570 860 650 1000Z" fill="#e2c08e"/>` +
+      `<path d="M0 905 Q500 872 1000 908 V1000 H0Z" fill="#6ab84a" opacity=".6"/>` +
+      SK.grassTufts(50, 8, 755, 990, '#5aa83e') + SK.dots(30, 9, 765, 990, ['#ffffff', '#ffe066', '#ff9fd2'], [3, 6]);
+  });
+
+  // theatre pieces (stretched to fit, so the outlines don't scale)
+  const NS = 'vector-effect="non-scaling-stroke"', OLS = `stroke="${SK.OL}" stroke-opacity=".55" stroke-width="3" ${NS}`;
+  const SIDE = `<svg viewBox="0 0 100 1000" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M0 0 H100 C96 260 72 470 48 600 C42 640 44 680 52 720 C64 820 74 920 78 1000 H0Z" fill="#c8213e" ${OLS}/>
+    <path d="M24 0 C26 250 22 450 14 606 M50 0 C54 250 44 450 28 610 M76 0 C80 220 64 450 40 606 M16 660 C22 800 24 900 24 1000 M38 668 C50 800 54 900 58 1000" stroke="#9a1530" stroke-width="5" fill="none" ${NS}/>
+    <path d="M9 0 C11 250 9 450 6 600" stroke="#ee5a72" stroke-width="5" fill="none" opacity=".7" ${NS}/>
+    <path d="M0 598 Q32 596 50 610 Q58 620 50 630 Q32 644 0 642Z" fill="#ffcf3a" ${OLS}/><path d="M46 626 Q50 660 44 690 Q54 688 60 690 Q56 660 56 628Z" fill="#ffcf3a" ${OLS}/>
+    <path d="M0 960 H78 V1000 H0Z" fill="#ffcf3a" opacity=".9"/></svg>`;
+  const TOP = `<svg viewBox="0 0 1000 100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M0 0 H1000 V56 ${Array.from({ length: 8 }, (_, i) => `Q${1000 - i * 125 - 62} 104 ${1000 - (i + 1) * 125} 56`).join(' ')}Z" fill="#c8213e" ${OLS}/>
+    <path d="M0 56 ${Array.from({ length: 8 }, (_, i) => `Q${i * 125 + 62} 104 ${(i + 1) * 125} 56`).join(' ')}" stroke="#ffcf3a" stroke-width="5" fill="none" ${NS}/>
+    <rect width="1000" height="14" fill="#9a1530"/>
+    ${Array.from({ length: 9 }, (_, i) => `<circle cx="${i * 125}" cy="58" r="9" fill="#ffcf3a" ${OLS}/>`).join('')}</svg>`;
+  const DRAPE = `<svg viewBox="0 0 500 1000" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><rect width="500" height="1000" fill="#c8213e"/>
+    ${Array.from({ length: 10 }, (_, i) => `<path d="M${i * 50 + 25} 0 Q${i * 50 + 14} 500 ${i * 50 + 28} 1000" stroke="#9a1530" stroke-width="9" fill="none"/><path d="M${i * 50 + 8} 0 Q${i * 50} 500 ${i * 50 + 10} 1000" stroke="#e44a64" stroke-width="5" fill="none" opacity=".6"/>`).join('')}
+    <rect x="486" width="14" height="1000" fill="#ffcf3a"/><rect y="972" width="500" height="28" fill="#ffcf3a"/></svg>`;
+  $('frame').innerHTML = `<div class="side l">${SIDE}</div><div class="side r">${SIDE}</div><div class="top">${TOP}</div><div class="lights"></div>`;
+  document.querySelectorAll('#drapes .drape').forEach(d => { d.innerHTML = DRAPE; });
+
+  // tapping the scenery: a little wiggle, spin or surprise and a sound
+  const T = (f, d, o) => Kit.tone(f, d, o);
+  const SOUNDS = {
+    rustle: () => [0, 1, 2].forEach(i => T(1800 + i * 300, .06, { type: 'sawtooth', vol: .025, to: 1200, delay: i * .05 })),
+    giggle: () => [0, 1, 2, 3].forEach(i => T(760 + i * 40, .07, { type: 'square', vol: .05, to: 980, delay: i * .08 })),
+    beam: () => [0, 1, 2, 3, 4].forEach(i => T(600 + i * 120, .5, { vol: .06, to: 700 + i * 140, delay: i * .1 })),
+    launch: () => { T(120, 1.3, { type: 'sawtooth', vol: .07, to: 900 }); T(80, 1.2, { type: 'square', vol: .04, to: 300 }); },
+    moo: () => { T(150, .9, { type: 'sawtooth', vol: .1, to: 120, attack: .2 }); T(225, .9, { type: 'triangle', vol: .05, to: 180, attack: .2 }); },
+    hoot: () => [0, 1].forEach(i => T(420, .35, { vol: .16, to: 360, delay: i * .45, attack: .06 })),
+  };
+  function tapDecor(el) {
+    if (playing) return;
+    const re = (cls, ms) => Scenery.react(el, cls, ms), r = el.getBoundingClientRect(), cx = r.left + r.width / 2;
+    switch (el.dataset.tap) {
+      case 'spin': re('t-spin', 900); Kit.sfx.whoosh(); break;
+      case 'boing': re('t-boing', 600); Kit.sfx.boing(); break;
+      case 'wiggle': re('t-wiggle', 600); SOUNDS.rustle(); break;
+      case 'bloom': re('t-bloom', 900); SOUNDS.giggle(); break;
+      case 'sparkle': re('t-boing', 600); Kit.sfx.yay(); Kit.burst(cx, r.top + r.height * .2, ['✨', '⭐', '🌟'], 10, 160); break;
+      case 'open': re('t-open', 2600); Kit.sfx.ding(); Kit.burst(cx, r.top + r.height * .3, ['✨', '💎', '⭐'], 8, 110); break;
+      case 'beam': re('t-beam', 2200); SOUNDS.beam(); break;
+      case 'launch': re('t-launch', 3400); SOUNDS.launch(); break;
+      case 'loft': re('t-loft', 2200); SOUNDS.moo(); break;
+      case 'fast': re('t-fast', 2500); Kit.sfx.whoosh(); break;
+      case 'hoot': re('t-hoot', 900); SOUNDS.hoot(); break;
+    }
+  }
+  const hookTaps = els => els.forEach(el => el.dataset.tap && el.addEventListener('pointerdown', e => { e.stopPropagation(); tapDecor(el); }));
+
   const PROPS = ['🎁', '⭐', '🌈', '❤️', '🍰', '🎈'];
   const ACTIONS = [
     { cls: 'a-jump', sound: () => Kit.sfx.boing() },
@@ -180,13 +286,26 @@
     $('stages').innerHTML = '';
     for (const [key, st] of Object.entries(STAGES)) {
       const b = document.createElement('button');
-      b.className = 'stagePick bg-' + key; b.textContent = st.icon;
+      b.className = 'stagePick';
+      b.innerHTML = '<div class="thumb">' + Scenery.backdrop(st.back) + '</div><span class="icon">' + st.icon + '</span>';
+      b.setAttribute('aria-label', key);
       b.style.animationDelay = -Kit.rand(0, 3) + 's';
       if (saved.movies[key]) { const f = document.createElement('span'); f.className = 'film'; f.textContent = '🎬'; b.appendChild(f); }
       b.onclick = () => { Kit.sfx.pop(); openStage(key); };
       $('stages').appendChild(b);
     }
   }
+  // the picker is a theatre too: curtains, spotlights and balloons
+  function paintPickBg() {
+    const bg = $('pickBg');
+    bg.innerHTML = '<div class="fill">' + Scenery.backdrop('stage') + '</div><div class="fill"></div>';
+    hookTaps(Scenery.place(bg.lastChild, [
+      P('spotlight', 26, 0, 78, { at: 'top' }), P('spotlight', 74, 0, 78, { at: 'top' }),
+      P('sparkle', 14, 30, 4, { at: 'center', anim: 'twinkle' }), P('sparkle', 86, 24, 5, { at: 'center', anim: 'twinkle' }), P('sparkle', 50, 12, 4, { at: 'center', anim: 'twinkle' }),
+      P('balloons', 7, 94, 26, { tap: 'boing' }), P('balloons', 93, 94, 22, { flip: true, tap: 'boing' }),
+    ], innerWidth, innerHeight));
+  }
+  paintPickBg();
   paintPicker();
   Kit.soundButton('soundBtn');
   Kit.say('st.pick');
@@ -199,20 +318,11 @@
     stageKey = key;
     const st = STAGES[key];
     document.querySelectorAll('.screen').forEach(s => s.classList.toggle('on', s.id === 'stage'));
-    $('scene').className = 'bg-' + key;
-    measure();
-    // scenery
-    const d = $('decor'); d.innerHTML = '';
-    if (st.stars) for (let i = 0; i < 60; i++) {
-      const s = document.createElement('div'); s.className = 'deco tw';
-      Object.assign(s.style, { left: rand(0, 100) + '%', top: rand(0, 100) + '%', width: '4px', height: '4px', borderRadius: '50%', background: '#fff', animationDelay: -rand(0, 2) + 's' });
-      d.appendChild(s);
-    }
-    for (const [emo, x, y, size, cls] of st.decor) {
-      const e = document.createElement('div'); e.className = 'deco' + (cls ? ' ' + cls : '');
-      e.textContent = emo; e.style.left = x + '%'; e.style.top = y + '%'; e.style.fontSize = size + 'vmin';
-      d.appendChild(e);
-    }
+    $('scene').className = 'st-' + key;
+    // the curtains part
+    const dr = $('drapes');
+    dr.classList.add('snap'); dr.classList.remove('open'); void dr.offsetWidth; dr.classList.remove('snap');
+    setTimeout(() => { dr.classList.add('open'); Kit.sfx.whoosh(); }, 250);
     // tray
     const tray = $('tray'); tray.innerHTML = '';
     [...st.cast.map(e => [e, false]), ...PROPS.map(e => [e, true])].forEach(([emo, prop]) => {
@@ -221,6 +331,8 @@
       it.addEventListener('pointerdown', e => dragFromTray(e, emo));
       tray.appendChild(it);
     });
+    measure();   // after the tray is filled, so the stage size is right
+    buildDecor();
     // actors from last time
     clearActors();
     (saved.scenes[key] || []).forEach(a => addActor(a.e, a.x, a.y, a.flip));
@@ -229,6 +341,15 @@
     Kit.say('st.' + key, actors.length ? null : 'st.intro');
   }
   function measure() { const r = $('scene').getBoundingClientRect(); W = r.width; H = r.height; }
+  function buildDecor() {
+    const st = STAGES[stageKey];
+    $('backdrop').innerHTML = Scenery.backdrop(st.back);
+    const d = $('decor'); d.innerHTML = '';
+    if (st.extras) Scenery.extras(d, st.extras);
+    hookTaps(Scenery.place(d, st.props, W, H));
+    $('frame').style.setProperty('--cw', Math.round(Math.max(26, Math.min(W * .085, H * .13))) + 'px');
+    $('frame').style.setProperty('--vh', Math.round(Math.max(26, Math.min(H * .09, 64))) + 'px');
+  }
 
   // further back (higher up) = smaller
   function sizeAt(y) { return Math.min(W, H) * .17 * (.55 + .65 * y); }
@@ -445,7 +566,15 @@
     document.querySelectorAll('.screen').forEach(s => s.classList.toggle('on', s.id === 'pick'));
   };
 
-  addEventListener('resize', () => { if (!stageKey) return; measure(); actors.forEach(place); });
+  let lastSize = '';
+  addEventListener('resize', () => {
+    const size = innerWidth + 'x' + innerHeight;
+    if (size === lastSize) return;
+    lastSize = size;
+    paintPickBg();
+    if (!stageKey) return;
+    measure(); actors.forEach(place); buildDecor();
+  });
 })();
 </script>
 </body>

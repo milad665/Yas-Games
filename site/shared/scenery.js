@@ -58,7 +58,7 @@
     <clipPath id="sc-loft-clip"><rect x="112" y="78" width="56" height="46"/></clipPath>
     <clipPath id="sc-igloo-clip"><path d="M152 150 V122 A18 18 0 0 1 188 122 V150Z"/></clipPath>
     <clipPath id="sc-tent-clip"><path d="M130 22 L98 175 H162Z"/></clipPath>
-    ${['meadow', 'castle', 'ocean', 'space', 'dino', 'jungle', 'snow', 'candy', 'farm', 'camp', 'beach', 'room', 'stage', 'savanna', 'garden'].map(k => SKY[k] &&
+    ${Object.keys(SKY).map(k =>
       `<linearGradient id="sc-sky-${k}" x1="0" y1="0" x2="0" y2="1">${SKY[k].map((c, i, a) => `<stop offset="${i / (a.length - 1)}" stop-color="${c}"/>`).join('')}</linearGradient>`).join('')}
   `;
 
@@ -740,5 +740,18 @@
     if (shooting) place(layer, [{ art: 'shootingStar', x: 10, y: 12, h: 6, at: 'center', anim: 'shoot', delay: 3 }], layer.clientWidth || innerWidth, layer.clientHeight || innerHeight);
   }
 
-  self.Scenery = { art, backdrop, place, react, extras, install, BACKDROPS: Object.keys(BACK), ARTS: Object.keys(A), SKY };
+  // a game can add its own pictures: Scenery.add('rocketship', (color) => [w, h, '<svg inner markup>'])
+  // and its own backdrops: Scenery.addBackdrop('kitchen', ['#top', '#bottom'], () => '<inner markup on 1000x1000>')
+  function add(name, fn) { A[name] = fn; }
+  function addBackdrop(name, sky, fn) {
+    SKY[name] = sky; BACK[name] = fn;
+    const defs = document.querySelector('#sc-defs defs');
+    if (defs && !document.getElementById('sc-sky-' + name)) defs.insertAdjacentHTML('beforeend',
+      `<linearGradient id="sc-sky-${name}" x1="0" y1="0" x2="0" y2="1">${sky.map((c, i, a) => `<stop offset="${i / Math.max(1, a.length - 1)}" stop-color="${c}"/>`).join('')}</linearGradient>`);
+  }
+  // building blocks for drawing in the same style
+  const kit = { blob, face, ol, OL, sky, hillsPath, dots, grassTufts, spiral, seeded };
+
+  self.Scenery = { art, backdrop, place, react, extras, install, add, addBackdrop, kit,
+    get BACKDROPS() { return Object.keys(BACK); }, get ARTS() { return Object.keys(A); }, SKY };
 })();

@@ -13,7 +13,24 @@
 <link rel="stylesheet" href="/shared/kit.css">
 <title>Doodle Puzzles</title>
 <style>
-  body { background: linear-gradient(160deg, #ccfbf1 0%, #e0f2fe 50%, #fef3c7 100%); }
+  body { background: #e9b97f; }
+  /* the playroom and puzzle table behind everything */
+  #scene { position: fixed; inset: 0; pointer-events: none; overflow: hidden; }
+  #scene > div, .props, .gut { position: absolute; }
+  #sceneBack { inset: 0; }
+  .props { inset: 0; pointer-events: none; }
+  #pickProps { visibility: hidden; }
+  #pickProps.on { visibility: visible; }
+  .badge { display: block; width: 100%; height: 100%; overflow: visible; }
+  .dp-steam path { transform-box: fill-box; transform-origin: 50% 100%; animation: dp-steam 2.4s ease-out infinite; }
+  @keyframes dp-steam { 0% { transform: translateY(6px) scaleY(.6); opacity: 0; } 30% { opacity: .85; } 100% { transform: translateY(-10px) scaleY(1.1); opacity: 0; } }
+  .dp-wave { animation: dp-wave 3s ease-in-out infinite; }
+  @keyframes dp-wave { 0%, 60%, 100% { transform: rotate(0); } 70%, 90% { transform: rotate(-16deg); } 80% { transform: rotate(8deg); } }
+  .dp-lid, .dp-pop { transition: transform .45s cubic-bezier(.3,1.6,.5,1); }
+  .dp-pop { transform-box: fill-box; transform-origin: 50% 100%; animation: dp-peek 4s ease-in-out infinite; }
+  @keyframes dp-peek { 0%, 70%, 100% { transform: translateY(0); } 80% { transform: translateY(-6px); } }
+  .sc-prop.t-open .dp-lid { transform: translate(14px, -18px) rotate(14deg); }
+  .sc-prop.t-open .dp-pop { animation: none; transform: translateY(-16px); }
 
   #pick { flex-direction: column; align-items: center; padding: max(24px, env(safe-area-inset-top)) 20px 24px; gap: 2.5vh; overflow-y: auto; touch-action: pan-y; }
   #pick .title { margin-top: 46px; font-size: clamp(40px, 7vw, 76px); }
@@ -25,11 +42,13 @@
   #pics { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 16px; width: min(100%, 1000px); }
   .pic { position: relative; border-radius: 22px; overflow: hidden; cursor: pointer; touch-action: manipulation; box-shadow: 0 6px 0 rgba(0,0,0,.1); border: 5px solid #fff; background: #fff; aspect-ratio: 4 / 3; }
   .pic img { width: 100%; height: 100%; object-fit: cover; display: block; }
-  .pic .mine { position: absolute; top: 6px; left: 6px; font-size: 26px; }
-  .pic .st { position: absolute; top: 6px; right: 6px; font-size: 26px; }
+  .pic .mine { position: absolute; top: 6px; left: 6px; width: 32px; height: 32px; }
+  .pic .st { position: absolute; top: 6px; right: 6px; width: 32px; height: 32px; }
 
   #play { overflow: hidden; }
-  #board { position: absolute; border-radius: 12px; background: rgba(255,255,255,.6); box-shadow: 0 10px 30px rgba(15, 118, 110, .2); }
+  #board { position: absolute; border-radius: 12px; background: rgba(255,255,255,.75);
+    /* a wooden tray for the puzzle */
+    box-shadow: 0 0 0 9px #b8743a, 0 0 0 12px rgba(58,45,82,.45), 0 14px 30px rgba(58,45,82,.3); }
   #ghost { position: absolute; inset: 0; width: 100%; height: 100%; opacity: .22; border-radius: 12px; transition: opacity .6s; }
   #board.done #ghost { opacity: 1; }
   .piece { position: absolute; left: 0; top: 0; touch-action: none; cursor: grab; filter: drop-shadow(0 4px 4px rgba(0,0,0,.25)); will-change: transform; }
@@ -40,6 +59,8 @@
 </head>
 <body>
 
+<div id="scene" aria-hidden="true"><div id="sceneBack"></div><div id="pickProps" class="props on"></div></div>
+
 <section id="pick" class="screen on">
   <a class="btn corner left" href="../../" aria-label="Back to Yas's Games">🏠</a>
   <button id="soundBtn" class="btn corner right" aria-label="Sound on or off">🔊</button>
@@ -49,6 +70,7 @@
 </section>
 
 <section id="play" class="screen">
+  <div id="playProps" class="props" aria-hidden="true"></div>
   <button id="backBtn" class="btn corner left" aria-label="Pick another picture">🏠</button>
   <div id="board"><img id="ghost" alt=""></div>
   <div id="pieces"></div>
@@ -58,6 +80,7 @@
 <script src="/shared/voice.js"></script>
 <script src="/shared/saved.js"></script>
 <script src="/shared/kit.js"></script>
+<script src="/shared/scenery.js"></script>
 <script>
 (() => {
   const { $, rand, shuffle, sleep } = Kit;
@@ -65,6 +88,132 @@
 
   const save = Kit.store('doodle-puzzles');
   const saved = save.get({ size: 0, solved: [] });
+
+  // ---------- the puzzle table and its friends (see /shared/scenery.js) ----------
+  const { ol, face, blob } = Scenery.kit;
+  // a puzzle-piece outline: knobs on top and on the right
+  const pieceShape = (x, y, s) => `M${x} ${y} h${s * .35} a${s * .15} ${s * .15} 0 1 1 ${s * .3} 0 h${s * .35} v${s * .35} a${s * .15} ${s * .15} 0 1 1 0 ${s * .3} v${s * .35} h${-s}Z`;
+  Scenery.addBackdrop('dpPlayroom', ['#d6f5ee', '#e2f0ff', '#fff3dc'], () => {
+    const K = Scenery.kit, cols = ['#ef4444', '#f97316', '#eab308', '#22c55e', '#14b8a6', '#3b82f6', '#a855f7', '#ec4899'];
+    let s = K.sky('dpPlayroom') + K.dots(26, 9, 70, 250, ['#ffffff'], [7, 13], 1.2).replace(/<ellipse /g, '<ellipse opacity=".5" ');
+    // bunting
+    s += `<path d="M0 18 Q500 80 1000 18" stroke="#9ad8c8" stroke-width="4" fill="none"/>`;
+    for (let i = 0; i < 14; i++) { const x = 20 + i * 70, y = 18 + 62 * (x / 1000) * (1 - x / 1000) * 4 * .5; s += `<path d="M${x} ${y.toFixed(0)} h44 l-22 42Z" fill="${cols[i % cols.length]}" opacity=".8"/>`; }
+    // a big wooden table with a few puzzle pieces drawn into it
+    s += `<rect y="290" width="1000" height="710" fill="#e9b97f"/><rect y="282" width="1000" height="22" fill="#d39a5c"/>` +
+      Array.from({ length: 9 }, (_, i) => `<rect y="${360 + i * 72}" width="1000" height="4" fill="#d6a46a" opacity=".7"/>`).join('') +
+      [[160, 520, 60, 16], [700, 430, 80, 18], [420, 800, 70, 14], [880, 760, 50, 12], [90, 900, 40, 10]].map(([x, y, rx, ry]) =>
+        `<ellipse cx="${x}" cy="${y}" rx="${rx}" ry="${ry}" fill="none" stroke="#d6a46a" stroke-width="4" opacity=".7"/><ellipse cx="${x}" cy="${y}" rx="${rx * .45}" ry="${ry * .45}" fill="#d6a46a" opacity=".5"/>`).join('');
+    return s;
+  });
+  Scenery.add('dpTeddy', () => [150, 182,
+    blob([[38, 40, 20], [112, 40, 20]], '#c98a5a') + `<circle cx="38" cy="40" r="10" fill="#f2c9a0"/><circle cx="112" cy="40" r="10" fill="#f2c9a0"/>` +
+    `<ellipse cx="34" cy="128" rx="14" ry="24" fill="#c98a5a" ${ol()} transform="rotate(30 34 128)"/>` +
+    `<g class="dp-wave" style="transform-origin:112px 116px"><ellipse cx="122" cy="98" rx="14" ry="24" fill="#c98a5a" ${ol()} transform="rotate(-150 122 98)"/></g>` +
+    `<ellipse cx="46" cy="164" rx="22" ry="15" fill="#c98a5a" ${ol()}/><ellipse cx="104" cy="164" rx="22" ry="15" fill="#c98a5a" ${ol()}/>` +
+    `<ellipse cx="75" cy="130" rx="44" ry="42" fill="#c98a5a" ${ol()}/><ellipse cx="75" cy="138" rx="27" ry="27" fill="#f2c9a0"/>` +
+    `<circle cx="46" cy="166" r="8" fill="#f2c9a0"/><circle cx="104" cy="166" r="8" fill="#f2c9a0"/>` +
+    `<circle cx="75" cy="66" r="40" fill="#c98a5a" ${ol()}/><ellipse cx="75" cy="82" rx="19" ry="14" fill="#f2c9a0"/>` + face(75, 70, .62) +
+    `<ellipse cx="75" cy="76" rx="6" ry="4.5" fill="#3a2a2a"/>` +
+    `<path d="M60 102 L75 110 L60 118Z M90 102 L75 110 L90 118Z" fill="#ef4444" ${ol(2)}/><circle cx="75" cy="110" r="5" fill="#ff6b6b" ${ol(1.5)}/>`]);
+  Scenery.add('dpBox', () => [170, 126,
+    `<g class="dp-pop">` + [[52, 30, '#ef4444', -20], [84, 22, '#22c55e', 10], [114, 32, '#3b82f6', 30]].map(([x, y, c, r]) =>
+      `<path d="${pieceShape(x - 13, y - 9, 26)}" fill="${c}" ${ol(2)} transform="rotate(${r} ${x} ${y})"/>`).join('') + `</g>` +
+    `<rect x="14" y="52" width="142" height="68" rx="9" fill="#7ad6ff" ${ol()}/><rect x="14" y="52" width="142" height="14" rx="6" fill="#5ab8f0"/>` +
+    `<path d="${pieceShape(116, 74, 26)}" fill="#fff" opacity=".75"/>` + face(70, 92, .62) +
+    `<g class="dp-lid" style="transform-origin:150px 52px"><rect x="8" y="34" width="154" height="22" rx="8" fill="#ffd23f" ${ol()} transform="rotate(-8 150 52)"/></g>`]);
+  Scenery.add('dpMug', () => [112, 132,
+    `<g class="dp-steam">${[34, 54, 74].map((x, i) => `<path style="animation-delay:${i * .6}s" d="M${x} 44 q-8 -10 0 -20 q8 -10 0 -20" stroke="#fff" stroke-width="6" fill="none" stroke-linecap="round" opacity=".85"/>`).join('')}</g>` +
+    `<path d="M86 72 q26 0 26 22 q0 22 -26 22" stroke="#3a2d52" stroke-opacity=".55" stroke-width="16" fill="none"/><path d="M86 72 q26 0 26 22 q0 22 -26 22" stroke="#ff8ab0" stroke-width="10" fill="none"/>` +
+    `<rect x="12" y="52" width="80" height="76" rx="16" fill="#ff8ab0" ${ol()}/><ellipse cx="52" cy="57" rx="34" ry="7" fill="#8a5a3a"/>` +
+    `<rect x="34" y="50" width="11" height="9" rx="3" fill="#fff" ${ol(1.5)}/><rect x="56" y="48" width="11" height="9" rx="3" fill="#fff" ${ol(1.5)} transform="rotate(14 61 52)"/>` + face(52, 94, .62)]);
+
+  const P = (art, x, y, h, o = {}) => ({ art, x, y, h, ...o });
+  $('sceneBack').innerHTML = Scenery.backdrop('dpPlayroom');
+  // props never wider than their space; `on: i` stands a prop on top of prop i
+  function fitPlace(layer, props, w, h) {
+    const unit = Math.min(w, h) / 100, out = [];
+    props.forEach(p => {
+      const a = Scenery.art(p.art, ...(p.args || []));
+      const q = { ...p, h: Math.min(p.h, w * .9 / (unit * a.w / a.h)) };
+      if (p.on != null) { const b = out[p.on]; q.y = b.y - b.h * unit / h * 100 * .9; }
+      out.push(q);
+    });
+    return Scenery.place(layer, out, w, h);
+  }
+  function fillBox(layer, x0, y0, x1, y1, props) {
+    const w = x1 - x0, h = y1 - y0, box = document.createElement('div'); box.className = 'gut';
+    Object.assign(box.style, { left: x0 + 'px', top: y0 + 'px', width: w + 'px', height: h + 'px' });
+    layer.appendChild(box);
+    return fitPlace(box, props, w, h).map(el => { if (el.dataset.tap) el.addEventListener('pointerdown', e => { e.stopPropagation(); tapProp(el); }); return el; });
+  }
+  // the picker: a teddy and the puzzle box sit in the bottom corners when the pictures leave room
+  function layoutPick() {
+    const L = $('pickProps'), W = innerWidth, H = innerHeight; L.innerHTML = '';
+    const m = $('pics').getBoundingClientRect().left - 12;
+    if (m < 90 || H < 420) return;
+    fillBox(L, 6, H * .45, m, H - 6, [P('dpTeddy', 50, 100, 60)]);
+    fillBox(L, W - m, H * .45, W - 6, H - 6, [P('dpBox', 50, 100, 40), P('dpMug', 42, 100, 30, { on: 0 })]);
+  }
+  // while puzzling: a row of friends along the top right, above where the pieces lie
+  function layoutPlay() {
+    const L = $('playProps'), W = innerWidth; L.innerHTML = '';
+    const x0 = Math.max(100, W - Math.min(W * .5, 340)), w = W - 10 - x0;
+    if (w < 120) return;
+    const wide = w >= 290;
+    fillBox(L, x0, 2, W - 10, 76, wide
+      ? [P('dpTeddy', 16, 100, 96, { tap: 'teddy' }), P('dpMug', 46, 100, 72, { tap: 'mug' }), P('dpBox', 80, 100, 74, { tap: 'box' })]
+      : [P('dpMug', 24, 100, 72, { tap: 'mug' }), P('dpBox', 70, 100, 74, { tap: 'box' })]);
+  }
+  addEventListener('resize', () => { if ($('pick').classList.contains('on')) layoutPick(); else layoutPlay(); });
+  function tapProp(el) {
+    switch (el.dataset.tap) {
+      case 'teddy': Scenery.react(el, 't-boing', 600); Kit.tone(600, .12, { to: 900, vol: .14 }); Kit.tone(900, .12, { to: 700, vol: .12, delay: .12 }); break;
+      case 'mug': Scenery.react(el, 't-wiggle', 600); Kit.tone(500, .3, { type: 'triangle', to: 250, vol: .12 }); break;
+      case 'box': Scenery.react(el, 't-open', 1600); for (let i = 0; i < 5; i++) Kit.tone(900 + Math.random() * 500, .04, { type: 'square', vol: .04, delay: i * .07 }); break;
+    }
+  }
+  const showScreen = id => {
+    document.querySelectorAll('.screen').forEach(s => s.classList.toggle('on', s.id === id));
+    $('pickProps').classList.toggle('on', id === 'pick');
+    if (id === 'pick') layoutPick(); else layoutPlay();
+  };
+  const STAR = '<svg class="badge" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"><path d="M20 3l5 11 12 1.3-9 8.2 2.6 11.9L20 29.2 9.4 35.4 12 23.5 3 15.3 15 14z" fill="#ffd23f" stroke="#3a2d52" stroke-opacity=".55" stroke-width="2.5" stroke-linejoin="round"/><circle cx="16" cy="19" r="1.8" fill="#3a2a2a"/><circle cx="24" cy="19" r="1.8" fill="#3a2a2a"/><path d="M17 23.5q3 2.5 6 0" stroke="#3a2a2a" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg>';
+  const CRAYON = '<svg class="badge" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"><g transform="rotate(-40 20 20)" stroke="#3a2d52" stroke-opacity=".55" stroke-width="2" stroke-linejoin="round"><rect x="3" y="13" width="26" height="14" rx="3" fill="#ec4899"/><path d="M29 13 L38 20 L29 27Z" fill="#f6d9a8"/></g><g transform="rotate(-40 20 20)"><path d="M34.5 17.3 L38 20 L34.5 22.7Z" fill="#ec4899"/><rect x="8" y="13" width="5" height="14" fill="#fff" opacity=".55"/></g></svg>';
+
+  // ---------- ready-made scenes, drawn from the same cartoon pictures as the games ----------
+  // one standalone SVG (the shared gradients copied in), turned into a JPEG; the emoji scene is the fallback
+  function svgPicture(back, props) {
+    const defs = (document.querySelector('#sc-defs defs') || {}).innerHTML || '';
+    const nest = (svg, x, y, w, h) => {
+      if (!svg.includes('class="sc-svg"')) throw new Error('unexpected picture markup');
+      return svg.replace('class="sc-svg"', `x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${w.toFixed(1)}" height="${h.toFixed(1)}"`);
+    };
+    let s = `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600"><defs>${defs}</defs>` + nest(Scenery.backdrop(back), 0, 0, 800, 600);
+    for (const p of props) {
+      const a = Scenery.art(p.art, ...(p.args || [])), h = p.h * 6, w = h * a.w / a.h;
+      const x = p.x * 8 - w / 2, y = p.y * 6 - (p.at === 'center' ? h / 2 : h), one = nest(a.svg, x, y, w, h);
+      s += p.flip ? `<g transform="translate(${(2 * x + w).toFixed(1)} 0) scale(-1 1)">${one}</g>` : one;
+    }
+    return s + '</svg>';
+  }
+  function loadSVG(svg) {
+    return new Promise(ok => {
+      const img = new Image(); let over = false;
+      const fin = v => { if (!over) { over = true; ok(v); } };
+      setTimeout(() => fin(null), 5000);
+      img.onload = () => fin(img.width ? img : null); img.onerror = () => fin(null);
+      img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+    });
+  }
+  async function svgScene(back, props) {
+    try {
+      const img = await loadSVG(svgPicture(back, props)); if (!img) return null;
+      const c = document.createElement('canvas'); c.width = 800; c.height = 600;
+      const x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, 800, 600); x.drawImage(img, 0, 0, 800, 600);
+      return c.toDataURL('image/jpeg', .85);
+    } catch (e) { return null; }
+  }
 
   // ---------- pictures: her own first, then ready-made scenes ----------
   function scene(bg, items) {
@@ -76,29 +225,53 @@
     for (const [e, px, py, size] of items) { x.font = `${size}px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif`; x.fillText(e, px, py); }
     return c.toDataURL('image/jpeg', .85);
   }
+  const R = (back, props, fallback) => ({ back, props, fallback });
   const READY = [
-    () => scene(['#fbcfe8', '#c4b5fd', '#93c5fd'], [['🌈', 560, 160, 220], ['🦄', 330, 360, 300], ['✨', 120, 110, 90], ['⭐', 680, 470, 80]]),
-    () => scene(['#1e1b4b', '#4c1d95', '#0f172a'], [['🪐', 620, 150, 180], ['🌙', 140, 120, 120], ['🚀', 360, 370, 260], ['⭐', 650, 470, 70], ['✨', 200, 480, 70]]),
-    () => scene(['#67e8f9', '#2563eb', '#1e3a8a'], [['🐠', 230, 220, 190], ['🐙', 560, 380, 230], ['🫧', 640, 120, 90], ['🪸', 130, 500, 140], ['🐚', 380, 540, 70]]),
-    () => scene(['#fdba74', '#fde68a', '#86efac'], [['🌋', 590, 230, 260], ['🦕', 250, 360, 280], ['🌴', 90, 300, 160], ['🥚', 480, 520, 80]]),
-    () => scene(['#fbcfe8', '#ddd6fe', '#bbf7d0'], [['🏰', 520, 270, 300], ['👸', 190, 380, 220], ['🌸', 90, 520, 80], ['✨', 700, 90, 80]]),
-    () => scene(['#7dd3fc', '#e0f2fe', '#84cc16'], [['🐶', 220, 380, 220], ['🐱', 520, 400, 200], ['☀️', 660, 110, 130], ['🌳', 90, 230, 170]]),
+    R('candy', [P('cloud', 18, 16, 18, { at: 'center' }), P('rainbow', 56, 40, 56, { at: 'center' }), P('sparkle', 88, 14, 7, { at: 'center' }), P('sparkle', 8, 42, 6, { at: 'center' }),
+                P('lollipop', 13, 98, 62), P('gumdrop', 32, 97, 15, { args: ['#ff6fb5'] }), P('donut', 50, 98, 18), P('cupcake', 72, 97, 42), P('candycane', 92, 98, 44)],
+      () => scene(['#fbcfe8', '#c4b5fd', '#93c5fd'], [['🌈', 560, 160, 220], ['🦄', 330, 360, 300], ['✨', 120, 110, 90], ['⭐', 680, 470, 80]])),
+    R('space', [P('moon', 15, 20, 32, { at: 'center' }), P('planet', 76, 24, 38, { at: 'center' }), P('earth', 72, 72, 28, { at: 'center' }), P('ufo', 48, 34, 28, { at: 'center' }),
+                P('rocket', 28, 95, 66), ...[[8, 62], [42, 10], [93, 52], [56, 90], [90, 88], [20, 46], [60, 60]].map(([x, y]) => P('sparkle', x, y, 5, { at: 'center' }))],
+      () => scene(['#1e1b4b', '#4c1d95', '#0f172a'], [['🪐', 620, 150, 180], ['🌙', 140, 120, 120], ['🚀', 360, 370, 260], ['⭐', 650, 470, 70], ['✨', 200, 480, 70]])),
+    R('ocean', [P('fish', 30, 30, 24, { at: 'center' }), P('fish', 64, 52, 18, { at: 'center', flip: true, args: ['#7ad6ff', '#ffe14d'] }), P('jellyfish', 86, 28, 34, { at: 'center' }),
+                P('seaweed', 7, 99, 52), P('coral', 22, 99, 32), P('starfish', 40, 99, 16), P('chest', 58, 98, 28), P('shell', 75, 99, 12), P('seaweed', 93, 99, 44, { args: ['#5ad08a'] })],
+      () => scene(['#67e8f9', '#2563eb', '#1e3a8a'], [['🐠', 230, 220, 190], ['🐙', 560, 380, 230], ['🫧', 640, 120, 90], ['🪸', 130, 500, 140], ['🐚', 380, 540, 70]])),
+    R('dino', [P('ptero', 52, 16, 20, { at: 'center' }), P('volcano', 75, 82, 58), P('palm', 9, 96, 70), P('longneck', 37, 95, 56), P('egg', 60, 97, 18)],
+      () => scene(['#fdba74', '#fde68a', '#86efac'], [['🌋', 590, 230, 260], ['🦕', 250, 360, 280], ['🌴', 90, 300, 160], ['🥚', 480, 520, 80]])),
+    R('castle', [P('rainbow', 23, 28, 32, { at: 'center' }), P('cloud', 85, 15, 18, { at: 'center', args: ['#fff0fa', '#ffd6ee'] }), P('castle', 56, 93, 80),
+                 P('butterfly', 22, 60, 12, { at: 'center', args: ['#ffd23f', '#ff6fb5'] }), P('flower', 7, 99, 20, { args: ['#ff8ad8'] }), P('flower', 20, 99, 16, { args: ['#fff3a0'] }), P('flower', 92, 99, 18, { args: ['#b07aff'] })],
+      () => scene(['#fbcfe8', '#ddd6fe', '#bbf7d0'], [['🏰', 520, 270, 300], ['👸', 190, 380, 220], ['🌸', 90, 520, 80], ['✨', 700, 90, 80]])),
+    R('farm', [P('sun', 58, 16, 28, { at: 'center' }), P('cloud', 20, 14, 16, { at: 'center' }), P('barn', 22, 84, 54), P('windmill', 84, 82, 62),
+               P('hay', 7, 96, 16), P('cow', 56, 96, 30), P('chicken', 37, 98, 18)],
+      () => scene(['#7dd3fc', '#e0f2fe', '#84cc16'], [['🐶', 220, 380, 220], ['🐱', 520, 400, 200], ['☀️', 660, 110, 130], ['🌳', 90, 230, 170]])),
   ];
+  const readyMade = {};
+  const makeReady = i => readyMade[i] || (readyMade[i] = svgScene(READY[i].back, READY[i].props).then(url => url || READY[i].fallback()));
   // Magic Doodles creatures sit on their world's colors
   const WORLD_BG = { meadow: ['#8fd3ff', '#d9f3ff', '#62bd4c'], castle: ['#ffb3d9', '#d7c2ff', '#a6e8b4'], ocean: ['#6fd6ff', '#2b8fd6', '#1a5fa8'],
                      space: ['#1a1550', '#4a2f8f', '#070a24'], dino: ['#ffcf70', '#ffad6b', '#8cc65a'],
                      jungle: ['#a8ecb4', '#3fa356', '#6b8f3a'], snow: ['#8fd0ff', '#e3f1ff', '#ffffff'], candy: ['#ffb8e0', '#a8f0d4', '#ffaed2'],
                      farm: ['#6cc6ff', '#f2d16b', '#7ccc58'], camp: ['#0b1238', '#2a2266', '#20402f'] };
-  function onBackground(src, bg) {
+  // the world's own cartoon backdrop when it can be drawn, its colours otherwise
+  const backdrops = {};
+  const backdropImage = world => backdrops[world] || (backdrops[world] = (async () => {
+    try { return Scenery.BACKDROPS.includes(world) ? await loadSVG(svgPicture(world, [])) : null; } catch (e) { return null; }
+  })());
+  function onBackground(src, world) {
     return new Promise(ok => {
       const img = new Image();
-      img.onload = () => {
-        const c = document.createElement('canvas'); c.width = 800; c.height = 600;
-        const x = c.getContext('2d'), g = x.createLinearGradient(0, 0, 0, 600);
-        bg.forEach((col, i) => g.addColorStop(i / (bg.length - 1), col)); x.fillStyle = g; x.fillRect(0, 0, 800, 600);
-        const k = Math.min(620 / img.width, 480 / img.height);
-        x.drawImage(img, 400 - img.width * k / 2, 300 - img.height * k / 2, img.width * k, img.height * k);
-        ok(c.toDataURL('image/jpeg', .85));
+      img.onload = async () => {
+        const bg = await backdropImage(world), colors = WORLD_BG[world] || WORLD_BG.meadow;
+        const draw = useBack => {
+          const c = document.createElement('canvas'); c.width = 800; c.height = 600;
+          const x = c.getContext('2d');
+          if (useBack) x.drawImage(bg, 0, 0, 800, 600);
+          else { const g = x.createLinearGradient(0, 0, 0, 600); colors.forEach((col, i) => g.addColorStop(i / (colors.length - 1), col)); x.fillStyle = g; x.fillRect(0, 0, 800, 600); }
+          const k = Math.min(620 / img.width, 480 / img.height);
+          x.drawImage(img, 400 - img.width * k / 2, 300 - img.height * k / 2, img.width * k, img.height * k);
+          return c.toDataURL('image/jpeg', .85);
+        };
+        try { ok(draw(!!bg)); } catch (e) { try { ok(draw(false)); } catch (e2) { ok(null); } }
       };
       img.onerror = () => ok(null);
       img.src = src;
@@ -113,7 +286,7 @@
       const md = JSON.parse(localStorage.getItem('magicDoodles.v1')) || {}, pics = await Saved.pictures.all();
       for (const [world, list] of Object.entries(md)) if (Array.isArray(list)) for (const c of list.slice(-4)) {
         const src = c.img || pics[c.pic];
-        if (src) mine.push({ id: 'md' + (c.pic || src.length) + world, make: () => onBackground(src, WORLD_BG[world] || WORLD_BG.meadow) });
+        if (src) mine.push({ id: 'md' + (c.pic || src.length) + world, make: () => onBackground(src, world) });
       }
     } catch (e) {}
     try {
@@ -121,7 +294,7 @@
       old.forEach(src => mine.push({ id: 'mi' + src.length, src }));
       for (const p of await Saved.photos.list('mirror-painter')) mine.push({ id: 'mi' + p.id, make: () => blobURL(p.blob) });
     } catch (e) {}
-    const ready = READY.map((f, i) => ({ id: 'ready' + i, make: async () => f() }));
+    const ready = READY.map((f, i) => ({ id: 'ready' + i, make: () => makeReady(i) }));
     return { mine: mine.slice(-12).reverse(), ready };
   }
 
@@ -145,13 +318,13 @@
     for (const [p, isMine] of [...mine.map(p => [p, true]), ...ready.map(p => [p, false])]) {
       const src = p.src || await p.make(); if (!src) continue;
       const el = document.createElement('div'); el.className = 'pic';
-      el.innerHTML = `<img src="${src}" alt="">${isMine ? '<span class="mine">🖍️</span>' : ''}${saved.solved.includes(p.id) ? '<span class="st">⭐</span>' : ''}`;
+      el.innerHTML = `<img src="${src}" alt="">${isMine ? '<span class="mine">' + CRAYON + '</span>' : ''}${saved.solved.includes(p.id) ? '<span class="st">' + STAR + '</span>' : ''}`;
       el.onclick = () => { Kit.sfx.pop(); start(src, p.id, isMine); };
       box.appendChild(el);
     }
     return mine.length;
   }
-  paintPicker().then(n => Kit.say('dp.intro', n ? null : 'dp.noPics'));
+  paintPicker().then(n => { layoutPick(); Kit.say('dp.intro', n ? null : 'dp.noPics'); });
 
   // ---------- the puzzle ----------
   let pieces = [], picId = null, busy = false;
@@ -169,7 +342,7 @@
 
   async function start(src, id, isMine) {
     picId = id; busy = false;
-    document.querySelectorAll('.screen').forEach(s => s.classList.toggle('on', s.id === 'play'));
+    showScreen('play');
     const img = await new Promise(ok => { const i = new Image(); i.onload = () => ok(i); i.src = src; });
     const [cols, rows] = SIZES[saved.size];
     // board size: as big as fits while leaving room for the loose pieces
@@ -256,13 +429,14 @@
     await sleep(300);
     $('board').classList.add('done'); $('pieces').style.opacity = 0;
     Kit.sfx.yay(); Kit.burstAt($('board'), ['🎉', '⭐', '🌟', '✨', '🧩'], 26, 300);
+    document.querySelectorAll('#playProps .sc-prop').forEach((el, i) => setTimeout(() => Scenery.react(el, 't-boing', 600), i * 150));
     Kit.say(['dp.done1', 'dp.done2']);
     if (!saved.solved.includes(picId)) { saved.solved.push(picId); save.set(saved); }
     await sleep(3200);
     $('pieces').style.opacity = 1;
     $('backBtn').classList.add('pulse');
   }
-  $('backBtn').onclick = () => { Kit.sfx.pop(); $('backBtn').classList.remove('pulse'); paintPicker(); document.querySelectorAll('.screen').forEach(s => s.classList.toggle('on', s.id === 'pick')); };
+  $('backBtn').onclick = () => { Kit.sfx.pop(); $('backBtn').classList.remove('pulse'); showScreen('pick'); paintPicker(); };
 })();
 </script>
 </body>

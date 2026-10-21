@@ -13,20 +13,39 @@
 <link rel="stylesheet" href="/shared/kit.css">
 <title>Memory Match</title>
 <style>
-  body { background: linear-gradient(160deg, #dbeafe 0%, #ede9fe 50%, #fce7f3 100%); }
+  body { background: #f1e4ff; }
+  /* the cosy playroom behind everything (drawn with /shared/scenery.js) */
+  .scene { position: absolute; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
+  .scene > div { position: absolute; inset: 0; }
+  .mm-swing { animation: mm-swing 2s ease-in-out infinite; }
+  @keyframes mm-swing { 0%,100% { transform: rotate(-14deg); } 50% { transform: rotate(14deg); } }
+  .mm-flag { animation: mm-flag 3s ease-in-out infinite; }
+  @keyframes mm-flag { 0%,100% { transform: rotate(-4deg); } 50% { transform: rotate(4deg); } }
+  .mm-z { animation: mm-z 3s ease-out infinite; opacity: 0; }
+  @keyframes mm-z { 0% { transform: translate(0, 0) scale(.5); opacity: 0; } 20% { opacity: 1; } 100% { transform: translate(14px, -40px) scale(1.2); opacity: 0; } }
+  .mm-breathe { animation: mm-breathe 3s ease-in-out infinite; }
+  @keyframes mm-breathe { 0%,100% { transform: scaleY(1); } 50% { transform: scaleY(1.05); } }
+  .mm-flick { animation: mm-flick 4s ease-in-out infinite; }
+  @keyframes mm-flick { 0%, 70%, 100% { transform: rotate(0); } 80% { transform: rotate(-16deg); } 90% { transform: rotate(6deg); } }
+  .sc-prop.t-ring .mm-swing { animation-duration: .35s; }
+  /* the back of every card: the same smiling star */
+  .cb { width: 100%; height: 100%; display: block; }
+  .cb-star { transform-box: fill-box; transform-origin: center; animation: cb-star 3.2s ease-in-out infinite; }
+  @keyframes cb-star { 0%,100% { transform: scale(1) rotate(0); } 50% { transform: scale(1.08) rotate(-6deg); } }
   #game { flex-direction: column; align-items: center; padding: max(14px, env(safe-area-inset-top)) 14px max(14px, env(safe-area-inset-bottom)); gap: 2vh; }
   #sizes { display: flex; gap: 12px; background: rgba(255,255,255,.7); padding: 8px 14px; border-radius: 26px; margin-top: 4px; }
   .size { width: 70px; height: 70px; border-radius: 20px; display: grid; place-items: center; }
   .size.sel { background: #bfdbfe; box-shadow: 0 6px 0 rgba(40,50,90,.18), 0 0 0 4px #3b82f6; }
   .mini { display: grid; gap: 2px; }
   .mini i { width: 9px; height: 12px; border-radius: 2px; background: #3b82f6; }
-  #board { flex: 1; min-height: 0; width: 100%; display: grid; place-items: center; }
+  #board { flex: 1; min-height: 0; width: 100%; display: grid; place-items: center; pointer-events: none; }
+  #grid { pointer-events: auto; }
   #grid { display: grid; gap: clamp(8px, 1.6vw, 16px); }
   .card { perspective: 800px; cursor: pointer; touch-action: manipulation; }
   .card .in { position: relative; width: 100%; height: 100%; transition: transform .45s; transform-style: preserve-3d; }
   .card.up .in { transform: rotateY(180deg); }
   .card .face { position: absolute; inset: 0; border-radius: 18px; backface-visibility: hidden; -webkit-backface-visibility: hidden; display: grid; place-items: center; box-shadow: 0 5px 0 rgba(0,0,0,.12); }
-  .card .back { background: repeating-linear-gradient(45deg, #818cf8 0 14px, #a5b4fc 14px 28px); border: 5px solid #fff; font-size: 2.2em; }
+  .card .back { background: #8f7cf8; border: 5px solid #fff; overflow: hidden; box-shadow: 0 5px 0 rgba(0,0,0,.12), 0 0 0 2px rgba(58,45,82,.3); }
   .card .front { background: #fff; transform: rotateY(180deg); border: 5px solid #fff; line-height: 1; }
   .card.done .front { border-color: #fde047; box-shadow: 0 0 0 4px #facc15, 0 5px 0 rgba(0,0,0,.12); }
   .card.done { animation: kit-bob 2s ease-in-out infinite; }
@@ -38,6 +57,7 @@
 <section id="game" class="screen on">
   <a class="btn corner left" href="../../" aria-label="Back to Yas's Games">🏠</a>
   <button id="soundBtn" class="btn corner right" aria-label="Sound on or off">🔊</button>
+  <div class="scene" aria-hidden="true"><div id="backdrop"></div><div id="decor"></div></div>
   <div id="stars"></div>
   <div id="sizes"></div>
   <div id="board"><div id="grid"></div></div>
@@ -47,6 +67,92 @@
 <script src="/shared/voice.js"></script>
 <script src="/shared/saved.js"></script>
 <script src="/shared/kit.js"></script>
+<script src="/shared/scenery.js"></script>
+<script>
+// ---------- a cosy playroom around the cards (decoration only) ----------
+(() => {
+  if (!self.Scenery || !Scenery.add) return;
+  const { face, ol, sky, dots } = Scenery.kit;
+
+  Scenery.addBackdrop('cosy', ['#f6eaff', '#efdcff'], () => sky('cosy') +
+    Array.from({ length: 13 }, (_, i) => `<rect x="${i * 80 + 20}" y="0" width="36" height="600" fill="#fff" opacity=".3"/>`).join('') +
+    dots(40, 5, 120, 580, ['#ffffff', '#ffd6ec'], [4, 7], 1) +
+    `<rect y="600" width="1000" height="110" fill="#e2c9ff"/><rect y="592" width="1000" height="14" fill="#fff"/>` +
+    Array.from({ length: 10 }, (_, i) => `<rect x="${i * 100 + 30}" y="626" width="60" height="62" rx="8" fill="none" stroke="#fff" stroke-width="4" opacity=".6"/>`).join('') +
+    `<rect y="710" width="1000" height="290" fill="#e3a76d"/><rect y="700" width="1000" height="16" fill="#fff"/>` +
+    Array.from({ length: 6 }, (_, i) => `<rect y="${760 + i * 48}" width="1000" height="3" fill="#c98a50" opacity=".6"/>`).join('') +
+    `<ellipse cx="500" cy="880" rx="380" ry="92" fill="#ff9ec7"/><ellipse cx="500" cy="880" rx="320" ry="70" fill="#ffd1e6"/>` +
+    `<ellipse cx="500" cy="880" rx="250" ry="50" fill="none" stroke="#ff9ec7" stroke-width="8" stroke-dasharray="20 14"/>`);
+
+  // a string of little flags across the top of the wall
+  Scenery.add('bunting', () => {
+    const cols = ['#ff6fb5', '#ffd23f', '#7ad6ff', '#4cd964', '#b07aff', '#ff9a3c'];
+    const pt = t => [1000 * t, 10 * (1 - t) * (1 - t) + 2 * (1 - t) * t * 70 + 10 * t * t];
+    let flags = '';
+    for (let i = 0; i < 12; i++) {
+      const [x, y] = pt((i + .5) / 12);
+      flags += `<path class="mm-flag" style="transform-origin:${x.toFixed(0)}px ${y.toFixed(0)}px;animation-delay:${-i * .4}s" d="M${(x - 26).toFixed(0)} ${y.toFixed(0)} H${(x + 26).toFixed(0)} L${x.toFixed(0)} ${(y + 54).toFixed(0)}Z" fill="${cols[i % cols.length]}" ${ol(2)}/>`;
+    }
+    return [1000, 100, `<path d="M0 10 Q500 70 1000 10" stroke="#7a5aa0" stroke-width="4" fill="none"/>` + flags];
+  });
+
+  // a wall clock with a swinging pendulum
+  Scenery.add('clock', () => [100, 200,
+    `<path d="M22 80 H78 V176 Q50 194 22 176Z" fill="#c98a4a" ${ol()}/><rect x="33" y="96" width="34" height="76" rx="10" fill="#7a4a25"/>` +
+    `<g class="mm-swing" style="transform-origin:50px 96px"><line x1="50" y1="96" x2="50" y2="154" stroke="#ffd23f" stroke-width="4"/><circle cx="50" cy="158" r="11" fill="#ffd23f" ${ol(2)}/></g>` +
+    `<circle cx="50" cy="56" r="42" fill="#ff8ab0" ${ol()}/><circle cx="50" cy="56" r="32" fill="#fffaf0"/>` +
+    [[50, 30], [76, 56], [50, 82], [24, 56]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="3.5" fill="#b07aff"/>`).join('') +
+    `<path d="M50 56 V36 M50 56 H66" stroke="#3a2d52" stroke-width="5" stroke-linecap="round"/><circle cx="50" cy="56" r="4" fill="#3a2d52"/>` +
+    `<path d="M26 18 L14 6 M74 18 L86 6" stroke="#ffd23f" stroke-width="6" stroke-linecap="round"/>`]);
+
+  // a happy potted plant
+  Scenery.add('plant', () => [120, 200,
+    `<g class="sc-sway-soft" style="transform-origin:60px 128px">` +
+    [[-52, 40, '#4fb84a'], [-26, 50, '#3fa34d'], [0, 56, '#5cc04a'], [26, 50, '#3fa34d'], [52, 40, '#4fb84a']].map(([r, len, c]) =>
+      `<ellipse cx="60" cy="${126 - len}" rx="14" ry="${len}" fill="${c}" ${ol(2)} transform="rotate(${r} 60 126)"/>`).join('') + `</g>` +
+    `<path d="M26 128 H94 L86 194 H34Z" fill="#ff8a5a" ${ol()}/><rect x="18" y="118" width="84" height="18" rx="7" fill="#ff9f73" ${ol()}/>` + face(60, 162, .55)]);
+
+  // a sleepy cat on the rug
+  Scenery.add('cat', () => [170, 126,
+    `<g class="mm-flick" style="transform-origin:140px 98px"><path d="M140 98 Q172 88 160 56 Q156 44 146 50" stroke="#3a2d52" stroke-opacity=".55" stroke-width="16" fill="none" stroke-linecap="round"/>` +
+    `<path d="M140 98 Q172 88 160 56 Q156 44 146 50" stroke="#9aa6c8" stroke-width="10" fill="none" stroke-linecap="round"/></g>` +
+    `<g class="mm-breathe" style="transform-origin:90px 116px"><ellipse cx="90" cy="88" rx="62" ry="30" fill="#9aa6c8" ${ol()}/>` +
+    `<path d="M84 60 q6 14 0 26 M104 59 q6 14 0 26 M124 64 q5 12 0 22" stroke="#7a86aa" stroke-width="5" fill="none" stroke-linecap="round"/></g>` +
+    `<ellipse cx="70" cy="114" rx="12" ry="7" fill="#e4e8f4" ${ol(2)}/><ellipse cx="94" cy="116" rx="12" ry="7" fill="#e4e8f4" ${ol(2)}/>` +
+    `<path d="M22 70 L24 36 L46 56Z M54 56 L72 36 L74 70Z" fill="#9aa6c8" ${ol()}/><path d="M27 61 L28 45 L40 56Z M59 56 L69 45 L70 63Z" fill="#ffb3c6"/>` +
+    `<circle cx="48" cy="84" r="30" fill="#9aa6c8" ${ol()}/>` + face(48, 88, .55, { sleepy: true }) +
+    `<path class="mm-z" d="M80 30 h12 l-12 12 h12" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>` +
+    `<path class="mm-z" style="animation-delay:1.5s" d="M96 14 h9 l-9 9 h9" stroke="#fff" stroke-width="3.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`]);
+
+  const P = (art, x, y, h, o = {}) => ({ art, x, y, h, ...o });
+  const props = () => [
+    P('bunting', 50, 0, 11, { at: 'top' }),
+    P('window', 13, 34, 24, { at: 'center' }),
+    P('clock', 88, 36, 24, { at: 'center', tap: 'ring' }),
+    P('bookshelf', 7, 92, 32),
+    P('lamp', 94, 92, 32, { tap: 'boing' }),
+    P('plant', 21, 97, 18, { tap: 'wiggle' }),
+    P('cat', 76, 99, 12, { tap: 'meow' }),
+  ];
+  function tap(el) {
+    switch (el.dataset.tap) {
+      case 'ring': Scenery.react(el, 't-ring', 1600); [0, 1, 2, 3].forEach(i => Kit.tone(i % 2 ? 1400 : 1700, .06, { type: 'square', vol: .04, delay: i * .2 })); break;
+      case 'wiggle': Scenery.react(el, 't-wiggle', 600); Kit.tone(1800, .25, { type: 'sawtooth', vol: .02, to: 600 }); break;
+      case 'meow': Scenery.react(el, 't-wiggle', 600); Kit.tone(620, .18, { type: 'triangle', vol: .13, to: 900 }); Kit.tone(900, .32, { type: 'triangle', vol: .11, to: 520, delay: .17 }); break;
+      default: Scenery.react(el, 't-boing', 600); Kit.sfx.boing();
+    }
+  }
+  function build() {
+    const box = document.getElementById('decor'); box.innerHTML = '';
+    Scenery.place(box, props(), innerWidth, innerHeight).forEach(el => {
+      if (el.dataset.tap) el.addEventListener('pointerdown', e => { e.stopPropagation(); tap(el); });
+    });
+  }
+  document.getElementById('backdrop').innerHTML = Scenery.backdrop('cosy');
+  build();
+  let t = 0; addEventListener('resize', () => { clearTimeout(t); t = setTimeout(build, 200); });
+})();
+</script>
 <script>
 (() => {
   const { $, pick, shuffle, sleep } = Kit;
@@ -59,6 +165,17 @@
     ['🦕', '🦖', '🌋', '🥚', '🌴', '🦴', '🐊', '🦎'],
     ['👑', '🦄', '🏰', '🧚', '🪄', '💎', '🌸', '🐉'],
   ];
+
+  // the back of a card (every card looks the same, so it gives nothing away)
+  const BACK = (() => {
+    const star = Array.from({ length: 10 }, (_, i) => { const a = -Math.PI / 2 + i * Math.PI / 5, r = i % 2 ? 13 : 27; return (50 + Math.cos(a) * r).toFixed(1) + ',' + (52 + Math.sin(a) * r).toFixed(1); }).join(' ');
+    const dots = [[16, 20], [84, 18], [22, 82], [80, 84], [50, 14], [12, 52], [88, 50], [50, 90]].map(([x, y], i) => `<circle cx="${x}" cy="${y}" r="${i < 4 ? 3 : 2}" fill="#fff" opacity=".55"/>`).join('');
+    return `<svg class="cb" viewBox="0 0 100 100" aria-hidden="true"><rect width="100" height="100" fill="#8f7cf8"/><path d="M0 0 H100 V36 Q50 58 0 36Z" fill="#a597ff"/>${dots}` +
+      `<rect x="7" y="7" width="86" height="86" rx="12" fill="none" stroke="#fff" stroke-opacity=".7" stroke-width="2.5" stroke-dasharray="6 5"/>` +
+      `<g class="cb-star"><polygon points="${star}" fill="#ffd23f" stroke="#3a2d52" stroke-opacity=".55" stroke-width="3" stroke-linejoin="round"/><circle cx="43" cy="40" r="3" fill="#fff" opacity=".7"/>` +
+      `<ellipse cx="45" cy="51" rx="2.2" ry="3" fill="#3a2a2a"/><ellipse cx="55" cy="51" rx="2.2" ry="3" fill="#3a2a2a"/><path d="M46 57 q4 4 8 0" stroke="#3a2a2a" stroke-width="2" fill="none" stroke-linecap="round"/>` +
+      `<ellipse cx="40" cy="57" rx="3" ry="2" fill="#ff8fa8" opacity=".7"/><ellipse cx="60" cy="57" rx="3" ry="2" fill="#ff8fa8" opacity=".7"/></g></svg>`;
+  })();
 
   const save = Kit.store('memory-match');
   const saved = save.get({ size: 0, stars: 0 });
@@ -91,7 +208,7 @@
     cards = faces.map((e, i) => {
       const el = document.createElement('div'); el.className = 'card';
       el.style.width = el.style.height = size + 'px'; el.style.fontSize = size * .55 + 'px';
-      el.innerHTML = `<div class="in"><div class="face back">⭐</div><div class="face front">${e}</div></div>`;
+      el.innerHTML = `<div class="in"><div class="face back">${BACK}</div><div class="face front">${e}</div></div>`;
       el.onclick = () => flip(i);
       grid.appendChild(el);
       return { e, el, done: false };

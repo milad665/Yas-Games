@@ -13,8 +13,31 @@
 <link rel="stylesheet" href="/shared/kit.css">
 <title>Music Painter</title>
 <style>
-  body { background: linear-gradient(160deg, #fff1d6 0%, #ffe0f0 50%, #e0ecff 100%); }
+  body { background: #ffe6dc; }
   #app { flex-direction: column; gap: 12px; padding: max(14px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(14px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left)); }
+  /* the music room behind everything; instruments stand left and right of the paper when there is room */
+  #scene { position: absolute; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+  #sceneBack { position: absolute; inset: 0; }
+  .gut { position: absolute; }
+  #app > .bar, #paper { position: relative; z-index: 1; }
+  /* the bars let taps through to the scenery between their buttons */
+  #app > .bar { pointer-events: none; }
+  #app > .bar > * { pointer-events: auto; }
+  .spacer { position: relative; align-self: stretch; min-width: 0; }
+  .deco { display: none; }
+  .deco.on { display: block; }
+  body.dance .gut .sc-svg, body.dance .deco .sc-svg { transform-origin: 50% 100%; animation: mp-dance .45s ease-in-out infinite alternate; }
+  @keyframes mp-dance { from { rotate: -6deg; } to { rotate: 6deg; } }
+  .mp-sticks { transform-box: fill-box; transform-origin: 50% 100%; animation: mp-tap 1.4s ease-in-out infinite; }
+  @keyframes mp-tap { 0%, 60%, 100% { transform: rotate(0); } 70% { transform: rotate(-12deg); } 80% { transform: rotate(4deg); } }
+  .mp-mallet { transform-box: fill-box; transform-origin: 100% 100%; animation: mp-tap 2.2s ease-in-out infinite; }
+  .mp-sing { transform-box: fill-box; transform-origin: center; animation: mp-sing 2.4s ease-out infinite; opacity: 0; }
+  @keyframes mp-sing { 0% { transform: translate(0, 0) scale(.6); opacity: 0; } 20% { opacity: 1; } 100% { transform: translate(14px, -26px) scale(1.1); opacity: 0; } }
+  .mp-shine { animation: mp-shine 3s ease-in-out infinite; }
+  @keyframes mp-shine { 0%, 100% { opacity: .15; } 50% { opacity: .6; } }
+  .sc-prop.t-play .mp-keys { animation: mp-keys .5s steps(2) 2; }
+  @keyframes mp-keys { 50% { opacity: .55; } }
+  .mp-fly { position: fixed; left: 0; top: 0; width: 30px; height: 40px; pointer-events: none; z-index: 40; }
   .bar { display: flex; align-items: center; gap: 12px; }
   .bar .btn { width: 66px; height: 66px; font-size: 32px; }
   .spacer { flex: 1; }
@@ -23,9 +46,12 @@
   #loopBtn.on, #slowBtn.on { background: #fde68a; box-shadow: 0 6px 0 rgba(40,50,90,.18), 0 0 0 5px #f59e0b; }
 
   #paper {
-    flex: 1; min-height: 0; position: relative; border-radius: 28px; overflow: hidden; background: #fff;
-    box-shadow: 0 8px 30px rgba(0,0,0,.12), inset 0 0 0 6px #ffe7f4;
+    flex: 1; min-height: 0; position: relative; border-radius: 28px; overflow: hidden; background: #fff; margin: 4px 8px;
+    /* a golden frame around the music paper */
+    box-shadow: 0 0 0 7px #ffd36b, 0 0 0 10px rgba(58,45,82,.45), 0 14px 30px rgba(58,45,82,.25), inset 0 0 0 6px #ffe7f4;
   }
+  /* wide screens: leave room on both sides for the instruments */
+  @media (min-aspect-ratio: 5/4) and (min-width: 900px) { #paper { margin: 4px clamp(100px, 15vw, 200px); } }
   #rows { position: absolute; inset: 0; display: flex; flex-direction: column; pointer-events: none; }
   #rows div { flex: 1; }
   #canvas { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: none; }
@@ -33,8 +59,12 @@
     position: absolute; top: 0; bottom: 0; width: 8px; margin-left: -4px; left: 0; display: none; pointer-events: none;
     background: linear-gradient(#fde047, #f472b6); box-shadow: 0 0 18px 6px rgba(253, 224, 71, .7); border-radius: 4px;
   }
-  #playhead::before { content: '⭐'; position: absolute; top: -6px; left: 50%; translate: -50% 0; font-size: 34px; }
-  .note { position: absolute; pointer-events: none; font-size: 30px; translate: -50% -50%; animation: noteUp .7s ease-out forwards; }
+  #playhead::before {
+    content: ''; position: absolute; top: -4px; left: 50%; translate: -50% 0; width: 40px; height: 40px;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cpath d='M20 3l5 11 12 1.3-9 8.2 2.6 11.9L20 29.2 9.4 35.4 12 23.5 3 15.3 15 14z' fill='%23ffd23f' stroke='%233a2d52' stroke-opacity='.55' stroke-width='2.5' stroke-linejoin='round'/%3E%3Ccircle cx='16' cy='19' r='1.8' fill='%233a2a2a'/%3E%3Ccircle cx='24' cy='19' r='1.8' fill='%233a2a2a'/%3E%3Cpath d='M17 23.5q3 2.5 6 0' stroke='%233a2a2a' stroke-width='1.6' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") center / contain no-repeat;
+  }
+  .note { position: absolute; pointer-events: none; width: 30px; height: 40px; translate: -50% -50%; animation: noteUp .7s ease-out forwards; }
+  .note svg, .mp-fly svg { width: 100%; height: 100%; display: block; }
   @keyframes noteUp { from { opacity: 1; transform: scale(.6); } to { opacity: 0; transform: translateY(-50px) scale(1.4); } }
   .ring { position: absolute; pointer-events: none; border-radius: 50%; translate: -50% -50%; border: 5px solid; animation: ring .5s ease-out forwards; }
   @keyframes ring { from { width: 10px; height: 10px; opacity: 1; } to { width: 80px; height: 80px; opacity: 0; } }
@@ -45,20 +75,28 @@
     box-shadow: 0 5px 0 rgba(0,0,0,.18); transition: transform .12s; touch-action: manipulation; display: grid; place-items: center;
   }
   .swatch.sel { transform: scale(1.2); border-color: #33415c; }
+  /* phones: the top buttons get smaller and may take two rows */
+  @media (max-width: 560px) {
+    #app > .bar:not(#swatches) { flex-wrap: wrap; justify-content: center; gap: 8px; }
+    .bar .btn { width: 52px; height: 52px; font-size: 26px; }
+    #playBtn { width: 70px; height: 70px; font-size: 34px; }
+    .swatch { width: 60px; height: 60px; font-size: 26px; }
+  }
 </style>
 </head>
 <body>
 
 <section id="app" class="screen on">
+  <div id="scene" aria-hidden="true"><div id="sceneBack"></div><div id="gutL" class="gut"></div><div id="gutR" class="gut"></div><div id="cornL" class="gut"></div><div id="cornR" class="gut"></div></div>
   <div class="bar">
     <a class="btn" href="../../" aria-label="Back to Yas's Games">🏠</a>
     <button id="undoBtn" class="btn" aria-label="Undo">↩️</button>
     <button id="clearBtn" class="btn" aria-label="Clear">🧽</button>
-    <div class="spacer"></div>
+    <div class="spacer"><div id="decoL" class="deco" aria-hidden="true"></div></div>
     <button id="slowBtn" class="btn" aria-label="Slow">🐢</button>
     <button id="loopBtn" class="btn" aria-label="Repeat">🔁</button>
     <button id="playBtn" class="btn" aria-label="Play">▶️</button>
-    <div class="spacer"></div>
+    <div class="spacer"><div id="decoR" class="deco" aria-hidden="true"></div></div>
     <button id="soundBtn" class="btn" aria-label="Sound on or off">🔊</button>
   </div>
   <div id="paper">
@@ -73,6 +111,7 @@
 <script src="/shared/voice.js"></script>
 <script src="/shared/saved.js"></script>
 <script src="/shared/kit.js"></script>
+<script src="/shared/scenery.js"></script>
 <script>
 (() => {
   const { $, sleep } = Kit;
@@ -133,6 +172,159 @@
     }
   }
 
+  // ---------- the music room: cartoon instruments around the paper (see /shared/scenery.js) ----------
+  const { ol, face, blob } = Scenery.kit;
+  const noteSVG = c => `<svg viewBox="0 0 40 52" xmlns="http://www.w3.org/2000/svg"><path d="M23 39 V7 Q34 10 37 22" stroke="#3a2d52" stroke-opacity=".5" stroke-width="8" fill="none" stroke-linecap="round"/>` +
+    `<path d="M23 39 V7 Q34 10 37 22" stroke="${c}" stroke-width="5" fill="none" stroke-linecap="round"/><ellipse cx="14" cy="41" rx="12" ry="9" fill="${c}" stroke="#3a2d52" stroke-opacity=".55" stroke-width="2.5" transform="rotate(-20 14 41)"/>` +
+    `<ellipse cx="10" cy="38" rx="3.5" ry="2.2" fill="#fff" opacity=".6" transform="rotate(-20 10 38)"/></svg>`;
+  Scenery.addBackdrop('mpRoom', ['#fff1dc', '#ffdce8', '#eadcff'], () => {
+    const K = Scenery.kit, r = K.seeded(11), cols = ['#ef4444', '#f97316', '#eab308', '#22c55e', '#3b82f6', '#a855f7'];
+    let s = K.sky('mpRoom');
+    for (let i = 0; i < 12; i++) s += `<rect x="${i * 90 + 28}" y="0" width="34" height="790" fill="#fff" opacity=".2"/>`;
+    // faint notes on the wallpaper
+    for (let i = 0; i < 16; i++) {
+      const x = (i % 8) * 125 + 40 + r() * 50, y = 60 + Math.floor(i / 8) * 330 + r() * 160, c = cols[i % cols.length];
+      s += `<g opacity=".16"><ellipse cx="${x}" cy="${y + 34}" rx="16" ry="11" fill="${c}" transform="rotate(-20 ${x} ${y + 34})"/><rect x="${x + 11}" y="${y - 10}" width="6" height="44" fill="${c}"/><path d="M${x + 14} ${y - 10} q18 6 16 28" stroke="${c}" stroke-width="6" fill="none"/></g>`;
+    }
+    // bunting of little flags along the top
+    const fy = i => 26 + 30 * Math.sin(i / 16 * Math.PI);
+    s += `<path d="M0 26 ${Array.from({ length: 17 }, (_, i) => `L${i * 64} ${fy(i).toFixed(0)}`).join(' ')} L1000 26" stroke="#c9a6f0" stroke-width="4" fill="none"/>`;
+    for (let i = 0; i < 16; i++) { const x = i * 64 + 12, y = fy(i + .3); s += `<path d="M${x} ${y.toFixed(0)} h40 l-20 46Z" fill="${cols[i % cols.length]}" opacity=".75"/>`; }
+    // wainscot and wooden floor
+    s += `<rect y="700" width="1000" height="100" fill="#d6b8ff" opacity=".45"/><rect y="694" width="1000" height="10" fill="#fff" opacity=".8"/>` +
+      `<rect y="800" width="1000" height="200" fill="#d99b62"/>` + Array.from({ length: 5 }, (_, i) => `<rect y="${826 + i * 40}" width="1000" height="4" fill="#b97d48" opacity=".55"/>`).join('') +
+      `<rect y="792" width="1000" height="14" fill="#fff"/><ellipse cx="500" cy="910" rx="380" ry="62" fill="#ff9ec4" opacity=".55"/><ellipse cx="500" cy="910" rx="300" ry="42" fill="#ffd1e3" opacity=".7"/>`;
+    return s;
+  });
+  Scenery.add('mpNote', (c = '#ef4444') => [60, 90,
+    `<path d="M40 64 V12 Q58 16 56 46" stroke="#3a2d52" stroke-opacity=".55" stroke-width="11" fill="none" stroke-linecap="round"/><path d="M40 64 V12 Q58 16 56 46" stroke="${c}" stroke-width="6" fill="none" stroke-linecap="round"/>` +
+    `<ellipse cx="24" cy="68" rx="21" ry="16" fill="${c}" ${ol()} transform="rotate(-18 24 68)"/>` + face(24, 70, .38)]);
+  Scenery.add('mpBird', () => [110, 100,
+    `<g class="mp-sing"><path d="M84 10 V-6 q8 2 8 10" stroke="#a855f7" stroke-width="3" fill="none"/><ellipse cx="80" cy="11" rx="5" ry="4" fill="#a855f7"/></g>` +
+    `<path d="M14 58 L2 44 L4 66Z" fill="#3b82f6" ${ol(2)}/>` + blob([[44, 58, 32], [66, 44, 22]], '#7ad6ff') + `<ellipse cx="48" cy="68" rx="20" ry="16" fill="#e6f7ff"/>` +
+    `<path d="M26 54 Q40 76 58 60 Q44 56 26 54Z" fill="#3b9bff" ${ol(2)}/>` +
+    `<path d="M84 40 L100 36 L86 46Z M84 48 L98 52 L86 46Z" fill="#ffb02e" ${ol(1.5)}/>` +
+    `<g class="sc-blink"><circle cx="72" cy="38" r="4.5" fill="#222"/><circle cx="73.5" cy="36.5" r="1.5" fill="#fff"/></g><ellipse cx="66" cy="50" rx="5" ry="3" fill="#ff8fa8" opacity=".6"/>` +
+    `<path d="M40 88 v8 M52 88 v8" stroke="#ffb02e" stroke-width="4" stroke-linecap="round"/>`]);
+  Scenery.add('mpPiano', () => {
+    let keys = `<rect x="20" y="112" width="160" height="36" rx="4" fill="#fff" ${ol(2)}/>`;
+    for (let i = 1; i < 10; i++) keys += `<line x1="${20 + i * 16}" y1="113" x2="${20 + i * 16}" y2="147" stroke="#c9c2dc" stroke-width="2"/>`;
+    for (const i of [1, 2, 4, 5, 6, 8, 9]) keys += `<rect x="${20 + i * 16 - 5}" y="112" width="10" height="21" rx="2" fill="#3a2d52"/>`;
+    return [200, 232,
+      `<rect x="56" y="4" width="88" height="42" rx="4" fill="#fffdf4" ${ol(2)}/>` + [14, 22, 30].map(y => `<line x1="62" y1="${y}" x2="138" y2="${y}" stroke="#c9c2dc" stroke-width="1.5"/>`).join('') +
+      `<circle cx="80" cy="30" r="4" fill="#ef4444"/><circle cx="100" cy="22" r="4" fill="#3b82f6"/><circle cx="120" cy="18" r="4" fill="#22c55e"/>` +
+      `<rect x="14" y="54" width="172" height="152" rx="12" fill="#8a5cd0" ${ol()}/><rect x="6" y="40" width="188" height="20" rx="9" fill="#a07ae0" ${ol()}/>` +
+      `<rect x="26" y="66" width="148" height="36" rx="8" fill="#a07ae0"/><path d="M40 84 q12 -12 24 0 t24 0 t24 0 t24 0 t24 0" stroke="#c6b0f2" stroke-width="4" fill="none"/>` +
+      `<g class="mp-keys">${keys}</g>` + face(100, 172, .75, { cheeks: '#ff9ad5' }) +
+      `<rect x="24" y="204" width="16" height="24" rx="4" fill="#6b44b0" ${ol(2)}/><rect x="160" y="204" width="16" height="24" rx="4" fill="#6b44b0" ${ol(2)}/>`];
+  });
+  Scenery.add('mpDrum', () => [180, 196,
+    `<g class="mp-sticks"><path d="M44 8 L84 60 M136 8 L96 60" stroke="#3a2d52" stroke-opacity=".5" stroke-width="12" stroke-linecap="round"/><path d="M44 8 L84 60 M136 8 L96 60" stroke="#e8b06a" stroke-width="7" stroke-linecap="round"/>` +
+    `<circle cx="44" cy="8" r="7" fill="#fff3dc" ${ol(2)}/><circle cx="136" cy="8" r="7" fill="#fff3dc" ${ol(2)}/></g>` +
+    `<path d="M20 76 V160 A70 22 0 0 0 160 160 V76Z" fill="#ff5a6a" ${ol()}/>` +
+    `<path d="M20 160 A70 22 0 0 0 160 160" stroke="#ffd23f" stroke-width="9" fill="none"/>` +
+    `<path d="M21 104 L38 120 L56 102 L74 121 L92 102 L110 121 L128 102 L146 120 L159 106" stroke="#fff" stroke-width="4" fill="none" stroke-linejoin="round" opacity=".9"/>` +
+    `<ellipse cx="90" cy="76" rx="70" ry="22" fill="#fff6e6" ${ol()}/><ellipse cx="90" cy="76" rx="70" ry="22" fill="none" stroke="#ffd23f" stroke-width="7"/>` +
+    `<ellipse cx="72" cy="72" rx="22" ry="6" fill="#fff" opacity=".8"/>` + face(90, 146, .7)]);
+  Scenery.add('mpTrumpet', () => [200, 110,
+    `<path d="M44 66 q0 30 30 30 h40 q24 0 24 -30" stroke="#3a2d52" stroke-opacity=".5" stroke-width="20" fill="none"/><path d="M44 66 q0 30 30 30 h40 q24 0 24 -30" stroke="#ffcf3a" stroke-width="13" fill="none"/>` +
+    `<rect x="4" y="50" width="22" height="14" rx="5" fill="#e8a91e" ${ol(2)}/><rect x="20" y="46" width="112" height="22" rx="9" fill="#ffd23f" ${ol()}/>` +
+    [54, 76, 98].map(x => `<rect x="${x}" y="22" width="13" height="26" rx="3" fill="#ffe680" ${ol(2)}/><ellipse cx="${x + 6.5}" cy="21" rx="10" ry="4" fill="#ffcf3a" ${ol(2)}/>`).join('') +
+    `<path d="M128 50 L186 12 Q200 56 186 100 L128 64Z" fill="#ffcf3a" ${ol()}/><ellipse cx="187" cy="56" rx="8" ry="40" fill="#e8a91e" ${ol(2)}/>` +
+    `<path class="mp-shine" d="M30 52 H120" stroke="#fff" stroke-width="5" stroke-linecap="round"/>` + face(156, 58, .45)]);
+  Scenery.add('mpXylo', () => {
+    const cols = ['#ef4444', '#f97316', '#eab308', '#22c55e', '#3b82f6', '#a855f7'];
+    let bars = '';
+    cols.forEach((c, i) => { const x = 16 + i * 30, top = 12 + i * 6, h = 100 - i * 12;
+      bars += `<rect x="${x}" y="${top}" width="25" height="${h}" rx="6" fill="${c}" ${ol(2)}/><circle cx="${x + 12.5}" cy="${top + 10}" r="3" fill="#fff" opacity=".85"/><circle cx="${x + 12.5}" cy="${top + h - 10}" r="3" fill="#fff" opacity=".85"/>`; });
+    return [210, 136,
+      `<path d="M8 44 L196 52 M8 94 L196 82" stroke="#3a2d52" stroke-opacity=".5" stroke-width="14" stroke-linecap="round"/><path d="M8 44 L196 52 M8 94 L196 82" stroke="#c98a4a" stroke-width="9" stroke-linecap="round"/>` + bars +
+      `<g class="mp-mallet"><path d="M120 130 L190 104" stroke="#e8b06a" stroke-width="6" stroke-linecap="round"/><circle cx="192" cy="103" r="10" fill="#ff6fb5" ${ol(2)}/></g>`];
+  });
+
+  const P = (art, x, y, h, o = {}) => ({ art, x, y, h, ...o });
+  const GUTTERS = {
+    gutL: [P('mpNote', 50, 11, 34, { at: 'center', anim: 'bob', args: ['#ef4444'], tap: 'note' }),
+           P('mpTrumpet', 50, 40, 46, { at: 'center', anim: 'bob', tap: 'trumpet' }),
+           P('mpPiano', 50, 100, 100, { tap: 'piano' })],
+    gutR: [P('mpBird', 50, 12, 46, { at: 'center', tap: 'bird' }),
+           P('mpXylo', 50, 44, 52, { at: 'center', tap: 'xylophone' }),
+           P('mpDrum', 50, 100, 90, { tap: 'drum' })],
+  };
+  // no room beside the paper (portrait, phones): a small instrument at each end of the bottom row instead
+  const CORNERS = { cornL: [P('mpPiano', 50, 100, 96, { tap: 'piano' })], cornR: [P('mpDrum', 50, 100, 90, { tap: 'drum' })] };
+  const DECOS = [['decoL', 'mpNote', ['#a855f7'], 'note'], ['decoR', 'mpNote', ['#22c55e'], 'note']];
+  $('sceneBack').innerHTML = Scenery.backdrop('mpRoom');
+  // props never wider than their space; shrink them all when the space is short
+  function fitPlace(layer, props, w, h, squeeze = true) {
+    const unit = Math.min(w, h) / 100, k = squeeze ? Math.min(1, h / (w * 3.2)) : 1;
+    return Scenery.place(layer, props.map(p => {
+      const a = Scenery.art(p.art, ...(p.args || []));
+      return { ...p, h: Math.min(p.h * k, w * .9 / (unit * a.w / a.h)) };
+    }), w, h);
+  }
+  function layoutScene() {
+    const pr = $('paper').getBoundingClientRect(), W = innerWidth;
+    for (const [id, x0, x1] of [['gutL', 6, pr.left - 18], ['gutR', pr.right + 18, W - 6]]) {
+      const g = $(id), w = x1 - x0; g.innerHTML = '';
+      if (w < 90 || pr.height < 160) continue;
+      Object.assign(g.style, { left: x0 + 'px', top: pr.top + 'px', width: w + 'px', height: pr.height + 'px' });
+      fitPlace(g, GUTTERS[id], w, pr.height).forEach(el => el.addEventListener('pointerdown', e => { e.stopPropagation(); tapProp(el); }));
+    }
+    const gutters = $('gutL').childElementCount + $('gutR').childElementCount;
+    $('cornL').innerHTML = $('cornR').innerHTML = '';
+    if (!gutters) {
+      const kids = [...$('swatches').children].map(e => e.getBoundingClientRect()).filter(r => r.width);
+      const lastTop = Math.max(...kids.map(r => r.top)), row = kids.filter(r => r.top > lastTop - 12);
+      const top = Math.min(...row.map(r => r.top)) - 10, bottom = Math.max(...row.map(r => r.bottom)) + 2;
+      const zones = [['cornL', 6, Math.min(...row.map(r => r.left)) - 16], ['cornR', Math.max(...row.map(r => r.right)) + 16, W - 6]];
+      for (const [id, x0, x1] of zones) {
+        const g = $(id), w = x1 - x0;
+        if (w < 70 || !row.length) continue;
+        Object.assign(g.style, { left: x0 + 'px', top: top + 'px', width: w + 'px', height: (bottom - top) + 'px' });
+        fitPlace(g, CORNERS[id], w, bottom - top, false).forEach((el, i) => {
+          el.dataset.color = (CORNERS[id][i].args || [])[0] || '';
+          el.addEventListener('pointerdown', e => { e.stopPropagation(); tapProp(el); });
+        });
+      }
+    }
+    // little friends in the gaps of the top bar, only where they fit
+    for (const [id, art, args] of DECOS) {
+      const d = $(id), a = Scenery.art(art, ...args), h = 58, w = h * a.w / a.h;
+      d.classList.toggle('on', d.parentNode.clientWidth >= w + 16);
+      d.style.cssText = `left:50%;top:50%;width:${w}px;height:${h}px;translate:-50% -50%`;
+    }
+  }
+  for (const [id, art, args, tap] of DECOS) {
+    const d = $(id); d.className = 'deco sc-prop tap'; d.dataset.tap = tap;
+    d.innerHTML = '<div class="sc-in sc-a-bob">' + Scenery.art(art, ...args).svg + '</div>';
+    d.addEventListener('pointerdown', e => { e.stopPropagation(); tapProp(d); });
+  }
+  // a few notes fly out of whatever she taps
+  function flyNotes(x, y, color, n = 3) {
+    for (let i = 0; i < n; i++) {
+      const el = document.createElement('div'); el.className = 'mp-fly'; el.innerHTML = noteSVG(i % 2 ? '#a855f7' : color);
+      document.body.appendChild(el);
+      const dx = (Math.random() - .5) * 90, dy = -70 - Math.random() * 60;
+      el.animate([{ transform: `translate(${x - 15}px, ${y - 20}px) scale(.5)`, opacity: 0 }, { opacity: 1, offset: .2 },
+        { transform: `translate(${x - 15 + dx}px, ${y - 20 + dy}px) scale(1.1) rotate(${dx / 4}deg)`, opacity: 0 }], { duration: 1100, delay: i * 140, easing: 'ease-out', fill: 'both' });
+      setTimeout(() => el.remove(), 1300 + i * 140);
+    }
+  }
+  const colorOf = name => (INSTRUMENTS.find(i => i.name === name) || INSTRUMENTS[0]).color;
+  function tapProp(el) {
+    const kind = el.dataset.tap, r = el.getBoundingClientRect(), cx = r.left + r.width / 2, top = r.top + r.height * .25;
+    const tune = (name, rows, gap = .12) => rows.forEach((row, i) => play(name, PITCHES[row], i * gap));
+    switch (kind) {
+      case 'piano': Scenery.react(el, 't-boing', 600); Scenery.react(el, 't-play', 1000); tune('piano', [7, 5, 3, 0]); flyNotes(cx, top, colorOf('piano')); break;
+      case 'drum': Scenery.react(el, 't-boing', 600); tune('drum', [9, 9, 6], .16); flyNotes(cx, top, colorOf('drum'), 2); break;
+      case 'trumpet': Scenery.react(el, 't-wiggle', 600); tune('trumpet', [4, 4, 2, 0], .14); flyNotes(r.right - r.width * .15, r.top + r.height * .4, colorOf('trumpet')); break;
+      case 'xylophone': Scenery.react(el, 't-wiggle', 600); tune('xylophone', [9, 7, 6, 5, 4, 3, 2, 1, 0], .06); flyNotes(cx, top, colorOf('xylophone')); break;
+      case 'bird': Scenery.react(el, 't-boing', 600); tune('flute', [2, 0, 2, 0], .1); flyNotes(cx, top, colorOf('flute'), 2); break;
+      default: Scenery.react(el, 't-boing', 600); tune('bells', [Math.floor(Math.random() * 5)]); flyNotes(cx, top, colorOf('bells'), 1);
+    }
+  }
+
   // ---------- state ----------
   const save = Kit.store('music-painter');
   const saved = save.get({ strokes: [] });
@@ -163,7 +355,7 @@
     const r = $('paper').getBoundingClientRect();
     dpr = Math.min(2, devicePixelRatio || 1);
     cv.width = Math.round(r.width * dpr); cv.height = Math.round(r.height * dpr);
-    redraw();
+    redraw(); layoutScene();
   }
   function brush() { return Math.min(cv.width / COLS, cv.height / ROWS) * .85; }
   function cellOf(x, y) { return [Math.min(COLS - 1, Math.floor(x * COLS)), Math.min(ROWS - 1, Math.floor(y * ROWS))]; }
@@ -236,7 +428,7 @@
   // ---------- playing the picture ----------
   function sparkle(c, r, color) {
     const paper = $('paper'), x = (c + .5) / COLS * paper.clientWidth, y = (r + .5) / ROWS * paper.clientHeight;
-    const n = document.createElement('div'); n.className = 'note'; n.textContent = Math.random() < .5 ? '🎵' : '🎶';
+    const n = document.createElement('div'); n.className = 'note'; n.innerHTML = noteSVG(color);
     n.style.left = x + 'px'; n.style.top = y + 'px'; paper.appendChild(n);
     const ring = document.createElement('div'); ring.className = 'ring'; ring.style.borderColor = color;
     ring.style.left = x + 'px'; ring.style.top = y + 'px'; paper.appendChild(ring);
@@ -246,7 +438,7 @@
   async function start() {
     if (playing) return stop();
     if (!strokes.length) { Kit.sfx.oops(); Kit.say('mp.empty'); return; }
-    playing = true; const token = ++playToken;
+    playing = true; const token = ++playToken; document.body.classList.add('dance');
     $('playBtn').classList.add('playing'); $('playBtn').textContent = '⏹️';
     Kit.say('mp.listen');
     await sleep(900);
@@ -268,7 +460,7 @@
     Kit.say(['mp.bravo1', 'mp.bravo2']);
   }
   function stop() {
-    playToken++; playing = false;
+    playToken++; playing = false; document.body.classList.remove('dance');
     $('playhead').style.display = 'none';
     $('playBtn').classList.remove('playing'); $('playBtn').textContent = '▶️';
   }

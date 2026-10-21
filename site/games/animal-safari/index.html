@@ -14,17 +14,16 @@
 <title>Animal Safari</title>
 <style>
   body { background: #fde68a; }
-  .bg-farm    { background: radial-gradient(ellipse 70% 20% at 30% 58%, #a3e635 99%, transparent 100%), linear-gradient(#7dd3fc 0%, #e0f2fe 52%, #84cc16 52%, #4d7c0f 100%); }
-  .bg-savanna { background: radial-gradient(circle at 80% 18%, #fef08a 0 7%, transparent 7.5%), linear-gradient(#fdba74 0%, #fde68a 50%, #d9a441 50%, #a16207 100%); }
-  .bg-jungle  { background: linear-gradient(#86efac 0%, #22c55e 45%, #15803d 100%); }
-  .bg-ocean   { background: radial-gradient(ellipse 90% 14% at 50% 100%, #fde68a 99%, transparent 100%), linear-gradient(#67e8f9 0%, #2563eb 60%, #1e3a8a 100%); }
-  .bg-arctic  { background: radial-gradient(ellipse 80% 22% at 50% 70%, #fff 99%, transparent 100%), linear-gradient(#a5f3fc 0%, #e0f2fe 52%, #f8fafc 52%, #cbd5e1 100%); }
-
   /* ---------- habitat picker ---------- */
-  #pick { flex-direction: column; align-items: center; justify-content: center; gap: 4vh; background: linear-gradient(160deg, #fef3c7, #fde68a 50%, #bbf7d0); }
+  .layer { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+  #pick { flex-direction: column; align-items: center; justify-content: center; gap: 4vh; background: #ffdf8a; }
+  #pick > #title, #habitats { position: relative; z-index: 1; }
+  .habitat { position: relative; overflow: hidden; padding: 0; background: #fff; }
+  .habitat .thumb { position: absolute; inset: 0; }
+  .habitat .icon { position: relative; filter: drop-shadow(0 4px 3px rgba(0,0,0,.25)); }
   #habitats { display: flex; flex-wrap: wrap; gap: clamp(16px, 3vw, 34px); justify-content: center; padding: 0 20px; }
   .habitat { width: clamp(130px, 18vw, 180px); height: clamp(130px, 18vw, 180px); border-radius: 50%; border: 7px solid #fff; font-size: clamp(64px, 9vw, 90px); display: grid; place-items: center; cursor: pointer; box-shadow: 0 10px 0 rgba(0,0,0,.15); animation: kit-bob 3s ease-in-out infinite; touch-action: manipulation; }
-  #albumBtn { position: absolute; bottom: max(24px, env(safe-area-inset-bottom)); right: 24px; width: 100px; height: 100px; font-size: 54px; }
+  #albumBtn { z-index: 2; position: absolute; bottom: max(24px, env(safe-area-inset-bottom)); right: 24px; width: 100px; height: 100px; font-size: 54px; }
   #albumCount { position: absolute; top: -8px; right: -8px; background: #f472b6; color: #fff; font-size: 20px; font-weight: 900; border-radius: 999px; min-width: 36px; height: 36px; display: grid; place-items: center; }
 
   /* ---------- scene ---------- */
@@ -33,7 +32,9 @@
   .top .btn { width: 68px; height: 68px; font-size: 34px; }
   .spacer { flex: 1; }
   #askBtn { width: 84px; height: 84px; font-size: 44px; background: #fde047; }
-  .deco { position: absolute; translate: -50% -50%; line-height: 1; pointer-events: none; }
+  /* little birds flapping across the sky (art drawn below with Scenery.add) */
+  .sa-beat { transform-box: fill-box; transform-origin: center; animation: sa-beat .55s ease-in-out infinite; }
+  @keyframes sa-beat { 50% { transform: scaleY(.35); } }
   .animal { position: absolute; translate: -50% -50%; line-height: 1; cursor: pointer; touch-action: manipulation; animation: kit-bob 2.6s ease-in-out infinite; filter: drop-shadow(0 8px 5px rgba(0,0,0,.25)); }
   .animal span { display: inline-block; }
   .animal.yay span { animation: yay .8s cubic-bezier(.3,1.5,.5,1); }
@@ -53,6 +54,7 @@
 <body>
 
 <section id="pick" class="screen on">
+  <div id="pickBg" class="layer"></div>
   <a class="btn corner left" href="../../" aria-label="Back to Yas's Games">🏠</a>
   <button id="soundBtn" class="btn corner right" aria-label="Sound on or off">🔊</button>
   <h1 id="title" class="title"></h1>
@@ -61,7 +63,8 @@
 </section>
 
 <section id="scene" class="screen">
-  <div id="decor"></div>
+  <div id="backdrop" class="layer"></div>
+  <div id="decor" class="layer"></div>
   <div id="animals"></div>
   <div class="top">
     <button id="backBtn" class="btn" aria-label="Choose another place">🏠</button>
@@ -82,6 +85,7 @@
 <script src="/shared/voice.js"></script>
 <script src="/shared/saved.js"></script>
 <script src="/shared/kit.js"></script>
+<script src="/shared/scenery.js"></script>
 <script>
 (() => {
   const { $, rand, pick, shuffle, sleep } = Kit;
@@ -100,13 +104,62 @@
     ['wolf', '🐺', 'arctic', 1],
   ].map(([key, e, home, sound]) => ({ key, e, home, sound: !!sound }));
 
+  // ---------- cartoon scenery (see /shared/scenery.js) ----------
+  // no props of animals that live in that habitat, so a decoration is never mistaken for an answer
+  const { blob, ol, OL } = Scenery.kit;
+  Scenery.add('sa-birds', () => [170, 70, [[8, 30, 1], [64, 10, .8], [112, 38, .9]].map(([x, y, k], i) =>
+    `<g transform="translate(${x} ${y}) scale(${k})"><path class="sa-beat" style="animation-delay:${-i * .18}s" d="M0 12 Q12 -4 24 10 Q36 -4 48 12" stroke="#5a4a6a" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></g>`).join('')]);
+  Scenery.add('sa-peak', () => [300, 200,
+    `<path d="M4 200 L128 34 Q150 8 172 34 L296 200Z" fill="#a9c8ec" ${ol()}/>` +
+    `<path d="M150 18 Q160 22 172 34 L296 200 H196 Q176 110 150 18Z" fill="#8fb3dd"/>` +
+    `<path d="M104 66 L128 34 Q150 8 172 34 L196 66 Q182 80 170 68 Q160 84 150 70 Q138 84 128 68 Q116 80 104 66Z" fill="#fff"/>`]);
+  Scenery.add('sa-grass', (c = '#c99a3a', tip = '#e6c065') => {
+    const blades = [[-44, 64], [-26, 90], [-8, 76], [10, 98], [28, 74], [46, 86]].map(([dx, h]) => `M${60 + dx * .3} 100 Q${60 + dx * .7} ${100 - h * .6} ${60 + dx} ${100 - h}`);
+    return [120, 100, `<g class="sc-sway" style="transform-origin:60px 100px">` +
+      blades.map(d => `<path d="${d}" stroke="${OL}" stroke-opacity=".55" stroke-width="11" fill="none" stroke-linecap="round"/>`).join('') +
+      blades.map((d, i) => `<path d="${d}" stroke="${i % 2 ? c : tip}" stroke-width="6" fill="none" stroke-linecap="round"/>`).join('') + `</g>`];
+  });
+  Scenery.add('sa-bananas', () => {
+    const one = (a, flip) => `<g transform="translate(55 150) rotate(${a}) scale(${flip ? -1 : 1} 1)"><path d="M0 0 C2 26 18 46 40 52 C28 40 14 22 10 0Z" fill="#ffd23f" ${ol(2.5)}/><path d="M36 50 l6 3" stroke="#7a4a25" stroke-width="4" stroke-linecap="round"/></g>`;
+    return [110, 215, `<g class="sc-sway" style="transform-origin:55px 0px"><path d="M55 0 V150" stroke="#3f8a3a" stroke-width="7"/>` +
+      `<ellipse cx="44" cy="60" rx="15" ry="6" fill="#4fb84a" transform="rotate(-30 44 60)"/><ellipse cx="66" cy="104" rx="15" ry="6" fill="#4fb84a" transform="rotate(30 66 104)"/>` +
+      one(-10, true) + one(30, true) + one(-20, false) + one(20, false) + one(0, false) + `<rect x="49" y="140" width="12" height="16" rx="4" fill="#7a4a25"/></g>`];
+  });
+
+  // props: art, x %, y %, height (% of the short side), extra settings
+  const P = (art, x, y, h, o = {}) => ({ art, x, y, h, ...o });
   const HABITATS = {
-    farm:    { icon: '🚜', decor: [['🏡', 16, 40, 16], ['🌳', 88, 40, 15], ['☀️', 82, 12, 9], ['🌻', 6, 70, 6], ['🌾', 50, 46, 6]] },
-    savanna: { icon: '🦁', decor: [['🌳', 14, 44, 18], ['🌵', 90, 50, 9], ['⛰️', 60, 40, 12], ['🌾', 40, 92, 6]] },
-    jungle:  { icon: '🌴', decor: [['🌴', 8, 40, 22], ['🌴', 92, 38, 22], ['🌿', 30, 92, 9], ['🍌', 72, 22, 6], ['🌺', 50, 88, 6]] },
-    ocean:   { icon: '🐳', decor: [['🪸', 8, 88, 12], ['🌿', 24, 88, 10], ['🐚', 46, 95, 5], ['🪸', 86, 88, 13]] },
-    arctic:  { icon: '🐧', decor: [['🏔️', 20, 40, 18], ['🏔️', 78, 38, 14], ['❄️', 50, 14, 6], ['❄️', 86, 20, 5], ['🌲', 92, 60, 10]] },
+    farm: { icon: '🚜', bd: 'farm',
+      props: [P('sun', 84, 15, 15, { at: 'center', tap: 'spin' }), P('cloud', 22, 14, 10, { at: 'center', anim: 'drift', tap: 'puff' }),
+              P('cloud', 58, 9, 7, { at: 'center', anim: 'drift' }), P('sa-birds', 0, 25, 5, { at: 'center', anim: 'across', dur: 30 }),
+              P('barn', 13, 66, 30, { tap: 'boing' }), P('windmill', 90, 65, 36, { tap: 'fast' }), P('fence', 50, 71, 8),
+              P('hay', 32, 73, 7, { tap: 'boing' }), P('sunflower', 5, 100, 20, { tap: 'bloom' }), P('flower', 95, 100, 10, { tap: 'bloom' }),
+              P('flower', 60, 100, 8, { args: ['#ffd23f', '#ff8a3c'], tap: 'bloom' }), P('butterfly', 60, 30, 5, { at: 'center', anim: 'flutter' })] },
+    savanna: { icon: '🦁', bd: 'savanna',
+      props: [P('cloud', 24, 14, 9, { at: 'center', anim: 'drift', args: ['#fff8e8', '#ffe2b8'], tap: 'puff' }),
+              P('sa-birds', 0, 22, 6, { at: 'center', anim: 'across', dur: 26 }),
+              P('acacia', 16, 69, 34, { tap: 'wiggle' }), P('acacia', 87, 67, 24, { flip: true, tap: 'wiggle' }), P('rock', 62, 72, 8, { args: ['#c9a06a'] }),
+              P('sa-grass', 4, 100, 16, { tap: 'wiggle' }), P('sa-grass', 40, 101, 10), P('bush', 72, 100, 8, { args: ['#9bb84a', ''] }),
+              P('sa-grass', 95, 100, 14, { flip: true, tap: 'wiggle' })] },
+    jungle: { icon: '🌴', bd: 'jungle',
+      props: [P('vine', 5, 0, 44, { at: 'top' }), P('vine', 30, 0, 24, { at: 'top' }), P('vine', 95, 0, 40, { at: 'top' }),
+              P('sa-bananas', 72, 0, 24, { at: 'top', tap: 'boing' }),
+              P('palm', 11, 78, 40, { tap: 'wiggle' }), P('palm', 91, 76, 36, { flip: true, tap: 'wiggle' }),
+              P('bigleaf', 3, 101, 24, { tap: 'wiggle' }), P('flower', 24, 100, 9, { args: ['#ff4d6d'], tap: 'bloom' }), P('mushroom', 66, 100, 6, { tap: 'boing' }),
+              P('bigleaf', 97, 101, 24, { flip: true, args: ['#3fae5a'], tap: 'wiggle' }),
+              P('butterfly', 40, 24, 5, { at: 'center', anim: 'flutter', args: ['#ffd23f', '#3fd0ff'] })] },
+    ocean: { icon: '🐳', bd: 'ocean', extras: { bubbles: 10 },
+      props: [P('jellyfish', 86, 26, 12, { at: 'center', anim: 'bob', tap: 'boing' }), P('jellyfish', 10, 32, 8, { at: 'center', anim: 'bob', args: ['#b4a0ff'], tap: 'boing' }),
+              P('rock', 92, 100, 14), P('seaweed', 5, 101, 28, { tap: 'wiggle' }), P('coral', 17, 101, 15), P('seaweed', 28, 101, 18, { args: ['#5ad08a'], tap: 'wiggle' }),
+              P('shell', 44, 100, 5, { tap: 'boing' }), P('starfish', 57, 100, 7, { tap: 'spin' }), P('chest', 73, 100, 11, { tap: 'open' }),
+              P('coral', 85, 101, 14, { args: ['#b07aff'] }), P('seaweed', 97, 101, 24, { tap: 'wiggle' })] },
+    arctic: { icon: '🐧', bd: 'snow', extras: { snow: 26 },
+      props: [P('sa-peak', 24, 68, 34), P('sa-peak', 74, 66, 26, { flip: true }), P('cloud', 50, 12, 8, { at: 'center', anim: 'drift', tap: 'puff' }),
+              P('pine', 6, 84, 32, { tap: 'wiggle' }), P('pine', 17, 80, 20), P('pine', 94, 82, 36, { tap: 'wiggle' }),
+              P('igloo', 80, 77, 16, { tap: 'peek' }), P('snowman', 30, 99, 18, { tap: 'hat' })] },
   };
+  const PICK_PROPS = [P('cloud', 18, 12, 9, { at: 'center', anim: 'drift' }), P('sa-birds', 0, 20, 5, { at: 'center', anim: 'across', dur: 28 }),
+    P('acacia', 8, 101, 30), P('acacia', 94, 101, 22, { flip: true }), P('sa-grass', 30, 101, 9), P('sa-grass', 70, 101, 8, { flip: true })];
 
   const save = Kit.store('animal-safari');
   const saved = save.get({ found: [], rounds: 0 });
@@ -121,11 +174,45 @@
   Kit.title('title', 'Animal Safari');
   Kit.soundButton('soundBtn');
   for (const [key, h] of Object.entries(HABITATS)) {
-    const b = document.createElement('button'); b.className = 'habitat bg-' + key; b.textContent = h.icon;
+    const b = document.createElement('button'); b.className = 'habitat';
+    b.innerHTML = `<div class="thumb">${Scenery.backdrop(h.bd)}</div><span class="icon">${h.icon}</span>`;
     b.style.animationDelay = -rand(0, 3) + 's'; b.setAttribute('aria-label', key);
     b.onclick = () => { Kit.sfx.pop(); openHabitat(key); };
     $('habitats').appendChild(b);
   }
+  $('pickBg').innerHTML = Scenery.backdrop('savanna');
+  const pickDecor = document.createElement('div'); pickDecor.className = 'layer'; $('pickBg').appendChild(pickDecor);
+
+  // ---------- scenery: props are sized from the screen, so they are put back on rotate ----------
+  const rustle = () => [0, 1, 2].forEach(i => Kit.tone(1800 + i * 300, .06, { type: 'sawtooth', vol: .025, to: 1200, delay: i * .05 }));
+  function tapDecor(el) {
+    const react = (cls, ms) => Scenery.react(el, cls, ms);
+    switch (el.dataset.tap) {
+      case 'spin': react('t-spin', 900); Kit.sfx.ding(); break;
+      case 'puff': react('t-wiggle', 600); Kit.sfx.whoosh(); break;
+      case 'wiggle': react('t-wiggle', 600); rustle(); break;
+      case 'bloom': react('t-bloom', 900); Kit.sfx.pop(); break;
+      case 'fast': react('t-fast', 3000); Kit.sfx.whoosh(); break;
+      case 'open': react('t-open', 2600); Kit.sfx.ding(); break;
+      case 'peek': react('t-peek', 2400); Kit.sfx.pop(); break;
+      case 'hat': react('t-hat', 1500); Kit.sfx.boing(); break;
+      default: react('t-boing', 600); Kit.sfx.boing();
+    }
+  }
+  function placeDecor(layer, props, extras) {
+    layer.innerHTML = '';
+    Scenery.extras(layer, extras);
+    Scenery.place(layer, props, innerWidth, innerHeight).forEach(el => {
+      if (el.dataset.tap) el.addEventListener('pointerdown', () => tapDecor(el));
+    });
+  }
+  function layout() {
+    placeDecor(pickDecor, PICK_PROPS);
+    if (home) placeDecor($('decor'), HABITATS[home].props, HABITATS[home].extras);
+  }
+  let resizeT = 0;
+  addEventListener('resize', () => { clearTimeout(resizeT); resizeT = setTimeout(layout, 200); });
+  placeDecor(pickDecor, PICK_PROPS);
   paintCount();
   Kit.say('sa.intro');
 
@@ -134,12 +221,9 @@
 
   function openHabitat(key) {
     home = key;
-    $('scene').className = 'screen on bg-' + key; show('scene');
-    const d = $('decor'); d.innerHTML = '';
-    for (const [e, x, y, s] of HABITATS[key].decor) {
-      const el = document.createElement('div'); el.className = 'deco'; el.textContent = e;
-      el.style.left = x + '%'; el.style.top = y + '%'; el.style.fontSize = s + 'vmin'; d.appendChild(el);
-    }
+    show('scene');
+    $('backdrop').innerHTML = Scenery.backdrop(HABITATS[key].bd);
+    placeDecor($('decor'), HABITATS[key].props, HABITATS[key].extras);
     newRound(true);
   }
 

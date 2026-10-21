@@ -13,7 +13,29 @@
 <link rel="stylesheet" href="/shared/kit.css">
 <title>Letter Trace</title>
 <style>
-  body { background: linear-gradient(160deg, #e0e7ff 0%, #fce7f3 55%, #fef9c3 100%); }
+  body { background: #fff1d8; }
+  /* the classroom behind everything */
+  #scene { position: fixed; inset: 0; pointer-events: none; overflow: hidden; }
+  #scene > div, .props, .gut { position: absolute; }
+  #sceneBack { inset: 0; }
+  .props { inset: 0; pointer-events: none; }
+  #pickProps { visibility: hidden; }
+  #pickProps.on { visibility: visible; }
+  #board, #side { position: relative; z-index: 1; }
+  .badge { display: block; width: 100%; height: 100%; overflow: visible; }
+  .lt-owl { transform-box: fill-box; transform-origin: 50% 100%; animation: lt-tilt 5s ease-in-out infinite; }
+  @keyframes lt-tilt { 0%, 70%, 100% { transform: rotate(0); } 78%, 90% { transform: rotate(7deg); } }
+  .lt-wing { transform-box: fill-box; transform-origin: 80% 5%; transition: transform .3s; }
+  .lt-wing.r { transform-origin: 20% 5%; }
+  .sc-prop.t-hoot .lt-wing { transform: rotate(40deg); }
+  .sc-prop.t-hoot .lt-wing.r { transform: rotate(-40deg); }
+  .lt-land { animation: lt-turn 14s linear infinite; }
+  .sc-prop.t-fast .lt-land { animation-duration: 1.2s; }
+  @keyframes lt-turn { to { transform: translateX(-112px); } }
+  .lt-arm { transform-box: fill-box; transform-origin: 100% 100%; animation: lt-wave 2.6s ease-in-out infinite; }
+  @keyframes lt-wave { 0%, 60%, 100% { transform: rotate(0); } 70%, 90% { transform: rotate(-24deg); } 80% { transform: rotate(10deg); } }
+  .lt-top { transform-box: fill-box; transform-origin: 50% 100%; transition: transform .4s cubic-bezier(.3,1.6,.5,1); }
+  .sc-prop.t-stack .lt-top { transform: translateY(-26px) rotate(14deg); }
   .glyphs { display: block; width: auto; max-width: 100%; overflow: visible; }
   .tile .glyphs { height: 50px; } .tile.big .glyphs { height: 74px; }
   .chip .glyphs { height: 78px; } .pickme .glyphs { height: 84px; } #wordText .glyphs { height: 76px; }
@@ -24,20 +46,22 @@
   #nameRow { display: flex; gap: 16px; background: rgba(255,255,255,.7); padding: 12px 20px; border-radius: 32px; box-shadow: 0 6px 0 rgba(99, 102, 241, .15); }
   .tile { width: 84px; height: 76px; border-radius: 20px; position: relative; padding: 12px 8px; }
   .tile.big { width: 120px; height: 108px; border-radius: 28px; padding: 16px 10px; }
-  .tile .st { position: absolute; top: -10px; right: -8px; font-size: 24px; }
+  .tile .st { position: absolute; top: -12px; right: -10px; width: 30px; height: 30px; }
   .tile.half { background: #fef9c3; }
   .tile.done { background: #fde68a; }
   #alphabet { display: grid; grid-template-columns: repeat(auto-fill, 84px); gap: 12px; width: min(100%, 900px); justify-content: center; }
 
   /* ---------- tracing ---------- */
   #trace { align-items: center; justify-content: center; gap: 3vw; padding: 90px 20px 20px; flex-wrap: wrap; }
-  #board { height: min(76vh, 125vw); aspect-ratio: 120 / 190; background: #fff; border-radius: 36px; box-shadow: 0 10px 30px rgba(79, 70, 229, .15); touch-action: none; position: relative; }
+  #board { height: min(76vh, 125vw); aspect-ratio: 120 / 190; background: #fff; border-radius: 36px; touch-action: none; position: relative;
+    /* a wooden frame, like a little slate */
+    box-shadow: 0 0 0 8px #c98a4a, 0 0 0 11px rgba(58,45,82,.45), 0 12px 30px rgba(79, 70, 229, .2); }
   #board svg { width: 100%; height: 100%; display: block; }
   #side { display: flex; flex-direction: column; align-items: center; gap: 18px; min-width: 240px; }
-  #pair { display: flex; gap: 14px; align-items: center; }
+  #pair { display: flex; gap: 14px; align-items: center; position: relative; z-index: 1; }
   .chip { width: 96px; height: 110px; border-radius: 26px; background: rgba(255,255,255,.65); display: grid; place-items: center; padding: 14px 10px; position: relative; border: 5px solid transparent; }
   .chip.now { background: #fff; border-color: #6366f1; box-shadow: 0 6px 0 rgba(79, 70, 229, .15); }
-  .chip .ok { position: absolute; top: -12px; right: -10px; font-size: 28px; }
+  .chip .ok { position: absolute; top: -14px; right: -12px; width: 34px; height: 34px; }
   .arrow { font-size: 34px; color: #6366f1; font-weight: 900; }
   #quiz { display: none; gap: 16px; }
   #quiz.on { display: flex; }
@@ -45,7 +69,11 @@
   .pickme.glow { box-shadow: 0 6px 0 rgba(40,50,90,.18), 0 0 0 6px #fde047; animation: kit-pulse 1s infinite; }
   #word { display: none; flex-direction: column; align-items: center; gap: 10px; }
   #word.on { display: flex; animation: kit-pop .5s cubic-bezier(.3,1.6,.5,1); }
-  #wordPic { font-size: clamp(80px, 14vh, 130px); line-height: 1; }
+  #wordPic { font-size: clamp(80px, 14vh, 130px); line-height: 1; position: relative; isolation: isolate; }
+  #wordPic::before {
+    content: ''; position: absolute; left: 50%; top: 50%; width: 2em; height: 2em; translate: -50% -50%; z-index: -1; animation: kit-spin 24s linear infinite;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M50 50L99.6 43.5L99.6 56.5ZM50 50L96.2 69.1L89.7 80.4ZM50 50L80.4 89.7L69.1 96.2ZM50 50L56.5 99.6L43.5 99.6ZM50 50L30.9 96.2L19.6 89.7ZM50 50L10.3 80.4L3.8 69.1ZM50 50L0.4 56.5L0.4 43.5ZM50 50L3.8 30.9L10.3 19.6ZM50 50L19.6 10.3L30.9 3.8ZM50 50L43.5 0.4L56.5 0.4ZM50 50L69.1 3.8L80.4 10.3ZM50 50L89.7 19.6L96.2 30.9Z' fill='%23fde68a' opacity='.6'/%3E%3Ccircle cx='50' cy='50' r='24' fill='%23fff7d6'/%3E%3C/svg%3E") center / contain no-repeat;
+  }
   #wordText { height: 100px; background: #fff; padding: 12px 26px; border-radius: 999px; box-shadow: 0 5px 0 rgba(0,0,0,.08); }
   #wordBtns { display: flex; gap: 18px; margin-top: 6px; }
   .startDot { animation: dotPulse 1s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
@@ -53,6 +81,8 @@
 </style>
 </head>
 <body>
+
+<div id="scene" aria-hidden="true"><div id="sceneBack"></div><div id="pickProps" class="props on"></div></div>
 
 <section id="pick" class="screen on">
   <a class="btn corner left" href="../../" aria-label="Back to Yas's Games">🏠</a>
@@ -63,6 +93,7 @@
 </section>
 
 <section id="trace" class="screen">
+  <div id="traceProps" class="props" aria-hidden="true"></div>
   <button id="backBtn" class="btn corner left" aria-label="All letters">🏠</button>
   <div id="board"></div>
   <div id="side">
@@ -84,6 +115,7 @@
 <script src="/shared/voice.js"></script>
 <script src="/shared/saved.js"></script>
 <script src="/shared/kit.js"></script>
+<script src="/shared/scenery.js"></script>
 <script>
 (() => {
   const { $, pick, shuffle } = Kit;
@@ -223,10 +255,134 @@
     return `<svg class="glyphs" viewBox="0 0 ${Math.max(1, x - 14 + width)} 175" xmlns="http://www.w3.org/2000/svg">${out}</svg>`;
   }
 
+  // ---------- the classroom around the letters (see /shared/scenery.js) ----------
+  const { ol, face, blob } = Scenery.kit;
+  Scenery.addBackdrop('ltClass', ['#fff6dc', '#ffefd2', '#ffe6c7'], () => {
+    const K = Scenery.kit, cols = ['#ef4444', '#f97316', '#eab308', '#22c55e', '#3b82f6', '#8b5cf6', '#ec4899'];
+    let s = K.sky('ltClass');
+    for (let i = 0; i < 10; i++) s += `<rect x="${i * 100 + 36}" y="0" width="28" height="700" fill="#fff" opacity=".28"/>`;
+    // a big green chalkboard with a few chalk doodles
+    s += `<rect x="110" y="70" width="780" height="300" rx="16" fill="#b97d48"/><rect x="130" y="88" width="740" height="262" rx="8" fill="#2f6b4f"/>` +
+      `<ellipse cx="320" cy="210" rx="160" ry="60" fill="#fff" opacity=".04"/><ellipse cx="690" cy="260" rx="140" ry="50" fill="#fff" opacity=".05"/>` +
+      `<g stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round" opacity=".45">` +
+      `<path d="M190 300 q20 -40 40 0 t40 0 t40 0"/><path d="M780 130 l9 22 24 2 -18 16 6 23 -21 -12 -21 12 6 -23 -18 -16 24 -2Z"/>` +
+      `<circle cx="215" cy="140" r="22"/><path d="M215 104 v-10 M215 186 v10 M179 140 h-10 M251 140 h10 M190 115 l-7 -7 M240 165 l7 7 M240 115 l7 -7 M190 165 l-7 7"/>` +
+      `<path d="M700 320 q30 -30 60 0 q30 30 60 0"/></g>` +
+      `<rect x="150" y="364" width="700" height="16" rx="5" fill="#9a6232"/><rect x="250" y="356" width="34" height="10" rx="4" fill="#fff"/><rect x="300" y="357" width="26" height="9" rx="4" fill="#ffd1e0"/><rect x="640" y="356" width="60" height="12" rx="4" fill="#ffe08a"/>`;
+    // a paper garland of flags along the top
+    s += `<path d="M0 22 Q500 70 1000 22" stroke="#d6b28a" stroke-width="4" fill="none"/>`;
+    for (let i = 0; i < 14; i++) { const x = 20 + i * 70, y = 22 + 48 * (x / 1000) * (1 - x / 1000) * 4 * .5; s += `<path d="M${x} ${y.toFixed(0)} h44 l-22 40Z" fill="${cols[i % cols.length]}" opacity=".8"/>`; }
+    // wainscot, skirting, wooden floor and a round rug
+    s += `<rect y="700" width="1000" height="110" fill="#9fd8b4" opacity=".55"/><rect y="694" width="1000" height="10" fill="#fff"/>` +
+      `<rect y="810" width="1000" height="190" fill="#d99b62"/>` + Array.from({ length: 5 }, (_, i) => `<rect y="${838 + i * 36}" width="1000" height="4" fill="#b97d48" opacity=".55"/>`).join('') +
+      `<rect y="804" width="1000" height="12" fill="#fff"/><ellipse cx="500" cy="920" rx="400" ry="60" fill="#8fc7ff" opacity=".7"/><ellipse cx="500" cy="920" rx="320" ry="42" fill="#bfe0ff" opacity=".8"/>`;
+    return s;
+  });
+  // the globe's land turns inside a circle; the clip lives with the shared pictures so it is never hidden
+  const defs = document.querySelector('#sc-defs defs');
+  if (defs && !document.getElementById('lt-globe-clip')) defs.insertAdjacentHTML('beforeend', '<clipPath id="lt-globe-clip"><circle cx="70" cy="78" r="53"/></clipPath>');
+  Scenery.add('ltPencil', () => [76, 272,
+    `<path class="lt-arm" d="M14 150 q-14 -6 -12 -26" stroke="#3a2d52" stroke-opacity=".5" stroke-width="9" fill="none" stroke-linecap="round"/><path class="lt-arm" d="M14 150 q-14 -6 -12 -26" stroke="#ffd23f" stroke-width="5" fill="none" stroke-linecap="round"/>` +
+    `<rect x="14" y="236" width="48" height="32" rx="10" fill="#ff9ab6" ${ol()}/><rect x="12" y="220" width="52" height="20" rx="3" fill="#c8cfe0" ${ol(2)}/><path d="M14 230 H62" stroke="#a8b0c6" stroke-width="2.5"/>` +
+    `<rect x="14" y="70" width="48" height="152" fill="#ffd23f" ${ol()}/><rect x="16" y="72" width="10" height="148" fill="#ffe680"/><rect x="50" y="72" width="10" height="148" fill="#ffbf1f"/>` +
+    `<path d="M14 72 L38 12 L62 72Z" fill="#f6d9a8" ${ol()}/><path d="M14 72 q6 -8 12 0 q6 -8 12 0 q6 -8 12 0 q6 -8 12 0Z" fill="#ffd23f"/><path d="M30 32 L38 12 L46 32Z" fill="#4a3a6a"/>` +
+    face(38, 140, .58)]);
+  Scenery.add('ltOwlBooks', () => {
+    const book = (x, y, w, h, c) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="6" fill="${c}" ${ol()}/><rect x="${x + w - 17}" y="${y + 5}" width="11" height="${h - 10}" rx="2" fill="#fff8e6"/><rect x="${x + 12}" y="${y + h / 2 - 3}" width="${w - 44}" height="6" rx="3" fill="#fff" opacity=".45"/>`;
+    const owl = `<g class="lt-owl">` +
+      `<g class="lt-wing"><path d="M26 84 Q4 112 24 136 Q34 110 30 86Z" fill="#8a6440" ${ol(2)}/></g>` +
+      `<g class="lt-wing r"><path d="M94 84 Q116 112 96 136 Q86 110 90 86Z" fill="#8a6440" ${ol(2)}/></g>` +
+      `<ellipse cx="60" cy="100" rx="42" ry="50" fill="#a07850" ${ol()}/><ellipse cx="60" cy="114" rx="26" ry="31" fill="#f2dcb4"/>` +
+      [[52, 108], [68, 108], [60, 120], [52, 132], [68, 132]].map(([x, y]) => `<path d="M${x - 5} ${y} l5 5 l5 -5" stroke="#c8a070" stroke-width="2.5" fill="none"/>`).join('') +
+      `<circle cx="44" cy="80" r="15" fill="#fff" ${ol(2)}/><circle cx="76" cy="80" r="15" fill="#fff" ${ol(2)}/>` +
+      `<g class="sc-blink"><circle cx="45" cy="82" r="7" fill="#222"/><circle cx="75" cy="82" r="7" fill="#222"/><circle cx="47" cy="79" r="2.4" fill="#fff"/><circle cx="77" cy="79" r="2.4" fill="#fff"/></g>` +
+      `<circle cx="44" cy="80" r="18" fill="none" stroke="#3a2d52" stroke-width="3"/><circle cx="76" cy="80" r="18" fill="none" stroke="#3a2d52" stroke-width="3"/>` +
+      `<path d="M54 94 L60 106 L66 94Z" fill="#ffb02e" ${ol(1.5)}/>` +
+      `<path d="M16 44 L60 26 L104 44 L60 62Z" fill="#3a2d52"/><rect x="40" y="48" width="40" height="13" rx="3" fill="#3a2d52"/>` +
+      `<path d="M60 44 L94 50 V66" stroke="#ffd23f" stroke-width="3" fill="none"/><circle cx="94" cy="68" r="4.5" fill="#ffd23f"/>` +
+      `<path d="M48 148 v8 M55 148 v8 M65 148 v8 M72 148 v8" stroke="#ffb02e" stroke-width="4" stroke-linecap="round"/></g>`;
+    return [170, 262, `<g transform="translate(25 8)">${owl}</g><g transform="translate(0 150)">${book(6, 78, 158, 30, '#3b82f6')}${book(18, 46, 136, 32, '#ef4444')}${book(30, 14, 112, 32, '#22c55e')}</g>`];
+  });
+  Scenery.add('ltGlobe', () => {
+    const land = x => `<path d="M${x + 22} 44 q20 -14 38 -2 q12 16 -4 30 q-14 8 -8 26 q-12 10 -22 -4 q-12 -22 -4 -50Z M${x + 88} 70 q22 -10 32 8 q4 24 -14 32 q-22 2 -24 -18Z M${x + 60} 118 q16 -6 26 4 q-6 14 -24 8Z" fill="#6fd06a"/>`;
+    return [140, 192,
+      `<ellipse cx="70" cy="182" rx="42" ry="10" fill="#a8763e" ${ol()}/><rect x="64" y="136" width="12" height="46" rx="4" fill="#c98a4a" ${ol(2)}/>` +
+      `<circle cx="70" cy="78" r="56" fill="#5ab8ff" ${ol()}/><g clip-path="url(#lt-globe-clip)"><g class="lt-land">${land(0)}${land(112)}</g></g>` +
+      `<ellipse cx="50" cy="50" rx="16" ry="9" fill="#fff" opacity=".35"/>` + face(70, 86, .7) +
+      `<path d="M14 64 A58 58 0 0 0 108 132" stroke="#3a2d52" stroke-opacity=".5" stroke-width="12" fill="none" stroke-linecap="round"/><path d="M14 64 A58 58 0 0 0 108 132" stroke="#e8b06a" stroke-width="7" fill="none" stroke-linecap="round"/>`];
+  });
+  Scenery.add('ltBlocks', () => {
+    const block = (x, y, c, ch, rot = 0) => `<g transform="rotate(${rot} ${x + 32} ${y + 32})"><rect x="${x}" y="${y}" width="64" height="64" rx="9" fill="${c}" ${ol()}/><rect x="${x + 8}" y="${y + 8}" width="48" height="48" rx="6" fill="#fff" opacity=".28"/>` +
+      `<text x="${x + 32}" y="${y + 47}" text-anchor="middle" font-size="42" font-weight="900" font-family="ui-rounded, Arial Rounded MT Bold, system-ui, sans-serif" fill="#fff" stroke="#3a2d52" stroke-opacity=".45" stroke-width="2">${ch}</text></g>`;
+    return [152, 142, block(6, 74, '#ef4444', 'A') + block(80, 74, '#3b82f6', 'B') + `<g class="lt-top">${block(42, 8, '#facc15', 'C', -7)}</g>`];
+  });
+
+  const P = (art, x, y, h, o = {}) => ({ art, x, y, h, ...o });
+  // left and right of the board while tracing (these can be tapped), and quieter corners on the letter picker
+  const TRACE_GUT = {
+    L: [P('balloons', 50, 20, 62, { at: 'center', anim: 'bob', tap: 'balloons' }),
+        P('ltPencil', 26, 100, 92, { tap: 'pencil' }),
+        P('ltOwlBooks', 68, 100, 84, { tap: 'owl' })],
+    R: [P('window', 50, 20, 64, { at: 'center', tap: 'window' }),
+        P('ltBlocks', 50, 100, 56, { tap: 'blocks' }),
+        P('ltGlobe', 50, 100, 64, { on: 1, tap: 'globe' })],
+  };
+  const PICK_GUT = {
+    L: [P('ltPencil', 28, 100, 92), P('ltOwlBooks', 70, 100, 84)],
+    R: [P('ltBlocks', 50, 100, 56), P('ltGlobe', 50, 100, 64, { on: 0 })],
+  };
+  $('sceneBack').innerHTML = Scenery.backdrop('ltClass');
+  // props never wider than their space, smaller when the space is short; `on: i` stands a prop on top of prop i
+  function fitPlace(layer, props, w, h) {
+    const unit = Math.min(w, h) / 100, k = Math.min(1, h / (w * 3.2)), out = [];
+    props.forEach(p => {
+      const a = Scenery.art(p.art, ...(p.args || []));
+      const q = { ...p, h: Math.min(p.h * k, w * .9 / (unit * a.w / a.h)) };
+      if (p.on != null) { const b = out[p.on]; q.y = b.y - b.h * unit / h * 100 * .96; }
+      out.push(q);
+    });
+    return Scenery.place(layer, out, w, h);
+  }
+  function fillBox(layer, x0, y0, x1, y1, props) {
+    const w = x1 - x0, h = y1 - y0, box = document.createElement('div'); box.className = 'gut';
+    Object.assign(box.style, { left: x0 + 'px', top: y0 + 'px', width: w + 'px', height: h + 'px' });
+    layer.appendChild(box);
+    fitPlace(box, props, w, h).forEach(el => { if (el.dataset.tap) el.addEventListener('pointerdown', e => { e.stopPropagation(); tapProp(el); }); });
+  }
+  function layoutPick() {
+    const L = $('pickProps'), W = innerWidth, H = innerHeight; L.innerHTML = '';
+    const m = $('alphabet').getBoundingClientRect().left - 10;
+    if (m < 90 || H < 400) return;
+    fillBox(L, 6, H * .35, m, H - 6, PICK_GUT.L); fillBox(L, W - m, H * .35, W - 6, H - 6, PICK_GUT.R);
+  }
+  function layoutTrace() {
+    const L = $('traceProps'), W = innerWidth, H = innerHeight; L.innerHTML = '';
+    const rs = [$('board'), $('side')].map(e => e.getBoundingClientRect()).filter(r => r.width > 0);
+    if (!rs.length) return;
+    const left = Math.min(...rs.map(r => r.left)), right = Math.max(...rs.map(r => r.right));
+    if (left - 22 >= 90) fillBox(L, 6, 92, left - 22, H - 8, TRACE_GUT.L);
+    if (W - right - 22 >= 90) fillBox(L, right + 22, 20, W - 6, H - 8, TRACE_GUT.R);
+  }
+  addEventListener('resize', () => { if ($('pick').classList.contains('on')) layoutPick(); else layoutTrace(); });
+  function tapProp(el) {
+    const kind = el.dataset.tap;
+    switch (kind) {
+      case 'pencil': Scenery.react(el, 't-wiggle', 600); for (let i = 0; i < 6; i++) Kit.tone(700 + Math.random() * 500, .05, { type: 'sawtooth', vol: .035, delay: i * .07 }); break;
+      case 'owl': Scenery.react(el, 't-hoot', 900); Kit.tone(440, .25, { to: 390, vol: .16 }); Kit.tone(440, .4, { to: 360, vol: .16, delay: .32 }); break;
+      case 'globe': Scenery.react(el, 't-fast', 2400); Kit.sfx.whoosh(); break;
+      case 'blocks': Scenery.react(el, 't-stack', 700); [523, 659, 784].forEach((f, i) => Kit.tone(f, .14, { type: 'triangle', delay: i * .1 })); break;
+      case 'balloons': Scenery.react(el, 't-boing', 600); Kit.sfx.boing(); break;
+      default: Scenery.react(el, 't-wiggle', 600); Kit.sfx.ding();
+    }
+  }
+  // little pictures for the stars and ticks
+  const STAR = '<svg class="badge" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"><path d="M20 3l5 11 12 1.3-9 8.2 2.6 11.9L20 29.2 9.4 35.4 12 23.5 3 15.3 15 14z" fill="#ffd23f" stroke="#3a2d52" stroke-opacity=".55" stroke-width="2.5" stroke-linejoin="round"/><circle cx="16" cy="19" r="1.8" fill="#3a2a2a"/><circle cx="24" cy="19" r="1.8" fill="#3a2a2a"/><path d="M17 23.5q3 2.5 6 0" stroke="#3a2a2a" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg>';
+  const TICK = '<svg class="badge" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"><circle cx="20" cy="20" r="17" fill="#4ade80" stroke="#3a2d52" stroke-opacity=".5" stroke-width="2.5"/><path d="M11 21l6 6 12-13" stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
   const save = Kit.store('letter-trace');
   const saved = save.get({ done: [], small: [] });
   const isDone = ch => saved.done.includes(ch) && saved.small.includes(ch);
-  const show = id => document.querySelectorAll('.screen').forEach(s => s.classList.toggle('on', s.id === id));
+  const show = id => { document.querySelectorAll('.screen').forEach(s => s.classList.toggle('on', s.id === id)); $('pickProps').classList.toggle('on', id === 'pick'); };
 
   // ---------- picker ----------
   Kit.title('title', 'Letter Trace');
@@ -235,7 +391,7 @@
     const b = document.createElement('button');
     const both = isDone(ch), one = saved.done.includes(ch) || saved.small.includes(ch);
     b.className = 'btn tile' + (big ? ' big' : '') + (both ? ' done' : one ? ' half' : '');
-    b.innerHTML = glyphs(ch + ch.toLowerCase(), { color: big ? '#db2777' : '#4f46e5', width: 16 }) + (both ? '<span class="st">⭐</span>' : '');
+    b.innerHTML = glyphs(ch + ch.toLowerCase(), { color: big ? '#db2777' : '#4f46e5', width: 16 }) + (both ? '<span class="st">' + STAR + '</span>' : '');
     b.setAttribute('aria-label', ch);
     b.onclick = () => { Kit.sfx.pop(); open(ch); };
     return b;
@@ -245,7 +401,7 @@
     $('nameRow').style.display = NAME.length ? '' : 'none';
     $('alphabet').innerHTML = ''; Object.keys(BIG).forEach(ch => $('alphabet').appendChild(tile(ch)));
   }
-  paintPicker();
+  paintPicker(); layoutPick();
   Kit.say(saved.done.length ? 'lt.pick' : 'lt.intro');
 
   // ---------- one letter: big, then small, then a question, then a word ----------
@@ -257,6 +413,7 @@
     ink = INKS[Object.keys(BIG).indexOf(ch) % INKS.length];
     show('trace');
     startStage('big');
+    layoutTrace();
   }
   function startStage(s) {
     stage = s;
@@ -272,7 +429,7 @@
   }
   function paintPair() {
     const done = { big: ['small', 'quiz', 'word'].includes(stage), small: ['quiz', 'word'].includes(stage) };
-    const chip = (ch, key) => `<div class="chip ${stage === key ? 'now' : ''}">${glyphs(ch, { color: stage === key || done[key] ? ink : '#cbd5e1', width: 15 })}${done[key] ? '<span class="ok">✅</span>' : ''}</div>`;
+    const chip = (ch, key) => `<div class="chip ${stage === key ? 'now' : ''}">${glyphs(ch, { color: stage === key || done[key] ? ink : '#cbd5e1', width: 15 })}${done[key] ? '<span class="ok">' + TICK + '</span>' : ''}</div>`;
     $('pair').innerHTML = chip(letter, 'big') + '<span class="arrow">→</span>' + chip(letter.toLowerCase(), 'small');
   }
 
@@ -385,7 +542,7 @@
     const next = order.find(k => !isDone(k)) || order[(order.indexOf(letter) + 1) % order.length];
     open(next);
   };
-  $('backBtn').onclick = () => { Kit.sfx.pop(); paintPicker(); show('pick'); };
+  $('backBtn').onclick = () => { Kit.sfx.pop(); paintPicker(); show('pick'); layoutPick(); };
 })();
 </script>
 </body>

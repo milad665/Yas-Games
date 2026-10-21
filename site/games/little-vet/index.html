@@ -13,17 +13,31 @@
 <link rel="stylesheet" href="/shared/kit.css">
 <title>Little Vet</title>
 <style>
-  body { background: linear-gradient(#dcfce7 0%, #ecfeff 60%, #bae6fd 60%, #93c5fd 100%); }
+  body { background: #dcf5ec; }
+  .layer { position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 0; }
+  #wall, #room, #tools { position: relative; z-index: 1; }
+  /* clinic decorations (drawn below with Scenery.add) */
+  .lv-min { animation: lv-turn 12s linear infinite; }
+  .lv-hour { animation: lv-turn 144s linear infinite; }
+  .sc-prop.t-fast .lv-min { animation-duration: .4s; }
+  .sc-prop.t-fast .lv-hour { animation-duration: 3s; }
+  @keyframes lv-turn { to { transform: rotate(360deg); } }
+  .lv-beat { animation: lv-beat 1.4s ease-in-out infinite; }
+  @keyframes lv-beat { 0%, 40%, 100% { transform: scale(1); } 15% { transform: scale(1.08); } 28% { transform: scale(.97); } }
+  .lv-glint { animation: lv-glint 2.2s ease-in-out infinite; }
+  @keyframes lv-glint { 50% { opacity: .55; } }
   #clinic { flex-direction: column; align-items: center; padding: max(14px, env(safe-area-inset-top)) 14px max(12px, env(safe-area-inset-bottom)); gap: 1vh; }
-  #wall { margin-top: 4px; font-size: 30px; background: rgba(255,255,255,.75); border-radius: 999px; padding: 4px 18px; min-height: 48px; max-width: 60vw; text-align: center; }
-  .deco { position: absolute; translate: -50% -50%; line-height: 1; pointer-events: none; }
-  #room { flex: 1; min-height: 0; width: 100%; position: relative; display: grid; place-items: center; }
-  #table { position: absolute; bottom: 4%; left: 50%; translate: -50% 0; width: min(70vw, 560px); height: 7vh; background: #e2e8f0; border-radius: 20px; box-shadow: 0 10px 0 #94a3b8; }
+  #wall { margin-top: 4px; font-size: 30px; background: rgba(255,255,255,.8); border-radius: 999px; padding: 4px 18px; min-height: 48px; max-width: 60vw; text-align: center; }
+  #room { flex: 1; min-height: 0; width: 100%; position: relative; display: grid; place-items: center; pointer-events: none; } /* lets taps reach the decorations beside it */
+  /* the exam table: a padded top with a paper sheet, on two legs */
+  #table { position: absolute; bottom: 4%; left: 50%; translate: -50% 0; width: min(70vw, 560px); height: 7vh; background: linear-gradient(#a8ecff 0 60%, #72cdf0 60%); border-radius: 20px; box-shadow: 0 0 0 4px rgba(58,45,82,.45), 0 8px 0 4px rgba(58,45,82,.12); }
+  #table::before { content: ''; position: absolute; left: 10%; right: 10%; top: 16%; height: 30%; background: #fff; border-radius: 6px; opacity: .9; }
+  #table::after { content: ''; position: absolute; left: 14%; right: 14%; top: calc(100% + 4px); height: 3vh; border-left: 14px solid #9aa8c4; border-right: 14px solid #9aa8c4; }
   #patient { position: relative; width: min(46vh, 60vw); aspect-ratio: 1; margin-bottom: 7vh; }
   #patient.arrive { animation: arrive .9s cubic-bezier(.3,1.4,.5,1); }
   @keyframes arrive { from { transform: translateX(-120vw) rotate(-20deg); } }
   #patient.leave { transition: transform .9s ease-in; transform: translateX(130vw) rotate(15deg); }
-  #animal { position: absolute; inset: 0; display: grid; place-items: center; font-size: min(36vh, 46vw); line-height: 1; transition: filter .4s; }
+  #animal { position: absolute; inset: 0; display: grid; place-items: center; font-size: min(36vh, 46vw); line-height: 1; transition: filter .4s; filter: drop-shadow(0 8px 4px rgba(40,50,90,.18)); }
   #animal.happy { animation: kit-bob .6s ease-in-out 3; }
   #animal.no { animation: kit-shake .45s; }
   #animal.droopy { transform: rotate(-8deg) translateY(4%); }
@@ -36,6 +50,7 @@
   #tools { display: grid; grid-template-columns: repeat(6, auto); gap: 10px; background: rgba(255,255,255,.7); padding: 10px 14px; border-radius: 28px; }
   .tool { width: 76px; height: 76px; border-radius: 22px; background: #fff; font-size: 44px; display: grid; place-items: center; touch-action: none; cursor: grab; box-shadow: 0 4px 0 rgba(0,0,0,.12); }
   .tool.glow { box-shadow: 0 4px 0 rgba(0,0,0,.12), 0 0 0 5px #fde047; animation: kit-pulse 1s infinite; }
+  @media (max-width: 560px) { #tools { gap: 6px; padding: 8px 10px; } .tool { width: 52px; height: 52px; font-size: 30px; border-radius: 16px; } }
   .ghost { position: fixed; z-index: 60; font-size: 70px; line-height: 1; pointer-events: none; filter: drop-shadow(0 10px 8px rgba(0,0,0,.25)); }
 </style>
 </head>
@@ -44,8 +59,8 @@
 <section id="clinic" class="screen on">
   <a class="btn corner left" href="../../" aria-label="Back to Yas's Games">🏠</a>
   <button id="soundBtn" class="btn corner right" aria-label="Sound on or off">🔊</button>
-  <div class="deco" style="left:9%;top:24%;font-size:9vmin">🏥</div>
-  <div class="deco" style="left:91%;top:26%;font-size:8vmin">🪴</div>
+  <div id="backdrop" class="layer"></div>
+  <div id="decor" class="layer"></div>
   <div id="wall"></div>
   <div id="room"><div id="table"></div><div id="patient"><div id="animal"></div></div></div>
   <div id="tools"></div>
@@ -55,6 +70,7 @@
 <script src="/shared/voice.js"></script>
 <script src="/shared/saved.js"></script>
 <script src="/shared/kit.js"></script>
+<script src="/shared/scenery.js"></script>
 <script>
 (() => {
   const { $, rand, pick, shuffle, sleep } = Kit;
@@ -183,6 +199,77 @@
     await sleep(900);
     admit(false);
   }
+
+  // ---------- the clinic around the table (see /shared/scenery.js) ----------
+  const { face, ol, sky } = Scenery.kit;
+  const paw = (x, y, k, c) => `<g fill="${c}"><ellipse cx="${x}" cy="${y}" rx="${7 * k}" ry="${6 * k}"/>` +
+    [[-8, -8], [-3, -12], [3, -12], [8, -8]].map(([dx, dy]) => `<circle cx="${x + dx * k}" cy="${y + dy * k}" r="${2.8 * k}"/>`).join('') + `</g>`;
+  Scenery.addBackdrop('vet', ['#d6f5e8', '#eefcf5'], () => sky('vet') +
+    Array.from({ length: 18 }, (_, i) => { const r = Math.floor(i / 6), c = i % 6; return paw(70 + c * 170 + (r % 2) * 85, 90 + r * 150, 2, '#c2ecd9'); }).join('') +
+    `<rect y="556" width="1000" height="160" fill="#bfe6f2"/>` +
+    Array.from({ length: 10 }, (_, i) => `<rect x="${i * 100 + 12}" y="582" width="76" height="110" rx="8" fill="none" stroke="#a4d6e8" stroke-width="5"/>`).join('') +
+    `<rect y="546" width="1000" height="16" fill="#fff"/>` +
+    `<rect y="715" width="1000" height="285" fill="#e8f0f9"/>` +
+    Array.from({ length: 25 }, (_, i) => { const r = Math.floor(i / 5), c = i % 5; return `<rect x="${c * 200 + (r % 2) * 100}" y="${715 + r * 57}" width="100" height="57" fill="#d4e3f3"/>`; }).join('') +
+    `<ellipse cx="500" cy="860" rx="380" ry="90" fill="#fff" opacity=".35"/><rect y="708" width="1000" height="14" fill="#fff"/>`);
+  // a cat-eared wall clock with turning hands
+  Scenery.add('lv-clock', () => [120, 120,
+    `<path d="M24 34 L18 4 L46 20Z M96 34 L102 4 L74 20Z" fill="#ff8fb5" ${ol()}/>` +
+    `<circle cx="60" cy="64" r="52" fill="#ff8fb5" ${ol()}/><circle cx="60" cy="64" r="42" fill="#fff"/>` +
+    Array.from({ length: 12 }, (_, i) => `<circle cx="${(60 + Math.sin(i * Math.PI / 6) * 34).toFixed(1)}" cy="${(64 - Math.cos(i * Math.PI / 6) * 34).toFixed(1)}" r="${i % 3 ? 2 : 3.5}" fill="#c0b4d8"/>`).join('') +
+    `<g class="lv-hour" style="transform-origin:60px 64px"><rect x="57" y="44" width="6" height="23" rx="3" fill="#3a2d52"/></g>` +
+    `<g class="lv-min" style="transform-origin:60px 64px"><rect x="58.5" y="32" width="3" height="35" rx="1.5" fill="#ff4d6d"/></g>` +
+    `<circle cx="60" cy="64" r="5" fill="#ffd23f"/>`]);
+  // a glass medicine cabinet with a red cross on top
+  Scenery.add('lv-cabinet', () => [170, 230,
+    `<rect x="10" y="34" width="150" height="190" rx="12" fill="#fff" ${ol()}/><rect x="22" y="48" width="126" height="164" rx="6" fill="#d6f3ff"/>` +
+    `<rect x="22" y="100" width="126" height="6" fill="#9fd8ee"/><rect x="22" y="156" width="126" height="6" fill="#9fd8ee"/>` +
+    `<rect x="30" y="70" width="16" height="30" rx="4" fill="#ff8a8a" ${ol(2)}/><rect x="33" y="64" width="10" height="8" rx="2" fill="#fff" ${ol(1.5)}/>` +
+    `<circle cx="66" cy="88" r="12" fill="#ffd23f" ${ol(2)}/><rect x="90" y="66" width="16" height="34" rx="6" fill="#8ad4ff" ${ol(2)}/><rect x="114" y="78" width="24" height="22" rx="5" fill="#c49bff" ${ol(2)}/>` +
+    `<rect x="30" y="126" width="40" height="30" rx="4" fill="#7ad6a0" ${ol(2)}/><path d="M50 132 v18 M41 141 h18" stroke="#fff" stroke-width="5"/>` +
+    `<rect x="98" y="122" width="14" height="34" rx="4" fill="#ff9a3c" ${ol(2)}/><rect x="118" y="130" width="20" height="26" rx="6" fill="#ff8fb5" ${ol(2)}/>` +
+    `<circle cx="42" cy="196" r="13" fill="#fff" ${ol(2)}/><circle cx="42" cy="196" r="5" fill="#ffd8a8"/><circle cx="74" cy="196" r="13" fill="#fff" ${ol(2)}/><circle cx="74" cy="196" r="5" fill="#ffd8a8"/>` +
+    `<rect x="100" y="180" width="38" height="30" rx="5" fill="#ffd8a8" ${ol(2)}/>` +
+    `<path d="M85 48 V212" stroke="#fff" stroke-width="5"/><circle cx="78" cy="130" r="4" fill="#ffd23f"/><circle cx="92" cy="130" r="4" fill="#ffd23f"/>` +
+    `<path class="lv-glint" d="M28 54 H50 L28 84Z" fill="#fff" opacity=".7"/>` +
+    `<circle cx="85" cy="24" r="21" fill="#fff" ${ol()}/><path d="M79 12 h12 v6 h6 v12 h-6 v6 h-12 v-6 h-6 v-12 h6Z" fill="#ff4d6d"/>`]);
+  // a poster: a happy heart with a plaster, gently beating
+  Scenery.add('lv-poster', () => [130, 160,
+    `<rect x="8" y="10" width="114" height="142" rx="8" fill="#fffaf0" ${ol()}/><rect x="48" y="3" width="34" height="14" rx="3" fill="#ffe08a" opacity=".9" transform="rotate(-6 65 10)"/>` +
+    `<g class="lv-beat" style="transform-origin:65px 84px"><path d="M65 122 C20 92 22 50 46 48 C58 47 64 56 65 62 C66 56 72 47 84 48 C108 50 110 92 65 122Z" fill="#ff6b8a" ${ol()}/>` +
+    face(65, 84, .55) + `<rect x="74" y="56" width="34" height="13" rx="6" fill="#ffd8a8" ${ol(2)} transform="rotate(35 91 62)"/></g>` +
+    paw(30, 142, .8, '#ffb3c6') + paw(100, 140, .8, '#ffb3c6')]);
+  // a big leafy plant in a pot
+  Scenery.add('lv-plant', () => {
+    const leaf = (tx, ty, c) => { const bx = 75, by = 178, mx = (bx + tx) / 2, my = (by + ty) / 2, dx = tx - bx, dy = ty - by, L = Math.hypot(dx, dy), px = -dy / L * 20, py = dx / L * 20;
+      return `<path d="M${bx} ${by} Q${(mx + px).toFixed(1)} ${(my + py).toFixed(1)} ${tx} ${ty} Q${(mx - px).toFixed(1)} ${(my - py).toFixed(1)} ${bx} ${by}Z" fill="${c}" ${ol()}/>` +
+        `<path d="M${bx} ${by} L${(bx + dx * .8).toFixed(1)} ${(by + dy * .8).toFixed(1)}" stroke="#8ee08a" stroke-width="3" opacity=".7"/>`; };
+    return [150, 250, `<g class="sc-sway-soft" style="transform-origin:75px 180px">` +
+      leaf(18, 96, '#3fa34d') + leaf(132, 100, '#3fa34d') + leaf(40, 50, '#4fb84a') + leaf(112, 52, '#4fb84a') + leaf(76, 22, '#5fc85a') + `</g>` +
+      `<path d="M40 182 H110 L100 246 H50Z" fill="#ff9a6a" ${ol()}/><rect x="34" y="172" width="82" height="18" rx="7" fill="#ff8a5a" ${ol()}/>` +
+      paw(75, 222, 1.1, '#ffd0b0')];
+  });
+  // props: art, x %, y %, height (% of the short side), extra settings
+  const P = (art, x, y, h, o = {}) => ({ art, x, y, h, ...o });
+  const PROPS = [P('lv-clock', 21, 21, 13, { at: 'center', tap: 'tick' }), P('lv-cabinet', 10, 46, 26, { at: 'center', tap: 'clink' }),
+    P('lv-poster', 87, 30, 18, { at: 'center', tap: 'wiggle' }), P('lv-plant', 91, 75, 26, { tap: 'rustle' })];
+  function tapDecor(el) {
+    const react = (cls, ms) => Scenery.react(el, cls, ms);
+    switch (el.dataset.tap) {
+      case 'tick': react('t-fast', 1600); [0, 1, 2, 3].forEach(i => Kit.tone(i % 2 ? 1300 : 1700, .05, { type: 'square', vol: .05, delay: i * .18 })); break;
+      case 'clink': react('t-boing', 600); [0, 1].forEach(i => Kit.tone(1900 + i * 500, .12, { type: 'triangle', vol: .08, delay: i * .1 })); break;
+      case 'rustle': react('t-wiggle', 600); [0, 1, 2].forEach(i => Kit.tone(1800 + i * 300, .06, { type: 'sawtooth', vol: .025, to: 1200, delay: i * .05 })); break;
+      default: react('t-wiggle', 600); Kit.sfx.boing();
+    }
+  }
+  function layout() {
+    const d = $('decor'); d.innerHTML = '';
+    Scenery.place(d, PROPS, innerWidth, innerHeight).forEach(el => { if (el.dataset.tap) el.addEventListener('pointerdown', () => tapDecor(el)); });
+  }
+  $('backdrop').innerHTML = Scenery.backdrop('vet');
+  layout();
+  let resizeT = 0;
+  addEventListener('resize', () => { clearTimeout(resizeT); resizeT = setTimeout(layout, 200); });
 
   Kit.soundButton('soundBtn');
   paintWall();
