@@ -7,7 +7,7 @@ donate button and search-engine friendly pages. See [docs/public-site.md](docs/p
 
 | Game | What it is |
 | --- | --- |
-| **Magic Doodles** | Draw anything with your finger, tap ✨, and it comes alive with googly eyes and hops, flies, swims, floats or crawls around one of five worlds. |
+| **Magic Doodles** | Draw anything with your finger, tap ✨, and it comes alive with googly eyes and hops, flies, swims, floats, crawls, rolls or bounces around one of ten animated cartoon worlds. Tap the scenery (the volcano erupts, the rocket launches, the cow moos), drop treats, throw a dance party, or sweep everyone away with 🧹 (↩️ brings them back). |
 | **Beep Boop Robot** | Build your own robot, then program it with arrow cards to reach its battery: 64 levels in six worlds that add gears to collect, keys and doors, teleporting swirls and a repeat card. Teaches sequencing, loops and debugging (`node tools/check-robot-levels.mjs` checks every level). |
 | **Music Painter** | Colors are instruments and height is pitch: paint a picture, press play, and it becomes a song. |
 | **Story Theater** | Pick a stage, drag on characters and props, tap them to act, and film a story with her own voice. |
@@ -43,6 +43,7 @@ site/                     ← everything that gets served
   shared/kit.js, kit.css  ← common buttons, sounds, sparkles and saving for games
   shared/saved.js         ← photos and drawings kept on the device (IndexedDB)
   shared/robot.js         ← the robot drawing used by the robot games
+  shared/scenery.js       ← animated cartoon backdrops and props (SVG) any game can use
   voice/                  ← recorded clips (made by tools/record-voice.mjs)
   games/
     magic-doodles/index.html

@@ -39,12 +39,12 @@
   #home h1 span { display: inline-block; animation: wave 2.4s ease-in-out infinite; }
   @keyframes wave { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-10px) } }
   #worldPicks {
-    position: absolute; inset: 140px 20px 20px; display: flex; flex-wrap: wrap;
+    position: absolute; inset: 130px 20px 20px; display: flex; flex-wrap: wrap;
     align-content: center; justify-content: center; gap: clamp(18px, 3vw, 40px);
   }
   .worldPick {
-    width: clamp(140px, 22vw, 200px); height: clamp(140px, 22vw, 200px); border-radius: 50%;
-    border: 7px solid #fff; font-size: clamp(64px, 10vw, 96px); cursor: pointer;
+    width: clamp(110px, 15vw, 172px); height: clamp(110px, 15vw, 172px); border-radius: 50%;
+    border: 7px solid #fff; font-size: clamp(52px, 7.5vw, 84px); cursor: pointer;
     box-shadow: 0 10px 0 rgba(0,0,0,.15), 0 14px 26px rgba(0,0,0,.15);
     display: grid; place-items: center; animation: bob 3s ease-in-out infinite; touch-action: manipulation;
   }
@@ -54,47 +54,36 @@
   #hubBtn { position: absolute; top: max(16px, env(safe-area-inset-top)); left: 16px; width: 64px; height: 64px; font-size: 32px; text-decoration: none; }
 
   /* ---------- worlds ---------- */
-  #world { overflow: hidden; }
-  .bg-meadow {
-    background:
-      radial-gradient(ellipse 60% 22% at 18% 78%, #84d968 99%, transparent 100%),
-      radial-gradient(ellipse 70% 26% at 88% 80%, #74cf58 99%, transparent 100%),
-      linear-gradient(#8fd3ff 0%, #d9f3ff 66%, #62bd4c 66%, #4fa83b 100%);
-  }
-  .bg-castle {
-    background:
-      radial-gradient(ellipse 80% 20% at 50% 88%, #b8f0c0 99%, transparent 100%),
-      linear-gradient(#ffb3d9 0%, #d7c2ff 60%, #a6e8b4 72%, #8fd9a0 100%);
-  }
-  .bg-ocean {
-    background:
-      radial-gradient(ellipse 90% 14% at 50% 100%, #f2d08f 99%, transparent 100%),
-      linear-gradient(#6fd6ff 0%, #2b8fd6 55%, #1a5fa8 100%);
-  }
-  .bg-space { background: radial-gradient(circle at 30% 25%, #4a2f8f 0%, #1a1550 45%, #070a24 100%); }
-  .bg-dino {
-    background:
-      radial-gradient(ellipse 70% 22% at 25% 80%, #a6d66b 99%, transparent 100%),
-      linear-gradient(#ffcf70 0%, #ffad6b 62%, #8cc65a 62%, #6aa743 100%);
-  }
+  #world { overflow: hidden; background: #8fd3ff; }
   .layer { position: absolute; inset: 0; }
   #decor { pointer-events: none; }
-  .deco { position: absolute; transform: translate(-50%, -50%); line-height: 1; }
-  .a-spin-slow { animation: spin 40s linear infinite; }
-  .a-drift { animation: drift 18s ease-in-out infinite alternate; }
-  .a-twinkle { animation: twinkle 1.8s ease-in-out infinite; }
-  .a-sway { animation: sway 3s ease-in-out infinite; transform-origin: 50% 100%; }
-  .a-bob { animation: bob 5s ease-in-out infinite; }
-  @keyframes spin { to { rotate: 360deg } }
-  @keyframes drift { to { translate: 12vw 0 } }
-  @keyframes twinkle { 0%,100% { opacity: 1; scale: 1 } 50% { opacity: .3; scale: .7 } }
-  @keyframes sway { 0%,100% { rotate: -8deg } 50% { rotate: 8deg } }
-  .star { position: absolute; width: 4px; height: 4px; border-radius: 50%; background: #fff; animation: twinkle 2s ease-in-out infinite; }
-  .bubble {
-    position: absolute; bottom: -40px; border-radius: 50%; border: 3px solid rgba(255,255,255,.7);
-    background: rgba(255,255,255,.15); animation: rise linear infinite;
+  #critters { pointer-events: none; }
+  #critters .creature { pointer-events: auto; }
+  #fx { pointer-events: none; z-index: 4; }
+  .fxdot { position: fixed; left: 0; top: 0; pointer-events: none; z-index: 50; border-radius: 50%; }
+  .treat { position: absolute; left: 0; top: 0; font-size: 44px; line-height: 1; pointer-events: none; translate: -50% -50%; filter: drop-shadow(0 4px 2px rgba(0,0,0,.25)); }
+  #disco {
+    position: absolute; inset: -50%; pointer-events: none; z-index: 3; opacity: 0; transition: opacity .6s;
+    background: conic-gradient(from 0deg, rgba(255,80,160,.35), rgba(255,220,60,.05), rgba(80,200,255,.35), rgba(140,255,120,.05), rgba(190,100,255,.35), rgba(255,160,60,.05), rgba(255,80,160,.35));
+    mix-blend-mode: screen; animation: spin 6s linear infinite;
   }
-  @keyframes rise { to { transform: translateY(-115vh); } }
+  #disco.on { opacity: 1; }
+  .worldPick { position: relative; overflow: hidden; padding: 0; }
+  .worldPick .thumb { position: absolute; inset: 0; }
+  .worldPick .icon { position: relative; filter: drop-shadow(0 4px 3px rgba(0,0,0,.25)); }
+  @keyframes spin { to { rotate: 360deg } }
+  @keyframes sway { 0%,100% { rotate: -8deg } 50% { rotate: 8deg } }
+
+  #tools { position: absolute; top: max(16px, env(safe-area-inset-top)); right: max(16px, env(safe-area-inset-right)); display: flex; gap: 14px; z-index: 5; }
+  #tools .btn { width: 72px; height: 72px; font-size: 36px; }
+  .btn.t-wiggle { animation: shake .4s; }
+  #partyBtn.on { background: linear-gradient(135deg, #ffe066, #ff8ad8, #8ad4ff); }
+  #backBtn {
+    position: absolute; left: 24px; bottom: max(24px, env(safe-area-inset-bottom)); z-index: 5;
+    width: 100px; height: 100px; font-size: 52px; background: #ffe14d; display: none;
+  }
+  #backBtn.show { display: grid; animation: nudge 1.2s ease-in-out infinite; }
+  .broom { position: absolute; left: 0; z-index: 6; pointer-events: none; font-size: 160px; line-height: 1; }
 
   .creature { position: absolute; left: 0; top: 0; will-change: transform; touch-action: none; }
   .creature .body { width: 100%; height: 100%; position: relative; will-change: transform; }
@@ -179,6 +168,9 @@
   .m-swim span { animation: sway 1.6s ease-in-out infinite; }
   .m-float span { animation: spin 4s linear infinite; }
   .m-crawl span { animation: mcrawl 1s ease-in-out infinite; }
+  .m-roll span { animation: spin 1.2s linear infinite; }
+  .m-bounce span { animation: mbounce .7s cubic-bezier(.5,0,.5,1) infinite alternate; }
+  @keyframes mbounce { from { translate: 0 -18px } to { translate: 0 8px; scale: 1.1 .9 } }
   @keyframes mhop { 0%,100% { translate: 0 0 } 50% { translate: 0 -16px } }
   @keyframes mfly { 0%,100% { translate: -8px 4px } 50% { translate: 8px -8px } }
   @keyframes mcrawl { 0%,100% { scale: 1 1 } 50% { scale: 1.2 .85 } }
@@ -196,9 +188,18 @@
 
 <!-- WORLD -->
 <section id="world" class="screen">
+  <div id="backdrop" class="layer"></div>
   <div id="decor" class="layer"></div>
   <div id="critters" class="layer"></div>
+  <div id="fx" class="layer"></div>
+  <div id="disco"></div>
   <button id="homeBtn" class="btn" aria-label="Home">🏠</button>
+  <div id="tools">
+    <button id="treatBtn" class="btn" aria-label="Give a treat">🍪</button>
+    <button id="partyBtn" class="btn" aria-label="Dance party">🎶</button>
+    <button id="cleanBtn" class="btn" aria-label="Clean up">🧹</button>
+  </div>
+  <button id="backBtn" class="btn" aria-label="Bring them back">↩️</button>
   <button id="pencilBtn" class="btn" aria-label="Draw">✏️</button>
   <div id="trash">🗑️</div>
 </section>
@@ -228,24 +229,62 @@
 <script src="/shared/lines.js"></script>
 <script src="/shared/voice.js"></script>
 <script src="/shared/saved.js"></script>
+<script src="/shared/scenery.js"></script>
 <script>
 (() => {
   // ================= data =================
+  // props: [art, x%, y%, height (% of the short side), extra settings]; see /shared/scenery.js
+  const P = (art, x, y, h, o = {}) => ({ art, x, y, h, ...o });
   const WORLDS = {
-    meadow: { icon: '🐰', bg: '#9de07f', say: 'md.meadow', move: 'hop', ground: .9,
-      decor: [['☀️',85,11,90,'spin-slow'],['☁️',14,12,80,'drift'],['☁️',52,8,60,'drift'],['🌳',90,58,140],
-              ['🌷',8,82,46],['🌼',30,92,40],['🍄',64,88,42],['🌻',46,76,52],['🦋',70,30,34,'bob']] },
-    castle: { icon: '🏰', bg: '#e3c8ff', say: 'md.castle', move: 'fly', ground: .92,
-      decor: [['🏰',50,42,230],['🌈',14,18,110],['✨',82,14,40,'twinkle'],['✨',30,32,30,'twinkle'],
-              ['⭐',66,9,36,'twinkle'],['🌸',8,90,46],['🌸',92,92,46],['🦄',80,72,70,'bob']] },
-    ocean:  { icon: '🐠', bg: '#5ec4f2', say: 'md.ocean', move: 'swim', ground: .94, bubbles: true,
-      decor: [['🪸',8,88,90],['🌿',24,86,80,'sway'],['🐚',44,95,44],['🪸',80,87,100],['🌿',93,84,72,'sway'],['⭐',62,95,40],['🐙',70,70,60,'bob']] },
-    space:  { icon: '🚀', bg: '#3b2a7a', say: 'md.space', move: 'float', ground: .92, stars: true,
-      decor: [['🪐',82,20,110,'bob'],['🌙',14,15,90],['🌍',62,78,80,'spin-slow'],['☄️',36,24,50,'drift'],['🛸',20,70,60,'bob']] },
-    dino:   { icon: '🦕', bg: '#ffc06b', say: 'md.dino', move: 'hop', ground: .9,
-      decor: [['🌋',74,48,210],['🌴',9,60,130],['🌴',93,64,110],['🥚',40,90,40],['🦴',58,94,40],['☁️',30,12,70,'drift'],['🦖',24,76,70,'bob']] },
+    meadow: { icon: '🐰', say: 'md.meadow', move: 'hop', ground: .9,
+      props: [P('sun', 86, 14, 24, { at: 'center', tap: 'spin' }), P('cloud', 16, 13, 14, { at: 'center', anim: 'drift', tap: 'rain' }),
+              P('cloud', 54, 9, 10, { at: 'center', anim: 'drift', tap: 'rain' }), P('fence', 26, 80, 11), P('bush', 6, 82, 12),
+              P('tree', 88, 82, 52, { tap: 'apple' }), P('flower', 8, 93, 14, { tap: 'bloom' }), P('flower', 32, 96, 11, { args: ['#ffd23f', '#ff8a3c'], tap: 'bloom' }),
+              P('mushroom', 48, 93, 9, { tap: 'boing' }), P('flower', 66, 95, 12, { args: ['#b07aff'], tap: 'bloom' }),
+              P('butterfly', 68, 34, 7, { at: 'center', anim: 'flutter' })] },
+    castle: { icon: '🏰', say: 'md.castle', move: 'fly', ground: .92,
+      props: [P('rainbow', 16, 26, 26, { at: 'center' }), P('cloud', 84, 13, 12, { at: 'center', anim: 'drift', args: ['#fff0fa', '#ffd6ee'], tap: 'rain' }),
+              P('castle', 52, 82, 60, { tap: 'fireworks' }), P('blossom', 90, 88, 34, { tap: 'wiggle' }),
+              P('sparkle', 80, 30, 5, { at: 'center', anim: 'twinkle' }), P('sparkle', 28, 46, 4, { at: 'center', anim: 'twinkle' }), P('sparkle', 66, 10, 5, { at: 'center', anim: 'twinkle' }),
+              P('flower', 8, 94, 12, { args: ['#ff8ad8'], tap: 'bloom' }), P('flower', 24, 96, 10, { args: ['#fff3a0'], tap: 'bloom' }),
+              P('butterfly', 30, 60, 6, { at: 'center', anim: 'flutter', args: ['#ffd23f', '#ff6fb5'] })] },
+    ocean: { icon: '🐠', say: 'md.ocean', move: 'swim', ground: .94, extras: { bubbles: 16 },
+      props: [P('fish', 0, 26, 8, { at: 'center', anim: 'across', dur: 22 }), P('fish', 0, 52, 6, { at: 'center', anim: 'across', dur: 16, delay: -8, args: ['#7ad6ff', '#ffe14d'] }),
+              P('jellyfish', 82, 30, 15, { at: 'center', anim: 'bob', tap: 'boing' }), P('rock', 92, 97, 14),
+              P('seaweed', 6, 98, 30, { tap: 'wiggle' }), P('coral', 18, 98, 18), P('seaweed', 30, 99, 22, { args: ['#5ad08a'] }),
+              P('chest', 56, 98, 15, { tap: 'open' }), P('starfish', 42, 99, 8, { tap: 'spin' }), P('shell', 72, 99, 6, { tap: 'boing' }),
+              P('coral', 84, 99, 16, { args: ['#b07aff'] }), P('seaweed', 96, 99, 26, { tap: 'wiggle' })] },
+    space: { icon: '🚀', say: 'md.space', move: 'float', ground: .92, extras: { stars: 70, shooting: true },
+      props: [P('planet', 82, 22, 24, { at: 'center', anim: 'bob', tap: 'spin' }), P('moon', 14, 16, 18, { at: 'center', tap: 'boing' }),
+              P('earth', 66, 72, 17, { at: 'center', tap: 'spin' }), P('ufo', 42, 26, 18, { at: 'center', anim: 'bob', tap: 'beam' }),
+              P('rocket', 22, 94, 28, { tap: 'launch' })] },
+    dino: { icon: '🦕', say: 'md.dino', move: 'hop', ground: .9,
+      props: [P('cloud', 30, 12, 11, { at: 'center', anim: 'drift', tap: 'rain' }), P('ptero', 0, 22, 9, { at: 'center', anim: 'across', dur: 26 }),
+              P('volcano', 70, 78, 50, { tap: 'erupt' }), P('palm', 8, 84, 48, { tap: 'wiggle' }), P('palm', 95, 86, 40, { flip: true, tap: 'wiggle' }),
+              P('longneck', 34, 82, 32, { tap: 'roar' }), P('egg', 52, 95, 10, { tap: 'hatch' }), P('egg', 58, 96, 8, { args: ['#ffb3c6'], tap: 'hatch' })] },
+    jungle: { icon: '🐒', say: 'md.jungle', move: 'crawl', ground: .92,
+      props: [P('vine', 6, 0, 46, { at: 'top' }), P('vine', 22, 0, 30, { at: 'top' }), P('vine', 78, 0, 38, { at: 'top' }),
+              P('monkey', 38, 0, 46, { at: 'top', tap: 'monkey' }), P('waterfall', 62, 84, 64, { tap: 'splash' }),
+              P('parrot', 88, 44, 22, { at: 'center', tap: 'squawk' }), P('butterfly', 30, 60, 6, { at: 'center', anim: 'flutter', args: ['#ffd23f', '#3fd0ff'] }),
+              P('bigleaf', 4, 98, 30, { tap: 'wiggle' }), P('flower', 20, 96, 12, { args: ['#ff4d6d'], tap: 'bloom' }), P('bigleaf', 96, 99, 32, { flip: true, args: ['#3fae5a'], tap: 'wiggle' })] },
+    snow: { icon: '⛄', say: 'md.snow', move: 'roll', ground: .9, extras: { snow: 60 },
+      props: [P('pine', 8, 82, 38, { tap: 'wiggle' }), P('pine', 20, 78, 26), P('pine', 92, 80, 44, { tap: 'wiggle' }),
+              P('igloo', 72, 84, 22, { tap: 'peek' }), P('snowman', 40, 88, 32, { tap: 'hat' }), P('penguin', 58, 95, 11, { anim: 'patrol', tap: 'boing' })] },
+    candy: { icon: '🍭', say: 'md.candy', move: 'bounce', ground: .9,
+      props: [P('cloud', 30, 14, 12, { at: 'center', anim: 'drift', args: ['#ffd1ec', '#ffb3dd'], tap: 'sprinkle' }), P('cloud', 74, 9, 10, { at: 'center', anim: 'drift', args: ['#d8f6ff', '#b8e8ff'], tap: 'sprinkle' }),
+              P('lollipop', 10, 86, 42, { tap: 'spin' }), P('candycane', 26, 90, 24, { tap: 'wiggle' }), P('lollipop', 88, 84, 34, { args: ['#7ad6ff', '#fff3a0'], tap: 'spin' }),
+              P('cupcake', 70, 90, 22, { tap: 'cherry' }), P('gumdrop', 44, 96, 7, { anim: 'hop', tap: 'boing' }), P('gumdrop', 50, 97, 6, { anim: 'hop', delay: -.5, args: ['#ff6fb5'], tap: 'boing' }),
+              P('icecream', 36, 99, 16, { tap: 'boing' }), P('donut', 58, 98, 7, { tap: 'spin' })] },
+    farm: { icon: '🐄', say: 'md.farm', move: 'hop', ground: .9,
+      props: [P('sun', 50, 12, 16, { at: 'center', tap: 'spin' }), P('cloud', 20, 14, 11, { at: 'center', anim: 'drift', tap: 'rain' }),
+              P('barn', 22, 80, 42, { tap: 'loft' }), P('windmill', 86, 78, 52, { tap: 'fast' }), P('fence', 46, 80, 10),
+              P('hay', 40, 86, 9, { tap: 'boing' }), P('cow', 66, 90, 18, { tap: 'moo' }), P('chicken', 52, 96, 10, { tap: 'cluck' }),
+              P('sunflower', 6, 96, 26, { tap: 'bloom' })] },
+    camp: { icon: '⛺', say: 'md.camp', move: 'fly', ground: .9, extras: { stars: 60, fireflies: 14, shooting: true },
+      props: [P('moon', 68, 16, 18, { at: 'center', tap: 'boing' }), P('pine', 6, 86, 44, { args: ['#1e3a3a', false] }), P('pine', 95, 84, 50, { args: ['#1e3a3a', false] }),
+              P('owl', 88, 44, 20, { at: 'center', tap: 'hoot' }), P('tent', 26, 88, 28, { tap: 'peek' }), P('campfire', 56, 94, 18, { tap: 'flare' }), P('log', 72, 96, 7)] },
   };
-  const MOVES = { hop: '🐸', fly: '🦋', swim: '🐟', float: '🎈', crawl: '🐛' };
+  const MOVES = { hop: '🐸', fly: '🦋', swim: '🐟', float: '🎈', crawl: '🐛', roll: '🛞', bounce: '🏀' };
   const COLORS = ['#ff4d4d','#ff9f1c','#ffd60a','#4cd964','#2f9bff','#9b5cff','#ff6fb5','#8b5a2b','#222222','rainbow'];
   const SIZES = [8, 18, 34];
   const MAX_PER_WORLD = 15;
@@ -289,14 +328,14 @@
     if (ac.state === 'suspended') ac.resume();
     return ac;
   }
-  function tone(freq, dur, { type = 'sine', vol = .18, to = null, delay = 0 } = {}) {
+  function tone(freq, dur, { type = 'sine', vol = .18, to = null, delay = 0, attack = .01 } = {}) {
     if (muted) return;
     const a = audio(); if (!a) return;
     const t = a.currentTime + delay;
     const o = a.createOscillator(), g = a.createGain();
     o.type = type; o.frequency.setValueAtTime(freq, t);
     if (to) o.frequency.exponentialRampToValueAtTime(to, t + dur);
-    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vol, t + .01);
+    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vol, t + attack);
     g.gain.exponentialRampToValueAtTime(.001, t + dur);
     o.connect(g).connect(a.destination); o.start(t); o.stop(t + dur + .02);
   }
@@ -308,6 +347,27 @@
     giggle: (p = 1) => [0, 1, 2, 3].forEach(i => tone(700 * p + i * 40, .07, { type: 'square', vol: .06, to: 900 * p, delay: i * .08 })),
     poof: () => tone(500, .25, { type: 'sawtooth', vol: .08, to: 60 }),
     wipe: () => tone(900, .3, { type: 'sawtooth', vol: .05, to: 200 }),
+    rustle: () => [0, 1, 2].forEach(i => tone(1800 + i * 300, .06, { type: 'sawtooth', vol: .025, to: 1200, delay: i * .05 })),
+    rain: () => { for (let i = 0; i < 14; i++) tone(rand(1400, 2600), .05, { type: 'sine', vol: .05, to: 900, delay: .1 + i * .11 }); },
+    firework: () => { tone(300, .35, { type: 'triangle', vol: .08, to: 1400 }); tone(90, .3, { type: 'sawtooth', vol: .12, to: 40, delay: .33 }); },
+    launch: () => { tone(120, 1.3, { type: 'sawtooth', vol: .07, to: 900 }); tone(80, 1.2, { type: 'square', vol: .04, to: 300 }); },
+    beam: () => [0, 1, 2, 3, 4].forEach(i => tone(600 + i * 120, .5, { type: 'sine', vol: .06, to: 700 + i * 140, delay: i * .1 })),
+    boom: () => { tone(110, .8, { type: 'sawtooth', vol: .16, to: 35 }); tone(60, .9, { type: 'square', vol: .08, to: 30 }); },
+    cheep: () => [0, 1, 2].forEach(i => tone(2000, .08, { type: 'sine', vol: .12, to: 2800, delay: .2 + i * .14 })),
+    roar: () => { tone(160, .9, { type: 'sawtooth', vol: .12, to: 70 }); tone(240, .8, { type: 'square', vol: .04, to: 100 }); },
+    monkey: () => [0, 1, 2, 3].forEach(i => tone(500, .14, { type: 'square', vol: .06, to: 1100, delay: i * .17 })),
+    squawk: () => [0, 1].forEach(i => tone(1100, .16, { type: 'sawtooth', vol: .08, to: 1600, delay: i * .2 })),
+    splash: () => { tone(1500, .4, { type: 'triangle', vol: .08, to: 200 }); tone(900, .3, { type: 'sine', vol: .06, to: 300, delay: .08 }); },
+    snore: () => { tone(110, .9, { type: 'sawtooth', vol: .05, to: 140 }); tone(160, .8, { type: 'sine', vol: .08, to: 90, delay: 1 }); },
+    moo: () => { tone(150, .9, { type: 'sawtooth', vol: .1, to: 120, attack: .2 }); tone(225, .9, { type: 'triangle', vol: .05, to: 180, attack: .2 }); },
+    whoosh: () => tone(900, .5, { type: 'sawtooth', vol: .04, to: 120 }),
+    cluck: () => [0, 1, 2].forEach(i => tone(700, .07, { type: 'square', vol: .07, to: 450, delay: i * .12 })),
+    crackle: () => { for (let i = 0; i < 8; i++) tone(rand(300, 2000), .03, { type: 'square', vol: .05, delay: i * .06 }); },
+    hoot: () => [0, 1].forEach(i => tone(420, .35, { type: 'sine', vol: .16, to: 360, delay: i * .45, attack: .06 })),
+    nom: () => [0, 1, 2].forEach(i => tone(260 - i * 20, .09, { type: 'square', vol: .06, to: 160, delay: i * .14 })),
+    sweep: () => { tone(1200, .7, { type: 'sawtooth', vol: .035, to: 300 }); tone(800, .6, { type: 'sawtooth', vol: .03, to: 200, delay: .15 }); },
+    drop: () => tone(900, .25, { type: 'sine', vol: .12, to: 400 }),
+    hello: () => [0, 1].forEach(i => tone(880 + i * 330, .1, { type: 'triangle', vol: .08, delay: i * .1 })),
   };
   function say(...lines) { if (!muted) Voice.say(...lines); }
 
@@ -344,8 +404,8 @@
   });
   Object.entries(WORLDS).forEach(([key, w], i) => {
     const b = document.createElement('button');
-    b.className = 'worldPick bg-' + key;
-    b.textContent = w.icon;
+    b.className = 'worldPick';
+    b.innerHTML = '<div class="thumb">' + Scenery.backdrop(key) + '</div><span class="icon">' + w.icon + '</span>';
     b.style.animationDelay = (i * .4) + 's';
     b.setAttribute('aria-label', w.say);
     b.onclick = () => { sfx.pop(); enterWorld(key); };
@@ -365,10 +425,10 @@
     worldKey = key;
     const w = WORLDS[key];
     const world = $('world');
-    world.className = 'screen on bg-' + key;
     show('world');
     W = world.clientWidth; H = world.clientHeight;
     buildDecor(w);
+    endParty(); clearTreats(); hideUndo();
     $('critters').innerHTML = '';
     creatures = [];
     picsReady.then(() => {
@@ -380,29 +440,105 @@
   }
 
   function buildDecor(w) {
+    $('backdrop').innerHTML = Scenery.backdrop(worldKey);
     const d = $('decor'); d.innerHTML = '';
-    const vmin = Math.min(W, H) / 800;
-    if (w.stars) for (let i = 0; i < 70; i++) {
-      const s = document.createElement('div'); s.className = 'star';
-      s.style.left = rand(0, 100) + '%'; s.style.top = rand(0, 100) + '%';
-      s.style.animationDelay = rand(0, 2) + 's';
-      const sz = rand(2, 5); s.style.width = s.style.height = sz + 'px';
-      d.appendChild(s);
+    Scenery.extras(d, w.extras);
+    Scenery.place(d, w.props, W, H).forEach(el => {
+      if (el.dataset.tap) el.addEventListener('pointerdown', e => { e.stopPropagation(); tapProp(el); });
+    });
+  }
+
+  // ---------- tapping the scenery ----------
+  const R = el => el.getBoundingClientRect();
+  function dot(x, y, size, color, frames, opts) {
+    const el = document.createElement('div');
+    el.className = 'fxdot';
+    el.style.width = el.style.height = size + 'px';
+    el.style.background = color;
+    el.style.left = x - size / 2 + 'px'; el.style.top = y - size / 2 + 'px';
+    document.body.appendChild(el);
+    el.animate(frames, { fill: 'forwards', ...opts });
+    setTimeout(() => el.remove(), (opts.duration || 0) + (opts.delay || 0) + 50);
+    return el;
+  }
+  // something thrown up that falls back down (lava, coins, sprinkles)
+  function toss(x, y, n, colors, { size = [10, 20], up = [300, 600], side = 260, dur = 1300, shape = '50%' } = {}) {
+    for (let i = 0; i < n; i++) {
+      const vx = rand(-side, side), vy = -rand(up[0], up[1]), g = 1200, t = dur / 1000, frames = [];
+      for (let k = 0; k <= 10; k++) {
+        const tt = t * k / 10;
+        frames.push({ transform: `translate(${vx * tt}px, ${vy * tt + g * tt * tt / 2}px) rotate(${k * 40}deg)`, opacity: k < 8 ? 1 : 1 - (k - 7) / 3 });
+      }
+      const el = dot(x, y, rand(size[0], size[1]), pick(colors), frames, { duration: dur, delay: rand(0, 250), easing: 'linear' });
+      el.style.borderRadius = shape;
     }
-    if (w.bubbles) for (let i = 0; i < 16; i++) {
-      const b = document.createElement('div'); b.className = 'bubble';
-      const sz = rand(12, 34); b.style.width = b.style.height = sz + 'px';
-      b.style.left = rand(0, 100) + '%';
-      b.style.animationDuration = rand(7, 14) + 's'; b.style.animationDelay = -rand(0, 14) + 's';
-      d.appendChild(b);
+  }
+  function sparkleRing(x, y, colors, n = 16, dist = 120) {
+    for (let i = 0; i < n; i++) {
+      const a = i / n * Math.PI * 2, r = rand(dist * .7, dist);
+      dot(x, y, rand(8, 14), pick(colors), [{ transform: 'translate(0,0) scale(1)', opacity: 1 }, { transform: `translate(${Math.cos(a) * r}px, ${Math.sin(a) * r}px) scale(.3)`, opacity: 0 }],
+        { duration: 900, easing: 'cubic-bezier(.2,.8,.3,1)' });
     }
-    for (const [emo, x, y, size, anim] of w.decor) {
-      const e = document.createElement('div');
-      e.className = 'deco' + (anim ? ' a-' + anim : '');
-      e.textContent = emo;
-      e.style.left = x + '%'; e.style.top = y + '%';
-      e.style.fontSize = Math.round(size * Math.max(.7, vmin)) + 'px';
-      d.appendChild(e);
+  }
+  function rainFrom(r, colors = ['#6fc8ff', '#9ad8ff'], shape = '50% 50% 50% 50% / 60% 60% 40% 40%') {
+    const ground = WORLDS[worldKey].ground * H;
+    for (let i = 0; i < 26; i++) {
+      const x = rand(r.left + r.width * .15, r.right - r.width * .15), y = r.top + r.height * .75;
+      const el = dot(x, y, rand(7, 11), pick(colors), [{ transform: 'translateY(0)', opacity: 1 }, { transform: `translateY(${ground - y}px)`, opacity: .6 }],
+        { duration: rand(600, 900), delay: rand(0, 1600), easing: 'ease-in' });
+      el.style.borderRadius = shape;
+      if (shape !== '50% 50% 50% 50% / 60% 60% 40% 40%') el.style.height = '4px';
+    }
+  }
+  function floatUp(x, y, text, n = 3) {
+    for (let i = 0; i < n; i++) {
+      const el = document.createElement('div');
+      el.className = 'particle'; el.textContent = text; el.style.animation = 'none';
+      el.style.left = x + 'px'; el.style.top = y + 'px'; el.style.fontWeight = '900'; el.style.color = '#fff';
+      el.style.fontSize = (26 + i * 8) + 'px'; el.style.textShadow = '0 2px 4px rgba(0,0,0,.4)';
+      document.body.appendChild(el);
+      el.animate([{ transform: 'translate(0,0)', opacity: 0 }, { opacity: 1, offset: .2 }, { transform: `translate(${30 + i * 16}px, -${90 + i * 30}px)`, opacity: 0 }],
+        { duration: 1600, delay: i * 350, fill: 'both' });
+      setTimeout(() => el.remove(), 1650 + i * 350);
+    }
+  }
+
+  function tapProp(el) {
+    const kind = el.dataset.tap, r = R(el), cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+    const react = (cls, ms) => Scenery.react(el, cls, ms);
+    switch (kind) {
+      case 'spin': react('t-spin', 900); sfx.giggle(1.3); break;
+      case 'boing': react('t-boing', 600); sfx.boing(); break;
+      case 'wiggle': react('t-wiggle', 600); sfx.rustle(); break;
+      case 'bloom': react('t-bloom', 900); sfx.giggle(1.6); burst(cx, r.top + r.height * .25, ['🌸', '✨', '💖'], 6, 90); break;
+      case 'rain': react('t-wiggle', 600); sfx.rain(); rainFrom(r); break;
+      case 'sprinkle': react('t-wiggle', 600); sfx.rain(); rainFrom(r, ['#ff4d6d', '#ffd60a', '#4cd964', '#2f9bff', '#9b5cff', '#fff'], '3px'); break;
+      case 'apple': react('t-wiggle', 600); sfx.rustle(); dropTreat(rand(r.left + r.width * .2, r.right - r.width * .2), r.top + r.height * .35, 'apple'); break;
+      case 'fireworks':
+        react('t-boing', 600);
+        for (let i = 0; i < 3; i++) setTimeout(() => {
+          const x = cx + rand(-r.width * .5, r.width * .5), y = r.top - rand(10, 120);
+          sfx.firework(); sparkleRing(x, Math.max(40, y), [pick(['#ff4d6d', '#ffd60a', '#7ad6ff', '#b07aff', '#4cd964']), '#fff'], 18, 130);
+        }, i * 380);
+        break;
+      case 'open': react('t-open', 2600); sfx.magic(); toss(cx, r.top + r.height * .4, 14, ['#ffd23f', '#ffe680', '#fff3b0'], { size: [12, 18], up: [350, 650], side: 200 }); break;
+      case 'launch': react('t-launch', 3400); sfx.launch(); break;
+      case 'beam': react('t-beam', 2200); sfx.beam(); break;
+      case 'erupt': react('t-rumble', 700); sfx.boom(); toss(cx, r.top + r.height * .25, 18, ['#ff5a2a', '#ff9a2a', '#ffd23f'], { size: [14, 26], up: [500, 900], side: 320, dur: 1600 }); break;
+      case 'hatch': react('t-hatch', 3000); sfx.cheep(); break;
+      case 'roar': react('t-nod', 1400); sfx.roar(); break;
+      case 'monkey': react('t-wiggle', 600); sfx.monkey(); burst(cx, cy, ['🍌'], 3, 120); break;
+      case 'squawk': react('t-flap', 700); sfx.squawk(); toss(cx, cy, 5, ['#ff3b3b', '#2f7bff', '#ffd23f'], { size: [10, 16], up: [150, 300], side: 150, shape: '50% 0' }); break;
+      case 'splash': react('t-boing', 600); sfx.splash(); toss(cx, r.bottom - 10, 16, ['#bff0ff', '#ffffff', '#7fd6ff'], { size: [8, 16], up: [300, 600], side: 220 }); break;
+      case 'hat': react('t-hat', 900); sfx.boing(); break;
+      case 'peek': react('t-peek', 2400); if (worldKey === 'camp') { sfx.snore(); floatUp(cx + 10, r.top + r.height * .4, 'z'); } else sfx.giggle(1.5); break;
+      case 'cherry': react('t-cherry', 700); sfx.boing(); toss(cx, r.top + r.height * .35, 14, ['#ff4d6d', '#ffd60a', '#4cd964', '#2f9bff', '#9b5cff'], { size: [6, 9], up: [250, 450], side: 180, shape: '3px' }); break;
+      case 'loft': react('t-loft', 2200); sfx.moo(); break;
+      case 'moo': react('t-boing', 600); sfx.moo(); break;
+      case 'fast': react('t-fast', 2500); sfx.whoosh(); break;
+      case 'cluck': react('t-wiggle', 600); sfx.cluck(); burst(cx, cy, ['🪶'], 3, 80); break;
+      case 'flare': react('t-flare', 900); sfx.crackle(); toss(cx, r.top + r.height * .4, 14, ['#ffd23f', '#ff9a2a', '#fff6a8'], { size: [4, 8], up: [300, 600], side: 80, dur: 1100 }); break;
+      case 'hoot': react('t-hoot', 900); sfx.hoot(); break;
     }
   }
 
@@ -450,12 +586,15 @@
       baseY: 0, targetY: 0, dragging: false,
     };
     c.baseY = c.targetY = Math.min(c.y, ground - h);
-    if (c.move === 'hop' || c.move === 'crawl') c.fall = c.y - (ground - h);
-    c.speed = { hop: 75, fly: 95, swim: 55, float: 0, crawl: 32 }[c.move] * rand(.8, 1.2);
+    if (onGround(c.move)) c.fall = c.y - (ground - h);
+    c.speed = { hop: 75, fly: 95, swim: 55, float: 0, crawl: 32, roll: 80, bounce: 0 }[c.move] * rand(.8, 1.2);
+    if (c.move === 'bounce') { c.vx = rand(90, 150) * c.dir; c.vy = 0; c.jump = rand(.32, .5); }
     creatures.push(c);
     attachPointer(c);
     return c;
   }
+
+  const onGround = m => m === 'hop' || m === 'crawl' || m === 'roll';
 
   function saveWorld() {
     if (!picsLoaded) return; // the creatures aren't out yet
@@ -478,7 +617,7 @@
     c.el.addEventListener('pointermove', e => {
       if (!start || e.pointerId !== start.id) return;
       if (!moved && Math.hypot(e.clientX - start.x, e.clientY - start.y) > 14) {
-        moved = true; c.dragging = true; $('trash').classList.add('show');
+        moved = true; c.dragging = true; $('trash').classList.add('show'); hideUndo();
       }
       if (moved) {
         c.x = e.clientX - off.x; c.y = e.clientY - off.y;
@@ -495,7 +634,8 @@
       // let it settle back from where it was dropped
       const ground = WORLDS[worldKey].ground * H;
       c.baseY = c.targetY = c.y;
-      if (c.move === 'hop' || c.move === 'crawl') { c.fall = c.y - (ground - c.h); c.fallV = 0; }
+      if (onGround(c.move)) { c.fall = c.y - (ground - c.h); c.fallV = 0; }
+      if (c.move === 'bounce') c.vy = 0;
       sfx.boing();
       saveWorld();
     };
@@ -530,7 +670,10 @@
     const dt = Math.min(.05, (now - last) / 1000); last = now;
     if (worldKey && $('world').classList.contains('on')) {
       const ground = WORLDS[worldKey].ground * H;
+      stepTreats(dt, ground);
       for (const c of creatures) step(c, dt, ground, now);
+      eatTreats();
+      greet(now);
     }
     requestAnimationFrame(frame);
   }
@@ -540,9 +683,20 @@
       c.t += dt;
       if (Math.random() < dt * .08) c.dir *= -1; // change its mind sometimes
       const floor = ground - c.h;
+      // a treat nearby? go and get it
+      const food = nearestTreat(c);
+      let hurry = 1;
+      if (food) {
+        const fx = food.x - c.w / 2;
+        if (Math.abs(fx - c.x) > 6) c.dir = fx > c.x ? 1 : -1;
+        hurry = 2;
+        if (c.move === 'fly' || c.move === 'swim') c.targetY = Math.min(floor, food.y - c.h / 2);
+        if (c.move === 'float') { const dx = food.x - c.x - c.w / 2, dy = food.y - c.y - c.h / 2, l = Math.hypot(dx, dy) || 1; c.vx += (dx / l * 160 - c.vx) * dt * 2; c.vy += (dy / l * 160 - c.vy) * dt * 2; }
+        if (c.move === 'bounce') c.vx = Math.abs(c.vx) * c.dir;
+      }
       switch (c.move) {
         case 'hop': {
-          c.x += c.dir * c.speed * dt;
+          c.x += c.dir * c.speed * hurry * dt;
           const s = Math.abs(Math.sin(c.t * 3.4));
           c.y = floor - s * Math.min(130, H * .16);
           if (s < .18) { sx = 1.12; sy = .86; }
@@ -550,16 +704,16 @@
           break;
         }
         case 'crawl': {
-          c.x += c.dir * c.speed * dt * (1 + Math.sin(c.t * 6));
+          c.x += c.dir * c.speed * hurry * dt * (1 + Math.sin(c.t * 6));
           c.y = floor;
           sx = 1 + Math.sin(c.t * 6) * .1; sy = 1 - Math.sin(c.t * 6) * .1;
           break;
         }
         case 'fly': case 'swim': {
           const fly = c.move === 'fly';
-          c.x += c.dir * c.speed * dt;
-          if (Math.random() < dt * .3) c.targetY = rand(H * (fly ? .05 : .15), Math.min(floor, H * (fly ? .6 : .8)));
-          c.baseY += (c.targetY - c.baseY) * dt * .6;
+          c.x += c.dir * c.speed * hurry * dt;
+          if (!food && Math.random() < dt * .3) c.targetY = rand(H * (fly ? .05 : .15), Math.min(floor, H * (fly ? .6 : .8)));
+          c.baseY += (c.targetY - c.baseY) * dt * (food ? 2 : .6);
           c.y = c.baseY + Math.sin(c.t * (fly ? 2.4 : 1.6)) * (fly ? 40 : 22);
           rot = fly ? Math.sin(c.t * 9) * 7 : Math.sin(c.t * 1.6) * 10;
           if (fly) sy = 1 + Math.sin(c.t * 18) * .04;
@@ -575,8 +729,25 @@
           c.rot += dt * 35; rot = c.rot;
           break;
         }
+        case 'roll': {
+          const step = c.dir * c.speed * hurry * dt;
+          c.x += step; c.y = floor;
+          c.rot += step / (Math.min(c.w, c.h) / 2) * 57.3; rot = c.rot * c.dir;
+          break;
+        }
+        case 'bounce': {
+          c.vy += 1500 * dt; c.x += c.vx * hurry * dt; c.y += c.vy * dt;
+          if (c.y >= floor) { c.y = floor; c.vy = -Math.sqrt(2 * 1500 * H * c.jump); c.squash = .14; }
+          if (c.x < 0) c.vx = Math.abs(c.vx);
+          if (c.x > W - c.w) c.vx = -Math.abs(c.vx);
+          c.dir = c.vx < 0 ? -1 : 1;
+          if (c.squash > 0) { c.squash -= dt; sx = 1.25; sy = .78; }
+          else { const k = Math.min(.15, Math.abs(c.vy) / 6000); sx = 1 - k; sy = 1 + k; }
+          rot = c.vx * .03;
+          break;
+        }
       }
-      if (c.move !== 'float') {
+      if (c.move !== 'float' && c.move !== 'bounce') {
         if (c.x < 0) { c.x = 0; c.dir = 1; }
         if (c.x > W - c.w) { c.x = W - c.w; c.dir = -1; }
       }
@@ -588,6 +759,12 @@
       } else c.fall = 0;
     } else {
       sx = 1.1; sy = 1.1; rot = Math.sin(now / 80) * 8; // wiggle while carried
+    }
+    if (partyOn) {
+      const beat = (now - partyStart) / 500 * Math.PI; // two bounces a second, everyone together
+      yOff -= Math.abs(Math.sin(beat)) * Math.min(60, c.h * .35);
+      rot += Math.sin(beat) * 14;
+      sx *= 1 + Math.cos(beat * 2) * .06; sy *= 1 - Math.cos(beat * 2) * .06;
     }
     if (c.react > 0) {
       c.react = Math.max(0, c.react - dt * 1.6);
@@ -615,10 +792,159 @@
     const ow = W, oh = H;
     W = $('world').clientWidth || innerWidth; H = $('world').clientHeight || innerHeight;
     for (const c of creatures) { c.x *= W / ow; c.y *= H / oh; c.baseY *= H / oh; c.targetY *= H / oh; }
+    if (W !== ow || H !== oh) buildDecor(WORLDS[worldKey]);
     if ($('draw').classList.contains('on')) sizeCanvas();
   });
 
-  $('homeBtn').onclick = () => { sfx.pop(); if (worldKey) saveWorld(); worldKey = null; show('home'); };
+  // ================= treats: drop one and everybody races for it =================
+  const FOODS = ['🍪', '🍓', '🍎', '🧁', '🍌', '🍉', '🥕', '🍩', '🍒'];
+  let treats = [];
+  function dropTreat(x, y, kind) {
+    if (treats.length >= 4) return;
+    const el = document.createElement('div');
+    el.className = 'treat';
+    if (kind === 'apple') { const a = Scenery.art('apple'); el.innerHTML = a.svg; el.style.width = '44px'; el.style.height = '48px'; }
+    else el.textContent = kind || pick(FOODS);
+    $('fx').appendChild(el);
+    const t = { el, x, y, vy: 0, landed: false, born: performance.now() };
+    treats.push(t); placeTreat(t);
+    sfx.drop();
+  }
+  const placeTreat = t => { t.el.style.transform = `translate(${t.x}px, ${t.y}px)`; };
+  function stepTreats(dt, ground) {
+    const g = worldKey === 'ocean' ? 300 : worldKey === 'space' ? 250 : 1600, maxV = worldKey === 'ocean' ? 140 : 2000;
+    for (const t of treats) {
+      if (t.landed) continue;
+      t.vy = Math.min(maxV, t.vy + g * dt); t.y += t.vy * dt;
+      if (t.y >= ground - 24) {
+        t.y = ground - 24;
+        if (t.vy > 300) { t.vy = -t.vy * .35; } else { t.vy = 0; t.landed = true; }
+      }
+      placeTreat(t);
+    }
+    // nobody came for it? it fades away after a while
+    const now = performance.now();
+    for (const t of treats) if (now - t.born > 20000) removeTreat(t);
+  }
+  function nearestTreat(c) {
+    let best = null, bd = Infinity;
+    for (const t of treats) { const d = Math.abs(t.x - c.x - c.w / 2) + Math.abs(t.y - c.y - c.h / 2) * .5; if (d < bd) { bd = d; best = t; } }
+    return best;
+  }
+  function eatTreats() {
+    for (const t of [...treats]) for (const c of creatures) {
+      if (c.dragging) continue;
+      if (Math.hypot(t.x - c.x - c.w / 2, t.y - c.y - c.h / 2) < Math.max(c.w, c.h) * .5 + 20) {
+        removeTreat(t);
+        c.react = 1; sfx.nom();
+        const r = $('world').getBoundingClientRect();
+        burst(r.left + t.x, r.top + t.y, ['💖', '✨', '😋'], 7, 100);
+        if (Math.random() < .5) say('md.yum');
+        break;
+      }
+    }
+  }
+  function removeTreat(t) { treats = treats.filter(o => o !== t); t.el.remove(); }
+  function clearTreats() { treats.forEach(t => t.el.remove()); treats = []; }
+  $('treatBtn').onclick = () => {
+    sfx.pop();
+    if (!creatures.length) { Scenery.react($('treatBtn'), 't-wiggle', 600); $('pencilBtn').classList.add('nudge'); return; }
+    dropTreat(rand(.15, .85) * W, -40);
+  };
+
+  // ================= dance party =================
+  let partyOn = false, partyStart = 0, partyTimer = null;
+  const SONG = [[523, 0], [659, .25], [784, .5], [659, .75], [880, 1], [784, 1.25], [659, 1.5], [587, 1.75]];
+  function startParty() {
+    if (partyOn) return;
+    partyOn = true; partyStart = performance.now();
+    $('disco').classList.add('on'); $('partyBtn').classList.add('on');
+    say('md.party');
+    for (let bar = 0; bar < 4; bar++) {
+      const shift = [1, 1.122, 1.335, 1][bar];
+      SONG.forEach(([f, t]) => tone(f * shift, .22, { type: 'triangle', vol: .09, delay: .6 + bar * 2 + t }));
+      [0, .5, 1, 1.5].forEach(t => tone(130.8 * shift, .2, { type: 'square', vol: .05, delay: .6 + bar * 2 + t }));
+    }
+    const confetti = setInterval(() => {
+      if (!partyOn) return clearInterval(confetti);
+      const x = rand(0, innerWidth);
+      const el = dot(x, -20, 12, pick(['#ff4d6d', '#ffd60a', '#4cd964', '#2f9bff', '#9b5cff', '#ff8ad8']),
+        [{ transform: 'translate(0,0) rotate(0)' }, { transform: `translate(${rand(-80, 80)}px, ${innerHeight + 40}px) rotate(${rand(360, 900)}deg)` }],
+        { duration: rand(2200, 3600), easing: 'linear' });
+      el.style.borderRadius = '2px'; el.style.height = '7px';
+    }, 70);
+    partyTimer = setTimeout(endParty, 8800);
+  }
+  function endParty() {
+    clearTimeout(partyTimer);
+    partyOn = false;
+    $('disco').classList.remove('on'); $('partyBtn').classList.remove('on');
+  }
+  $('partyBtn').onclick = () => { if (partyOn) { endParty(); return; } sfx.pop(); startParty(); };
+
+  // ================= clean up: sweep everyone away (with a way back) =================
+  let swept = null, undoTimer = null;
+  function hideUndo() { clearTimeout(undoTimer); $('backBtn').classList.remove('show'); swept = null; }
+  $('cleanBtn').onclick = () => {
+    if (!creatures.length) { sfx.boing(); Scenery.react($('cleanBtn'), 't-wiggle', 600); return; }
+    hideUndo();
+    sfx.sweep();
+    const broom = document.createElement('div');
+    broom.className = 'broom'; broom.textContent = '🧹';
+    broom.style.top = (WORLDS[worldKey].ground * H - 170) + 'px';
+    $('world').appendChild(broom);
+    broom.animate([{ transform: 'translateX(-200px) rotate(-20deg)' }, { transform: `translateX(${W * .5}px) rotate(20deg)`, offset: .5 }, { transform: `translateX(${W + 200}px) rotate(-20deg)` }],
+      { duration: 1300, easing: 'ease-in-out' });
+    setTimeout(() => broom.remove(), 1350);
+    const gone = creatures;
+    swept = { key: worldKey, list: gone.map(c => ({ ...c.d, fx: c.x / W, fy: c.y / H })) };
+    creatures = [];
+    gone.forEach(c => {
+      const delay = Math.max(0, c.x / W) * 600;
+      c.el.animate([{ translate: '0 0', rotate: '0deg', opacity: 1 }, { translate: `${W - c.x + 200}px ${-rand(40, 200)}px`, rotate: rand(360, 720) + 'deg', opacity: 0 }],
+        { duration: 800, delay, easing: 'ease-in', fill: 'forwards' });
+      setTimeout(() => c.el.remove(), delay + 850);
+      setTimeout(() => burst(c.x + c.w / 2, c.y + c.h / 2, ['💨', '✨'], 5, 80), delay);
+    });
+    clearTreats();
+    saveWorld();
+    $('pencilBtn').classList.add('nudge');
+    setTimeout(() => say('md.allClean'), 900);
+    const keep = swept;
+    setTimeout(() => {
+      if (swept !== keep) return;
+      $('backBtn').classList.add('show');
+      undoTimer = setTimeout(hideUndo, 9000);
+    }, 1200);
+  };
+  $('backBtn').onclick = () => {
+    if (!swept || swept.key !== worldKey) { hideUndo(); return; }
+    const list = swept.list;
+    hideUndo();
+    sfx.magic();
+    list.forEach(d => spawn(d, true));
+    while (creatures.length > MAX_PER_WORLD) removeCreature(creatures[0]);
+    saveWorld();
+    $('pencilBtn').classList.remove('nudge');
+    say('md.comeBack');
+  };
+
+  // ================= friends say hello when they bump into each other =================
+  function greet(now) {
+    for (let i = 0; i < creatures.length; i++) for (let j = i + 1; j < creatures.length; j++) {
+      const a = creatures[i], b = creatures[j];
+      if (a.dragging || b.dragging || now < (a.greetAt || 0) || now < (b.greetAt || 0)) continue;
+      const ax = a.x + a.w / 2, ay = a.y + a.h / 2, bx = b.x + b.w / 2, by = b.y + b.h / 2;
+      if (Math.hypot(ax - bx, ay - by) < (Math.min(a.w, a.h) + Math.min(b.w, b.h)) * .4) {
+        a.greetAt = b.greetAt = now + 6000;
+        a.react = b.react = .8;
+        sfx.hello();
+        burst((ax + bx) / 2, Math.min(ay, by) - 20, ['💕', '💖', '👋'], 5, 70);
+      }
+    }
+  }
+
+  $('homeBtn').onclick = () => { sfx.pop(); if (worldKey) saveWorld(); endParty(); clearTreats(); hideUndo(); worldKey = null; show('home'); };
   $('pencilBtn').onclick = () => { sfx.pop(); openDraw(); };
 
   // ================= drawing =================
@@ -798,7 +1124,7 @@
     c.x = W / 2 - c.w / 2; c.y = H * .4 - c.h / 2;
     c.baseY = c.targetY = c.y;
     const ground = WORLDS[worldKey].ground * H;
-    if (move === 'hop' || move === 'crawl') { c.fall = c.y - (ground - c.h); c.fallV = -300; }
+    if (onGround(move)) { c.fall = c.y - (ground - c.h); c.fallV = -300; }
     sfx.magic();
     burst(W / 2, H * .4, ['✨','⭐','🌟','💖','🎉'], 18, 220);
     say(['md.alive1', 'md.alive2', 'md.alive3', 'md.alive4']);

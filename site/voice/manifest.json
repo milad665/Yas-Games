@@ -628,7 +628,16 @@
     "rb.portals": "33e1a664ee",
     "rb.full": "665d5834c2",
     "rb.repeat": "0666325541",
-    "rb.mix": "ec74a8519d"
+    "rb.mix": "ec74a8519d",
+    "md.farm": "684498d8d1",
+    "md.jungle": "f3830bc4ca",
+    "md.snow": "ed532a61db",
+    "md.candy": "998f658042",
+    "md.camp": "01a5cc064d",
+    "md.party": "d0963bd8e7",
+    "md.yum": "a6656378fc",
+    "md.allClean": "e48e7af0cd",
+    "md.comeBack": "0547d9022b"
   },
   "nl": {
     "hub.lang": "d1da1f5fa2",
@@ -1259,7 +1268,16 @@
     "rb.portals": "d7a8ef9faf",
     "rb.mix": "140bba7cfc",
     "rb.full": "5769984e0a",
-    "rb.repeat": "5099cff6e8"
+    "rb.repeat": "5099cff6e8",
+    "md.snow": "7a6b10d4e5",
+    "md.jungle": "5b656a8412",
+    "md.farm": "4eb8b5f53e",
+    "md.candy": "82d61878f5",
+    "md.party": "2ccd0af898",
+    "md.camp": "3a28367f74",
+    "md.yum": "781e91aace",
+    "md.allClean": "cd9e1fd681",
+    "md.comeBack": "9fc89bbe81"
   },
   "voices": {
     "en": "Jessica (ElevenLabs eleven_v4)",
@@ -1895,6 +1913,15 @@
     "rb.portals": "ff71f0ce70",
     "rb.full": "ba2700a133",
     "rb.mix": "70c7d35f7d",
-    "rb.repeat": "5239cd28f9"
+    "rb.repeat": "5239cd28f9",
+    "md.jungle": "31fba60f3b",
+    "md.snow": "f7fb27fdfd",
+    "md.candy": "974b744ddf",
+    "md.farm": "647f106040",
+    "md.camp": "29cced4010",
+    "md.party": "9d18aae7c0",
+    "md.yum": "289ba470a2",
+    "md.comeBack": "6c99e9b3fb",
+    "md.allClean": "65ac157acd"
   }
 }

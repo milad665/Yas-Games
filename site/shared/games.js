@@ -22,9 +22,9 @@ self.GAMES = [
     name: 'Magic Doodles',
     group: 'make',
     path: 'games/magic-doodles/',
-    about: 'Draw anything with your finger, tap the magic wand and it comes alive with googly eyes, hopping, flying or swimming through five worlds.',
+    about: 'Draw anything with your finger, tap the magic wand and it comes alive with googly eyes, hopping, flying, swimming or bouncing through ten cartoon worlds.',
     art: '🖍️',
-    extras: ['🐰', '🐠', '🚀', '🦕', '🏰'],
+    extras: ['🐰', '🐠', '🚀', '🦕', '🏰', '🍭', '⛄'],
     colors: ['#ffb3d9', '#c4b5fd', '#8fd3ff'],
   },
   {
