@@ -1,0 +1,7 @@
+services:
+  web:
+    image: ghcr.io/milad665/lili-games:${IMAGE_TAG:-latest}
+    container_name: lili-games
+    restart: unless-stopped
+    ports:
+      - "${PORT:-8080}:80"

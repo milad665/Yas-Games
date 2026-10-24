@@ -1,12 +1,13 @@
 name: Build & Deploy
 
-# Two editions from one push (see tools/build.mjs):
-#   - Yas's own edition -> Docker image -> the homelab
+# Three editions from one push (see tools/build.mjs):
+#   - Yas's own edition  -> Docker image -> our homelab          (runner label: homelab)
+#   - Lili's edition     -> Docker image -> Lili's family homelab (runner label: lili-homelab)
 #   - the public edition (no Yas, with SEO and a donate button) -> Firebase Hosting
 #
-# - Push to main      -> deploy both
-# - Push a tag v1.2.3 -> same, plus a versioned image and a GitHub Release
-# - Run manually      -> deploy both, or redeploy an existing homelab image tag (rollback, homelab only)
+# - Push to main      -> deploy all three
+# - Push a tag v1.2.3 -> same, plus versioned images and a GitHub Release
+# - Run manually      -> deploy all three, or redeploy an existing image tag to both homelabs (rollback)
 on:
   push:
     branches: [main]
@@ -18,17 +19,15 @@ on:
         required: false
         default: ''
 
-concurrency:
-  group: deploy-homelab
-  cancel-in-progress: false
-
-env:
-  IMAGE: ghcr.io/milad665/yas-games
-
 jobs:
   build:
     if: ${{ !inputs.image_tag }}
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        edition: [yas, lili]
+    env:
+      IMAGE: ghcr.io/milad665/${{ matrix.edition }}-games
     permissions:
       contents: read
       packages: write
@@ -57,13 +56,14 @@ jobs:
       - uses: docker/build-push-action@v6
         with:
           context: .
+          build-args: EDITION=${{ matrix.edition }}
           push: true
           # amd64 for regular PCs/NUCs, arm64 for Raspberry Pi
           platforms: linux/amd64,linux/arm64
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=${{ matrix.edition }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.edition }}
 
   deploy:
     needs: build
@@ -71,6 +71,10 @@ jobs:
     if: ${{ !cancelled() && !failure() }}
     runs-on: [self-hosted, homelab]
     environment: production
+    # one deploy at a time per server (a waiting Lili deploy never holds this one up)
+    concurrency:
+      group: deploy-homelab
+      cancel-in-progress: false
     permissions:
       contents: read
       packages: read
@@ -96,6 +100,46 @@ jobs:
           done
           echo "Site did not come up on port ${PORT}" >&2
           docker compose -p yas-games -f deploy/docker-compose.yml logs --tail 50
+          exit 1
+
+      - name: Clean up old images
+        if: always()
+        run: docker image prune -f
+
+  deploy-lili:
+    needs: build
+    if: ${{ !cancelled() && !failure() }}
+    # the runner on Lili's family's server (see docs/homelab-setup.md, "Lili's edition")
+    runs-on: [self-hosted, lili-homelab]
+    environment: lili
+    concurrency:
+      group: deploy-lili
+      cancel-in-progress: false
+    permissions:
+      contents: read
+      packages: read
+    env:
+      IMAGE_TAG: ${{ inputs.image_tag || format('sha-{0}', github.sha) }}
+      PORT: ${{ vars.LILI_PORT || '8080' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Log in to GHCR
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+
+      - name: Pull and start ${{ env.IMAGE_TAG }}
+        run: |
+          docker compose -p lili-games -f deploy/docker-compose.lili.yml pull
+          docker compose -p lili-games -f deploy/docker-compose.lili.yml up -d --remove-orphans
+
+      - name: Health check
+        run: |
+          for i in $(seq 1 20); do
+            if curl -fsS "http://localhost:${PORT}/healthz"; then exit 0; fi
+            sleep 2
+          done
+          echo "Site did not come up on port ${PORT}" >&2
+          docker compose -p lili-games -f deploy/docker-compose.lili.yml logs --tail 50
           exit 1
 
       - name: Clean up old images

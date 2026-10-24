@@ -6,18 +6,21 @@
 //   Voice.say(['rb.win1', 'rb.win2'])        pick one at random
 //   Voice.say('md.meadow', 'md.tapPencil')   speak several in a row
 //   Voice.stop()
-//   Voice.lang / Voice.setLang('nl')         language is shared by all games (en, nl, fa)
+//   Voice.lang / Voice.setLang('nl')         language is shared by all games
+//   Voice.langs                              the edition's languages (EDITION.langs in shared/edition.js)
 (() => {
   const LANG_KEY = 'yasGames.lang';
-  // German and Spanish lines are translated but not recorded yet: add de: 'de-DE', es: 'es-ES' to turn them on
-  const LANGS = { en: 'en-US', nl: 'nl-NL', fa: 'fa-IR' };
+  const ALL = { en: 'en-US', nl: 'nl-NL', de: 'de-DE', es: 'es-ES', fa: 'fa-IR' };
+  const EDITION = self.EDITION || {};
+  // each edition switches on only the languages it has recorded (Spanish isn't recorded yet)
+  const LANGS = Object.fromEntries((EDITION.langs || ['en', 'nl', 'fa']).filter(l => ALL[l]).map(l => [l, ALL[l]]));
   const LINES = self.VOICE_LINES || {};
 
   let lang = 'en';
   try { lang = localStorage.getItem(LANG_KEY) || ''; } catch (e) {}
   if (!LANGS[lang]) {
     const device = (navigator.language || '').toLowerCase().slice(0, 2);
-    lang = LANGS[device] ? device : 'en';
+    lang = LANGS[EDITION.lang] ? EDITION.lang : LANGS[device] ? device : Object.keys(LANGS)[0];
   }
 
   // ---------- recorded clips ----------
@@ -153,5 +156,5 @@
     });
   }
 
-  self.Voice = { say, stop, setLang, get lang() { return lang; } };
+  self.Voice = { say, stop, setLang, langs: Object.keys(LANGS), get lang() { return lang; } };
 })();

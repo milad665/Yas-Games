@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 // Records every line in site/shared/lines.js with ElevenLabs, saving
 // site/voice/<lang>/<key>.mp3 and site/voice/manifest.json.
+// Personal editions' own lines (editions/<name>/lines.js) go in editions/<name>/voice/ the same way.
 //
 //   node tools/record-voice.mjs                  record whatever is new or changed, all languages
 //   node tools/record-voice.mjs --lang en,nl     only these languages
@@ -20,14 +21,14 @@ import vm from 'node:vm';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const OUT = path.join(ROOT, 'site', 'voice');
 const MODEL = 'eleven_v4';
 // one voice per language (ids from the ElevenLabs voice library)
 const VOICES = {
   en: { name: 'Jessica', id: 'cgSgspJ2msm6clMCkdW9' },
   nl: { name: 'Jessica', id: 'cgSgspJ2msm6clMCkdW9' },
-  // switched off until there's quota for them (also re-enable them in voice.js, sw.js and index.html)
-  // de: { name: 'Jessica', id: 'cgSgspJ2msm6clMCkdW9' },
+  // a native German children's-book narrator, standard German accent (Lili's edition)
+  de: { name: 'Lucy Fennek', id: 'E0OS48T5F0KU7O2NInWS' },
+  // switched off until there's quota for it (then add 'es' to an edition's langs in shared/edition.js)
   // es: { name: 'Jessica', id: 'cgSgspJ2msm6clMCkdW9' },
   fa: { name: 'Matilda', id: 'XrExE9yKIg1WjnnlVkGX' },
 };
@@ -44,33 +45,40 @@ try {
 } catch {}
 if (!KEY) { console.error('✗ No ELEVENLABS_API_KEY in .env'); process.exit(1); }
 
-// ---- lines ----
-const sandbox = { self: {} };
-vm.runInNewContext(fs.readFileSync(path.join(ROOT, 'site', 'shared', 'lines.js'), 'utf8'), sandbox);
-const LINES = sandbox.self.VOICE_LINES;
+// ---- lines: the shared ones, then each personal edition's own ----
+const loadLines = file => { const sb = { self: {} }; vm.runInNewContext(fs.readFileSync(file, 'utf8'), sb); return sb.self.VOICE_LINES; };
+const sources = [{ name: 'site', lines: path.join(ROOT, 'site', 'shared', 'lines.js'), out: path.join(ROOT, 'site', 'voice') }];
+for (const e of fs.readdirSync(path.join(ROOT, 'editions'))) {
+  const lines = path.join(ROOT, 'editions', e, 'lines.js');
+  if (fs.existsSync(lines)) sources.push({ name: e, lines, out: path.join(ROOT, 'editions', e, 'voice') });
+}
+for (const src of sources) {
+  src.LINES = loadLines(src.lines);
+  src.manifestPath = path.join(src.out, 'manifest.json');
+  try { src.manifest = JSON.parse(fs.readFileSync(src.manifestPath, 'utf8')); } catch { src.manifest = {}; }
+  src.manifest.voices = src.manifest.voices || {};
+}
+const saveManifest = src => {
+  fs.mkdirSync(src.out, { recursive: true });
+  fs.writeFileSync(src.manifestPath, JSON.stringify(src.manifest, null, 2) + '\n');
+};
 
 const langs = opt('--lang') ? opt('--lang').split(',') : Object.keys(VOICES);
 for (const l of langs) if (!VOICES[l]) { console.error(`✗ Unknown language "${l}"`); process.exit(1); }
-
-const manifestPath = path.join(OUT, 'manifest.json');
-let manifest = {};
-try { manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8')); } catch {}
-manifest.voices = manifest.voices || {};
-const saveManifest = () => fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2) + '\n');
 
 const hashOf = (lang, text) => createHash('sha1').update(`${MODEL}\n${VOICES[lang].id}\n${text}`).digest('hex').slice(0, 10);
 
 // ---- what needs recording ----
 const todo = [];
-for (const lang of langs) {
-  const prev = manifest[lang] || {};
-  for (const [key, line] of Object.entries(LINES)) {
+for (const src of sources) for (const lang of langs) {
+  const prev = src.manifest[lang] || {};
+  for (const [key, line] of Object.entries(src.LINES)) {
     const text = line[lang];
     if (!text) continue;
     const hash = hashOf(lang, text);
-    const file = path.join(OUT, lang, key + '.mp3');
+    const file = path.join(src.out, lang, key + '.mp3');
     if (!flag('--force') && prev[key] === hash && fs.existsSync(file)) continue;
-    todo.push({ lang, key, text, hash, file });
+    todo.push({ src, lang, key, text, hash, file });
   }
 }
 
@@ -109,18 +117,19 @@ async function record(t) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ text: t.text, model_id: MODEL, language_code: t.lang }),
   });
-  const raw = path.join(tmp, `${t.lang}-${t.key}.mp3`);
+  const raw = path.join(tmp, `${t.src.name}-${t.lang}-${t.key}.mp3`);
   fs.writeFileSync(raw, Buffer.from(await res.arrayBuffer()));
   fs.mkdirSync(path.dirname(t.file), { recursive: true });
   // trim silence at both ends, mono, small mp3
   execFileSync('ffmpeg', ['-y', '-loglevel', 'error', '-i', raw,
     '-af', 'silenceremove=start_periods=1:start_threshold=-50dB,areverse,silenceremove=start_periods=1:start_threshold=-50dB,areverse,apad=pad_dur=0.08',
     '-ac', '1', '-ar', '44100', '-b:a', '64k', t.file]);
-  (manifest[t.lang] = manifest[t.lang] || {})[t.key] = t.hash;
-  manifest.voices[t.lang] = `${VOICES[t.lang].name} (ElevenLabs ${MODEL})`;
-  saveManifest();
+  const m = t.src.manifest;
+  (m[t.lang] = m[t.lang] || {})[t.key] = t.hash;
+  m.voices[t.lang] = `${VOICES[t.lang].name} (ElevenLabs ${MODEL})`;
+  saveManifest(t.src);
   made++;
-  console.log(`  ${t.lang}  ${t.key.padEnd(18)} ${t.text}`);
+  console.log(`  ${t.lang}  ${(t.src.name === 'site' ? '' : t.src.name + ':') + t.key.padEnd(18)} ${t.text}`);
 }
 
 const queue = [...todo];
@@ -139,16 +148,18 @@ await Promise.all(Array.from({ length: 4 }, async () => {
 }));
 
 // remove clips for lines that no longer exist
-for (const lang of langs) {
-  const dir = path.join(OUT, lang);
-  const m = manifest[lang] || {};
-  for (const key of Object.keys(m)) if (!LINES[key] || !LINES[key][lang]) delete m[key];
-  if (fs.existsSync(dir)) for (const f of fs.readdirSync(dir)) if (!m[f.replace(/\.mp3$/, '')]) fs.rmSync(path.join(dir, f));
+for (const src of sources) {
+  for (const lang of langs) {
+    const dir = path.join(src.out, lang);
+    const m = src.manifest[lang] || {};
+    for (const key of Object.keys(m)) if (!src.LINES[key] || !src.LINES[key][lang]) delete m[key];
+    if (fs.existsSync(dir)) for (const f of fs.readdirSync(dir)) if (!m[f.replace(/\.mp3$/, '')]) fs.rmSync(path.join(dir, f));
+  }
+  saveManifest(src);
 }
-saveManifest();
 fs.rmSync(tmp, { recursive: true, force: true });
 
 const remaining = todo.length - made;
 console.log(`\n✓ ${made} clip(s) recorded.` + (remaining ? ` ${remaining} still to do` +
   (stopped === 'quota' ? ` (quota ran out; run again after ${reset}).` : '; run again to retry.') : ''));
-console.log('Commit site/voice/ and push to deploy.');
+console.log('Commit site/voice/ and editions/*/voice/ and push to deploy.');

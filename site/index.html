@@ -156,7 +156,8 @@
     <div id="langs" class="pill" role="group" aria-label="Language">
       <button data-lang="en" aria-label="English">🇬🇧</button>
       <button data-lang="nl" aria-label="Nederlands">🇳🇱</button>
-      <!-- not recorded yet: <button data-lang="de" aria-label="Deutsch">🇩🇪</button> <button data-lang="es" aria-label="Español">🇪🇸</button> -->
+      <button data-lang="de" aria-label="Deutsch">🇩🇪</button>
+      <button data-lang="es" aria-label="Español">🇪🇸</button>
       <button data-lang="fa" aria-label="فارسی">🇮🇷</button>
     </div>
   </div>
@@ -203,6 +204,7 @@
 
 <script src="/shared/games.js"></script>
 <script src="/shared/lines.js"></script>
+<script src="/shared/edition.js"></script>
 <script src="/shared/voice.js"></script>
 <script src="/shared/saved.js"></script>
 <script>
@@ -321,6 +323,10 @@
   }
 
   // ---- language: one switch for all games ----
+  // only this edition's languages, in its order (EDITION.langs)
+  const langBox = document.getElementById('langs');
+  langBox.querySelectorAll('button').forEach(b => { if (!Voice.langs.includes(b.dataset.lang)) b.remove(); });
+  Voice.langs.forEach(l => { const b = langBox.querySelector(`[data-lang="${l}"]`); if (b) langBox.appendChild(b); });
   function paintLangs() {
     document.querySelectorAll('#langs button').forEach(b => b.classList.toggle('sel', b.dataset.lang === Voice.lang));
     document.documentElement.lang = Voice.lang;

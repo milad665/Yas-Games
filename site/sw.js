@@ -4,12 +4,12 @@
 // language she's using are downloaded ahead of time; the pages tell us which one that is
 // (see /shared/voice.js), and switching languages fetches the other set.
 // Images: served from cache, refreshed in the background.
-importScripts('/shared/games.js');
+importScripts('/shared/games.js', '/shared/edition.js');
 
-const CACHE = 'yas-games-v12';
+const CACHE = 'yas-games-v13';
 // survives version bumps: remembers the chosen language so a new version can precache its clips
 const SETTINGS = 'yas-games-settings';
-const LANGS = ['en', 'nl', 'fa'];
+const LANGS = (self.EDITION && EDITION.langs) || ['en', 'nl', 'fa'];
 const CORE = [
   '/',
   '/manifest.webmanifest',

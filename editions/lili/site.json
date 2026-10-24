@@ -1,0 +1,9 @@
+{
+  "name": "Lili's Games",
+  "slug": "lili-games",
+  "storageName": "liliGames",
+  "description": "Creative, no-reading-needed games for Lili.",
+  "kid": { "name": "Lili", "emoji": "👧", "age": 3 },
+  "langs": ["de", "en", "nl", "fa"],
+  "lang": "de"
+}

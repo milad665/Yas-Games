@@ -2,8 +2,10 @@
 
 A little collection of creative, no-reading-needed games for Yas, made for the iPad.
 
-There is also a public edition for every child, **Little Sparks**, with Yas taken out, a
-donate button and search-engine friendly pages. See [docs/public-site.md](docs/public-site.md).
+There is also **Lili's Games**, the same games for Lili in Germany: her name in Letter Trace and
+Cake Shop, German by default (English, Dutch and Persian too), hosted on her family's homelab.
+And a public edition for every child, **Little Sparks**, with Yas taken out, a donate button and
+search-engine friendly pages. See [docs/public-site.md](docs/public-site.md).
 
 | Game | What it is |
 | --- | --- |
@@ -37,7 +39,7 @@ site/                     ← everything that gets served
   index.html              ← the Yas's Games home page
   sw.js, manifest.webmanifest, icon-*.png  ← installable app + offline support
   shared/games.js         ← the list of games
-  shared/edition.js       ← which edition this is (Yas's; the public build swaps it)
+  shared/edition.js       ← which edition this is (Yas's: her name, age, languages; other builds swap it)
   shared/lines.js         ← every spoken line, in English, Dutch, German, Spanish and Persian
   shared/voice.js         ← plays the recorded voice clips
   shared/kit.js, kit.css  ← common buttons, sounds, sparkles and saving for games
@@ -48,10 +50,11 @@ site/                     ← everything that gets served
   games/
     magic-doodles/index.html
 editions/public/         ← the public edition: name, home page extras for grown-ups
-tools/build.mjs           ← builds an edition into dist/ (node tools/build.mjs public)
+editions/lili/           ← Lili's edition: name, age, languages, her own lines and clips
+tools/build.mjs           ← builds an edition into dist/ (node tools/build.mjs yas|lili|public)
 firebase.json             ← how Firebase serves the public edition
-Dockerfile, nginx.conf    ← container that serves site/
-deploy/docker-compose.yml ← how the homelab runs it
+Dockerfile, nginx.conf    ← container that serves one edition (--build-arg EDITION=yas|lili)
+deploy/docker-compose*.yml ← how the homelabs run it (Yas's, and .lili for Lili's)
 .github/workflows/        ← build & deploy pipeline
 docs/homelab-setup.md     ← one-time server setup guide
 docs/public-site.md       ← the public edition: Firebase, Stripe donations, search engines
@@ -84,16 +87,18 @@ docs/public-site.md       ← the public edition: Firebase, Stripe donations, se
    ```
 
 5. If you added lines, record them: `node tools/record-voice.mjs` (see below).
-6. Keep Yas out of the public edition: anything personal comes from `EDITION.kid`, and lines
-   that say her name get `kid: true` (see [docs/public-site.md](docs/public-site.md)).
-7. Commit and push to `main`. The pipeline deploys it to the homelab and the public site.
+6. Keep Yas out of the other editions: anything personal comes from `EDITION.kid`, and lines
+   that say her name get `kid: true` (see [docs/public-site.md](docs/public-site.md)). If Lili
+   should hear her own version, add it with the same key to `editions/lili/lines.js`.
+7. Commit and push to `main`. The pipeline deploys it to both homelabs and the public site.
 
 ## Voice (English, Dutch, German, Spanish, Persian)
 
-Every spoken line lives in `site/shared/lines.js`. The language switch (🇬🇧 🇳🇱 🇮🇷) on the
-home page applies to all games (German and Spanish are translated but switched off until they're
-recorded: see `LANGS` in `site/shared/voice.js` and `site/sw.js`, and the flags in `site/index.html`).
-Lines are pre-recorded with ElevenLabs (Jessica; Matilda for Persian) so they sound the same on
+Every spoken line lives in `site/shared/lines.js`. The language switch on the
+home page applies to all games. Each edition picks its languages with `langs` (and the first-visit
+language with `lang`) in its `edition.js` / `site.json`: Yas's has 🇬🇧 🇳🇱 🇮🇷, Lili's 🇩🇪 🇬🇧 🇳🇱 🇮🇷.
+Spanish is translated but not recorded yet. Lines are pre-recorded with ElevenLabs (Jessica;
+Lucy Fennek, a native German narrator, for German; Matilda for Persian) so they sound the same on
 every device and work offline:
 
 1. Put your ElevenLabs API key in `.env` in the project root (it's git-ignored):
@@ -110,7 +115,9 @@ every device and work offline:
    ```
 
    If the monthly quota runs out it stops cleanly; run it again after the reset to finish.
-3. Commit `site/voice/` and push.
+   It also records each personal edition's own lines (`editions/lili/lines.js` →
+   `editions/lili/voice/`).
+3. Commit `site/voice/` and `editions/*/voice/` and push.
 
 If a clip is missing, the games fall back to the device's built-in voice.
 

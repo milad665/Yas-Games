@@ -1,10 +1,11 @@
 # The public site (Firebase)
 
-Every push to `main` deploys two editions of the games:
+Every push to `main` deploys three editions of the games:
 
 | Edition | Where | What's different |
 | --- | --- | --- |
 | **Yas's Games** | the homelab (Docker) | `site/` as it is: her name in Letter Trace, her birthday in Cake Shop |
+| **Lili's Games** | Lili's family's homelab (Docker) | Yas taken out, Lili's name and birthday in, German first (`editions/lili/`) |
 | **Little Sparks** (public) | Firebase Hosting | no mention of Yas anywhere, search-engine friendly, a 💝 donate button |
 
 `tools/build.mjs` makes the public edition from `site/`. It swaps in a `shared/edition.js` with no
@@ -19,12 +20,12 @@ To try it locally:
 node tools/build.mjs public && python3 -m http.server 8001 --directory dist/public
 ```
 
-## Keeping Yas out of the public edition
+## Keeping Yas out of the other editions
 
 - Write games so the personal parts come from `self.EDITION.kid` (see Letter Trace and Cake Shop).
 - Lines that say her name get `kid: true` in `lines.js`, plus a neutral line for everyone else.
 - The site name and comments are fine: "Yas's Games", `yasGames` and `yas-` are renamed automatically.
-- If the build stops with "still mentions Yas", it lists the file and line.
+- If the build stops with "still mentions Yas", it lists the file and line (the Lili build checks too).
 
 ## One-time setup
 

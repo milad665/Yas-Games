@@ -538,7 +538,8 @@
   $('againBtn').onclick = () => { Kit.sfx.pop(); open(letter); };
   $('nextBtn').onclick = () => {
     Kit.sfx.pop();
-    const order = [...NAME, ...Object.keys(BIG).filter(k => !NAME.includes(k))];
+    // a name can repeat letters (L-I-L-I), so each letter only once
+    const order = [...new Set([...NAME, ...Object.keys(BIG)])];
     const next = order.find(k => !isDone(k)) || order[(order.indexOf(letter) + 1) % order.length];
     open(next);
   };

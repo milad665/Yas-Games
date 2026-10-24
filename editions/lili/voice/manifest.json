@@ -1,0 +1,36 @@
+{
+  "voices": {
+    "en": "Jessica (ElevenLabs eleven_v4)",
+    "nl": "Jessica (ElevenLabs eleven_v4)",
+    "de": "Lucy Fennek (ElevenLabs eleven_v4)",
+    "fa": "Matilda (ElevenLabs eleven_v4)"
+  },
+  "en": {
+    "lt.L.kid": "791d6d4e41",
+    "lt.name": "0e95bce90f",
+    "lt.nameBig": "37d3e3fca4",
+    "cs.age.kid": "f1c5a0ac4b",
+    "cs.hb.kid": "85acf897fe"
+  },
+  "nl": {
+    "lt.L.kid": "f60da98ba6",
+    "lt.nameBig": "c44b2eea16",
+    "lt.name": "094658b122",
+    "cs.age.kid": "9e251555bf",
+    "cs.hb.kid": "acbc9fc07d"
+  },
+  "de": {
+    "lt.L.kid": "3b496b516f",
+    "cs.age.kid": "f902c53c4e",
+    "lt.name": "2c6162e03c",
+    "lt.nameBig": "35b1ffc7a2",
+    "cs.hb.kid": "8995e287cc"
+  },
+  "fa": {
+    "lt.L.kid": "da8a3b2563",
+    "lt.name": "eda5b2cd0c",
+    "cs.age.kid": "1613bef800",
+    "cs.hb.kid": "7974bfd2b1",
+    "lt.nameBig": "eb28e9c4a5"
+  }
+}

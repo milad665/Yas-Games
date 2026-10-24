@@ -146,3 +146,32 @@ but it won't work offline, and Android won't offer to install it. Pick one of th
 | `permission denied … /var/run/docker.sock` | The runner's user isn't in the `docker` group. Run `sudo usermod -aG docker <user>`, then `sudo ./svc.sh stop && sudo ./svc.sh start`. |
 | `denied` when pulling from ghcr.io | On GitHub open your profile → **Packages → yas-games → Package settings → Manage Actions access** and make sure **Yas-Games** is listed. |
 | Health check fails | Something else uses the port. Set `HOMELAB_PORT` to a free port (see step 4). |
+
+---
+
+## Lili's edition (a second homelab)
+
+**Lili's Games** runs the same way on her family's server: the pipeline builds
+`ghcr.io/milad665/lili-games` and the `deploy-lili` job runs on a self-hosted runner labelled
+**`lili-homelab`**, using `deploy/docker-compose.lili.yml` (container `lili-games`).
+
+Her family sets up the server with the steps above, with these differences:
+
+1. Register the runner with `--name lili-homelab --labels lili-homelab`. Only a repo admin can
+   create the registration token, and it expires after an hour, so make it when they're ready:
+
+   ```bash
+   gh api -X POST repos/milad665/Yas-Games/actions/runners/registration-token --jq .token
+   ```
+
+2. Set the port they chose as the `LILI_PORT` variable (default 8080):
+
+   ```bash
+   gh variable set LILI_PORT --body 8080 --repo milad665/Yas-Games
+   ```
+
+3. Optional: protect the `lili` environment like `production` (Settings → Environments).
+
+A Lili deploy waiting for her server (for example while it's switched off) doesn't hold up
+Yas's deploys: each server has its own queue. On her server:
+`docker ps --filter name=lili-games`, `docker logs lili-games`.
