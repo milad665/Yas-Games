@@ -3,10 +3,10 @@
 // Voice clips: cache first (their URLs change whenever a clip changes). Only the clips for the
 // language she's using are downloaded ahead of time; the pages tell us which one that is
 // (see /shared/voice.js), and switching languages fetches the other set.
-// Images: served from cache, refreshed in the background.
+// Images (and Space Discovery's pictures of the Earth and the Moon): served from cache, refreshed in the background.
 importScripts('/shared/games.js', '/shared/edition.js');
 
-const CACHE = 'yas-games-v13';
+const CACHE = 'yas-games-v14';
 // survives version bumps: remembers the chosen language so a new version can precache its clips
 const SETTINGS = 'yas-games-settings';
 const LANGS = (self.EDITION && EDITION.langs) || ['en', 'nl', 'fa'];
@@ -95,7 +95,7 @@ self.addEventListener('fetch', event => {
   if (req.method !== 'GET' || url.origin !== location.origin) return;
 
   if (url.pathname.endsWith('.mp3')) event.respondWith(cacheFirst(req));
-  else if (url.pathname.endsWith('.png')) event.respondWith(staleWhileRevalidate(event, req));
+  else if (/\.(png|jpg)$/.test(url.pathname)) event.respondWith(staleWhileRevalidate(event, req));
   else event.respondWith(networkFirst(req));
 });
 

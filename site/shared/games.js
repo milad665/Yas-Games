@@ -28,6 +28,15 @@ self.GAMES = [
     colors: ['#ffb3d9', '#c4b5fd', '#8fd3ff'],
   },
   {
+    name: 'Space Discovery',
+    group: 'think',
+    path: 'games/space-discovery/',
+    about: 'Start at your own home, zoom out until the whole Earth floats in space, then fly to the Moon, the Sun, the planets, the asteroids and the stars. Grown-ups can add the homes of family and friends.',
+    art: '🚀',
+    extras: ['🌍', '🌙', '☀️', '🪐', '✨', '🛰️'],
+    colors: ['#1e1b4b', '#4338ca', '#7dd3fc'],
+  },
+  {
     name: 'Beep Boop Robot',
     group: 'think',
     path: 'games/beep-boop-robot/',

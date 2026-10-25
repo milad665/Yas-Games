@@ -1,0 +1,1321 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Space Discovery">
+<meta name="theme-color" content="#02030a">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="stylesheet" href="/shared/kit.css">
+<title>Space Discovery</title>
+<style>
+  body { background: #02030a; color: #fff; }
+  canvas { position: fixed; inset: 0; width: 100%; height: 100%; display: block; }
+  #map { opacity: 0; }
+  #touch { position: fixed; inset: 0; z-index: 2; touch-action: none; }
+  #world { position: fixed; inset: 0; z-index: 3; pointer-events: none; overflow: hidden; }
+
+  /* things in space you can tap: satellites, rocks, the comet */
+  .sprite { position: absolute; left: 0; top: 0; width: 100px; height: 100px; margin: -50px 0 0 -50px; pointer-events: auto; touch-action: manipulation; transform-origin: 50% 50%; display: none; cursor: pointer; }
+  .sprite svg { width: 100%; height: 100%; display: block; overflow: visible; }
+  .sprite .spin { width: 100%; height: 100%; animation: kit-spin var(--spin, 20s) linear infinite; }
+  .sprite .tail { position: absolute; left: 50%; top: 50%; width: 260px; height: 60px; margin-top: -30px; transform-origin: 0 50%; pointer-events: none;
+    background: radial-gradient(ellipse at 0% 50%, rgba(200, 235, 255, .95), rgba(140, 200, 255, .45) 35%, rgba(120, 170, 255, 0) 72%); border-radius: 0 50% 50% 0; filter: blur(2px); }
+  .sprite.boing > * { animation: sd-boing .6s cubic-bezier(.3,1.6,.5,1); }
+  @keyframes sd-boing { 30% { scale: 1.35; } 60% { scale: .9; } }
+
+  /* the people on the map */
+  .pin { position: absolute; left: 0; top: 0; display: none; flex-direction: column; align-items: center; pointer-events: auto; touch-action: manipulation; cursor: pointer; transform-origin: 50% 100%; }
+  .pin .face { width: 60px; height: 60px; border-radius: 50%; background: #fff; display: grid; place-items: center; font-size: 36px; line-height: 1;
+    box-shadow: 0 0 0 4px #ff5fa2, 0 6px 14px rgba(0,0,0,.35); animation: kit-bob 2.4s ease-in-out infinite; }
+  .pin .name { margin-top: 6px; background: rgba(255,255,255,.92); color: #3b2f55; font: 800 15px ui-rounded, system-ui, sans-serif; padding: 3px 10px; border-radius: 999px; white-space: nowrap; box-shadow: 0 3px 8px rgba(0,0,0,.25); }
+  .pin .name:empty { display: none; }
+  .pin .stick { width: 4px; height: 16px; background: #ff5fa2; border-radius: 2px; }
+  .pin .dot { width: 14px; height: 14px; border-radius: 50%; background: #ff5fa2; border: 3px solid #fff; margin-top: -2px; }
+  .pin.boing .face { animation: sd-boing .6s cubic-bezier(.3,1.6,.5,1); }
+
+  /* the rocket that flies along on a trip */
+  #rocket { position: fixed; left: 50%; top: 58%; z-index: 4; font-size: 74px; pointer-events: none; opacity: 0; transition: opacity .3s; filter: drop-shadow(0 0 12px rgba(255, 180, 80, .8)); }
+  #rocket.on { opacity: 1; animation: sd-shake .18s linear infinite; }
+  @keyframes sd-shake { 50% { translate: 1px 2px; } }
+
+  /* which place this is (for grown-ups to read out) */
+  #label { position: fixed; top: max(22px, env(safe-area-inset-top)); left: 50%; translate: -50% 0; z-index: 10; pointer-events: none;
+    background: rgba(10, 14, 40, .6); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); color: #fff; font: 800 22px ui-rounded, system-ui, sans-serif;
+    padding: 8px 20px; border-radius: 999px; white-space: nowrap; max-width: calc(100vw - 260px); overflow: hidden; text-overflow: ellipsis; }
+  #label:empty { display: none; }
+  @media (max-width: 640px) { #label { top: calc(max(16px, env(safe-area-inset-top)) + 80px); max-width: calc(100vw - 40px); font-size: 19px; } }
+  #gearBtn { right: calc(max(16px, env(safe-area-inset-right)) + 80px); width: 52px; height: 52px; font-size: 24px; top: calc(max(16px, env(safe-area-inset-top)) + 7px); opacity: .85; }
+
+  /* zooming in and out, and the day-and-night spin */
+  #zoom { position: fixed; right: max(16px, env(safe-area-inset-right)); top: 50%; translate: 0 -60%; z-index: 10; display: flex; flex-direction: column; gap: 18px; }
+  #zoom .btn { width: 72px; height: 72px; font-size: 40px; font-weight: 900; color: #3b2f55; }
+  #spinBtn { position: fixed; left: max(16px, env(safe-area-inset-left)); top: 50%; translate: 0 -60%; z-index: 10; width: 72px; height: 72px; font-size: 38px; }
+  #spinBtn[hidden] { display: none; }
+  #spinBtn.on { background: #fde047; animation: kit-pulse 1s ease-in-out infinite; }
+
+  /* the trip: a picture for every place to fly to */
+  #trip { position: fixed; left: 0; right: 0; bottom: 0; z-index: 10; display: flex; gap: 12px; overflow-x: auto; overflow-y: hidden; touch-action: pan-x;
+    padding: 12px max(16px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+    background: linear-gradient(rgba(6, 8, 30, 0), rgba(6, 8, 30, .75) 40%); scrollbar-width: none; }
+  #trip::-webkit-scrollbar { display: none; }
+  #trip .btn { width: 66px; height: 66px; font-size: 38px; background: rgba(255,255,255,.95); }
+  #trip .btn.on { box-shadow: 0 0 0 5px #fde047, 0 6px 0 rgba(40,50,90,.18); }
+  #trip .sep { flex: none; width: 2px; margin: 8px 2px; background: rgba(255,255,255,.25); border-radius: 1px; }
+  .ball { width: 42px; height: 42px; border-radius: 50%; box-shadow: inset -6px -6px 10px rgba(0,0,0,.35); }
+  .ball.saturn { position: relative; width: 34px; height: 34px; }
+  .ball.saturn::after { content: ''; position: absolute; left: -12px; right: -12px; top: 12px; height: 9px; border-radius: 50%; border: 3px solid #d6c08a; transform: rotate(-18deg); }
+  #trip svg { width: 46px; height: 46px; }
+
+  #credit { position: fixed; left: max(8px, env(safe-area-inset-left)); bottom: calc(max(12px, env(safe-area-inset-bottom)) + 84px); z-index: 9; font: 10px system-ui, sans-serif; color: rgba(255,255,255,.8); text-shadow: 0 1px 2px #000; pointer-events: none; opacity: 0; }
+  #noGl { position: fixed; inset: 0; display: none; place-items: center; text-align: center; font: 700 22px system-ui, sans-serif; padding: 30px; z-index: 1; }
+
+  /* grown-ups: choosing a spot on the map */
+  #pick { position: fixed; inset: 0; z-index: 20; pointer-events: none; display: none; }
+  #pick.on { display: block; }
+  #pick .cross { position: absolute; left: 50%; top: 50%; translate: -50% -100%; font-size: 54px; filter: drop-shadow(0 4px 6px rgba(0,0,0,.5)); }
+  #pick .bar { position: absolute; left: 50%; bottom: calc(max(16px, env(safe-area-inset-bottom)) + 96px); translate: -50% 0; display: flex; gap: 12px; pointer-events: auto;
+    background: #fff; color: #3b2f55; padding: 10px; border-radius: 20px; font: 600 16px system-ui, sans-serif; box-shadow: 0 10px 30px rgba(0,0,0,.4); align-items: center; }
+  #pick .bar span { padding: 0 6px; max-width: 46vw; }
+  #pick button { border: none; border-radius: 14px; padding: 12px 16px; font: 700 16px system-ui, sans-serif; background: #4ade80; color: #14532d; touch-action: manipulation; }
+  #pick button.no { background: #efe8ff; color: #4a3b6b; }
+
+  /* grown-ups' settings: the same look and the same question as the home page */
+  #settingsGate { margin-top: 14px; padding: 14px 16px; background: #f6f2ff; border-radius: 16px; }
+  #settingsGate label { display: block; font-weight: 600; margin-bottom: 8px; }
+  #settingsGate .ask, #searchForm { display: flex; gap: 10px; }
+  #settingsGate input, #searchForm input { flex: 1; min-width: 0; font: 600 18px system-ui, sans-serif; padding: 10px 14px; border: 2px solid #d9cff5; border-radius: 12px; }
+  #settingsGate input.wrong { border-color: #f43f5e; animation: nope .4s; }
+  #settingsGate button, #searchForm button { border: none; border-radius: 12px; padding: 0 18px; font: 700 17px system-ui, sans-serif; background: #9b5cff; color: #fff; }
+  @keyframes nope { 25% { translate: -6px 0; } 75% { translate: 6px 0; } }
+  #settingsBody[hidden], #settingsGate[hidden] { display: none; }
+  #settings { position: fixed; inset: 0; z-index: 40; background: rgba(20, 16, 50, .55); display: grid; place-items: center; padding: 16px; -webkit-user-select: text; user-select: text; }
+  #settings[hidden] { display: none; }
+  #settings .panel { background: #fff; border-radius: 28px; width: min(100%, 760px); max-height: calc(100vh - 32px); overflow-y: auto; padding: 22px 24px 26px; box-shadow: 0 20px 50px rgba(0, 0, 0, .4); font-family: system-ui, sans-serif; font-size: 17px; color: #3b2f55; touch-action: pan-y; }
+  #settings h2 { margin: 0 0 4px; font-size: 26px; display: flex; align-items: center; justify-content: space-between; }
+  #settings h3 { margin: 22px 0 6px; font-size: 19px; }
+  #settings p { margin: 4px 0; color: #6b5d88; line-height: 1.4; }
+  #settings p.small { font-size: 13px; margin-top: 18px; }
+  #settings .buttons { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+  #settings button.act { border: none; border-radius: 14px; padding: 11px 16px; font-size: 16px; font-weight: 600; background: #efe8ff; color: #4a3b6b; touch-action: manipulation; }
+  #settings button.act:disabled { opacity: .45; }
+  #settings .close { border: none; background: #f2eefa; width: 44px; height: 44px; border-radius: 50%; font-size: 22px; color: #3b2f55; }
+  .place { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 10px; padding: 8px; background: #faf8ff; border-radius: 16px; }
+  .place select { font-size: 26px; border: 2px solid #d9cff5; border-radius: 12px; background: #fff; padding: 2px 4px; }
+  .place input { flex: 1; min-width: 8em; font: 600 17px system-ui, sans-serif; padding: 8px 12px; border: 2px solid #d9cff5; border-radius: 12px; }
+  .place .where { font-size: 13px; color: #8a7aa8; width: 100%; padding-left: 4px; }
+  .place button { border: none; background: #efe8ff; border-radius: 12px; font-size: 18px; width: 44px; height: 42px; padding: 0; touch-action: manipulation; }
+  .place .home { font-size: 13px; font-weight: 700; color: #9b5cff; }
+  #results button { display: block; width: 100%; text-align: left; margin-top: 8px; border: none; background: #f6f2ff; border-radius: 12px; padding: 10px 14px; font: 15px system-ui, sans-serif; color: #3b2f55; }
+  #status { min-height: 1.4em; font-weight: 600; color: #22a845 !important; }
+</style>
+</head>
+<body>
+
+<canvas id="gl"></canvas>
+<canvas id="map"></canvas>
+<canvas id="fx"></canvas>
+<div id="noGl">🚀 This game needs a newer browser to show space.</div>
+<div id="touch"></div>
+<div id="world"></div>
+<div id="rocket">🚀</div>
+
+<a class="btn corner left" href="../../" aria-label="Back to Yas's Games">🏠</a>
+<button id="soundBtn" class="btn corner right" aria-label="Sound on or off">🔊</button>
+<button id="gearBtn" class="btn corner right" aria-label="Places for grown-ups">⚙️</button>
+<div id="label"></div>
+<div id="zoom">
+  <button id="zoomIn" class="btn" aria-label="Zoom in">+</button>
+  <button id="zoomOut" class="btn" aria-label="Zoom out">−</button>
+</div>
+<button id="spinBtn" class="btn" hidden aria-label="Spin the Earth">🌗</button>
+<nav id="trip" aria-label="Fly to"></nav>
+<div id="credit">Imagery © Esri, Maxar, Earthstar Geographics · Powered by Esri</div>
+
+<div id="pick">
+  <div class="cross">📍</div>
+  <div class="bar"><span id="pickText">Move the map so the pin is on the spot.</span><button id="pickOk">✓ Here</button><button id="pickNo" class="no">✕</button></div>
+</div>
+
+<div id="settings" hidden role="dialog" aria-label="Places">
+  <div class="panel">
+    <h2>Places on the map <button id="settingsClose" class="close" aria-label="Close">✕</button></h2>
+    <form id="settingsGate">
+      <label for="settingsAnswer">A quick check for grown-ups: what is <span id="settingsQ"></span>?</label>
+      <div class="ask">
+        <input id="settingsAnswer" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="off" placeholder="Answer in numbers">
+        <button type="submit">OK</button>
+      </div>
+    </form>
+    <div id="settingsBody" hidden>
+      <p>Add the homes of the people your child loves: your own home, grandparents, friends. They show up on the Earth as faces, and as buttons to fly to. The first place is <b>home</b>: the game starts there.</p>
+      <div id="placeList"></div>
+
+      <h3>➕ Add a place</h3>
+      <form id="searchForm">
+        <input id="searchInput" type="search" autocomplete="off" placeholder="An address or a town">
+        <button type="submit">Search</button>
+      </form>
+      <div id="results"></div>
+      <div class="buttons">
+        <button id="hereBtn" class="act">📍 Where I am now</button>
+        <button id="pickBtn" class="act">🗺️ Choose on the map</button>
+      </div>
+      <p id="status"></p>
+      <p class="small">Places are kept only on this device. Addresses you search for are looked up with OpenStreetMap (Nominatim). Close-up photos of the Earth: Esri World Imagery. Earth from space, city lights and the Moon: NASA.</p>
+    </div>
+  </div>
+</div>
+
+<script src="/shared/lines.js"></script>
+<script src="/shared/edition.js"></script>
+<script src="/shared/voice.js"></script>
+<script src="/shared/kit.js"></script>
+<script>
+(() => {
+  const { $, rand } = Kit;
+  const D2R = Math.PI / 180, TAU = Math.PI * 2;
+  const TAN = Math.tan(25 * D2R); // half the vertical field of view
+  const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
+  const smooth = (a, b, x) => { const t = clamp((x - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };
+  const ease = t => t * t * t * (t * (t * 6 - 15) + 10);
+
+  // ---------- little vector helpers (arrays of 3; matrices are 3 columns, as WebGL wants them) ----------
+  const add = (a, b) => [a[0] + b[0], a[1] + b[1], a[2] + b[2]];
+  const sub = (a, b) => [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
+  const mul = (a, s) => [a[0] * s, a[1] * s, a[2] * s];
+  const dot = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+  const cross = (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
+  const len = a => Math.hypot(a[0], a[1], a[2]);
+  const norm = a => mul(a, 1 / (len(a) || 1));
+  const mix = (a, b, t) => add(a, mul(sub(b, a), t));
+  const UP = [0, 1, 0];
+  const cols = (a, b, c) => [...a, ...b, ...c];
+  const I3 = cols([1, 0, 0], [0, 1, 0], [0, 0, 1]);
+  const mulMV = (m, v) => [m[0] * v[0] + m[3] * v[1] + m[6] * v[2], m[1] * v[0] + m[4] * v[1] + m[7] * v[2], m[2] * v[0] + m[5] * v[1] + m[8] * v[2]];
+  const mulTV = (m, v) => [m[0] * v[0] + m[1] * v[1] + m[2] * v[2], m[3] * v[0] + m[4] * v[1] + m[5] * v[2], m[6] * v[0] + m[7] * v[1] + m[8] * v[2]];
+  const mulMM = (a, b) => cols(mulMV(a, b.slice(0, 3)), mulMV(a, b.slice(3, 6)), mulMV(a, b.slice(6, 9)));
+  const rotY = a => cols([Math.cos(a), 0, -Math.sin(a)], [0, 1, 0], [Math.sin(a), 0, Math.cos(a)]);
+  const rotX = a => cols([1, 0, 0], [0, Math.cos(a), Math.sin(a)], [0, -Math.sin(a), Math.cos(a)]);
+  const rotZ = a => cols([Math.cos(a), Math.sin(a), 0], [-Math.sin(a), Math.cos(a), 0], [0, 0, 1]);
+  function slerp(a, b, t) {
+    const c = clamp(dot(a, b), -1, 1), th = Math.acos(c);
+    if (th < 1e-5) return norm(mix(a, b, t));
+    if (th > Math.PI - 1e-3) { // straight through: go round the side
+      const side = norm(Math.abs(a[1]) < .9 ? cross(a, UP) : cross(a, [1, 0, 0]));
+      return t < .5 ? slerp(a, side, t * 2) : slerp(side, b, t * 2 - 1);
+    }
+    const s = Math.sin(th);
+    return add(mul(a, Math.sin((1 - t) * th) / s), mul(b, Math.sin(t * th) / s));
+  }
+  // a direction on a ball from latitude and longitude (degrees), and back:
+  // x = (0°, 0°), y = the north pole, z = (0°, 90° west)
+  const local = (lat, lon) => { const p = lat * D2R, l = lon * D2R; return [Math.cos(p) * Math.cos(l), Math.sin(p), -Math.cos(p) * Math.sin(l)]; };
+  const latLon = v => [Math.asin(clamp(v[1], -1, 1)) / D2R, Math.atan2(-v[2], v[0]) / D2R];
+  const wrapLon = l => ((l + 540) % 360) - 180;
+
+  // ---------- the solar system (not to scale: real distances would make everything too tiny to see) ----------
+  //   r: radius (the Earth is 1)   a: distance from the Sun   L0, n: where it is on its orbit (degrees, J2000, per day)
+  const BODIES = [
+    { id: 'sun', r: 12, color: '#ffd166' },
+    { id: 'mercury', r: .38, a: 36, L0: 252.25, n: 4.09233, spin: .02, color: '#b8b0a8' },
+    { id: 'venus', r: .95, a: 50, L0: 181.98, n: 1.60213, spin: .006, color: '#f5d48a' },
+    { id: 'earth', r: 1, a: 69, L0: 100.46, n: .98561, color: '#5aa7ff' },
+    { id: 'mars', r: .53, a: 90, L0: 355.45, n: .52403, spin: .04, color: '#e8784a' },
+    { id: 'jupiter', r: 5, a: 144, L0: 34.40, n: .08309, spin: .07, color: '#e0c49a' },
+    { id: 'saturn', r: 4.2, a: 192, L0: 49.94, n: .03346, spin: .06, tilt: 27, color: '#ecd9a0' },
+    { id: 'uranus', r: 2.2, a: 234, L0: 313.23, n: .01173, spin: .05, roll: 98, color: '#9fe6ee' },
+    { id: 'neptune', r: 2.1, a: 270, L0: 304.88, n: .00598, spin: .05, color: '#5b82f0' },
+    { id: 'moon', r: .27, color: '#cfcfcf' },
+  ];
+  const B = Object.fromEntries(BODIES.map((b, i) => [b.id, Object.assign(b, { i, pos: [0, 0, 0], rot: I3 })]));
+  const MOON_A = 7;          // the Moon's orbit (the real one is 60 Earths away)
+  const BELT = [108, 129];     // the asteroid belt, between Mars and Jupiter
+  const J2000 = Date.UTC(2000, 0, 1, 12);
+  const NEW_MOON = (Date.UTC(2000, 0, 6, 18, 14) - J2000) / 864e5, SYNODIC = 29.530588;
+
+  let timeOffset = 0;        // ms ahead of now (the day-and-night spin moves time on)
+  let earthR = I3;           // the Earth's turn: its own directions → space
+  let rocksAt = [0, 0, 0], cometAt = [0, 0, 0];
+  const helio = (a, deg) => [a * Math.cos(deg * D2R), 0, -a * Math.sin(deg * D2R)];
+
+  function updateWorld(secs) {
+    const ms = Date.now() + timeOffset, days = (ms - J2000) / 864e5;
+    for (const b of BODIES) if (b.a) b.pos = helio(b.a, b.L0 + b.n * days);
+    const E = B.earth.pos;
+    // the Earth turns so the Sun is overhead where it really is right now (day and night, seasons)
+    const s = norm(mul(E, -1));
+    const sunLon = Math.atan2(-s[2], s[0]);
+    const decl = Math.asin(Math.sin(23.44 * D2R) * Math.sin(sunLon));
+    const hours = (ms / 3.6e6) % 24;
+    const below = local(decl / D2R, wrapLon(-15 * (hours - 12))); // where the Sun is straight overhead
+    const north = norm(add(mul(norm(sub(UP, mul(s, s[1]))), Math.cos(decl)), mul(s, Math.sin(decl))));
+    const l2 = norm(sub(UP, mul(below, below[1]))), w2 = norm(sub(north, mul(s, dot(north, s))));
+    const L = cols(below, l2, cross(below, l2)), W = cols(s, w2, cross(s, w2));
+    earthR = cols(mulMV(W, mulTV(L, [1, 0, 0])), mulMV(W, mulTV(L, [0, 1, 0])), mulMV(W, mulTV(L, [0, 0, 1])));
+    B.earth.rot = earthR;
+    // the Moon: its real phase, always showing the Earth the same face
+    const phase = (((days - NEW_MOON) % SYNODIC) + SYNODIC) % SYNODIC / SYNODIC;
+    B.moon.pos = add(E, mul(helio(1, sunLon / D2R + phase * 360), MOON_A));
+    const toE = norm(sub(E, B.moon.pos)), mz = norm(cross(toE, UP));
+    B.moon.rot = cols(toE, cross(mz, toE), mz);
+    for (const b of BODIES) if (b.spin) {
+      let m = rotY(secs * b.spin);
+      if (b.tilt) m = mulMM(rotX(b.tilt * D2R), m);
+      if (b.roll) m = mulMM(rotZ(b.roll * D2R), m);
+      b.rot = m;
+    }
+    const eAng = B.earth.L0 + B.earth.n * days;
+    rocksAt = helio(118, eAng + 55); rocksAt[1] = .8;
+    cometAt = helio(162, eAng - 70); cometAt[1] = 18;
+  }
+
+  // ---------- places to fly to ----------
+  const NAMES = {
+    earth: ['🌍', { en: 'Earth', nl: 'Aarde', de: 'Erde', es: 'Tierra', fa: 'زمین' }],
+    moon: ['🌙', { en: 'Moon', nl: 'Maan', de: 'Mond', es: 'Luna', fa: 'ماه' }],
+    sun: ['☀️', { en: 'Sun', nl: 'Zon', de: 'Sonne', es: 'Sol', fa: 'خورشید' }],
+    mercury: ['', { en: 'Mercury', nl: 'Mercurius', de: 'Merkur', es: 'Mercurio', fa: 'عطارد' }],
+    venus: ['', { en: 'Venus', nl: 'Venus', de: 'Venus', es: 'Venus', fa: 'زهره' }],
+    mars: ['', { en: 'Mars', nl: 'Mars', de: 'Mars', es: 'Marte', fa: 'مریخ' }],
+    jupiter: ['', { en: 'Jupiter', nl: 'Jupiter', de: 'Jupiter', es: 'Júpiter', fa: 'مشتری' }],
+    saturn: ['🪐', { en: 'Saturn', nl: 'Saturnus', de: 'Saturn', es: 'Saturno', fa: 'زحل' }],
+    uranus: ['', { en: 'Uranus', nl: 'Uranus', de: 'Uranus', es: 'Urano', fa: 'اورانوس' }],
+    neptune: ['', { en: 'Neptune', nl: 'Neptunus', de: 'Neptun', es: 'Neptuno', fa: 'نپتون' }],
+    rocks: ['🪨', { en: 'Asteroids', nl: 'Planetoïden', de: 'Asteroiden', es: 'Asteroides', fa: 'سیارک‌ها' }],
+    comet: ['☄️', { en: 'Comet', nl: 'Komeet', de: 'Komet', es: 'Cometa', fa: 'دنباله‌دار' }],
+    solar: ['☀️', { en: 'Solar system', nl: 'Zonnestelsel', de: 'Sonnensystem', es: 'Sistema solar', fa: 'منظومه‌ی شمسی' }],
+    stars: ['✨', { en: 'Stars', nl: 'Sterren', de: 'Sterne', es: 'Estrellas', fa: 'ستاره‌ها' }],
+  };
+  const FACTS = {
+    earth: ['sd.earth1', 'sd.earth2'], moon: ['sd.moon1', 'sd.moon2'], sun: ['sd.sun1', 'sd.sun2'],
+    mercury: ['sd.mercury1', 'sd.mercury2'], venus: ['sd.venus1', 'sd.venus2'], mars: ['sd.mars1', 'sd.mars2'],
+    jupiter: ['sd.jupiter1', 'sd.jupiter2'], saturn: ['sd.saturn1', 'sd.saturn2'], uranus: ['sd.uranus1', 'sd.uranus2'],
+    neptune: ['sd.neptune1', 'sd.neptune2'], rocks: ['sd.rocks1', 'sd.rocks2'], comet: ['sd.comet1', 'sd.comet2'],
+    solar: ['sd.solar'], stars: ['sd.stars1', 'sd.stars2'],
+    iss: ['sd.iss1', 'sd.iss2'], sat: ['sd.sat1', 'sd.sat2'], hubble: ['sd.hubble'],
+  };
+  const factNo = {};
+  const fact = id => { const f = FACTS[id]; const n = factNo[id] = (factNo[id] ?? -1) + 1; return f[n % f.length]; };
+
+  // what the camera circles around: a planet, the Sun, or a spot (the asteroids, the comet)
+  const FOCUS = id => id === 'solar' || id === 'stars' ? 'sun' : id;
+  const centerOf = f => f === 'rocks' ? rocksAt : f === 'comet' ? cometAt : B[f].pos;
+  const radiusOf = f => f === 'rocks' ? 1.2 : f === 'comet' ? .8 : B[f].r;
+  // the Earth's camera turns with the Earth, so home stays put (except while it spins for day and night)
+  let spinFrame = null;
+  const frameOf = f => f === 'earth' ? (spinFrame || earthR) : I3;
+  const MAXD = { earth: 45, moon: 30, sun: 1300, stars: 16000 };
+  const maxDist = f => MAXD[f] || radiusOf(f) * 40 + 20;
+  const minDist = f => f === 'earth' ? distForZoom(MAX_ZOOM, cam.lat) : radiusOf(f) * 1.25;
+
+  // the camera: circling `focus` at latitude/longitude (in the focus's own directions) and distance
+  const cam = { focus: 'earth', lat: 30, lon: wrapLon(-new Date().getTimezoneOffset() / 4), dist: 3.4 };
+  let view = 'earth';
+
+  // ---------- screen ----------
+  let W = innerWidth, H = innerHeight;
+  const dpr = () => Math.min(devicePixelRatio || 1, 2);
+
+  // ---------- the map: real satellite photos when close to the Earth ----------
+  // The globe and the map meet where they show the Earth at the same size, so zooming feels like one movement.
+  const MAX_ZOOM = 18.5, TILE_MAX = 19;
+  const TILE_URL = (z, x, y) => `https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/${z}/${y}/${x}`;
+  const groundScale = lat => H * TAU * Math.cos(clamp(lat, -84, 84) * D2R) / (256 * 2 * TAN);
+  const mapZoom = () => cam.focus === 'earth' ? Math.log2(groundScale(cam.lat) / Math.max(cam.dist - 1, 1e-9)) : -99;
+  const distForZoom = (z, lat) => 1 + groundScale(lat) / Math.pow(2, z);
+  const merc = (lat, lon) => {
+    const p = clamp(lat, -85, 85) * D2R;
+    return [(lon + 180) / 360, (1 - Math.log(Math.tan(p) + 1 / Math.cos(p)) / Math.PI) / 2];
+  };
+  const unmerc = (x, y) => [Math.atan(Math.sinh(Math.PI * (1 - 2 * y))) / D2R, wrapLon(x * 360 - 180)];
+
+  const mapCv = $('map'), mctx = mapCv.getContext('2d');
+  const tiles = new Map(); // "z/x/y" → { img, ok }
+  let tilesWanted = 0;
+  function tile(z, x, y, load) {
+    const key = z + '/' + x + '/' + y;
+    let t = tiles.get(key);
+    if (t) { tiles.delete(key); tiles.set(key, t); return t; }
+    if (!load) return null;
+    t = { img: new Image(), ok: false };
+    t.img.decoding = 'async';
+    t.img.onload = () => { t.ok = true; };
+    t.img.onerror = () => { t.bad = true; };
+    t.img.src = TILE_URL(z, x, y);
+    tiles.set(key, t);
+    if (tiles.size > 500) tiles.delete(tiles.keys().next().value);
+    return t;
+  }
+  function drawMap() {
+    const z = mapZoom(), zi = clamp(Math.round(z), 1, TILE_MAX), s = Math.pow(2, z - zi), n = 1 << zi, size = 256 * s;
+    const [mx, my] = merc(cam.lat, cam.lon);
+    const cx = mx * n * 256, cy = my * n * 256; // centre, in tile pixels at zoom zi
+    const d = dpr();
+    mctx.setTransform(d, 0, 0, d, 0, 0);
+    // zoomed out, the globe underneath stands in for photos still on their way; close up, plain dark blue
+    if (z < 8) mctx.clearRect(0, 0, W, H); else { mctx.fillStyle = '#0b1d3a'; mctx.fillRect(0, 0, W, H); }
+    const x0 = Math.floor((cx - W / 2 / s) / 256), x1 = Math.floor((cx + W / 2 / s) / 256);
+    const y0 = Math.max(0, Math.floor((cy - H / 2 / s) / 256)), y1 = Math.min(n - 1, Math.floor((cy + H / 2 / s) / 256));
+    for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) {
+      const dx = W / 2 + (x * 256 - cx) * s, dy = H / 2 + (y * 256 - cy) * s, xx = ((x % n) + n) % n;
+      const t = tile(zi, xx, y, true);
+      if (t.ok) { mctx.drawImage(t.img, dx, dy, size + .5, size + .5); continue; }
+      // not here yet: stretch a bigger tile we already have, or shrink the four closer-up ones
+      let filled = false;
+      for (let k = 1; k <= 8 && zi - k >= 0 && !filled; k++) {
+        const p = tile(zi - k, xx >> k, y >> k, false);
+        if (p && p.ok) {
+          const part = 256 >> k, sx = (xx % (1 << k)) * part, sy = (y % (1 << k)) * part;
+          mctx.drawImage(p.img, sx, sy, part, part, dx, dy, size + .5, size + .5);
+          filled = true;
+        }
+      }
+      if (zi < TILE_MAX) for (let i = 0; i < 4; i++) {
+        const ch = tile(zi + 1, xx * 2 + (i & 1), y * 2 + (i >> 1), false);
+        if (ch && ch.ok) mctx.drawImage(ch.img, dx + (i & 1) * size / 2, dy + (i >> 1) * size / 2, size / 2 + .5, size / 2 + .5);
+      }
+    }
+    // fetch the zoomed-out photos of this spot ahead of time, ready for zooming out
+    for (const k of [2, 4, 6]) if (zi - k >= 1) tile(zi - k, Math.floor(mx * (n >> k)), Math.floor(my * (n >> k)), true);
+  }
+  const mapPoint = (lat, lon) => {
+    const W0 = 256 * Math.pow(2, mapZoom()), [ax, ay] = merc(lat, lon), [bx, by] = merc(cam.lat, cam.lon);
+    let dx = ax - bx; dx -= Math.round(dx);
+    return { x: W / 2 + dx * W0, y: H / 2 + (ay - by) * W0 };
+  };
+
+  // ---------- the space picture: one shader draws every ball, the rings, the glow and the stars ----------
+  const glCv = $('gl');
+  const gl = glCv.getContext('webgl2', { antialias: false, alpha: false, powerPreference: 'high-performance' });
+  let prog = null, U = {};
+  const VERT = `#version 300 es
+    void main() { vec2 p = vec2(float((gl_VertexID << 1) & 2), float(gl_VertexID & 2)); gl_Position = vec4(p * 2. - 1., 0., 1.); }`;
+  const FRAG = `#version 300 es
+    precision highp float;
+    uniform vec2 uRes; uniform vec3 uR, uU, uF, uCam; uniform float uTan, uTime, uOrbits, uMoonOrbit, uFlat;
+    uniform vec4 uB[10]; uniform mat3 uRot[10];
+    uniform sampler2D uDay, uNight, uMoonT;
+    out vec4 outColor;
+    #define PI 3.14159265
+    const float ORB[8] = float[8](${BODIES.filter(b => b.a).map(b => b.a.toFixed(1)).join(',')});
+
+    float hash(vec3 p) { p = fract(p * .3183099 + vec3(.1, .2, .3)); p *= 17.; return fract(p.x * p.y * p.z * (p.x + p.y + p.z)); }
+    float noise(vec3 x) {
+      vec3 i = floor(x), f = fract(x); f = f * f * (3. - 2. * f);
+      return mix(mix(mix(hash(i), hash(i + vec3(1,0,0)), f.x), mix(hash(i + vec3(0,1,0)), hash(i + vec3(1,1,0)), f.x), f.y),
+                 mix(mix(hash(i + vec3(0,0,1)), hash(i + vec3(1,0,1)), f.x), mix(hash(i + vec3(0,1,1)), hash(i + vec3(1,1,1)), f.x), f.y), f.z);
+    }
+    float fbm(vec3 p) { float a = .5, s = 0.; for (int i = 0; i < 4; i++) { s += a * noise(p); p *= 2.03; a *= .5; } return s; }
+
+    float sphere(vec3 rd, vec4 b) {
+      float t = dot(b.xyz, rd); vec3 q = b.xyz - t * rd; float h = b.w * b.w - dot(q, q);
+      if (h < 0.) return -1.; h = sqrt(h); return t - h > 0. ? t - h : -1.;
+    }
+    // a map picture wrapped round a ball (no seam where the two edges meet)
+    vec2 ballUV(vec3 n) {
+      float u = atan(-n.z, n.x) / (2. * PI) + .5, u1 = fract(u), u2 = fract(u + .5) - .5;
+      return vec2(fwidth(u1) <= fwidth(u2) + 1e-6 ? u1 : u2, .5 - asin(clamp(n.y, -1., 1.)) / PI);
+    }
+    vec3 star(vec3 d, float sc, float th, float sz) {
+      vec3 p = d * sc, c = floor(p); float h = hash(c + 11.7);
+      if (h < th) return vec3(0.);
+      vec3 j = vec3(hash(c + 1.7), hash(c + 4.3), hash(c + 7.9));
+      float s = smoothstep(sz, 0., length(p - (c + .25 + .5 * j))) * (.35 + .9 * (h - th) / (1. - th));
+      s *= .8 + .2 * sin(uTime * 2.5 + h * 90.);
+      return mix(vec3(.75, .85, 1.), vec3(1., .85, .65), hash(c + 3.1)) * s;
+    }
+    vec3 sky(vec3 d) {
+      vec3 col = vec3(.004, .006, .02);
+      float m = exp(-pow(dot(d, normalize(vec3(.3, .86, .42))), 2.) * 14.);
+      col += (vec3(.17, .14, .28) * fbm(d * 4.) * smoothstep(.25, .7, fbm(d * 9. + 2.)) * 1.6 + vec3(.04, .04, .08)) * m;
+      return col + star(d, 170., .955, .34) + star(d, 70., .985, .3) * 1.5;
+    }
+    vec3 shade(int id, vec3 P, vec3 rd) {
+      vec4 b = uB[id]; vec3 N = normalize(P - b.xyz), L = normalize(uB[0].xyz - P);
+      float ndl = dot(N, L);
+      if (id == 0) { // the Sun
+        float g = fbm(N * 6. + vec3(uTime * .05)), g2 = noise(N * 30. + vec3(uTime * .2)), mu = max(dot(N, -rd), 0.);
+        vec3 c = mix(vec3(.95, .32, .02), vec3(1., .86, .38), smoothstep(.1, .95, g * .9 + g2 * .3));
+        return c * (.45 + .6 * pow(mu, .6)) + vec3(.25, .12, 0.) * pow(mu, 3.);
+      }
+      vec3 n = transpose(uRot[id]) * N, c;
+      if (id == 3) { // the Earth: daytime photo, city lights at night, shiny seas and a blue sky edge
+        vec2 uv = ballUV(n);
+        vec3 day = texture(uDay, uv).rgb, night = texture(uNight, uv).rgb;
+        ndl = mix(ndl, .8, uFlat); // under the map's daytime photos the Earth stays sunny too
+        float dayAmt = smoothstep(-.1, .15, ndl);
+        vec3 lights = vec3(1., .78, .45) * smoothstep(.2, .65, dot(night, vec3(.3, .5, .2))) * 1.4;
+        float sea = clamp((day.b - day.r) * 4. - .2, 0., 1.);
+        c = day * (.07 + 1.13 * max(ndl, 0.)) + lights * (1. - dayAmt);
+        c += vec3(1., .95, .85) * pow(max(dot(reflect(-L, N), -rd), 0.), 28.) * sea * .5 * step(0., ndl);
+        c += vec3(.3, .55, 1.) * pow(1. - max(dot(N, -rd), 0.), 2.5) * (.12 + .9 * dayAmt) * .9;
+        return c;
+      }
+      if (id == 9) return texture(uMoonT, ballUV(n)).rgb * (.03 + 1.2 * max(ndl, 0.));
+      if (id == 1) c = vec3(.62, .58, .55) * (.55 + .5 * fbm(n * 5.)) - .14 * smoothstep(.62, .7, noise(n * 9.));
+      else if (id == 2) c = mix(vec3(.96, .86, .6), vec3(.84, .62, .34), fbm(vec3(n.x * 2., n.y * 7., n.z * 2.) + vec3(uTime * .02, 0, 0)));
+      else if (id == 4) {
+        c = mix(vec3(.88, .44, .22), vec3(.56, .26, .15), smoothstep(.42, .66, fbm(n * 3.5)));
+        c = mix(c, vec3(.97, .95, .95), smoothstep(.86, .9, abs(n.y)));
+      } else if (id == 5) {
+        float band = sin(n.y * 18. + fbm(n * vec3(6., 2., 6.)) * 3.);
+        c = mix(vec3(.93, .86, .74), vec3(.72, .5, .34), smoothstep(-.3, .6, band));
+        float lon = atan(-n.z, n.x) - 1., e = pow(lon / .38, 2.) + pow((n.y + .37) / .11, 2.);
+        c = mix(c, vec3(.82, .36, .22), smoothstep(1., .55, e));
+      } else if (id == 6) c = mix(vec3(.96, .89, .66), vec3(.82, .7, .47), .5 + .5 * sin(n.y * 22. + fbm(n * 3.) * 1.5));
+      else if (id == 7) c = mix(vec3(.64, .9, .93), vec3(.55, .8, .86), .5 + .5 * sin(n.y * 10.));
+      else {
+        c = mix(vec3(.2, .36, .86), vec3(.36, .56, .97), fbm(n * vec3(2., 6., 2.) + vec3(uTime * .03, 0, 0)));
+        float lon = atan(-n.z, n.x) + 2., e = pow(lon / .3, 2.) + pow((n.y + .3) / .1, 2.);
+        c = mix(c, vec3(.1, .18, .5), smoothstep(1., .5, e));
+      }
+      c *= .04 + 1.1 * max(ndl, 0.);
+      return c + vec3(.4, .5, .7) * pow(1. - max(dot(N, -rd), 0.), 3.) * .25 * smoothstep(-.2, .3, ndl);
+    }
+    void main() {
+      vec2 p = (2. * gl_FragCoord.xy - uRes) / uRes.y;
+      vec3 rd = normalize(uF + uTan * (p.x * uR + p.y * uU));
+      float tm = 1e30; int id = -1;
+      for (int i = 0; i < 10; i++) { float t = sphere(rd, uB[i]); if (t > 0. && t < tm) { tm = t; id = i; } }
+      vec3 col = id < 0 ? sky(rd) : shade(id, rd * tm, rd);
+      { // the glow of the Earth's air
+        vec4 e = uB[3]; float t = dot(e.xyz, rd);
+        if (t > 0. && id != 3 && (id < 0 || tm > t)) {
+          vec3 q = t * rd - e.xyz; float d = length(q) / e.w;
+          if (d < 1.13) col += vec3(.35, .6, 1.) * pow(1. - (d - 1.) / .13, 3.) * smoothstep(-.35, .4, dot(normalize(q), normalize(uB[0].xyz - e.xyz))) * .9;
+        }
+      }
+      if (abs(rd.y) > 1e-6) { // the orbits: the planets' round the Sun, and the Moon's round the Earth
+        float tp = -uCam.y / rd.y;
+        if (tp > 0. && tp < tm) {
+          vec3 w = uCam + rd * tp; float px = tp * 2. * uTan / uRes.y, r = length(w.xz), line = 0.;
+          for (int i = 0; i < 8; i++) line = max(line, 1. - smoothstep(.6 * px, 1.8 * px, abs(r - ORB[i])));
+          col += vec3(.35, .5, .9) * line * uOrbits;
+          vec3 ew = uCam + uB[3].xyz;
+          col += vec3(.6, .62, .75) * (1. - smoothstep(.6 * px, 1.8 * px, abs(length(w.xz - ew.xz) - ${MOON_A.toFixed(1)}))) * uMoonOrbit;
+        }
+      }
+      { // Saturn's rings
+        vec4 s = uB[6]; vec3 nR = uRot[6] * vec3(0, 1, 0); float den = dot(rd, nR);
+        if (abs(den) > 1e-5) {
+          float tr = dot(s.xyz, nR) / den;
+          if (tr > 0. && tr < tm) {
+            float rr = length(rd * tr - s.xyz) / s.w;
+            if (rr > 1.25 && rr < 2.3) {
+              float band = .55 + .45 * sin(rr * 38.) * sin(rr * 11. + 1.);
+              float a = .85 * band * smoothstep(1.25, 1.32, rr) * smoothstep(2.3, 2.22, rr) * (1. - .85 * smoothstep(1.86, 1.9, rr) * smoothstep(1.98, 1.94, rr));
+              float lit = .3 + .7 * abs(dot(nR, normalize(uB[0].xyz - rd * tr)));
+              col = mix(col, mix(vec3(.82, .72, .52), vec3(.96, .9, .78), band) * lit, a);
+            }
+          }
+        }
+      }
+      { // the Sun shines
+        vec4 s = uB[0]; float t = dot(s.xyz, rd);
+        if (t > 0. && (id < 0 || id == 0 || tm > t)) col += vec3(1., .72, .38) * pow(s.w / max(length(t * rd - s.xyz), s.w), 2.2) * .55;
+      }
+      outColor = vec4(min(col, 1.), 1.);
+    }`;
+
+  function compile(type, src) {
+    const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s);
+    if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s));
+    return s;
+  }
+  function texture(unit, url, rgb) {
+    const t = gl.createTexture();
+    gl.activeTexture(gl.TEXTURE0 + unit); gl.bindTexture(gl.TEXTURE_2D, t);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([...rgb, 255]));
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    const img = new Image();
+    img.onload = () => {
+      gl.activeTexture(gl.TEXTURE0 + unit); gl.bindTexture(gl.TEXTURE_2D, t);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, img);
+      gl.generateMipmap(gl.TEXTURE_2D);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      const aniso = gl.getExtension('EXT_texture_filter_anisotropic');
+      if (aniso) gl.texParameterf(gl.TEXTURE_2D, aniso.TEXTURE_MAX_ANISOTROPY_EXT, 8);
+    };
+    img.src = url;
+  }
+  try {
+    if (!gl) throw new Error('no WebGL2');
+    prog = gl.createProgram();
+    gl.attachShader(prog, compile(gl.VERTEX_SHADER, VERT));
+    gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, FRAG));
+    gl.linkProgram(prog);
+    if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(prog));
+    gl.useProgram(prog);
+    gl.bindVertexArray(gl.createVertexArray());
+    for (const n of ['uRes', 'uR', 'uU', 'uF', 'uCam', 'uTan', 'uTime', 'uOrbits', 'uMoonOrbit', 'uFlat', 'uB', 'uRot', 'uDay', 'uNight', 'uMoonT']) U[n] = gl.getUniformLocation(prog, n);
+    texture(0, 'earth-day.jpg', [20, 60, 140]); gl.uniform1i(U.uDay, 0);
+    texture(1, 'earth-night.jpg', [0, 0, 0]); gl.uniform1i(U.uNight, 1);
+    texture(2, 'moon.jpg', [150, 150, 150]); gl.uniform1i(U.uMoonT, 2);
+  } catch (e) {
+    console.warn('Space Discovery:', e);
+    prog = null; $('noGl').style.display = 'grid';
+  }
+
+  let glScale = Math.min(devicePixelRatio || 1, 1.5), slowFrames = 0;
+  function resize() {
+    W = innerWidth; H = innerHeight;
+    glCv.width = Math.round(W * glScale); glCv.height = Math.round(H * glScale);
+    for (const c of [mapCv, fxCv]) { c.width = Math.round(W * dpr()); c.height = Math.round(H * dpr()); }
+  }
+  const fxCv = $('fx'), fx = fxCv.getContext('2d');
+  addEventListener('resize', resize);
+  resize();
+
+  const bodyArr = new Float32Array(40), rotArr = new Float32Array(90);
+  function drawSpace(c, secs, flat) {
+    if (!prog) return;
+    gl.viewport(0, 0, glCv.width, glCv.height);
+    gl.uniform2f(U.uRes, glCv.width, glCv.height);
+    gl.uniform3fv(U.uR, c.r); gl.uniform3fv(U.uU, c.u); gl.uniform3fv(U.uF, c.f); gl.uniform3fv(U.uCam, c.pos);
+    gl.uniform1f(U.uTan, TAN); gl.uniform1f(U.uTime, secs % 1000); gl.uniform1f(U.uFlat, flat);
+    for (const b of BODIES) {
+      const p = sub(b.pos, c.pos);
+      bodyArr.set([p[0], p[1], p[2], b.r], b.i * 4);
+      rotArr.set(b.rot, b.i * 9);
+    }
+    gl.uniform4fv(U.uB, bodyArr); gl.uniformMatrix3fv(U.uRot, false, rotArr);
+    // the orbits show when you're out among the planets; the Moon's when you see the Earth and the Moon together
+    const far = len(sub(c.pos, B.sun.pos)) > 2500 ? 0 : 1;
+    const fromEarth = len(sub(c.pos, B.earth.pos));
+    gl.uniform1f(U.uOrbits, .55 * smooth(10, 70, cam.focus === 'earth' || cam.focus === 'moon' ? fromEarth : 999) * far);
+    gl.uniform1f(U.uMoonOrbit, .4 * smooth(3, 7, fromEarth) * (1 - smooth(60, 160, fromEarth)));
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+  }
+
+  // ---------- where the camera is ----------
+  let flight = null; // a trip in progress
+  function pose() {
+    if (flight && flight.pose) return flight.pose;
+    const F = centerOf(cam.focus), V = frameOf(cam.focus);
+    return { pos: add(F, mul(mulMV(V, local(cam.lat, cam.lon)), cam.dist)), target: F, up: mulMV(V, UP) };
+  }
+  function basis(p) {
+    const f = norm(sub(p.target, p.pos));
+    let r = cross(f, p.up);
+    if (len(r) < 1e-6) r = cross(f, [1, 0, 0]);
+    r = norm(r);
+    return { pos: p.pos, f, r, u: cross(r, f) };
+  }
+  function project(P, c) {
+    const v = sub(P, c.pos), z = dot(v, c.f);
+    if (z <= 1e-9) return null;
+    const k = H / 2 / (TAN * z);
+    return { x: W / 2 + dot(v, c.r) * k, y: H / 2 - dot(v, c.u) * k, z, k };
+  }
+  function hitBody(rd, c, maxT = Infinity) {
+    let best = null;
+    for (const b of BODIES) {
+      const v = sub(b.pos, c.pos), t = dot(v, rd), q = sub(v, mul(rd, t)), h = b.r * b.r - dot(q, q);
+      if (h < 0) continue;
+      const th = t - Math.sqrt(h);
+      if (th > 0 && th < maxT && (!best || th < best.t)) best = { b, t: th };
+    }
+    return best;
+  }
+  const rayAt = (x, y, c) => norm(add(c.f, mul(add(mul(c.r, (2 * x - W) / H), mul(c.u, (H - 2 * y) / H)), TAN)));
+
+  // ---------- trips ----------
+  // Round the Earth (house → house, or out to see the whole Earth): latitude, longitude and height,
+  // rising high enough on the way to see both places.
+  function flyEarth(lat, lon, dist, dur) {
+    return new Promise(done => {
+      const a0 = local(cam.lat, cam.lon), a1 = local(lat, lon);
+      const h0 = Math.log(cam.dist - 1), h1 = Math.log(dist - 1);
+      const top = Math.log(Math.max(cam.dist - 1, dist - 1, 2.4 * Math.sin(Math.acos(clamp(dot(a0, a1), -1, 1)) / 2)));
+      const hump = Math.max(0, top - (h0 + h1) / 2);
+      dur = dur || clamp(.8 + .26 * ((top - h0) + (top - h1)), .8, 4.5);
+      flight = { t0: performance.now(), dur: dur * 1000, done, step(t) {
+        const v = slerp(a0, a1, ease(smooth(.1, .9, t)));
+        [cam.lat, cam.lon] = latLon(v);
+        cam.dist = 1 + Math.exp(h0 + (h1 - h0) * ease(t) + 4 * t * (1 - t) * hump);
+      }, end() { cam.lat = lat; cam.lon = lon; cam.dist = dist; } };
+    });
+  }
+  // Across space (Earth → Moon → Sun…): back away, swing over, come in.
+  function flySpace(focus, lat, lon, dist) {
+    return new Promise(done => {
+      const p0 = pose(), F0 = p0.target, d0 = len(sub(p0.pos, F0)), dir0 = norm(sub(p0.pos, F0)), up0 = p0.up;
+      const F1now = centerOf(focus), travel = len(sub(F1now, F0));
+      const top = Math.log(Math.max(d0, dist, travel * .8)), h0 = Math.log(d0), h1 = Math.log(dist);
+      const hump = Math.max(0, top - (h0 + h1) / 2);
+      const dur = clamp(1.4 + .2 * ((top - h0) + (top - h1)), 1.8, 4.2);
+      flight = { t0: performance.now(), dur: dur * 1000, done, space: true, step(t) {
+        const V = frameOf(focus), F1 = centerOf(focus), m = ease(smooth(.08, .88, t));
+        const F = mix(F0, F1, m), dir = slerp(dir0, mulMV(V, local(lat, lon)), m);
+        const d = Math.exp(h0 + (h1 - h0) * ease(t) + 4 * t * (1 - t) * hump);
+        this.pose = { pos: add(F, mul(dir, d)), target: F, up: slerp(up0, mulMV(V, UP), m) };
+      }, end() { Object.assign(cam, { focus, lat, lon, dist }); } };
+    });
+  }
+  function stepFlight(now) {
+    if (!flight) return;
+    const t = clamp((now - flight.t0) / flight.dur, 0, 1);
+    flight.step(t);
+    if (t >= 1) { const f = flight; flight = null; f.end(); f.done(); }
+  }
+
+  // how to arrive at each place: from the sunny side, close enough to fill the screen
+  function arrival(id) {
+    const f = FOCUS(id), C = centerOf(f), toSun = norm(sub(B.sun.pos, C)), toEarth = norm(sub(B.earth.pos, B.sun.pos));
+    const aspect = W / H;
+    const tilt = (v, up) => latLon(norm(add(v, mul(UP, up))));
+    switch (id) {
+      case 'earth': { const h = places[0]; return [h ? h.lat : 25, h ? h.lon : cam.lon, 3.4]; }
+      case 'moon': return [...tilt(norm(add(mul(toSun, .6), mul(norm(sub(B.earth.pos, C)), .8))), .25), B.moon.r * 4.2];
+      case 'sun': return [...tilt(toEarth, .35), B.sun.r * 3.3];
+      case 'solar': return [...tilt(mul(toEarth, .6), 1), Math.max(245 / TAN, 285 / (TAN * aspect))];
+      case 'stars': return [...tilt(mulMV(rotY(.5), toEarth), .5), 7000];
+      case 'rocks': return [...tilt(mulMV(rotY(.7), toSun), .35), 9];
+      case 'comet': return [...tilt(mulMV(rotY(.9), toSun), .3), 7.5];
+      default: return [...tilt(mulMV(rotY(.6), toSun), .3), B[id].r * (id === 'saturn' ? 6.2 : 3.6)];
+    }
+  }
+
+  let trip = 0; // each new trip cancels the one before
+  async function flyTo(id, { quiet = false } = {}) {
+    const my = ++trip;
+    stopSpin(true);
+    const f = FOCUS(id), [lat, lon, dist] = arrival(id);
+    view = id; paintBar(); setLabel(id);
+    if (cam.focus === 'earth' && f === 'earth' && !(flight && flight.space)) {
+      await flyEarth(lat, lon, dist);
+    } else {
+      if (cam.focus === 'earth' && !flight && mapZoom() > 3.4) { await flyEarth(cam.lat, cam.lon, 3.4); if (my !== trip) return; }
+      if (!quiet) { say(['sd.go1', 'sd.go2']); Kit.sfx.whoosh(); }
+      rocket(true);
+      await flySpace(f, lat, lon, dist);
+      rocket(false);
+    }
+    if (my !== trip) return;
+    Kit.sfx.ding();
+    if (!quiet) say(fact(id));
+  }
+  async function flyToPlace(p) {
+    const my = ++trip;
+    stopSpin(true);
+    view = 'place:' + p.id; paintBar(); setLabel(null, p);
+    if (cam.focus !== 'earth' || (flight && flight.space)) {
+      say(['sd.go1', 'sd.go2']); Kit.sfx.whoosh(); rocket(true);
+      await flySpace('earth', p.lat, p.lon, 3.4);
+      rocket(false);
+      if (my !== trip) return;
+    }
+    await flyEarth(p.lat, p.lon, distForZoom(17, p.lat));
+    if (my !== trip) return;
+    Kit.sfx.ding(); sayPlace(p); boing(pinEls.get(p.id));
+  }
+  function rocket(on) { $('rocket').classList.toggle('on', on); }
+
+  // the next step out: from a planet to the whole solar system, and from there to the stars
+  function zoomOutMore() {
+    if (flight) return;
+    if (view === 'stars') return bump();
+    flyTo(cam.focus === 'sun' && cam.dist > 450 ? 'stars' : 'solar');
+  }
+  function bump() { Kit.sfx.boing(); Kit.flash($('zoom'), 'wobble'); }
+
+  // ---------- zoom buttons: a quick smooth push in or out ----------
+  let zoomTween = null;
+  function zoomBy(inwards) {
+    if (flight || pickMode && !inwards && mapZoom() < 5) return;
+    stopSpin(true);
+    const f = cam.focus, r = f === 'earth' ? 1 : radiusOf(f), lo = minDist(f), hi = maxDist(f);
+    let to = r + (cam.dist - r) * (inwards ? .3 : 3.4);
+    if (inwards && cam.dist <= lo * 1.0001) return bump();
+    if (!inwards && cam.dist >= hi * .999) return zoomOutMore();
+    to = clamp(to, lo, hi);
+    zoomTween = { from: Math.log(cam.dist - r), to: Math.log(to - r), r, t0: performance.now() };
+    Kit.sfx.pop();
+  }
+  function stepZoom(now) {
+    if (!zoomTween) return;
+    const t = clamp((now - zoomTween.t0) / 450, 0, 1);
+    cam.dist = zoomTween.r + Math.exp(zoomTween.from + (zoomTween.to - zoomTween.from) * ease(t));
+    if (t >= 1) zoomTween = null;
+  }
+  // a tap is one step; holding the button keeps zooming
+  let hold = null;
+  for (const [id, inwards] of [['zoomIn', true], ['zoomOut', false]]) {
+    const b = $(id);
+    b.addEventListener('pointerdown', e => { e.preventDefault(); hold = { inwards, t0: performance.now(), held: false }; });
+    const up = () => { if (hold && !hold.held) zoomBy(hold.inwards); hold = null; };
+    b.addEventListener('pointerup', up);
+    b.addEventListener('pointerleave', () => { if (hold && hold.held) hold = null; });
+    b.addEventListener('pointercancel', () => { hold = null; });
+    b.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') zoomBy(inwards); });
+  }
+  function stepHold(now, dt) {
+    if (!hold || now - hold.t0 < 300 || flight) return;
+    if (!hold.held) { hold.held = true; zoomTween = null; stopSpin(true); }
+    const f = cam.focus, r = f === 'earth' ? 1 : radiusOf(f);
+    const to = r + (cam.dist - r) * Math.exp((hold.inwards ? -1 : 1) * dt * .0024);
+    if (!hold.inwards && to > maxDist(f)) { hold = null; return zoomOutMore(); }
+    cam.dist = clamp(to, minDist(f), maxDist(f));
+  }
+
+  // ---------- fingers: drag to turn (or slide the map), pinch to zoom, tap to go there ----------
+  const fingers = new Map();
+  let gesture = null, spinV = null;
+  const touch = $('touch');
+  touch.addEventListener('pointerdown', e => {
+    touch.setPointerCapture(e.pointerId);
+    fingers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    spinV = null; zoomTween = null;
+    if (flight) { gesture = null; return; }
+    startGesture(e);
+  });
+  touch.addEventListener('pointermove', e => {
+    const p = fingers.get(e.pointerId);
+    if (!p) return;
+    p.x = e.clientX; p.y = e.clientY;
+    if (gesture) moveGesture(e);
+  });
+  const lift = e => {
+    if (!fingers.has(e.pointerId)) return;
+    fingers.delete(e.pointerId);
+    if (!gesture) return;
+    if (gesture.kind === 'pinch') {
+      if (gesture.past) zoomOutMore();
+      if (fingers.size === 1) startGesture(); else gesture = null;
+      return;
+    }
+    if (!gesture.moved && performance.now() - gesture.t0 < 400) tapAt(e.clientX, e.clientY);
+    else if (gesture.v && performance.now() - gesture.lastT < 80) spinV = { ...gesture.v, map: gesture.map };
+    gesture = null;
+  };
+  touch.addEventListener('pointerup', lift);
+  touch.addEventListener('pointercancel', lift);
+  touch.addEventListener('wheel', e => {
+    e.preventDefault();
+    if (flight) return;
+    const r = cam.focus === 'earth' ? 1 : radiusOf(cam.focus);
+    const to = r + (cam.dist - r) * Math.exp(e.deltaY * .002);
+    if (to > maxDist(cam.focus)) { cam.dist = maxDist(cam.focus); return; }
+    cam.dist = clamp(to, minDist(cam.focus), maxDist(cam.focus));
+  }, { passive: false });
+
+  function startGesture() {
+    const pts = [...fingers.values()];
+    const map = mapZoom() > 4;
+    if (pts.length >= 2) {
+      const [a, b] = pts, mid = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+      const z = mapZoom(), [cx, cy] = merc(cam.lat, cam.lon), W0 = 256 * Math.pow(2, z);
+      gesture = { kind: 'pinch', d0: Math.hypot(a.x - b.x, a.y - b.y), dist0: cam.dist, map, z0: z,
+        anchor: [cx + (mid.x - W / 2) / W0, cy + (mid.y - H / 2) / W0] };
+      stopSpin(true);
+    } else if (pts.length === 1) {
+      gesture = { kind: 'drag', x: pts[0].x, y: pts[0].y, x0: pts[0].x, y0: pts[0].y, t0: performance.now(), lastT: performance.now(), moved: false, map };
+    }
+  }
+  function moveGesture() {
+    const pts = [...fingers.values()];
+    if (gesture.kind === 'pinch' && pts.length >= 2) {
+      const [a, b] = pts, scale = Math.max(.05, Math.hypot(a.x - b.x, a.y - b.y) / gesture.d0);
+      if (gesture.map) {
+        const z = Math.min(MAX_ZOOM, gesture.z0 + Math.log2(scale)), W0 = 256 * Math.pow(2, z);
+        const mid = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+        const c = [gesture.anchor[0] - (mid.x - W / 2) / W0, clamp(gesture.anchor[1] - (mid.y - H / 2) / W0, .02, .98)];
+        [cam.lat, cam.lon] = unmerc(((c[0] % 1) + 1) % 1, c[1]);
+        cam.dist = distForZoom(z, cam.lat);
+      } else {
+        const f = cam.focus, r = f === 'earth' ? 1 : radiusOf(f), to = r + (gesture.dist0 - r) / scale;
+        gesture.past = to > maxDist(f) * 1.3;
+        cam.dist = clamp(to, minDist(f), maxDist(f));
+      }
+      return;
+    }
+    if (gesture.kind !== 'drag' || !pts.length) return;
+    const p = pts[0], dx = p.x - gesture.x, dy = p.y - gesture.y, now = performance.now();
+    if (Math.hypot(p.x - gesture.x0, p.y - gesture.y0) > 10) gesture.moved = true;
+    if (!gesture.moved) return;
+    stopSpin(true);
+    const dt = Math.max(1, now - gesture.lastT);
+    gesture.v = { x: dx / dt, y: dy / dt };
+    gesture.x = p.x; gesture.y = p.y; gesture.lastT = now;
+    turn(dx, dy, gesture.map);
+  }
+  function turn(dx, dy, map) {
+    if (map && cam.focus === 'earth') {
+      const W0 = 256 * Math.pow(2, mapZoom()), [cx, cy] = merc(cam.lat, cam.lon), z = mapZoom();
+      [cam.lat, cam.lon] = unmerc((((cx - dx / W0) % 1) + 1) % 1, clamp(cy - dy / W0, .02, .98));
+      cam.dist = distForZoom(z, cam.lat);
+      return;
+    }
+    const r = cam.focus === 'earth' ? 1 : radiusOf(cam.focus);
+    const k = clamp(2 * TAN * (cam.dist - r) / (r * H), .15 / H, 3.5 / H) / D2R;
+    cam.lat = clamp(cam.lat + dy * k, -80, 80);
+    cam.lon = wrapLon(cam.lon - dx * k / Math.max(Math.cos(cam.lat * D2R), .3));
+  }
+  function glide(dt) {
+    if (!spinV || gesture || flight) return;
+    turn(spinV.x * dt, spinV.y * dt, spinV.map);
+    const k = Math.pow(.004, dt / 1000);
+    spinV.x *= k; spinV.y *= k;
+    if (Math.hypot(spinV.x, spinV.y) < .01) spinV = null;
+  }
+
+  function tapAt(x, y) {
+    if (pickMode) return;
+    const c = basis(pose());
+    if (mapZoom() > 4) { // map: zoom in on that spot
+      const W0 = 256 * Math.pow(2, mapZoom()), [cx, cy] = merc(cam.lat, cam.lon);
+      const [lat, lon] = unmerc((((cx + (x - W / 2) / W0) % 1) + 1) % 1, cy + (y - H / 2) / W0);
+      if (mapZoom() >= MAX_ZOOM - .1) return bump();
+      Kit.sfx.pop();
+      flyEarth(lat, lon, Math.max(distForZoom(Math.min(MAX_ZOOM, mapZoom() + 1.3), lat), minDist('earth')), .6);
+      return;
+    }
+    let hit = hitBody(rayAt(x, y, c), c);
+    if (!hit) { // little fingers, little planets: the nearest one close to the tap
+      let best = 46;
+      for (const b of BODIES) {
+        const p = project(b.pos, c);
+        if (!p || b.id === cam.focus || occluded(b.pos, c)) continue;
+        const d = Math.hypot(p.x - x, p.y - y) - b.r * p.k;
+        if (d < best) { best = d; hit = { b, t: p.z }; }
+      }
+      if (hit && hit.b.id === 'earth' && cam.focus === 'earth') hit = null;
+      if (hit) return flyTo(hit.b.id);
+    }
+    if (!hit) { Kit.burst(x, y, ['✨', '⭐'], 6, 60); Kit.sfx.note(1200 + rand(0, 600), .2); return; }
+    const id = hit.b.id;
+    if (id === 'earth' && cam.focus === 'earth') { // swoop down to the spot she tapped
+      stopSpin(true);
+      const p = add(c.pos, mul(rayAt(x, y, c), hit.t));
+      const [lat, lon] = latLon(mulTV(frameOf('earth'), norm(sub(p, B.earth.pos))));
+      Kit.sfx.pop();
+      flyEarth(lat, lon, 1 + (cam.dist - 1) * .35);
+      return;
+    }
+    if (id === cam.focus && (view === id || (id === 'sun' && view !== 'stars'))) {
+      Kit.burst(x, y, ['✨', '⭐', '💫'], 10, 120); Kit.sfx.ding(); say(fact(id));
+      return;
+    }
+    flyTo(id);
+  }
+
+  // ---------- the day-and-night spin ----------
+  const DAY = 864e5;
+  let spinning = false, stopping = false;
+  function startSpin() {
+    if (spinning) return;
+    spinning = true; stopping = false; spinFrame = earthR;
+    $('spinBtn').classList.add('on');
+    say('sd.spin');
+    // look at the edge between day and night, so both sweep past
+    const sun = norm(sub(B.sun.pos, B.earth.pos)), now = mulMV(spinFrame, local(cam.lat, cam.lon));
+    let side = norm(cross(UP, sun));
+    if (dot(side, now) < 0) side = mul(side, -1);
+    const [lat, lon] = latLon(mulTV(spinFrame, norm(add(add(side, mul(sun, .25)), mul(UP, .3)))));
+    flyEarth(lat, lon, Math.max(cam.dist, 3.4), 1.4);
+  }
+  // spin on until it's today's time of day again, then let the camera turn with the Earth once more
+  function stopSpin(now) {
+    if (!spinning) return;
+    if (!now) { stopping = true; return; }
+    timeOffset = Math.round(timeOffset / DAY) * DAY;
+    finishSpin();
+  }
+  function finishSpin() {
+    const world = mulMV(spinFrame, local(cam.lat, cam.lon));
+    spinning = stopping = false; spinFrame = null;
+    updateWorld(performance.now() / 1000);
+    [cam.lat, cam.lon] = latLon(mulTV(earthR, world));
+    $('spinBtn').classList.remove('on');
+  }
+  function stepSpin(dt) {
+    if (!spinning) return;
+    const before = timeOffset;
+    timeOffset += dt * 7200; // a day in 12 seconds
+    if (stopping && Math.floor(before / DAY) !== Math.floor(timeOffset / DAY)) { timeOffset = Math.round(timeOffset / DAY) * DAY; finishSpin(); }
+  }
+  $('spinBtn').onclick = () => { Kit.sfx.pop(); spinning && !stopping ? stopSpin(false) : startSpin(); };
+
+  // ---------- satellites, rocks and the comet ----------
+  const world = $('world');
+  const svg = (vb, body) => `<svg viewBox="${vb}">${body}</svg>`;
+  const OL = 'stroke="#1e293b" stroke-width="2.5" stroke-linejoin="round"';
+  const panel = (x, y, w, h) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="2" fill="#2f6fd6" ${OL}/>` +
+    Array.from({ length: Math.floor(w / 8) - 1 }, (_, i) => `<path d="M${x + (i + 1) * 8} ${y} v${h}" stroke="#9cc4ff" stroke-width="1.2"/>`).join('');
+  const ART = {
+    iss: svg('-60 -40 120 80', `<rect x="-58" y="-3" width="116" height="6" rx="2" fill="#cbd5e1" ${OL}/>` +
+      panel(-56, -36, 26, 30) + panel(-56, 6, 26, 30) + panel(30, -36, 26, 30) + panel(30, 6, 26, 30) +
+      `<rect x="-16" y="-12" width="32" height="24" rx="8" fill="#f1f5f9" ${OL}/><rect x="-6" y="-24" width="12" height="48" rx="6" fill="#e2e8f0" ${OL}/>` +
+      `<circle cx="0" cy="0" r="5" fill="#7dd3fc" stroke="#1e293b" stroke-width="2"/>`),
+    sat: svg('-50 -30 100 60', panel(-48, -10, 30, 20) + panel(18, -10, 30, 20) +
+      `<path d="M-18 0 H18" stroke="#94a3b8" stroke-width="4"/><rect x="-14" y="-14" width="28" height="28" rx="5" fill="#fbbf24" ${OL}/>` +
+      `<path d="M0 -14 V-22" stroke="#1e293b" stroke-width="2.5"/><path d="M-10 -22 Q0 -34 10 -22Z" fill="#e2e8f0" ${OL}/><circle cx="0" cy="0" r="4" fill="#fff7d6"/>`),
+    hubble: svg('-50 -30 100 60', panel(-30, -28, 60, 12) + panel(-30, 16, 60, 12) +
+      `<rect x="-40" y="-12" width="76" height="24" rx="8" fill="#e5e7eb" ${OL}/><rect x="-40" y="-12" width="20" height="24" rx="6" fill="#cbd5e1" ${OL}/>` +
+      `<path d="M36 -10 L46 -14 V14 L36 10Z" fill="#94a3b8" ${OL}/>`),
+    comet: svg('-30 -30 60 60', `<circle r="20" fill="#e0f2fe" ${OL}/><circle cx="-6" cy="-5" r="5" fill="#bae6fd"/><circle cx="8" cy="6" r="4" fill="#bae6fd"/><circle cx="-4" cy="10" r="3" fill="#bae6fd"/>`),
+  };
+  function rockArt(seed) {
+    let s = seed * 9301 + 49297; const r = () => ((s = (s * 9301 + 49297) % 233280) / 233280);
+    const pts = Array.from({ length: 9 }, (_, i) => { const a = i / 9 * TAU, d = 30 + r() * 14; return `${(Math.cos(a) * d).toFixed(1)},${(Math.sin(a) * d * .8).toFixed(1)}`; });
+    const holes = Array.from({ length: 3 }, () => `<circle cx="${(r() * 40 - 20).toFixed(0)}" cy="${(r() * 30 - 15).toFixed(0)}" r="${(4 + r() * 6).toFixed(0)}" fill="#6b5e55" opacity=".7"/>`).join('');
+    return svg('-50 -50 100 100', `<polygon points="${pts.join(' ')}" fill="${['#9c8b7e', '#a39589', '#8d7f74'][seed % 3]}" ${OL}/>${holes}<path d="M-18 -16 Q-6 -24 6 -20" stroke="#cdbfb3" stroke-width="4" fill="none" stroke-linecap="round"/>`);
+  }
+  // { pos(): where, size: how big in space, art, fact id }
+  const orbit = (rad, incl, period, phase) => () => {
+    const a = performance.now() / 1000 / period * TAU + phase, i = incl * D2R;
+    return add(B.earth.pos, mul([Math.cos(a), Math.sin(a) * Math.sin(i), -Math.sin(a) * Math.cos(i)], rad));
+  };
+  const SPRITES = [
+    { id: 'iss', pos: orbit(1.14, 51.6, 46, 0), size: .16, art: ART.iss },
+    { id: 'hubble', pos: orbit(1.24, 28.5, 62, 2), size: .1, art: ART.hubble },
+    { id: 'sat', pos: orbit(1.65, 12, 140, 4), size: .1, art: ART.sat },
+    { id: 'sat', pos: orbit(2.6, -3, 300, 1), size: .12, art: ART.sat },
+    { id: 'comet', pos: () => cometAt, size: 1.6, art: ART.comet, tail: true },
+  ];
+  for (let i = 0; i < 11; i++) {
+    const off = [rand(-3.5, 3.5), rand(-1.6, 1.6), rand(-3.5, 3.5)], size = rand(.5, 1.6);
+    SPRITES.push({ id: 'rocks', pos: () => add(rocksAt, off), size, art: rockArt(i + 1), spin: rand(14, 40) * (i % 2 ? 1 : -1) });
+  }
+  for (const s of SPRITES) {
+    const el = document.createElement('div');
+    el.className = 'sprite';
+    el.innerHTML = (s.tail ? '<div class="tail"></div>' : '') + (s.spin ? `<div class="spin" style="--spin:${Math.abs(s.spin)}s;animation-direction:${s.spin < 0 ? 'reverse' : 'normal'}">${s.art}</div>` : s.art);
+    el.addEventListener('pointerdown', e => {
+      e.stopPropagation(); boing(el); Kit.sfx.boing();
+      if (s.id === 'rocks' || s.id === 'comet') { if (view !== s.id) return flyTo(s.id); }
+      say(fact(s.id));
+    });
+    world.appendChild(el); s.el = el; s.tailEl = el.querySelector('.tail');
+  }
+  function boing(el) { if (el) Kit.flash(el, 'boing'); }
+
+  function occluded(P, c) {
+    const v = sub(P, c.pos), d = len(v), h = hitBody(mul(v, 1 / d), c, d * .999);
+    return !!h;
+  }
+  function placeSprites(c, hidden) {
+    for (const s of SPRITES) {
+      const P = s.pos(), p = !hidden && project(P, c);
+      const px = p && s.size * p.k;
+      if (!p || px < 14 || p.x < -200 || p.x > W + 200 || p.y < -200 || p.y > H + 200 || occluded(P, c)) { s.el.style.display = 'none'; continue; }
+      s.el.style.display = 'block';
+      s.el.style.transform = `translate(${p.x.toFixed(1)}px, ${p.y.toFixed(1)}px) scale(${(Math.min(px, 260) / 100).toFixed(3)})`;
+      if (s.tailEl) { // the tail always points away from the Sun
+        const q = project(add(P, mul(norm(sub(P, B.sun.pos)), 4)), c);
+        if (q) s.tailEl.style.transform = `rotate(${Math.atan2(q.y - p.y, q.x - p.x)}rad)`;
+      }
+    }
+  }
+
+  // ---------- the asteroid belt, tiny planets as dots, and "this is us" markers ----------
+  const belt = Array.from({ length: 700 }, () => ({ a: rand(BELT[0], BELT[1]), th: rand(0, TAU), y: (Math.random() + Math.random() - 1) * 1.6, s: rand(.15, .45) }));
+  function drawFx(c) {
+    const d = dpr();
+    fx.setTransform(d, 0, 0, d, 0, 0);
+    fx.clearRect(0, 0, W, H);
+    const days = (Date.now() + timeOffset - J2000) / 864e5, fromSun = len(sub(c.pos, B.sun.pos));
+    if (fromSun < 5000) {
+      fx.fillStyle = 'rgba(200, 180, 160, .85)';
+      const sun = project(B.sun.pos, c), sunR = sun ? B.sun.r * sun.k * 1.05 : 0;
+      for (const r of belt) {
+        const th = r.th + days * .0038 * Math.pow(118 / r.a, 1.5);
+        const p = project([r.a * Math.cos(th), r.y, -r.a * Math.sin(th)], c);
+        if (!p || p.x < 0 || p.x > W || p.y < 0 || p.y > H) continue;
+        if (sun && p.z > sun.z && Math.hypot(p.x - sun.x, p.y - sun.y) < sunR) continue; // behind the Sun
+        const s = clamp(r.s * p.k, .7, 2.6);
+        fx.fillRect(p.x - s / 2, p.y - s / 2, s, s);
+      }
+    }
+    // planets too small to see still show as a coloured dot
+    for (const b of BODIES) {
+      if (b.id === 'sun') continue;
+      const p = project(b.pos, c);
+      if (!p || b.r * p.k > 3 || fromSun > 3500) continue;
+      if (b.id === 'moon' && len(sub(c.pos, B.earth.pos)) > 120) continue;
+      if (occluded(b.pos, c)) continue;
+      const r = b.id === 'moon' ? 3 : clamp(3 + b.r * 1.3, 4, 9);
+      const g = fx.createRadialGradient(p.x - r / 3, p.y - r / 3, r / 6, p.x, p.y, r);
+      g.addColorStop(0, '#fff'); g.addColorStop(.35, b.color); g.addColorStop(1, 'rgba(0,0,0,.6)');
+      fx.fillStyle = g; fx.beginPath(); fx.arc(p.x, p.y, r, 0, TAU); fx.fill();
+      if (b.id === 'saturn') { fx.strokeStyle = '#d6c08a'; fx.lineWidth = 1.6; fx.beginPath(); fx.ellipse(p.x, p.y, r * 1.9, r * .6, -.3, 0, TAU); fx.stroke(); }
+    }
+    // our Earth among the planets, and our Sun among the stars
+    const mark = (P, emoji, minR) => {
+      const p = project(P, c);
+      if (!p || p.x < 0 || p.x > W || p.y < 0 || p.y > H) return;
+      const t = performance.now() / 1000, r = minR + 4 * Math.sin(t * 3);
+      fx.strokeStyle = 'rgba(253, 224, 71, .9)'; fx.lineWidth = 3; fx.setLineDash([6, 6]); fx.lineDashOffset = -t * 20;
+      fx.beginPath(); fx.arc(p.x, p.y, r, 0, TAU); fx.stroke(); fx.setLineDash([]);
+      fx.font = '26px system-ui'; fx.textAlign = 'center'; fx.textBaseline = 'bottom'; fx.fillText(emoji, p.x, p.y - r - 4);
+    };
+    const pe = project(B.earth.pos, c);
+    if (pe && pe.k < 8 && len(sub(c.pos, B.earth.pos)) > 25 && fromSun < 3500) mark(B.earth.pos, '🏠', 16);
+    if (fromSun > 3500) mark(B.sun.pos, '☀️', 18);
+  }
+
+  // ---------- the people ----------
+  const placeStore = Kit.store('space-discovery.places', { shared: true });
+  let places = placeStore.get({ list: [] }).list;
+  const savePlaces = () => placeStore.set({ list: places });
+  const pinEls = new Map();
+  function paintPins() {
+    for (const el of pinEls.values()) el.remove();
+    pinEls.clear();
+    for (const p of places) {
+      const el = document.createElement('div');
+      el.className = 'pin';
+      el.innerHTML = '<div class="face"></div><div class="name"></div><div class="stick"></div><div class="dot"></div>';
+      el.querySelector('.face').textContent = p.emoji || '❤️';
+      el.querySelector('.name').textContent = p.name || '';
+      el.addEventListener('pointerdown', e => {
+        e.stopPropagation(); boing(el); Kit.sfx.boing();
+        if (mapZoom() < 14) flyToPlace(p); else sayPlace(p);
+      });
+      world.appendChild(el); pinEls.set(p.id, el);
+    }
+  }
+  function placePins(c, z) {
+    const onMap = z > 4, show = cam.focus === 'earth' || flight;
+    const ek = project(B.earth.pos, c);
+    const shown = [];
+    for (const p of places) {
+      const el = pinEls.get(p.id);
+      let s = null;
+      if (onMap) s = mapPoint(p.lat, p.lon);
+      else if (show && ek && ek.k > 70) {
+        const n = mulMV(earthR, local(p.lat, p.lon)), P = add(B.earth.pos, n);
+        if (dot(n, norm(sub(c.pos, P))) > .08) s = project(P, c);
+      }
+      if (!s || s.x < -80 || s.x > W + 80 || s.y < -20 || s.y > H + 140) { el.style.display = 'none'; continue; }
+      shown.push({ el, x: s.x, y: s.y });
+    }
+    // people living close together stand side by side instead of on top of each other
+    const groups = [];
+    for (const s of shown) {
+      const g = groups.find(g => Math.hypot(g[0].x - s.x, g[0].y - s.y) < 56);
+      g ? g.push(s) : groups.push([s]);
+    }
+    for (const g of groups) g.forEach((s, i) => {
+      const off = (i - (g.length - 1) / 2) * 70;
+      s.el.style.display = 'flex';
+      s.el.style.transform = `translate(${(g[0].x + off).toFixed(1)}px, ${g[0].y.toFixed(1)}px) translate(-50%, -100%)`;
+    });
+  }
+  let sayToken = 0;
+  function say(...keys) { sayToken++; Kit.say(...keys); }
+  async function sayPlace(p) {
+    const my = ++sayToken;
+    if (Kit.muted || !self.Voice) return;
+    await Voice.say('sd.place');
+    if (my !== sayToken || !p.name || !('speechSynthesis' in window)) return;
+    const u = new SpeechSynthesisUtterance(p.name);
+    u.lang = { en: 'en-US', nl: 'nl-NL', de: 'de-DE', es: 'es-ES', fa: 'fa-IR' }[Voice.lang] || 'en-US';
+    u.rate = .9;
+    speechSynthesis.speak(u);
+  }
+
+  // ---------- the trip bar ----------
+  const ICON = {
+    earth: '🌍', moon: '🌙', sun: '☀️', saturn: '<div class="ball saturn" style="background:radial-gradient(circle at 35% 35%,#fff4cf,#e3c27a 55%,#a8823e)"></div>',
+    mercury: '<div class="ball" style="width:30px;height:30px;background:radial-gradient(circle at 35% 35%,#e7e5e4,#a8a29e 55%,#57534e)"></div>',
+    venus: '<div class="ball" style="width:36px;height:36px;background:radial-gradient(circle at 35% 35%,#fff7cc,#f5c66b 55%,#c27c1a)"></div>',
+    mars: '<div class="ball" style="width:32px;height:32px;background:radial-gradient(circle at 35% 35%,#fdba74,#e0632b 55%,#8a2d0c)"></div>',
+    jupiter: '<div class="ball" style="background:linear-gradient(#efe2c8,#c08a5a 22%,#efe2c8 38%,#b8774a 52%,#e9d6b4 66%,#c99a6b 82%,#efe2c8)"></div>',
+    uranus: '<div class="ball" style="width:36px;height:36px;background:radial-gradient(circle at 35% 35%,#e0fbff,#7fdbe6 55%,#2a8a99)"></div>',
+    neptune: '<div class="ball" style="width:36px;height:36px;background:radial-gradient(circle at 35% 35%,#c7d9ff,#4f7cf0 55%,#1c3aa0)"></div>',
+    rocks: '🪨', comet: '☄️', stars: '✨',
+    solar: '<svg viewBox="-24 -24 48 48"><circle r="6" fill="#fbbf24"/><ellipse rx="13" ry="13" fill="none" stroke="#7c8cc4" stroke-width="1.6"/><ellipse rx="21" ry="21" fill="none" stroke="#7c8cc4" stroke-width="1.6"/><circle cx="9.2" cy="-9.2" r="3" fill="#3b82f6"/><circle cx="-18" cy="10.5" r="4" fill="#d6a46a"/></svg>',
+  };
+  const TRIP = ['earth', 'moon', 'sun', '|', 'mercury', 'venus', 'mars', 'jupiter', 'saturn', 'uranus', 'neptune', '|', 'rocks', 'comet', 'solar', 'stars'];
+  function paintBar() {
+    const bar = $('trip');
+    if (!bar.childElementCount || bar.dataset.n !== String(places.length) + places.map(p => p.emoji).join('')) {
+      bar.innerHTML = ''; bar.dataset.n = String(places.length) + places.map(p => p.emoji).join('');
+      const items = [...places.map(p => 'place:' + p.id), ...(places.length ? ['|'] : []), ...TRIP];
+      for (const id of items) {
+        if (id === '|') { bar.insertAdjacentHTML('beforeend', '<span class="sep"></span>'); continue; }
+        const b = document.createElement('button');
+        b.className = 'btn'; b.dataset.id = id;
+        if (id.startsWith('place:')) {
+          const p = places.find(p => 'place:' + p.id === id);
+          b.textContent = p.emoji || '❤️'; b.setAttribute('aria-label', p.name || 'A place');
+          b.onclick = () => { Kit.sfx.pop(); flyToPlace(p); };
+        } else {
+          b.innerHTML = ICON[id]; b.setAttribute('aria-label', NAMES[id][1].en);
+          b.onclick = () => { Kit.sfx.pop(); flyTo(id); };
+        }
+        bar.appendChild(b);
+      }
+    }
+    for (const b of bar.querySelectorAll('.btn')) b.classList.toggle('on', b.dataset.id === view);
+  }
+  function setLabel(id, place) {
+    if (place) { $('label').textContent = `${place.emoji || '❤️'} ${place.name || ''}`.trim(); return; }
+    const [emoji, names] = NAMES[id] || ['', {}];
+    $('label').textContent = `${emoji} ${names[Voice.lang] || names.en || ''}`.trim();
+  }
+
+  // ---------- every frame ----------
+  let last = performance.now(), wasMap = false, saidSpace = 0, frameMs = 16;
+  function frame(now) {
+    const dt = Math.min(100, now - last); last = now;
+    const secs = now / 1000;
+    stepSpin(dt);
+    updateWorld(secs);
+    stepFlight(now); stepZoom(now); stepHold(now, dt); glide(dt);
+    if (cam.focus === 'earth' && !flight) cam.dist = clamp(cam.dist, minDist('earth'), maxDist('earth'));
+    const c = basis(pose()), z = mapZoom(), mapA = flight && flight.space ? 0 : smooth(3.6, 4.4, z);
+    if (mapA < 1 || z < 8) { drawSpace(c, secs, smooth(4.4, 5.5, z)); drawFx(c); }
+    glCv.style.visibility = mapA < 1 || z < 8 ? 'visible' : 'hidden';
+    fxCv.style.visibility = mapA < 1 ? 'visible' : 'hidden';
+    if (mapA > 0) drawMap();
+    mapCv.style.opacity = mapA;
+    $('credit').style.opacity = mapA;
+    placeSprites(c, mapA > .5);
+    placePins(c, z);
+    $('spinBtn').hidden = !(cam.focus === 'earth' && mapA === 0 && !flight && !pickMode && cam.dist < 12);
+    // leaving the map for space: say what she's seeing
+    const isMap = z > 4.2;
+    if (wasMap && z < 3.4 && !flight && now - saidSpace > 30000) { saidSpace = now; say('sd.inSpace'); }
+    if (isMap) wasMap = true; else if (z < 3.4) wasMap = false;
+    // too slow for this device: draw space a little less sharp
+    frameMs = frameMs * .95 + dt * .05;
+    if (frameMs < 30) slowFrames = 0;
+    if (mapA < 1 && document.visibilityState === 'visible' && frameMs > 30 && ++slowFrames > 90 && glScale > .7) { glScale = Math.max(.7, glScale - .25); slowFrames = 0; resize(); }
+    requestAnimationFrame(frame);
+  }
+
+  // ---------- grown-ups: the places ----------
+  const WORDS = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve'];
+  const FACES = ['🏠', '👵', '👴', '👩', '👨', '👧', '👦', '👶', '🧑', '👫', '👨‍👩‍👧', '🏫', '🏥', '⚽', '🏖️', '🐶', '🐱', '❤️', '⭐'];
+  let answer = 0, unlocked = false;
+  const status = text => { $('status').textContent = text; if (text) setTimeout(() => { if ($('status').textContent === text) $('status').textContent = ''; }, 5000); };
+  $('gearBtn').onclick = () => openSettings();
+  $('settingsClose').onclick = () => { $('settings').hidden = true; };
+  $('settingsGate').addEventListener('submit', e => {
+    e.preventDefault();
+    const input = $('settingsAnswer');
+    if (parseInt(input.value, 10) === answer) { unlocked = true; input.blur(); openSettings(); }
+    else { input.classList.remove('wrong'); void input.offsetWidth; input.classList.add('wrong'); input.value = ''; }
+  });
+  function openSettings() {
+    Kit.sfx.pop(); stopSpin(true);
+    $('settings').hidden = false;
+    $('settingsGate').hidden = unlocked; $('settingsBody').hidden = !unlocked;
+    if (!unlocked) {
+      const a = 3 + Math.floor(Math.random() * 10), b = 3 + Math.floor(Math.random() * 10);
+      answer = a + b; $('settingsQ').textContent = WORDS[a] + ' plus ' + WORDS[b];
+      $('settingsAnswer').value = ''; $('settingsAnswer').classList.remove('wrong');
+      return;
+    }
+    paintPlaceList();
+  }
+  function placesChanged() { savePlaces(); paintPins(); paintBar(); paintPlaceList(); }
+  function paintPlaceList() {
+    const list = $('placeList');
+    list.innerHTML = places.length ? '' : '<p><i>No places yet.</i></p>';
+    places.forEach((p, i) => {
+      const row = document.createElement('div');
+      row.className = 'place';
+      const sel = document.createElement('select');
+      sel.setAttribute('aria-label', 'Picture');
+      for (const f of FACES) sel.add(new Option(f, f, false, f === p.emoji));
+      if (!FACES.includes(p.emoji)) sel.add(new Option(p.emoji, p.emoji, true, true));
+      sel.onchange = () => { p.emoji = sel.value; placesChanged(); };
+      const name = document.createElement('input');
+      name.value = p.name || ''; name.placeholder = 'Name, e.g. Grandma'; name.maxLength = 30;
+      name.oninput = () => { p.name = name.value; savePlaces(); paintPins(); };
+      const btn = (text, label, fn) => { const b = document.createElement('button'); b.textContent = text; b.setAttribute('aria-label', label); b.onclick = fn; return b; };
+      row.append(sel, name,
+        btn('🗺️', 'Move it on the map', () => startPick(p)),
+        ...(i ? [btn('🏠', 'Make this home', () => { places.splice(i, 1); places.unshift(p); placesChanged(); status(`${p.name || 'This place'} is home now.`); })] : []),
+        btn('🗑️', 'Remove', () => { if (confirm(`Remove ${p.name || 'this place'}?`)) { places.splice(i, 1); placesChanged(); } }));
+      const where = document.createElement('div');
+      where.className = 'where';
+      where.innerHTML = (i ? '' : '<span class="home">HOME · </span>') + `${p.lat.toFixed(4)}, ${p.lon.toFixed(4)}`;
+      row.append(where);
+      list.appendChild(row);
+    });
+  }
+  function addPlace(lat, lon, name) {
+    const p = { id: Date.now().toString(36) + Math.floor(Math.random() * 1e4), lat, lon, name: name || '', emoji: places.length ? '❤️' : '🏠' };
+    places.push(p); placesChanged();
+    status(`Added${name ? ' ' + name : ''}. Give it a name and a picture.`);
+    const inputs = $('placeList').querySelectorAll('input');
+    inputs[inputs.length - 1]?.focus();
+    return p;
+  }
+  $('searchForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    const q = $('searchInput').value.trim();
+    if (!q) return;
+    $('results').innerHTML = '<p>Searching…</p>';
+    try {
+      const r = await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&limit=5&accept-language=${Voice.lang}&q=${encodeURIComponent(q)}`);
+      const found = r.ok ? await r.json() : [];
+      $('results').innerHTML = found.length ? '' : '<p>Nothing found. Try a town name, or choose on the map.</p>';
+      for (const f of found) {
+        const b = document.createElement('button');
+        b.textContent = '📍 ' + f.display_name;
+        b.onclick = () => { $('results').innerHTML = ''; $('searchInput').value = ''; addPlace(+f.lat, +f.lon, ''); };
+        $('results').appendChild(b);
+      }
+    } catch (err) { $('results').innerHTML = '<p>Couldn\'t search right now (offline?). You can choose on the map instead.</p>'; }
+  });
+  $('hereBtn').onclick = () => {
+    if (!navigator.geolocation) return status('This device can\'t tell where it is.');
+    status('Finding where you are…');
+    navigator.geolocation.getCurrentPosition(
+      pos => addPlace(pos.coords.latitude, pos.coords.longitude, ''),
+      () => status('Couldn\'t get the location. Try searching, or choose on the map.'),
+      { enableHighAccuracy: true, timeout: 15000 });
+  };
+
+  // choosing a spot: the map with a pin in the middle
+  let pickMode = null;
+  $('pickBtn').onclick = () => startPick(null);
+  async function startPick(p) {
+    $('settings').hidden = true;
+    pickMode = { place: p };
+    $('pick').classList.add('on');
+    $('pickText').textContent = p ? `Move the map so the pin is on ${p.name || 'the spot'}.` : 'Move the map so the pin is on the spot.';
+    const at = p || places[0];
+    if (at) await flyToPlace(at);
+    else if (cam.focus !== 'earth') await flyTo('earth', { quiet: true });
+  }
+  $('pickOk').onclick = () => {
+    const pm = pickMode; if (!pm) return;
+    endPick();
+    if (pm.place) { pm.place.lat = cam.lat; pm.place.lon = cam.lon; placesChanged(); openSettings(); status('Moved.'); }
+    else { openSettings(); addPlace(cam.lat, cam.lon, ''); }
+  };
+  $('pickNo').onclick = () => { endPick(); openSettings(); };
+  function endPick() { pickMode = null; $('pick').classList.remove('on'); }
+
+  // ---------- off we go ----------
+  Kit.soundButton('soundBtn');
+  paintPins(); paintBar();
+  updateWorld(performance.now() / 1000);
+  if (places.length) {
+    const h = places[0];
+    Object.assign(cam, { focus: 'earth', lat: h.lat, lon: h.lon, dist: distForZoom(16.5, h.lat) });
+    view = 'place:' + h.id; setLabel(null, h); paintBar();
+    say('sd.helloHome');
+  } else {
+    setLabel('earth');
+    say('sd.hello');
+  }
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
