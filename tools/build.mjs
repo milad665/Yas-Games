@@ -21,7 +21,8 @@
 //     the home page gets editions/public/home.html (the grown-ups' section and 💝 donate),
 //     files in editions/public/static/ are added as they are,
 //     and robots.txt and sitemap.xml are added
-// Every build but Yas's fails if "Yas" is still anywhere in the output.
+// Every build but Yas's fails if "Yas" is still anywhere in the output, and the public one also if the
+// name of a child from another personal edition (Lilli, Liam) is.
 
 import fs from 'node:fs';
 import path from 'node:path';
@@ -217,7 +218,7 @@ seo(out('index.html'), {
         '@type': 'WebApplication', name: cfg.name, description: cfg.description, ...(siteUrl && { url: abs('') }),
         ...(image && { image }),
         applicationCategory: 'EducationalApplication', operatingSystem: 'Any (runs in a web browser)',
-        isAccessibleForFree: true, offers: offer, audience, typicalAgeRange: '3-7', inLanguage: ['en', 'nl', 'fa'],
+        isAccessibleForFree: true, offers: offer, audience, typicalAgeRange: '3-7', inLanguage: langs,
         hasPart: GAMES.map(g => ({ '@type': 'WebApplication', name: g.name, description: g.about, ...gameUrl(g) })),
       },
     ],
@@ -236,7 +237,7 @@ for (const g of GAMES) {
       '@context': 'https://schema.org',
       '@type': 'WebApplication', name: g.name, description: g.about, ...gameUrl(g),
       applicationCategory: 'GameApplication', genre: 'Educational game', operatingSystem: 'Any (runs in a web browser)',
-      isAccessibleForFree: true, offers: offer, audience, typicalAgeRange: '3-7', inLanguage: ['en', 'nl', 'fa'],
+      isAccessibleForFree: true, offers: offer, audience, typicalAgeRange: '3-7', inLanguage: langs,
       isPartOf: website,
     },
   });
@@ -255,7 +256,11 @@ if (siteUrl) {
 // ---------- nothing about Yas may be left ----------
 function checkNoYas() {
   // (at the start of a word, so "payaso" is fine but "yasGames" isn't)
-  const NAME = /(?<![\p{L}])(yas|یاس)/iu;
+  // The public site may not name the children of the personal editions either (Lilli and Liam).
+  const others = !isPublic ? [] : fs.readdirSync(path.join(ROOT, 'editions'))
+    .filter(e => e !== edition && fs.existsSync(path.join(ROOT, 'editions', e, 'site.json')))
+    .flatMap(e => { const c = JSON.parse(read(path.join(ROOT, 'editions', e, 'site.json'))); return (c.kids || (c.kid ? [c.kid] : [])).map(k => k.name); });
+  const NAME = new RegExp(`(?<![\\p{L}])(${['yas', 'یاس', ...others].join('|')})(?![\\p{L}])|(?<![\\p{L}])yas`, 'iu');
   const leaks = [];
   for (const f of walk(OUT)) {
     const rel = path.relative(OUT, f);
@@ -264,7 +269,7 @@ function checkNoYas() {
     read(f).split('\n').forEach((line, i) => { if (NAME.test(line)) leaks.push(`${rel}:${i + 1}: ${line.trim().slice(0, 120)}`); });
   }
   if (leaks.length) {
-    console.error(`✗ ${cfg.name} still mentions Yas:\n  ${leaks.join('\n  ')}`);
+    console.error(`✗ ${cfg.name} still mentions Yas${isPublic ? ' (or another family\'s child)' : ''}:\n  ${leaks.join('\n  ')}`);
     process.exit(1);
   }
 }

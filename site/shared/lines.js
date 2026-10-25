@@ -1985,7 +1985,7 @@ self.VOICE_LINES = {
                        es: '¡Adivinaste!',
                        fa: 'درست حدس زدی!' },
   'sf.right2':       { en: 'Good guess, scientist!', nl: 'Knap geraden, onderzoeker!',
-                       de: 'Gut geraten, kleine Forscherin!',
+                       de: 'Gut geraten! Toll geforscht!',
                        es: '¡Muy bien pensado, científica!',
                        fa: 'آفرین دانشمند، حدس خوبی بود!' },
   'sf.surprise':     { en: 'Surprise! Now we know.', nl: 'Verrassing! Nu weten we het.',

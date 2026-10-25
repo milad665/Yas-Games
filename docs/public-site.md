@@ -6,7 +6,7 @@ Every push to `main` deploys three editions of the games:
 | --- | --- | --- |
 | **Yas's Games** | the homelab (Docker) | `site/` as it is: her name in Letter Trace, her birthday in Cake Shop |
 | **Lilli & Liam** | their family's homelab (Docker) | Yas taken out; Lilli and Liam in, with a switch between them; German first (`editions/lili/`) |
-| **Little Sparks** (public) | Firebase Hosting | no mention of Yas anywhere, search-engine friendly, a 💝 donate button |
+| **Little Sparks** (public) | Firebase Hosting | no mention of Yas, Lilli or Liam anywhere, English, Dutch, German and Persian, search-engine friendly, a 💝 donate button |
 
 `tools/build.mjs` makes the public edition from `site/`. It swaps in a `shared/edition.js` with no
 child in it, drops every line marked `kid: true` in `lines.js` (and its voice clips), renames the site

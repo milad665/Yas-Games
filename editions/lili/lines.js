@@ -5,6 +5,10 @@
 // After changing a line, re-record: node tools/record-voice.mjs (clips go in editions/lili/voice/).
 self.VOICE_LINES = {
   // ---------- Lilli ----------
+  'sf.right2@lilli': { en: 'Good guess, scientist!', nl: 'Knap geraden, onderzoeker!',
+                       de: 'Gut geraten, kleine Forscherin!',
+                       es: '¡Muy bien pensado, científica!',
+                       fa: 'آفرین دانشمند، حدس خوبی بود!' },
   'hub.kid@lilli':   { kid: true, en: 'Hi Lilli! Let\'s play!', nl: 'Hoi Lilli! Kom, we gaan spelen!',
                        de: 'Hallo Lilli! Komm, wir spielen!',
                        es: '¡Hola Lilli! ¡Vamos a jugar!',
