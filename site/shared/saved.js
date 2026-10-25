@@ -3,11 +3,12 @@
 // localStorage only holds about 5 MB for the whole site and once it's full nothing saves anymore.
 //
 //   Saved.photos.add('dress-up', canvas)    keep a photo from a game (resolves to the photo or null)
-//   Saved.photos.list('dress-up')           oldest first; list() = every game's photos
+//   Saved.photos.list('dress-up')           the child playing's, oldest first; list() = every game's and child's
 //   Saved.photos.remove(id) / clear()
 //   Saved.photos.adopt('dress-up', [dataURL]) move photos an older version kept in localStorage
 //   Saved.photos.save(photos)               share / download / write them to a folder (call from a tap)
 //   Saved.pictures.put(id, dataURL) / get(id) / all() / remove(id)   drawings a game needs to play
+//                                           (all() = the child playing's; ids from pictures.newId())
 //   Saved.clearCache()                      forget the downloaded offline files (progress and photos stay)
 //   Saved.usage()                           { photos, photoBytes, cacheBytes, persisted }
 (() => {
@@ -48,6 +49,10 @@
   const write = async (store, fn) => (await run(store, 'readwrite', fn)) !== false;
 
   const newId = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+  // brothers and sisters each have their own (see EDITION.mine): photos carry who made them, and
+  // drawings' ids end in @id. Without either, it's the first child's (or the only child's).
+  const me = EDITION.mine(''), kid = me && { kid: me.slice(1) };
+  const isMine = key => me ? key.endsWith(me) : !key.includes('@');
   const toBlob = (canvas, type = 'image/jpeg', quality = .85) => new Promise(ok => {
     try { canvas.toBlob(ok, type, quality); } catch (e) { ok(null); }
   });
@@ -57,12 +62,12 @@
     async add(game, canvas) {
       const blob = await toBlob(canvas);
       if (!blob) return null;
-      const p = { id: newId(), game, time: Date.now(), blob };
+      const p = { id: newId(), game, time: Date.now(), blob, ...kid };
       return (await write('photos', s => s.put(p))) ? p : null;
     },
     async list(game) {
       const all = await run('photos', 'readonly', s => game ? s.index('game').getAll(game) : s.getAll());
-      return (all || []).sort((a, b) => a.time - b.time);
+      return (all || []).filter(p => !game || (p.kid ? '@' + p.kid : '') === me).sort((a, b) => a.time - b.time);
     },
     remove: id => write('photos', s => s.delete(id)),
     clear: () => write('photos', s => s.clear()),
@@ -73,7 +78,7 @@
       for (const src of srcs) {
         try {
           const blob = await (await fetch(src)).blob();
-          if (!(await write('photos', s => s.put({ id: newId(), game, time: t++, blob })))) ok = false;
+          if (!(await write('photos', s => s.put({ id: newId(), game, time: t++, blob, ...kid })))) ok = false;
         } catch (e) { ok = false; }
       }
       return ok;
@@ -121,7 +126,7 @@
 
   // ---------- pictures a game needs (e.g. Magic Doodles creatures), stored as data URLs ----------
   const pictures = {
-    newId,
+    newId: () => EDITION.mine(newId()),
     put: (id, src) => write('pictures', s => s.put(src, id)),
     get: async id => (await run('pictures', 'readonly', s => s.get(id))) || null,
     remove: id => write('pictures', s => s.delete(id)),
@@ -131,7 +136,7 @@
         const out = {};
         try {
           const req = d.transaction('pictures').objectStore('pictures').openCursor();
-          req.onsuccess = () => { const c = req.result; if (c) { out[c.key] = c.value; c.continue(); } else ok(out); };
+          req.onsuccess = () => { const c = req.result; if (c) { if (isMine(c.key)) out[c.key] = c.value; c.continue(); } else ok(out); };
           req.onerror = () => ok(out);
         } catch (e) { ok(out); }
       });

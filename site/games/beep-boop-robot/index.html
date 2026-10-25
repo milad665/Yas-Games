@@ -451,7 +451,7 @@
   const pick = a => a[Math.floor(Math.random() * a.length)];
 
   // ================= storage =================
-  const SAVE_KEY = 'beepBoopRobot.v1';
+  const SAVE_KEY = EDITION.mine('beepBoopRobot.v1'); // this child's
   let saved = {};
   try { saved = JSON.parse(localStorage.getItem(SAVE_KEY)) || {}; } catch (e) { saved = {}; }
   saved.design = Object.assign({ color: '#60a5fa', head: 'square', eyes: 'round', antenna: 'ball', bottom: 'wheels' }, saved.design);

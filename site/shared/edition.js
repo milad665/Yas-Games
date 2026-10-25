@@ -21,8 +21,12 @@ self.EDITION = {
 //   EDITION.kid      the child playing now: { id, name, emoji, born, age }
 //   EDITION.kids     all of them
 //   EDITION.setKid(id), EDITION.setBorn(id, 'YYYY-MM-DD')
+//   EDITION.mine(key) the key to save this child's things under: the key itself for the first
+//                     (or only) child, so what was saved before there was a switch stays theirs,
+//                     and key@id for each other child. So keep the first child first in site.json.
 (() => {
   const E = self.EDITION;
+  E.mine = key => key;
   const kids = E.kids || (E.kid ? [E.kid] : []);
   if (!kids.length) return;
   const KEY = 'yasGames.kids'; // { current: id, born: { id: 'YYYY-MM-DD' } }
@@ -50,6 +54,7 @@ self.EDITION = {
     try { localStorage.setItem(KEY, JSON.stringify(saved)); } catch (e) {}
     update();
   }
+  E.mine = key => E.kid.id === kids[0].id ? key : key + '@' + E.kid.id;
   E.setKid = id => { saved.current = id; save(); };
   E.setBorn = (id, born) => { saved.born[id] = born; save(); };
   update();

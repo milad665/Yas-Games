@@ -289,7 +289,7 @@
   const COLORS = ['#ff4d4d','#ff9f1c','#ffd60a','#4cd964','#2f9bff','#9b5cff','#ff6fb5','#8b5a2b','#222222','rainbow'];
   const SIZES = [8, 18, 34];
   const MAX_PER_WORLD = 15;
-  const SAVE_KEY = 'magicDoodles.v1';
+  const SAVE_KEY = EDITION.mine('magicDoodles.v1'); // this child's
 
   const $ = id => document.getElementById(id);
   const rand = (a, b) => a + Math.random() * (b - a);

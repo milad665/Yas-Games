@@ -4,7 +4,7 @@
 //   Kit.sfx.pop() / ding() / yay() / oops() / boing() / whoosh() / note(freq)
 //   Kit.say('line.key')                 speaks unless sound is off
 //   Kit.burst(x, y, ['⭐', '✨'])        sparkles
-//   Kit.store('game-name')              { get(), set(data) } saved on this device
+//   Kit.store('game-name')              { get(), set(data) } saved on this device, for the child playing
 //   Kit.title('h1-id', 'Game Name')     rainbow bouncing title
 //   Kit.soundButton('btn-id')           🔊/🔇 toggle shared by every game
 (() => {
@@ -15,14 +15,15 @@
   const sleep = ms => new Promise(r => setTimeout(r, ms));
 
   // ---------- saving ----------
-  function store(name) {
-    const key = 'yasGames.' + name;
+  // each child has their own saves (see EDITION.mine); settings like sound are the device's
+  function store(name, { shared = false } = {}) {
+    const key = shared ? 'yasGames.' + name : EDITION.mine('yasGames.' + name);
     return {
       get(fallback = {}) { try { return Object.assign(fallback, JSON.parse(localStorage.getItem(key))); } catch (e) { return fallback; } },
       set(data) { try { localStorage.setItem(key, JSON.stringify(data)); } catch (e) { /* full or blocked: keep playing */ } },
     };
   }
-  const prefs = store('prefs');
+  const prefs = store('prefs', { shared: true });
   let muted = !!prefs.get().muted;
 
   // ---------- sound ----------

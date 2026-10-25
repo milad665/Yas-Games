@@ -278,8 +278,8 @@
       catch (e) { ok(null); }
     });
   }
-  const loadMovie = key => dbDo('readonly', s => s.get(key));
-  const saveMovie = (key, m) => dbDo('readwrite', s => s.put(m, key));
+  const loadMovie = key => dbDo('readonly', s => s.get(EDITION.mine(key)));
+  const saveMovie = (key, m) => dbDo('readwrite', s => s.put(m, EDITION.mine(key)));
 
   // ---------- picker ----------
   Kit.title('title', 'Story Theater');

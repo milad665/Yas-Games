@@ -284,7 +284,7 @@
     const mine = [];
     try {
       // Magic Doodles keeps its drawings in Saved.pictures (older saves still have them inline)
-      const md = JSON.parse(localStorage.getItem('magicDoodles.v1')) || {}, pics = await Saved.pictures.all();
+      const md = JSON.parse(localStorage.getItem(EDITION.mine('magicDoodles.v1'))) || {}, pics = await Saved.pictures.all();
       for (const [world, list] of Object.entries(md)) if (Array.isArray(list)) for (const c of list.slice(-4)) {
         const src = c.img || pics[c.pic];
         if (src) mine.push({ id: 'md' + (c.pic || src.length) + world, make: () => onBackground(src, world) });
