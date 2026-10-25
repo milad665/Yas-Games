@@ -2,8 +2,10 @@
 
 A little collection of creative, no-reading-needed games for Yas, made for the iPad.
 
-There is also **Lili's Games**, the same games for Lili in Germany: her name in Letter Trace and
-Cake Shop, German by default (English, Dutch and Persian too), hosted on her family's homelab.
+There is also **Lilli & Liam**, the same games for Lilli and her little brother Liam in Germany:
+a switch on the home page picks whose games they are (the title, their name in Letter Trace, their
+birthday in Cake Shop and every spoken line follow it). German by default (English, Dutch and
+Persian too), hosted on their family's homelab.
 And a public edition for every child, **Little Sparks**, with Yas taken out, a donate button and
 search-engine friendly pages. See [docs/public-site.md](docs/public-site.md).
 
@@ -50,11 +52,11 @@ site/                     ← everything that gets served
   games/
     magic-doodles/index.html
 editions/public/         ← the public edition: name, home page extras for grown-ups
-editions/lili/           ← Lili's edition: name, age, languages, her own lines and clips
+editions/lili/           ← Lilli & Liam's edition: the children, languages, their own lines and clips
 tools/build.mjs           ← builds an edition into dist/ (node tools/build.mjs yas|lili|public)
 firebase.json             ← how Firebase serves the public edition
 Dockerfile, nginx.conf    ← container that serves one edition (--build-arg EDITION=yas|lili)
-deploy/docker-compose*.yml ← how the homelabs run it (Yas's, and .lili for Lili's)
+deploy/docker-compose*.yml ← how the homelabs run it (Yas's, and .lili for Lilli's)
 .github/workflows/        ← build & deploy pipeline
 docs/homelab-setup.md     ← one-time server setup guide
 docs/public-site.md       ← the public edition: Firebase, Stripe donations, search engines
@@ -88,15 +90,16 @@ docs/public-site.md       ← the public edition: Firebase, Stripe donations, se
 
 5. If you added lines, record them: `node tools/record-voice.mjs` (see below).
 6. Keep Yas out of the other editions: anything personal comes from `EDITION.kid`, and lines
-   that say her name get `kid: true` (see [docs/public-site.md](docs/public-site.md)). If Lili
-   should hear her own version, add it with the same key to `editions/lili/lines.js`.
+   that say her name get `kid: true` (see [docs/public-site.md](docs/public-site.md)). If Lilli
+   and Liam should hear their own version, add it as `<key>@lilli` and `<key>@liam` to
+   `editions/lili/lines.js`.
 7. Commit and push to `main`. The pipeline deploys it to both homelabs and the public site.
 
 ## Voice (English, Dutch, German, Spanish, Persian)
 
 Every spoken line lives in `site/shared/lines.js`. The language switch on the
 home page applies to all games. Each edition picks its languages with `langs` (and the first-visit
-language with `lang`) in its `edition.js` / `site.json`: Yas's has 🇬🇧 🇳🇱 🇮🇷, Lili's 🇩🇪 🇬🇧 🇳🇱 🇮🇷.
+language with `lang`) in its `edition.js` / `site.json`: Yas's has 🇬🇧 🇳🇱 🇮🇷, Lilli's 🇩🇪 🇬🇧 🇳🇱 🇮🇷.
 Spanish is translated but not recorded yet. Lines are pre-recorded with ElevenLabs (Jessica;
 Lucy Fennek, a native German narrator, for German; Matilda for Persian) so they sound the same on
 every device and work offline:
@@ -120,6 +123,12 @@ every device and work offline:
 3. Commit `site/voice/` and `editions/*/voice/` and push.
 
 If a clip is missing, the games fall back to the device's built-in voice.
+
+## Children's birthdays
+
+Cake Shop has the child's own birthday ("Yas is turning five!"). Grown-ups set each child's date of
+birth in ⚙️ settings on the home page, and the age then moves on by itself (until it's set, the `age`
+in the edition settings is used). The age lines are recorded for ages 1 to 10 (`cs.age.kid.<age>`).
 
 ## Installing on a tablet (PWA)
 

@@ -100,6 +100,9 @@
   }
 
   async function playOne(key, token) {
+    // brothers and sisters each have their own version of a line: '<key>@<child id>'
+    const kid = EDITION.kid && EDITION.kid.id;
+    if (kid && LINES[key + '@' + kid]) key += '@' + kid;
     const line = LINES[key];
     if (!line) { console.warn('Voice: unknown line', key); return; }
     await ready;

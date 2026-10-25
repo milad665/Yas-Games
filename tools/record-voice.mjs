@@ -26,7 +26,7 @@ const MODEL = 'eleven_v4';
 const VOICES = {
   en: { name: 'Jessica', id: 'cgSgspJ2msm6clMCkdW9' },
   nl: { name: 'Jessica', id: 'cgSgspJ2msm6clMCkdW9' },
-  // a native German children's-book narrator, standard German accent (Lili's edition)
+  // a native German children's-book narrator, standard German accent (Lilli's edition)
   de: { name: 'Lucy Fennek', id: 'E0OS48T5F0KU7O2NInWS' },
   // switched off until there's quota for it (then add 'es' to an edition's langs in shared/edition.js)
   // es: { name: 'Jessica', id: 'cgSgspJ2msm6clMCkdW9' },

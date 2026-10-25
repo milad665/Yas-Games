@@ -149,9 +149,9 @@ but it won't work offline, and Android won't offer to install it. Pick one of th
 
 ---
 
-## Lili's edition (a second homelab)
+## Lilli's edition (a second homelab)
 
-**Lili's Games** runs the same way on her family's server: the pipeline builds
+**Lilli & Liam** runs the same way on their family's server: the pipeline builds
 `ghcr.io/milad665/lili-games` and the `deploy-lili` job runs on a self-hosted runner labelled
 **`lili-homelab`**, using `deploy/docker-compose.lili.yml` (container `lili-games`).
 
@@ -172,6 +172,6 @@ Her family sets up the server with the steps above, with these differences:
 
 3. Optional: protect the `lili` environment like `production` (Settings → Environments).
 
-A Lili deploy waiting for her server (for example while it's switched off) doesn't hold up
+A Lilli & Liam deploy waiting for their server (for example while it's switched off) doesn't hold up
 Yas's deploys: each server has its own queue. On her server:
 `docker ps --filter name=lili-games`, `docker logs lili-games`.

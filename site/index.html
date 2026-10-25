@@ -98,6 +98,10 @@
   .pill { background: rgba(255,255,255,.85); border-radius: 999px; box-shadow: 0 4px 0 rgba(90, 60, 140, .12); border: none; }
   #installBtn { width: 56px; height: 56px; font-size: 28px; touch-action: manipulation; }
   #installBtn[hidden] { display: none; }
+  /* brothers and sisters: whose games these are right now */
+  #kidBtn { height: 56px; padding: 0 16px 0 10px; display: flex; align-items: center; gap: 6px; font: 700 20px system-ui, sans-serif; color: #6b3fa0; touch-action: manipulation; }
+  #kidBtn .face { font-size: 30px; }
+  #kidBtn[hidden] { display: none; }
   #langs { display: flex; padding: 4px; gap: 2px; }
   #langs button { border: none; background: none; font-size: 30px; width: 46px; height: 46px; border-radius: 50%; opacity: .45; transition: transform .15s, opacity .15s; touch-action: manipulation; padding: 0; }
   #langs button.sel { opacity: 1; transform: scale(1.12); background: #fff3fb; }
@@ -130,6 +134,10 @@
   #grid figcaption { font-size: 13px; color: #8a7aa8; margin-top: 4px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 4px; }
   #grid figcaption .btns { display: flex; gap: 6px; }
   #grid figcaption button { border: none; background: #f2eefa; border-radius: 10px; font-size: 17px; width: 38px; height: 34px; padding: 0; }
+  #kids .kid { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; margin-top: 10px; }
+  #kids .kid b { min-width: 6em; }
+  #kids input { font: 600 17px system-ui, sans-serif; padding: 8px 12px; border: 2px solid #d9cff5; border-radius: 12px; }
+  #kids .turning { color: #6b5d88; }
   #status { min-height: 1.4em; font-weight: 600; color: #3cc954 !important; }
 
   #iosHelp { position: fixed; inset: 0; z-index: 30; background: rgba(60, 40, 100, .35); display: grid; place-items: center; padding: 20px; }
@@ -151,6 +159,7 @@
   <main id="games"></main>
 
   <div id="corner">
+    <button id="kidBtn" class="pill" hidden></button>
     <button id="installBtn" class="pill" hidden aria-label="Install app">📲</button>
     <button id="gearBtn" class="pill" aria-label="Settings for grown-ups">⚙️</button>
     <div id="langs" class="pill" role="group" aria-label="Language">
@@ -175,6 +184,12 @@
       <div id="settingsBody" hidden>
       <p>Game progress, photos and drawings are kept on this device and stay when the site is updated.</p>
       <p id="keepNote"></p>
+
+      <div id="kids" hidden>
+        <h3>🎂 Birthdays</h3>
+        <p>Cake Shop celebrates each child's next birthday with the right number of candles.</p>
+        <div id="kidList"></div>
+      </div>
 
       <h3>📸 Photos</h3>
       <p id="photoInfo">Loading…</p>
@@ -218,23 +233,42 @@
   // ---- title: bouncy rainbow letters ----
   const palette = ['#ff5c8a', '#ff9f1c', '#f5c400', '#3cc954', '#2f9bff', '#9b5cff'];
   const title = $('title');
-  const siteName = title.textContent;
-  title.textContent = '';
   const star = () => { const s = document.createElement('span'); s.className = 'sparkle'; s.textContent = '⭐'; return s; };
-  title.appendChild(star());
-  let li = 0;
-  for (const ch of siteName) {
-    const s = document.createElement('span');
-    if (ch === ' ') { s.className = 'sp'; }
-    else {
-      s.className = 'l'; s.textContent = ch;
-      s.style.color = palette[li % palette.length];
-      s.style.animationDelay = (li * .13) + 's';
-      li++;
+  // the edition's name (with brothers and sisters, the name of whoever is playing)
+  function paintTitle() {
+    const siteName = (self.EDITION && EDITION.name) || title.getAttribute('aria-label');
+    title.textContent = ''; title.setAttribute('aria-label', siteName);
+    if (self.EDITION && EDITION.title) document.title = siteName;
+    title.appendChild(star());
+    let li = 0;
+    for (const ch of siteName) {
+      const s = document.createElement('span');
+      if (ch === ' ') { s.className = 'sp'; }
+      else {
+        s.className = 'l'; s.textContent = ch;
+        s.style.color = palette[li % palette.length];
+        s.style.animationDelay = (li * .13) + 's';
+        li++;
+      }
+      title.appendChild(s);
     }
-    title.appendChild(s);
+    title.appendChild(star());
+    fitTitle();
   }
-  title.appendChild(star());
+  // keep the title clear of the buttons in the corner (they get wider with a child switch)
+  function fitTitle() {
+    const header = title.parentElement;
+    header.style.marginTop = '';
+    const words = [...title.children].filter(c => c.className === 'l' || c.className === 'sparkle');
+    if (!words.length) return;
+    const left = Math.min(...words.map(w => w.getBoundingClientRect().left));
+    const right = Math.max(...words.map(w => w.getBoundingClientRect().right));
+    const top = title.getBoundingClientRect().top, corner = $('corner').getBoundingClientRect();
+    if (right > corner.left && left < corner.right && top < corner.bottom)
+      header.style.marginTop = (parseFloat(getComputedStyle(header).marginTop) + corner.bottom - top + 8) + 'px';
+  }
+  addEventListener('resize', fitTitle);
+  paintTitle();
 
   // ---- game cards ----
   const spots = [[14, 16], [84, 18], [12, 82], [86, 80], [50, 10]];
@@ -336,6 +370,41 @@
   }));
   paintLangs();
 
+  // ---- brothers and sisters: tap to switch whose games these are (EDITION.kids) ----
+  const KIDS = (self.EDITION && EDITION.kids) || [];
+  function paintKid() {
+    const k = EDITION.kid;
+    $('kidBtn').innerHTML = '';
+    const face = document.createElement('span'); face.className = 'face'; face.textContent = k.emoji;
+    $('kidBtn').append(face, k.name);
+    $('kidBtn').setAttribute('aria-label', 'Playing: ' + k.name + '. Tap to switch.');
+  }
+  if (KIDS.length > 1) {
+    $('kidBtn').hidden = false; paintKid(); fitTitle();
+    $('kidBtn').addEventListener('click', () => {
+      const i = EDITION.kids.findIndex(k => k.id === EDITION.kid.id);
+      EDITION.setKid(EDITION.kids[(i + 1) % EDITION.kids.length].id);
+      paintKid(); paintTitle(); pop(); Voice.say('hub.kid');
+    });
+  }
+
+  // ---- birthdays, in the grown-ups' settings ----
+  function paintKids() {
+    $('kids').hidden = !KIDS.length;
+    $('kidList').innerHTML = '';
+    for (const k of EDITION.kids || []) {
+      const row = document.createElement('label'); row.className = 'kid';
+      const name = document.createElement('b'); name.textContent = k.emoji + ' ' + k.name;
+      const born = document.createElement('input'); born.type = 'date'; born.value = k.born || '';
+      born.max = new Date().toISOString().slice(0, 10);
+      const turning = document.createElement('span'); turning.className = 'turning';
+      turning.textContent = k.born ? 'Turning ' + k.age : 'No birthday set yet (turning ' + k.age + ')';
+      born.addEventListener('change', () => { EDITION.setBorn(k.id, born.value); paintKids(); });
+      row.append(name, born, turning);
+      $('kidList').appendChild(row);
+    }
+  }
+
   // ---- install as an app (shown to grown-ups in the corner) ----
   const standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone;
   const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
@@ -406,7 +475,7 @@
       $('settingsAnswer').value = ''; $('settingsAnswer').classList.remove('wrong');
       return;
     }
-    paintPhotos(); paintUsage();
+    paintKids(); paintPhotos(); paintUsage();
   }
   $('settingsClose').onclick = () => { $('settings').hidden = true; urls.forEach(URL.revokeObjectURL); urls = []; $('grid').innerHTML = ''; };
   $('saveAll').onclick = () => savePhotos(photos);

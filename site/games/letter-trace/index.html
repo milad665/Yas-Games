@@ -531,8 +531,11 @@
     const nameDone = NAME.every(isDone);
     // names start with a big letter
     const isFirst = KID && letter === NAME[0];
-    Kit.say('lt.' + letter + (isFirst ? '.kid' : ''), isFirst ? 'lt.nameBig' : null, NAME.includes(letter) && nameDone && !saved.nameCheered ? 'lt.name' : null);
-    if (NAME.includes(letter) && nameDone && !saved.nameCheered) { saved.nameCheered = true; save.set(saved); }
+    // cheer once per child (nameCheered: true is from before there could be brothers and sisters)
+    const cheered = KID && (saved.nameCheered === true || (saved.nameCheered || []).includes(KID.name));
+    const cheer = NAME.includes(letter) && nameDone && !cheered;
+    Kit.say('lt.' + letter + (isFirst ? '.kid' : ''), isFirst ? 'lt.nameBig' : null, cheer ? 'lt.name' : null);
+    if (cheer) { saved.nameCheered = [...(saved.nameCheered || []), KID.name]; save.set(saved); }
   }
 
   $('againBtn').onclick = () => { Kit.sfx.pop(); open(letter); };

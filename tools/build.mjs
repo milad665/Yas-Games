@@ -2,7 +2,7 @@
 // Builds one edition of the site into dist/<edition>/.
 //
 //   node tools/build.mjs yas                       Yas's own edition (the homelab): site/ as it is
-//   node tools/build.mjs lili                      Lili's edition (her family's homelab)
+//   node tools/build.mjs lili                      Lilli's edition (her family's homelab)
 //   node tools/build.mjs public                    the public edition (Firebase)
 //     --url https://example.com                    where it's hosted (default: "url" in editions/public/site.json)
 //     --donate-url https://donate.stripe.com/...   Stripe Payment Link for the 💝 button (no link, no button)
@@ -118,9 +118,16 @@ for (const lang of Object.keys(manifest)) {
 }
 write(out('voice', 'manifest.json'), JSON.stringify(manifest, null, 2) + '\n');
 
-const editionInfo = { name: cfg.name, kid: cfg.kid || null, langs, ...(cfg.lang && { lang: cfg.lang }) };
+// shared/edition.js: this edition's data, then the same code as Yas's (which child, how old)
+const editionInfo = {
+  name: cfg.name, ...(cfg.title && { title: cfg.title }),
+  ...(cfg.kids ? { kids: cfg.kids } : { kid: cfg.kid || null }),
+  langs, ...(cfg.lang && { lang: cfg.lang }),
+};
+const editionCode = read(out('shared', 'edition.js')).split(/^self\.EDITION = \{[\s\S]*?^\};\n/m)[1];
+if (editionCode === undefined) throw new Error('shared/edition.js: no "self.EDITION = { ... };" block');
 write(out('shared', 'edition.js'),
-  `// ${cfg.name} (made by tools/build.mjs ${edition}).\nself.EDITION = ${JSON.stringify(editionInfo, null, 2)};\n`);
+  `// ${cfg.name} (made by tools/build.mjs ${edition}).\nself.EDITION = ${JSON.stringify(editionInfo, null, 2)};\n` + editionCode);
 
 // name and identifiers in every text file
 const TEXT = /\.(html|js|css|json|webmanifest|txt|xml|svg)$/i;

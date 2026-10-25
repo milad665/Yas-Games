@@ -2,7 +2,7 @@ name: Build & Deploy
 
 # Three editions from one push (see tools/build.mjs):
 #   - Yas's own edition  -> Docker image -> our homelab          (runner label: homelab)
-#   - Lili's edition     -> Docker image -> Lili's family homelab (runner label: lili-homelab)
+#   - Lilli's edition     -> Docker image -> Lilli's family homelab (runner label: lili-homelab)
 #   - the public edition (no Yas, with SEO and a donate button) -> Firebase Hosting
 #
 # - Push to main      -> deploy all three
@@ -71,7 +71,7 @@ jobs:
     if: ${{ !cancelled() && !failure() }}
     runs-on: [self-hosted, homelab]
     environment: production
-    # one deploy at a time per server (a waiting Lili deploy never holds this one up)
+    # one deploy at a time per server (a waiting Lilli deploy never holds this one up)
     concurrency:
       group: deploy-homelab
       cancel-in-progress: false
@@ -109,7 +109,7 @@ jobs:
   deploy-lili:
     needs: build
     if: ${{ !cancelled() && !failure() }}
-    # the runner on Lili's family's server (see docs/homelab-setup.md, "Lili's edition")
+    # the runner on Lilli's family's server (see docs/homelab-setup.md, "Lilli's edition")
     runs-on: [self-hosted, lili-homelab]
     environment: lili
     concurrency:

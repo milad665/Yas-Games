@@ -84,9 +84,9 @@
   const FROSTINGS = ['#ffffff', '#fbcfe8', '#93c5fd', '#fde68a', '#c4b5fd', '#6b3a1e'];
   const TOPPINGS = ['🍓', '🍒', '🫐', '⭐', '🌸', '🍬', '🍫', '❤️'];
   const GUESTS = { bear: ['🐻', 3], bunny: ['🐰', 4], unicorn: ['🦄', 5], puppy: ['🐶', 2], dino: ['🦖', 6], kitty: ['🐱', 7] };
-  // and the child the games are made for, on her own birthday
+  // and the child the games are made for, on their own birthday (ages 1 to 10 are recorded)
   const KID = self.EDITION && EDITION.kid;
-  if (KID) GUESTS.kid = [KID.emoji, KID.age];
+  if (KID) GUESTS.kid = [KID.emoji, Math.min(10, Math.max(1, KID.age || 1))];
   const STEPS = [['layers', '🍰'], ['frosting', '🧁'], ['deco', '🍓'], ['candles', '🕯️']];
   const MAX_LAYERS = 4;
 
@@ -125,7 +125,8 @@
     for (const t of cake.toppings) s += `<text x="${t[1]}" y="${t[2]}" font-size="30" text-anchor="middle" dominant-baseline="central">${t[0]}</text>`;
     // candles
     for (let i = 0; i < cake.candles; i++) {
-      const n = cake.candles, x = CX - (n - 1) * 15 + i * 30, y = topY() - 12;
+      // closer together when there are many (up to ten for an older child), so they stay on the cake
+      const n = cake.candles, gap = Math.min(30, (W - 24) / Math.max(1, n - 1)), x = CX - (n - 1) * gap / 2 + i * gap, y = topY() - 12;
       const stripe = ['#f472b6', '#60a5fa', '#facc15', '#4ade80', '#a78bfa', '#fb923c'][i % 6];
       s += `<g data-candle="${i}"><rect x="${x - 6}" y="${y - 56}" width="12" height="56" rx="4" fill="#fff" stroke="${stripe}" stroke-width="3"/><line x1="${x}" y1="${y - 56}" x2="${x}" y2="${y - 64}" stroke="#334155" stroke-width="2"/>`;
       if (lit && !(cake.out || []).includes(i)) s += `<path class="flame" d="M${x} ${y - 92} C${x + 12} ${y - 76} ${x + 10} ${y - 62} ${x} ${y - 62} C${x - 10} ${y - 62} ${x - 12} ${y - 76} ${x} ${y - 92} Z" fill="#fbbf24" stroke="#f97316" stroke-width="3"/>`;
@@ -309,7 +310,7 @@
     const count = document.createElement('div'); count.id = 'count'; count.textContent = '0';
     const light = document.createElement('button'); light.className = 'btn'; light.id = 'nextBtn'; light.textContent = '🔥'; light.setAttribute('aria-label', 'Light the candles');
     const paint = () => { count.textContent = cake.candles; paintCake(); };
-    add.onclick = () => { if (cake.candles >= 7) return Kit.sfx.oops(); cake.candles++; paint(); Kit.tone(500 + cake.candles * 60, .12, { type: 'triangle' }); Kit.say('cg.n' + cake.candles); };
+    add.onclick = () => { if (cake.candles >= Math.max(7, age)) return Kit.sfx.oops(); cake.candles++; paint(); Kit.tone(500 + cake.candles * 60, .12, { type: 'triangle' }); Kit.say('cg.n' + cake.candles); };
     take.onclick = () => { if (!cake.candles) return; cake.candles--; paint(); Kit.sfx.oops(); };
     light.onclick = () => {
       if (busy) return;
@@ -318,7 +319,7 @@
       party();
     };
     p.append(take, add, count, light);
-    Kit.say('cs.age.' + guest);
+    Kit.say(guest === 'kid' ? 'cs.age.kid.' + age : 'cs.age.' + guest);
   }
   function song() {
     // Happy Birthday (public domain melody)

@@ -615,7 +615,6 @@
     "lt.find.Z": "63689bdb5b",
     "lt.thatIs.z": "528bb0d33e",
     "lt.Y.kid": "56a3de8012",
-    "cs.age.kid": "0ca0c70b64",
     "cs.hb.kid": "cecbabbea5",
     "cs.hb.kitty": "ca6e688c71",
     "lt.Y": "2f871dd435",
@@ -637,7 +636,17 @@
     "md.party": "d0963bd8e7",
     "md.yum": "a6656378fc",
     "md.allClean": "e48e7af0cd",
-    "md.comeBack": "0547d9022b"
+    "md.comeBack": "0547d9022b",
+    "cs.age.kid.2": "58c20a00cd",
+    "cs.age.kid.3": "508d7f4b27",
+    "cs.age.kid.6": "e1881bf39b",
+    "cs.age.kid.5": "0ca0c70b64",
+    "cs.age.kid.1": "2e0db0753d",
+    "cs.age.kid.4": "e59fd189e2",
+    "cs.age.kid.7": "e8eb17bb4f",
+    "cs.age.kid.9": "cd78055b1f",
+    "cs.age.kid.10": "3f1d51f9d0",
+    "cs.age.kid.8": "a03e928fb4"
   },
   "nl": {
     "hub.lang": "d1da1f5fa2",
@@ -1255,7 +1264,6 @@
     "lt.find.Z": "e1e948a43b",
     "lt.thatIs.z": "6cbc7abaa8",
     "lt.Y.kid": "5f2ee6a880",
-    "cs.age.kid": "c19dcb70a7",
     "cs.hb.kid": "1b1425b359",
     "lt.Y": "72cdcfa228",
     "cs.hb.kitty": "cfcfd0f218",
@@ -1277,7 +1285,17 @@
     "md.camp": "3a28367f74",
     "md.yum": "781e91aace",
     "md.allClean": "cd9e1fd681",
-    "md.comeBack": "9fc89bbe81"
+    "md.comeBack": "9fc89bbe81",
+    "cs.age.kid.1": "569eb9a9f3",
+    "cs.age.kid.3": "72bdd7e1d3",
+    "cs.age.kid.2": "ce0fd88e97",
+    "cs.age.kid.4": "0c59773898",
+    "cs.age.kid.5": "c19dcb70a7",
+    "cs.age.kid.6": "862db04b85",
+    "cs.age.kid.8": "1b38127957",
+    "cs.age.kid.7": "100db60332",
+    "cs.age.kid.9": "6b6a963a53",
+    "cs.age.kid.10": "b4be180f0c"
   },
   "voices": {
     "en": "Jessica (ElevenLabs eleven_v4)",
@@ -1901,7 +1919,6 @@
     "lt.find.Z": "eaafbb3b3b",
     "lt.thatIs.z": "b7fbb29e9e",
     "lt.Y.kid": "748582c07a",
-    "cs.age.kid": "24d69e2d52",
     "cs.hb.kid": "0f8c08130c",
     "lt.Y": "025193fcae",
     "cs.age.kitty": "5d7384fa9e",
@@ -1923,7 +1940,17 @@
     "md.party": "9d18aae7c0",
     "md.yum": "289ba470a2",
     "md.comeBack": "6c99e9b3fb",
-    "md.allClean": "65ac157acd"
+    "md.allClean": "65ac157acd",
+    "cs.age.kid.1": "6ea2fd2df6",
+    "cs.age.kid.2": "1e6abcda54",
+    "cs.age.kid.3": "e1083f6822",
+    "cs.age.kid.5": "24d69e2d52",
+    "cs.age.kid.4": "5da5925f56",
+    "cs.age.kid.6": "210ea37da4",
+    "cs.age.kid.7": "527eaa79c4",
+    "cs.age.kid.8": "af138e1dad",
+    "cs.age.kid.9": "99964ff72e",
+    "cs.age.kid.10": "e4d428ed63"
   },
   "de": {
     "md.castle": "4094e6aa8c",
@@ -2315,7 +2342,6 @@
     "cs.age.dino": "7ec202a634",
     "cs.hb.kitty": "d064f02d91",
     "cs.age.kitty": "be5606b6c7",
-    "cs.age.kid": "3a10c9537a",
     "cs.hb.kid": "5c4204c934",
     "du.surprise": "45927a4b70",
     "du.intro": "d0357c3751",
@@ -2563,6 +2589,16 @@
     "lt.big.Z": "7ecc4e0d82",
     "lt.find.Z": "200ed43b35",
     "lt.small.Z": "bd4fad65e8",
-    "lt.thatIs.z": "8efde86b7f"
+    "lt.thatIs.z": "8efde86b7f",
+    "cs.age.kid.1": "46b8587acd",
+    "cs.age.kid.2": "6303e98da7",
+    "cs.age.kid.3": "c8f528c080",
+    "cs.age.kid.4": "708d76b24c",
+    "cs.age.kid.5": "3a10c9537a",
+    "cs.age.kid.6": "11cc1e6010",
+    "cs.age.kid.7": "dfe9d6edb9",
+    "cs.age.kid.8": "22cb200f05",
+    "cs.age.kid.9": "e327bff091",
+    "cs.age.kid.10": "9f59987a86"
   }
 }
