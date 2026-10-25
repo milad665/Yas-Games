@@ -18,9 +18,12 @@
 
   let lang = 'en';
   try { lang = localStorage.getItem(LANG_KEY) || ''; } catch (e) {}
+  // first visit: the edition's own language if it has one (Lilli's: German), else the first of the
+  // browser's preferred languages that we speak, else English
   if (!LANGS[lang]) {
-    const device = (navigator.language || '').toLowerCase().slice(0, 2);
-    lang = LANGS[EDITION.lang] ? EDITION.lang : LANGS[device] ? device : Object.keys(LANGS)[0];
+    const device = [...(navigator.languages || []), navigator.language || '']
+      .map(l => l.toLowerCase().slice(0, 2)).find(l => LANGS[l]);
+    lang = LANGS[EDITION.lang] ? EDITION.lang : device || (LANGS.en ? 'en' : Object.keys(LANGS)[0]);
   }
 
   // ---------- recorded clips ----------
