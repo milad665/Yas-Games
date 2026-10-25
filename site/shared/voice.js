@@ -18,7 +18,7 @@
 
   let lang = 'en';
   try { lang = localStorage.getItem(LANG_KEY) || ''; } catch (e) {}
-  // first visit: the edition's own language if it has one (Lilli's: German), else the first of the
+  // first visit: the edition's own language if it has one ("lang" in its site.json), else the first of the
   // browser's preferred languages that we speak, else English
   if (!LANGS[lang]) {
     const device = [...(navigator.languages || []), navigator.language || '']
