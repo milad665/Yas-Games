@@ -1,0 +1,5 @@
+﻿Campaign,Campaign Type,Networks,Budget,Budget type,Start Date,End Date,Bid Strategy Type,Max CPC Bid Limit,Languages,Locations,Campaign Status,EU political ads
+LS | Search | EN | Tier 1,Search,Google search,9,Daily,2026-10-17,2026-10-18,Maximize clicks,0.6,English,United States; United Kingdom; Canada; Australia; Ireland; New Zealand,Paused,No
+LS | Search | EN | World,Search,Google search,6,Daily,2026-10-17,2026-10-18,Maximize clicks,0.15,English,India; Philippines; Nigeria; Kenya; South Africa; Pakistan; Ghana; Malaysia; Singapore; Uganda; Tanzania; Zambia; Jamaica,Paused,No
+LS | Search | NL,Search,Google search,4,Daily,2026-10-17,2026-10-18,Maximize clicks,0.4,Dutch,Netherlands; Belgium,Paused,No
+LS | Search | FA (optional),Search,Google search,1,Daily,2026-10-17,2026-10-18,Maximize clicks,0.3,Persian,Canada; United States; Germany; United Kingdom; Sweden; Australia; Netherlands; Turkey; United Arab Emirates,Paused,No
