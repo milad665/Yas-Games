@@ -686,7 +686,10 @@
     "sd.stars2": "07087172e4",
     "sd.stars1": "5ab607fe70",
     "sd.solar": "ac01e3ddfb",
-    "sd.sky": "e395814d53"
+    "sd.sky": "e395814d53",
+    "sd.tiangong": "c085e2257c",
+    "sd.gps": "09e549bf40",
+    "sd.weather": "e130c07d12"
   },
   "nl": {
     "hub.lang": "d1da1f5fa2",
@@ -1375,7 +1378,10 @@
     "sd.stars2": "568ff3d140",
     "sd.stars1": "c2c0daefcb",
     "sd.solar": "b1d1ae05b1",
-    "sd.sky": "43aec92b06"
+    "sd.sky": "43aec92b06",
+    "sd.tiangong": "dd0f34e2f2",
+    "sd.gps": "60715c3fc0",
+    "sd.weather": "b04eaf8440"
   },
   "voices": {
     "en": "Jessica (ElevenLabs eleven_v4)",
@@ -2070,7 +2076,10 @@
     "sd.stars2": "019c323092",
     "sd.stars1": "7d556cd983",
     "sd.solar": "d8f06daf19",
-    "sd.sky": "c52ab68689"
+    "sd.sky": "c52ab68689",
+    "sd.tiangong": "e9e4a384b8",
+    "sd.gps": "07c9d9ca9f",
+    "sd.weather": "2b3b7bce1e"
   },
   "de": {
     "md.castle": "4094e6aa8c",
@@ -2759,6 +2768,9 @@
     "sd.stars2": "5cdcb4e5e3",
     "sd.stars1": "99aaf4d188",
     "sd.solar": "7b4f39e9a1",
-    "sd.sky": "498ca27dcf"
+    "sd.sky": "498ca27dcf",
+    "sd.tiangong": "2080de1a89",
+    "sd.weather": "bc183e00c1",
+    "sd.gps": "90034cf21c"
   }
 }

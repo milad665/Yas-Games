@@ -22,10 +22,13 @@
   /* things in space you can tap: satellites, rocks, the comet */
   .sprite { position: absolute; left: 0; top: 0; width: 100px; height: 100px; margin: -50px 0 0 -50px; pointer-events: auto; touch-action: manipulation; transform-origin: 50% 50%; display: none; cursor: pointer; }
   .sprite svg { width: 100%; height: 100%; display: block; overflow: visible; }
+  .sprite .body { width: 100%; height: 100%; transform-origin: 50% 50%; }
+  .sprite .tag { position: absolute; left: 50%; top: calc(50% + var(--below, 30px)); translate: -50% 0; white-space: nowrap; pointer-events: none;
+    font: 800 12px ui-rounded, system-ui, sans-serif; color: #fff; background: rgba(10, 14, 40, .65); padding: 2px 8px; border-radius: 999px; }
   .sprite .spin { width: 100%; height: 100%; animation: kit-spin var(--spin, 20s) linear infinite; }
   .sprite .tail { position: absolute; left: 50%; top: 50%; width: 260px; height: 60px; margin-top: -30px; transform-origin: 0 50%; pointer-events: none;
     background: radial-gradient(ellipse at 0% 50%, rgba(200, 235, 255, .95), rgba(140, 200, 255, .45) 35%, rgba(120, 170, 255, 0) 72%); border-radius: 0 50% 50% 0; filter: blur(2px); }
-  .sprite.boing > * { animation: sd-boing .6s cubic-bezier(.3,1.6,.5,1); }
+  .sprite.boing > .body { animation: sd-boing .6s cubic-bezier(.3,1.6,.5,1); }
   @keyframes sd-boing { 30% { scale: 1.35; } 60% { scale: .9; } }
 
   /* the people on the map */
@@ -189,6 +192,7 @@
 <script src="/shared/edition.js"></script>
 <script src="/shared/voice.js"></script>
 <script src="/shared/kit.js"></script>
+<script src="satellite.min.js"></script>
 <script>
 (() => {
   const { $, rand } = Kit;
@@ -267,9 +271,16 @@
     // the Earth turns so the Sun is overhead where it really is right now (day and night, seasons)
     const s = norm(mul(E, -1));
     const sunLon = Math.atan2(-s[2], s[0]);
-    const decl = Math.asin(Math.sin(23.44 * D2R) * Math.sin(sunLon));
+    // where the Sun is straight overhead right now (the US Naval Observatory's short formula, good to about
+    // a minute of time): its true place in the sky, and the "equation of time" (sundials run up to 16
+    // minutes ahead of or behind the clock)
+    const g = (357.529 + .98560028 * days) * D2R, q = 280.459 + .98564736 * days;
+    const lam = (q + 1.915 * Math.sin(g) + .020 * Math.sin(2 * g)) * D2R, obl = (23.439 - 3.6e-7 * days) * D2R;
+    const decl = Math.asin(Math.sin(obl) * Math.sin(lam));
+    const ra = Math.atan2(Math.cos(obl) * Math.sin(lam), Math.cos(lam)) / D2R;
+    const eqt = (((q - ra) % 360 + 540) % 360 - 180) / 15; // hours
     const hours = (ms / 3.6e6) % 24;
-    const below = local(decl / D2R, wrapLon(-15 * (hours - 12))); // where the Sun is straight overhead
+    const below = local(decl / D2R, wrapLon(-15 * (hours - 12 + eqt)));
     const north = norm(add(mul(norm(sub(UP, mul(s, s[1]))), Math.cos(decl)), mul(s, Math.sin(decl))));
     const l2 = norm(sub(UP, mul(below, below[1]))), w2 = norm(sub(north, mul(s, dot(north, s))));
     const L = cols(below, l2, cross(below, l2)), W = cols(s, w2, cross(s, w2));
@@ -316,6 +327,7 @@
     neptune: ['sd.neptune1', 'sd.neptune2'], rocks: ['sd.rocks1', 'sd.rocks2'], comet: ['sd.comet1', 'sd.comet2'],
     solar: ['sd.solar'], stars: ['sd.stars1', 'sd.stars2'],
     iss: ['sd.iss1', 'sd.iss2'], sat: ['sd.sat1', 'sd.sat2'], hubble: ['sd.hubble'],
+    tiangong: ['sd.tiangong'], gps: ['sd.gps', 'sd.sat2'], meteosat: ['sd.weather', 'sd.sat1'],
   };
   const factNo = {};
   const fact = id => { const f = FACTS[id]; const n = factNo[id] = (factNo[id] ?? -1) + 1; return f[n % f.length]; };
@@ -480,10 +492,13 @@
         vec2 uv = ballUV(n);
         vec3 day = texture(uDay, uv).rgb, night = texture(uNight, uv).rgb;
         ndl = mix(ndl, .8, uFlat); // under the map's daytime photos the Earth stays sunny too
-        float dayAmt = smoothstep(-.1, .15, ndl);
+        // daylight stays bright almost to the edge, like real photos of the Earth, then a soft dusk
+        float dayAmt = smoothstep(-.09, .11, ndl);
         vec3 lights = vec3(1., .78, .45) * smoothstep(.2, .65, dot(night, vec3(.3, .5, .2))) * 1.4;
         float sea = clamp((day.b - day.r) * 4. - .2, 0., 1.);
-        c = day * (.07 + 1.13 * max(ndl, 0.)) + lights * (1. - dayAmt);
+        vec3 bright = pow(day, vec3(.8)) * 1.25 + vec3(.02, .04, .08); // the photos are dark; lift them a little, with a touch of blue air
+        c = bright * dayAmt * (.78 + .32 * sqrt(max(ndl, 0.))) + day * .05 + lights * (1. - dayAmt);
+        c += vec3(1., .45, .2) * .12 * dayAmt * (1. - smoothstep(0., .25, ndl)); // sunrise and sunset
         c += vec3(1., .95, .85) * pow(max(dot(reflect(-L, N), -rd), 0.), 28.) * sea * .5 * step(0., ndl);
         c += vec3(.3, .55, 1.) * pow(1. - max(dot(N, -rd), 0.), 2.5) * (.12 + .9 * dayAmt) * .9;
         return c;
@@ -557,9 +572,9 @@
           }
         }
       }
-      { // the Sun shines
-        vec4 s = uB[0]; float t = dot(s.xyz, rd);
-        if (t > 0. && (id < 0 || id == 0 || tm > t)) col += vec3(1., .72, .38) * pow(s.w / max(length(t * rd - s.xyz), s.w), 2.2) * .55;
+      { // the Sun shines (by angle, so the glow fades smoothly all the way round)
+        vec4 s = uB[0]; float d = length(s.xyz), ang = acos(clamp(dot(rd, s.xyz / d), -1., 1.)), size = asin(min(s.w / d, 1.));
+        if (id < 0 || id == 0 || tm > d) col += vec3(1., .72, .38) * pow(size / max(ang, size), 2.2) * .55;
       }
       outColor = vec4(min(col, 1.), 1.);
     }`;
@@ -1095,6 +1110,13 @@
     hubble: svg('-50 -30 100 60', panel(-30, -28, 60, 12) + panel(-30, 16, 60, 12) +
       `<rect x="-40" y="-12" width="76" height="24" rx="8" fill="#e5e7eb" ${OL}/><rect x="-40" y="-12" width="20" height="24" rx="6" fill="#cbd5e1" ${OL}/>` +
       `<path d="M36 -10 L46 -14 V14 L36 10Z" fill="#94a3b8" ${OL}/>`),
+    tiangong: svg('-60 -40 120 80', panel(-58, -30, 22, 24) + panel(-58, 6, 22, 24) + panel(36, -30, 22, 24) + panel(36, 6, 22, 24) +
+      `<rect x="-36" y="-5" width="72" height="10" rx="5" fill="#e2e8f0" ${OL}/><rect x="-8" y="-30" width="16" height="60" rx="8" fill="#fef2f2" ${OL}/>` +
+      `<circle cx="0" cy="0" r="7" fill="#fca5a5" stroke="#1e293b" stroke-width="2"/>`),
+    weather: svg('-40 -40 80 80', `<path d="M0 -36 V-24" stroke="#1e293b" stroke-width="3"/><circle cx="0" cy="-37" r="4" fill="#fde047" stroke="#1e293b" stroke-width="2"/>` +
+      `<rect x="-24" y="-24" width="48" height="48" rx="10" fill="#2f6fd6" ${OL}/>` +
+      Array.from({ length: 5 }, (_, i) => `<path d="M${-16 + i * 8} -24 v48" stroke="#9cc4ff" stroke-width="1.5"/>`).join('') +
+      `<rect x="-26" y="-6" width="52" height="12" rx="3" fill="#cbd5e1" ${OL}/><circle cx="0" cy="0" r="4" fill="#fff7d6"/>`),
     comet: svg('-30 -30 60 60', `<circle r="20" fill="#e0f2fe" ${OL}/><circle cx="-6" cy="-5" r="5" fill="#bae6fd"/><circle cx="8" cy="6" r="4" fill="#bae6fd"/><circle cx="-4" cy="10" r="3" fill="#bae6fd"/>`),
   };
   function rockArt(seed) {
@@ -1108,11 +1130,74 @@
     const a = performance.now() / 1000 / period * TAU + phase, i = incl * D2R;
     return add(B.earth.pos, mul([Math.cos(a), Math.sin(a) * Math.sin(i), -Math.sin(a) * Math.cos(i)], rad));
   };
+  // ---------- real satellites, where they really are right now ----------
+  // Their orbits come from CelesTrak (refreshed every 6 hours at most, kept on the device; the ones below are
+  // for the very first visit or offline) and satellite.js works out where they are at this moment.
+  // The pictures are much bigger than the real thing, of course; the heights are true.
+  const SATS = [
+    { id: 'iss', no: 25544, name: 'ISS', size: .16, color: '#7dd3fc', art: ART.iss, fallback: orbit(1.066, 51.6, 46, 0),
+      tle: ['1 25544U 98067A   26299.20906838  .00006121  00000+0  11890-3 0  9995', '2 25544  51.6337  11.7282 0006920 310.9581  49.0809 15.49059765592065'] },
+    { id: 'tiangong', no: 48274, name: 'Tiangong', size: .14, color: '#fca5a5', art: ART.tiangong, fallback: orbit(1.06, 41.5, 46, 3),
+      tle: ['1 48274U 21035A   26299.05646678  .00006852  00000+0  82635-4 0  9994', '2 48274  41.4692 246.9790 0003029 216.2842 143.7792 15.61161745313602'] },
+    { id: 'hubble', no: 20580, name: 'Hubble', size: .11, color: '#c4b5fd', art: ART.hubble, fallback: orbit(1.083, 28.5, 48, 2),
+      tle: ['1 20580U 90037B   26299.19483888  .00004344  00000+0  12890-3 0  9998', '2 20580  28.4739 264.2814 0001997 164.4977 195.5681 15.32084886808670'] },
+    { id: 'gps', no: 43873, name: 'GPS', size: .26, color: '#86efac', art: ART.sat, fallback: orbit(4.17, 55, 300, 1),
+      tle: ['1 43873U 18109A   26297.90091686  .00000041  00000+0  00000+0 0  9992', '2 43873  55.7710  87.0717 0041118 196.6635 347.1927  2.00566266 57674'] },
+    { id: 'meteosat', no: 40732, name: 'Meteosat', size: .36, color: '#fde047', art: ART.weather, fallback: orbit(6.61, 0, 1e9, 0),
+      tle: ['1 40732U 15034A   26299.27316149  .00000076  00000+0  00000+0 0  9991', '2 40732   3.5259  70.1511 0001121  75.1761 356.9340  1.00269465  8538'] },
+  ];
+  const tleStore = Kit.store('space-discovery.tle', { shared: true });
+  const tleSaved = tleStore.get({ at: 0, tle: {} });
+  const SGP = self.satellite;
+  function readOrbits() {
+    for (const s of SATS) {
+      const [l1, l2] = tleSaved.tle[s.no] || s.tle;
+      try { s.rec = SGP && SGP.twoline2satrec(l1, l2); } catch (e) { s.rec = null; }
+      s.path = null;
+    }
+  }
+  readOrbits();
+  (async () => { // fresh orbits (CelesTrak asks for no more than one download every two hours)
+    if (!SGP || Date.now() - tleSaved.at < 6 * 3600e3) return;
+    try {
+      for (const s of SATS) {
+        const lines = (await (await fetch(`https://celestrak.org/NORAD/elements/gp.php?CATNR=${s.no}&FORMAT=TLE`)).text()).trim().split(/\r?\n/);
+        if (lines.length >= 3 && lines[1].startsWith('1 ') && lines[2].startsWith('2 ')) tleSaved.tle[s.no] = [lines[1].trim(), lines[2].trim()];
+      }
+      tleSaved.at = Date.now(); tleStore.set(tleSaved); readOrbits();
+    } catch (e) { /* offline: the saved orbits will do */ }
+  })();
+  const KM = 6371; // one Earth radius
+  const simNow = () => Date.now() + timeOffset;
+  // satellite.js measures in km, in directions fixed to the stars (x towards spring, z north); turning by the
+  // sidereal time gives the Earth's own directions, then ours: x = (0°, 0°), y = north, z = 90° west
+  function earthFixed(eci, gmst) {
+    const c = Math.cos(gmst), n = Math.sin(gmst), x = eci.x * c + eci.y * n, y = -eci.x * n + eci.y * c;
+    return [x / KM, eci.z / KM, -y / KM];
+  }
+  function satNow(s) {
+    if (!s.rec) return s.fallback();
+    const d = new Date(simNow()), pv = SGP.propagate(s.rec, d);
+    if (!pv || !pv.position) return s.fallback();
+    return add(B.earth.pos, mulMV(earthR, earthFixed(pv.position, SGP.gstime(d))));
+  }
+  // one whole orbit ahead, as a line round the Earth
+  function satPath(s) {
+    if (!s.rec) return null;
+    const now = simNow(), period = TAU / s.rec.no * 60e3; // no: radians a minute
+    if (!s.path || Math.abs(now - s.path.t0) > Math.min(period / 4, 600e3)) {
+      const pts = [];
+      for (let i = 0; i <= 160; i++) {
+        const pv = SGP.propagate(s.rec, new Date(now + period * i / 160));
+        if (pv && pv.position) pts.push(pv.position);
+      }
+      s.path = { t0: now, pts };
+    }
+    const g = SGP.gstime(new Date(now));
+    return s.path.pts.map(p => add(B.earth.pos, mulMV(earthR, earthFixed(p, g))));
+  }
   const SPRITES = [
-    { id: 'iss', pos: orbit(1.14, 51.6, 46, 0), size: .16, art: ART.iss },
-    { id: 'hubble', pos: orbit(1.24, 28.5, 62, 2), size: .1, art: ART.hubble },
-    { id: 'sat', pos: orbit(1.65, 12, 140, 4), size: .1, art: ART.sat },
-    { id: 'sat', pos: orbit(2.6, -3, 300, 1), size: .12, art: ART.sat },
+    ...SATS.map(s => ({ id: s.id, name: s.name, pos: () => satNow(s), size: s.size, art: s.art })),
     { id: 'comet', pos: () => cometAt, size: 1.6, art: ART.comet, tail: true },
   ];
   for (let i = 0; i < 11; i++) {
@@ -1122,13 +1207,14 @@
   for (const s of SPRITES) {
     const el = document.createElement('div');
     el.className = 'sprite';
-    el.innerHTML = (s.tail ? '<div class="tail"></div>' : '') + (s.spin ? `<div class="spin" style="--spin:${Math.abs(s.spin)}s;animation-direction:${s.spin < 0 ? 'reverse' : 'normal'}">${s.art}</div>` : s.art);
+    el.innerHTML = '<div class="body">' + (s.tail ? '<div class="tail"></div>' : '') + (s.spin ? `<div class="spin" style="--spin:${Math.abs(s.spin)}s;animation-direction:${s.spin < 0 ? 'reverse' : 'normal'}">${s.art}</div>` : s.art) + '</div>' +
+      (s.name ? `<div class="tag">${s.name}</div>` : '');
     el.addEventListener('pointerdown', e => {
       e.stopPropagation(); boing(el); Kit.sfx.boing();
       if (s.id === 'rocks' || s.id === 'comet') { if (view !== s.id) return flyTo(s.id); }
       say(fact(s.id));
     });
-    world.appendChild(el); s.el = el; s.tailEl = el.querySelector('.tail');
+    world.appendChild(el); s.el = el; s.body = el.querySelector('.body'); s.tailEl = el.querySelector('.tail');
   }
   function boing(el) { if (el) Kit.flash(el, 'boing'); }
 
@@ -1142,7 +1228,9 @@
       const px = p && s.size * p.k;
       if (!p || px < 14 || p.x < -200 || p.x > W + 200 || p.y < -200 || p.y > H + 200 || occluded(P, c)) { s.el.style.display = 'none'; continue; }
       s.el.style.display = 'block';
-      s.el.style.transform = `translate(${p.x.toFixed(1)}px, ${p.y.toFixed(1)}px) scale(${(Math.min(px, 260) / 100).toFixed(3)})`;
+      s.el.style.transform = `translate(${p.x.toFixed(1)}px, ${p.y.toFixed(1)}px)`;
+      s.body.style.transform = `scale(${(Math.min(px, 260) / 100).toFixed(3)})`;
+      if (s.name) s.el.style.setProperty('--below', (Math.min(px, 260) / 2 + 4).toFixed(0) + 'px');
       if (s.tailEl) { // the tail always points away from the Sun
         const q = project(add(P, mul(norm(sub(P, B.sun.pos)), 4)), c);
         if (q) s.tailEl.style.transform = `rotate(${Math.atan2(q.y - p.y, q.x - p.x)}rad)`;
@@ -1200,6 +1288,23 @@
         const s = clamp(r.s * p.k, .7, 2.6);
         fx.fillRect(p.x - s / 2, p.y - s / 2, s, s);
       }
+    }
+    // the satellites' orbits, close to the Earth
+    const fromEarth = len(sub(c.pos, B.earth.pos));
+    if (fromEarth < 40) {
+      fx.lineWidth = 2; fx.globalAlpha = .75 * (1 - smooth(20, 40, fromEarth));
+      for (const s of SATS) {
+        const pts = satPath(s);
+        if (!pts) continue;
+        fx.strokeStyle = s.color; fx.setLineDash([7, 5]); fx.beginPath();
+        let pen = false;
+        for (const P of pts) {
+          const p = !occluded(P, c) && project(P, c);
+          if (p) { pen ? fx.lineTo(p.x, p.y) : fx.moveTo(p.x, p.y); pen = true; } else pen = false;
+        }
+        fx.stroke();
+      }
+      fx.setLineDash([]); fx.globalAlpha = 1;
     }
     // planets too small to see still show as a coloured dot
     for (const b of BODIES) {

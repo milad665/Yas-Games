@@ -133,6 +133,11 @@ If a clip is missing, the games fall back to the device's built-in voice.
   map). Esri's terms are meant for non-commercial use like this, with the credit shown; check them again
   before anything commercial, or swap `TILE_URL` in the game for another provider (for example EOX Sentinel-2 cloudless 2016, CC BY 4.0,
   which shows towns but not single houses).
+- **Satellites:** the ISS, Tiangong, Hubble, a GPS satellite and Meteosat at their real positions and heights
+  right now, with their orbits drawn. Orbits come from CelesTrak (at most every 6 hours, saved on the device;
+  the game has a copy for offline use) and satellite.js (MIT, kept in the game folder) works out positions.
+- **Day and night** follow the real Sun to within about a minute (the US Naval Observatory's formula,
+  including the equation of time).
 - **Address search** (grown-ups' places): OpenStreetMap Nominatim, only when a grown-up searches.
 - **Places** are saved on the device (shared by brothers and sisters), never sent anywhere.
 - Every size is true to every other (the Sun is 109 Earths wide, Jupiter 11), and so is the Moon's distance
