@@ -2844,4 +2844,21 @@ self.VOICE_LINES = {
                        de: 'Das ist unser Sonnensystem: die Sonne und acht Planeten, die um sie herumkreisen. Findest du unsere Erde?',
                        es: 'Este es nuestro sistema solar: el Sol y ocho planetas que dan vueltas a su alrededor. ¿Encuentras nuestra Tierra?',
                        fa: 'این منظومه‌ی شمسیِ ماست: خورشید و هشت تا سیاره که دورش می‌چرخن. می‌تونی زمینِ ما رو پیدا کنی؟' },
+
+  // ---------- Story Books ----------
+  'sb.pick':         { en: 'Pick a book, and I\'ll read it to you!', nl: 'Kies een boek, dan lees ik het voor!',
+                       de: 'Such dir ein Buch aus, dann lese ich es dir vor!',
+                       fa: 'یه کتاب انتخاب کن تا برات بخونمش!' },
+  'sb.theEnd':       { en: 'The end!', nl: 'Einde!', de: 'Ende!', fa: 'تموم شد!' },
+  'sb.quiz':         { en: 'Let\'s see what you remember!', nl: 'Eens kijken wat je nog weet!',
+                       de: 'Mal sehen, was du noch weißt!', fa: 'بیا ببینیم چی یادته!' },
+  'sb.right1':       { en: 'Yes, that\'s right!', nl: 'Ja, goed zo!', de: 'Ja, genau!', fa: 'آره، درسته!' },
+  'sb.right2':       { en: 'Well done!', nl: 'Heel goed!', de: 'Super gemacht!', fa: 'آفرین!' },
+  'sb.tryAgain':     { en: 'Hmm, try another one!', nl: 'Hmm, probeer een andere!', de: 'Hmm, probier ein anderes!',
+                       fa: 'اوم، یکی دیگه رو امتحان کن!' },
+  'sb.allDone':      { en: 'You remembered everything! Another book?', nl: 'Je wist alles nog! Nog een boek?',
+                       de: 'Du hast alles gewusst! Noch ein Buch?', fa: 'همه‌چی یادت بود! یه کتابِ دیگه؟' },
+  'sb.colour':       { en: 'Pick a crayon, then tap the picture to colour it in!', nl: 'Kies een krijtje en tik op het plaatje om het in te kleuren!',
+                       de: 'Nimm einen Stift und tipp auf das Bild, um es auszumalen!',
+                       fa: 'یه مداد رنگی بردار، بعد روی عکس بزن تا رنگش کنی!' },
 };

@@ -1,0 +1,654 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Story Books">
+<meta name="theme-color" content="#fef3c7">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="stylesheet" href="/shared/kit.css">
+<title>Story Books</title>
+<style>
+  body { background: radial-gradient(circle at 20% 10%, #fff7ed, #fde68a 60%, #fbcfe8); }
+  #soundBtn { position: fixed; }
+
+  /* ---------- the shelf ---------- */
+  #shelf { flex-direction: column; align-items: center; overflow-y: auto; touch-action: pan-y;
+    padding: max(18px, env(safe-area-inset-top)) 18px max(18px, env(safe-area-inset-bottom)); }
+  #shelf .title { margin: 6px 0 18px; }
+  #books { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(190px, 42vw), 1fr)); gap: 22px; width: 100%; max-width: 1100px; }
+  .book { position: relative; border: none; padding: 0; background: #fff; border-radius: 18px; overflow: hidden; cursor: pointer;
+    box-shadow: 0 7px 0 rgba(40,50,90,.16), 0 10px 22px rgba(40,50,90,.12); transform: rotate(var(--tilt)); transition: transform .15s; color: inherit; font: inherit; }
+  .book:active { transform: rotate(0) scale(.96); }
+  .book img { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; background: #f1f5f9; }
+  .book span { display: block; padding: 8px 10px 12px; font-size: 17px; font-weight: 800; line-height: 1.2; min-height: 2.6em; }
+  .book .star { position: absolute; top: 6px; right: 8px; font-size: 30px; filter: drop-shadow(0 2px 2px rgba(0,0,0,.25)); }
+  .book .crayon { position: absolute; top: 6px; left: 8px; font-size: 26px; filter: drop-shadow(0 2px 2px rgba(0,0,0,.25)); }
+  .source { max-width: 760px; margin: 26px 0 8px; text-align: center; font-size: 14px; line-height: 1.5; color: #6b5b45; }
+  .source a { color: inherit; }
+
+  /* ---------- reading ---------- */
+  #reader { flex-direction: column; align-items: center; gap: 1.6vh;
+    padding: max(14px, env(safe-area-inset-top)) 104px max(14px, env(safe-area-inset-bottom)); }
+  #stage { flex: 1; min-height: 0; width: 100%; display: grid; place-items: center; }
+  /* sized by fit() to the biggest picture that fits the stage */
+  #pic { position: relative; line-height: 0; border-radius: 18px; overflow: hidden;
+    background: #fff; box-shadow: 0 8px 0 rgba(40,50,90,.15), 0 12px 26px rgba(40,50,90,.15); }
+  #pic img, #pic canvas { display: block; width: 100%; height: 100%; touch-action: none; }
+  #paint { display: none; }
+  #pic.colouring img { display: none; }
+  #pic.colouring #paint { display: block; }
+  #pic.turn { animation: sb-turn .35s ease-out; }
+  @keyframes sb-turn { from { opacity: .2; transform: translateX(var(--from, 40px)); } to { opacity: 1; transform: none; } }
+  .spot { position: absolute; translate: -50% -50%; aspect-ratio: 1; border-radius: 50%; border: none; padding: 0; background: transparent; cursor: pointer; }
+  .spot.hint { animation: sb-hint 1.4s ease-out; }
+  @keyframes sb-hint { 0% { box-shadow: 0 0 0 0 rgba(255,255,255,0); } 30% { box-shadow: 0 0 0 6px rgba(255,255,255,.85), inset 0 0 22px rgba(253,224,71,.7); } 100% { box-shadow: 0 0 0 14px rgba(255,255,255,0); } }
+  #pic.painting .spot { pointer-events: none; }
+
+  #words { flex: none; width: 100%; max-width: 980px; max-height: 32vh; overflow-y: auto; background: rgba(255,255,255,.92); border-radius: 22px;
+    padding: 14px 22px; font-size: clamp(20px, 2.5vw, 30px); line-height: 1.5; font-weight: 700; text-align: center;
+    box-shadow: 0 5px 0 rgba(40,50,90,.12); touch-action: pan-y; }
+  #words:empty { display: none; }
+  #words[dir="rtl"] { font-family: system-ui, -apple-system, Tahoma, sans-serif; line-height: 1.8; }
+  .w { border-radius: 8px; padding: 0 2px; cursor: pointer; transition: background .12s, color .12s; }
+  .w.on { background: #fde047; color: #7c2d12; }
+  #words.big { font-size: clamp(30px, 4.6vw, 58px); font-weight: 900; }
+
+  .nav { position: absolute; top: 50%; translate: 0 -50%; width: 82px; height: 82px; font-size: 40px; z-index: 5; }
+  #prev { left: max(12px, env(safe-area-inset-left)); }
+  #next { right: max(12px, env(safe-area-inset-right)); }
+  #next.pulse { background: #bbf7d0; }
+  .side { position: absolute; display: flex; flex-direction: column; gap: 12px; z-index: 6; }
+  #tools { left: max(16px, env(safe-area-inset-left)); bottom: max(16px, env(safe-area-inset-bottom)); }
+  #tools .btn, #crayons .btn { width: 60px; height: 60px; font-size: 28px; }
+  #crayons { right: max(16px, env(safe-area-inset-right)); top: calc(max(16px, env(safe-area-inset-top)) + 80px); bottom: 120px;
+    overflow-y: auto; padding: 4px 6px 10px; }
+  #crayons .btn.sel { box-shadow: 0 0 0 5px #3b82f6, 0 6px 0 rgba(40,50,90,.18); }
+  .crayon-dot { width: 34px; height: 34px; border-radius: 50%; border: 3px solid rgba(0,0,0,.15); }
+  #reader.has-crayons #next { top: auto; bottom: max(16px, env(safe-area-inset-bottom)); translate: none; }
+  #pages { position: absolute; bottom: max(6px, env(safe-area-inset-bottom)); left: 50%; translate: -50% 0; font-size: 13px; color: #8a7350; font-weight: 700; }
+
+  /* ---------- the end and the questions ---------- */
+  #endBox { display: flex; gap: 22px; justify-content: center; flex-wrap: wrap; }
+  #endBox .btn { width: 110px; height: 110px; font-size: 54px; }
+  #quiz { flex-direction: column; align-items: center; justify-content: center; gap: 4vh; padding: 90px 24px 30px; background: rgba(255,247,237,.97); z-index: 20; }
+  #question { margin: 0; max-width: 900px; text-align: center; font-size: clamp(24px, 3.6vw, 44px); font-weight: 900; }
+  #choices { display: flex; gap: 3vw; justify-content: center; flex-wrap: wrap; }
+  .choice { border: none; padding: 0; border-radius: 18px; overflow: hidden; background: #fff; cursor: pointer; line-height: 0;
+    box-shadow: 0 7px 0 rgba(40,50,90,.16); width: min(28vw, 300px); }
+  .choice img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; }
+  .choice.right { box-shadow: 0 0 0 7px #22c55e, 0 7px 0 rgba(40,50,90,.16); }
+  .choice.wrong { opacity: .35; }
+  #qstars { font-size: 40px; min-height: 48px; }
+
+  /* ---------- for grown-ups: who made the book ---------- */
+  #credits { position: fixed; inset: 0; z-index: 40; display: none; place-items: center; background: rgba(30,27,40,.45); padding: 20px; }
+  #credits.on { display: grid; }
+  #credits .card { background: #fff; border-radius: 22px; max-width: 640px; width: 100%; max-height: 86vh; overflow-y: auto; padding: 22px 26px;
+    font-size: 15px; line-height: 1.55; touch-action: pan-y; -webkit-user-select: text; user-select: text; }
+  #credits h2 { margin: 0 0 6px; font-size: 22px; }
+  #credits .small { color: #64748b; font-size: 13px; }
+  #credits .close { float: right; width: 48px; height: 48px; font-size: 24px; margin: -6px -10px 0 8px; }
+
+  @media (max-width: 700px), (max-height: 520px) {
+    #reader { padding-left: 70px; padding-right: 70px; }
+    .nav { width: 58px; height: 58px; font-size: 28px; }
+    #tools .btn, #crayons .btn { width: 48px; height: 48px; font-size: 22px; }
+    .crayon-dot { width: 26px; height: 26px; }
+    #words { max-height: 38vh; padding: 10px 14px; }
+  }
+  /* a phone held upright: the picture gets the whole width, the arrows sit on its sides, tools along the top */
+  @media (max-aspect-ratio: 4/5) {
+    #reader { padding: calc(max(16px, env(safe-area-inset-top)) + 78px) 12px max(12px, env(safe-area-inset-bottom)); }
+    #reader.has-crayons { padding-top: calc(max(16px, env(safe-area-inset-top)) + 146px); }
+    .nav, #reader.has-crayons #next { top: 40%; bottom: auto; translate: 0 -50%; width: 54px; height: 54px; font-size: 26px; opacity: .92; }
+    #prev { left: 4px; } #next { right: 4px; }
+    #words { max-height: 40vh; }
+    #tools { flex-direction: row; top: max(16px, env(safe-area-inset-top)); bottom: auto; left: 96px; }
+    #crayons { flex-direction: row; top: calc(max(16px, env(safe-area-inset-top)) + 76px); bottom: auto; left: 8px; right: 8px;
+      overflow-x: auto; overflow-y: hidden; padding: 4px 4px 10px; }
+    #pages { bottom: auto; top: calc(max(16px, env(safe-area-inset-top)) + 64px); }
+  }
+</style>
+</head>
+<body>
+
+<button id="soundBtn" class="btn corner right" aria-label="Sound on or off">🔊</button>
+
+<section id="shelf" class="screen on">
+  <a class="btn corner left" href="../../" aria-label="Back to Yas's Games">🏠</a>
+  <h1 id="title" class="title"></h1>
+  <div id="books"></div>
+  <p class="source">These picture books come from the <a href="https://digitallibrary.io" target="_blank" rel="noopener">Global Digital Library</a>
+    (run by Norad and the Global Book Alliance) and were made by Book Dash, Room to Read, Pratham Books and their writers and artists.
+    They are free under Creative Commons licences. We translated them, recorded the reading and added the games. Tap ℹ️ in a book to see who made it.</p>
+</section>
+
+<section id="reader" class="screen">
+  <button id="toShelf" class="btn corner left" aria-label="Back to the bookshelf">📚</button>
+  <div id="stage">
+    <div id="pic"><img id="img" alt=""><canvas id="paint"></canvas><div id="spots"></div></div>
+  </div>
+  <div id="words"></div>
+  <button id="prev" class="btn nav" aria-label="Previous page">◀</button>
+  <button id="next" class="btn nav" aria-label="Next page">▶</button>
+  <div id="tools" class="side">
+    <button id="again" class="btn" aria-label="Read this page again">🔁</button>
+    <button id="info" class="btn" aria-label="Who made this book (for grown-ups)">ℹ️</button>
+  </div>
+  <div id="crayons" class="side"></div>
+  <div id="pages"></div>
+</section>
+
+<section id="quiz" class="screen">
+  <h2 id="question"></h2>
+  <div id="choices"></div>
+  <div id="qstars"></div>
+</section>
+
+<div id="credits" role="dialog" aria-label="Who made this book"><div class="card"></div></div>
+
+<script src="/shared/lines.js"></script>
+<script src="/shared/edition.js"></script>
+<script src="/shared/voice.js"></script>
+<script src="/shared/saved.js"></script>
+<script src="/shared/kit.js"></script>
+<script src="/books/books.js"></script>
+<script>
+// Story Books: picture books from the Global Digital Library (made by tools/import-books.mjs into /books/<slug>/),
+// read aloud with every word lighting up as it's said (tools/record-voice.mjs records the reading with the
+// time of every word). Tap a word to hear it again, tap things in the pictures to hear what they are, colour in the
+// black-and-white books, and answer a picture question or two at the end.
+const { $, sleep, shuffle, pick } = Kit;
+Kit.title('title', 'Story Books');
+Kit.soundButton('soundBtn');
+const store = Kit.store('story-books');
+const lang = () => Voice.lang;
+const say = (key, text) => narrate(key, text);
+const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+let book = null;      // the open book (its book.json)
+let voice = {};       // its recordings: { <lang>: { <key>: { h: hash, w: [[startMs, endMs], ...] } } }
+let at = 0;           // 0: the cover, 1..n: the pages, n + 1: the end
+const base = () => `/books/${book.slug}/`;
+
+// ---------- the shelf ----------
+const books = {};
+async function loadBook(slug) {
+  if (!books[slug]) books[slug] = fetch(`/books/${slug}/book.json`).then(r => r.json());
+  return books[slug];
+}
+async function showShelf() {
+  stopAll();
+  book = null;
+  $('reader').classList.remove('on'); $('quiz').classList.remove('on'); $('shelf').classList.add('on');
+  if (location.hash) history.replaceState(null, '', location.pathname);
+  const done = store.get({ done: {} }).done;
+  const list = await Promise.all(self.BOOKS.map(loadBook));
+  $('books').innerHTML = list.map((b, i) => `
+    <button class="book" data-slug="${esc(b.slug)}" style="--tilt:${[-1.5, 1, -.5, 1.5, -1][i % 5]}deg">
+      <img src="/books/${esc(b.slug)}/cover.jpg" alt="" loading="lazy">
+      <span>${esc(b.title[lang()] || b.title.en)}</span>
+      ${done[b.slug] ? '<i class="star">⭐</i>' : ''}${b.colouring ? '<i class="crayon">🖍️</i>' : ''}
+    </button>`).join('');
+}
+$('books').addEventListener('click', e => {
+  const b = e.target.closest('.book');
+  if (!b) return;
+  Kit.sfx.pop();
+  Kit.burstAt(b, ['📖', '⭐', '✨'], 10, 120);
+  openBook(b.dataset.slug);
+});
+
+// ---------- opening a book ----------
+async function openBook(slug) {
+  book = await loadBook(slug);
+  voice = await fetch(`/books/${slug}/voice/manifest.json`, { cache: 'no-cache' }).then(r => (r.ok ? r.json() : {})).catch(() => ({}));
+  history.replaceState(null, '', '#' + slug);
+  $('shelf').classList.remove('on'); $('reader').classList.add('on');
+  $('reader').classList.toggle('has-crayons', !!book.colouring);
+  buildCrayons();
+  // fetch the pictures and this language's reading now, so turning pages is instant (and works offline later)
+  for (const p of book.pages) new Image().src = base() + p.img;
+  for (const [key, c] of Object.entries(voice[lang()] || {})) fetch(clipUrl(key, c)).catch(() => {});
+  show(0);
+}
+$('toShelf').addEventListener('click', () => { Kit.sfx.pop(); showShelf(); });
+
+// ---------- turning pages ----------
+const last = () => book.pages.length + 1;
+function go(d) {
+  const to = Math.max(0, Math.min(last(), at + d));
+  if (to === at) return;
+  Kit.sfx.whoosh();
+  show(to, d);
+}
+$('prev').addEventListener('click', () => go(-1));
+$('next').addEventListener('click', () => go(1));
+document.addEventListener('keydown', e => {
+  if (!book || $('quiz').classList.contains('on')) return;
+  if (e.key === 'ArrowRight') go(1);
+  if (e.key === 'ArrowLeft') go(-1);
+});
+// swipe to turn (not while colouring, where a finger is a brush)
+let swipe = null;
+$('stage').addEventListener('pointerdown', e => { swipe = { x: e.clientX, y: e.clientY }; swallowClick = false; });
+$('stage').addEventListener('pointerup', e => {
+  if (!swipe || tool !== null) return;
+  const dx = e.clientX - swipe.x, dy = e.clientY - swipe.y;
+  swipe = null;
+  if (Math.abs(dx) > 70 && Math.abs(dx) > Math.abs(dy) * 1.5) { swallowClick = true; go(dx < 0 ? 1 : -1); }
+});
+let swallowClick = false;
+
+function show(i, d = 0) {
+  stopAll();
+  at = i;
+  const n = book.pages.length, end = i === last(), page = i >= 1 && i <= n ? book.pages[i - 1] : null;
+  $('prev').disabled = i === 0;
+  $('next').disabled = end;
+  $('next').classList.remove('pulse');
+  $('pages').textContent = page ? `${i} / ${n}` : '';
+  $('again').style.visibility = end ? 'hidden' : '';
+  $('crayons').style.display = book.colouring && page ? '' : 'none';
+  const pic = $('pic');
+  pic.classList.remove('turn'); void pic.offsetWidth;
+  pic.style.setProperty('--from', (d < 0 ? -40 : 40) + 'px');
+  if (d) pic.classList.add('turn');
+  $('img').src = base() + (page ? page.img : 'cover.jpg');
+  $('img').alt = page ? page.alt : '';
+  $('spots').innerHTML = '';
+  pic.classList.toggle('colouring', !!(book.colouring && page));
+  pic.classList.toggle('painting', !!(book.colouring && page && tool !== null));
+  if (book.colouring && page) $('img').decode().catch(() => {}).then(() => { if (at === i) startPaint(i); });
+
+  const w = $('words');
+  w.className = '';
+  if (end) { showEnd(); requestAnimationFrame(fit); return; }
+  if (!page) {
+    w.classList.add('big');
+    setWords(book.title[lang()] || book.title.en);
+    requestAnimationFrame(fit);
+    narrate('title', book.title[lang()] || book.title.en);
+    return;
+  }
+  setWords(page.text[lang()] || page.text.en);
+  requestAnimationFrame(fit);
+  page.spots.forEach((s, k) => {
+    const b = document.createElement('button');
+    b.className = 'spot';
+    b.style.left = s.x + '%'; b.style.top = s.y + '%'; b.style.width = 2 * s.r + '%';
+    b.setAttribute('aria-label', s.word[lang()] || s.word.en);
+    b.addEventListener('click', e => {
+      e.stopPropagation();
+      if (swallowClick) { swallowClick = false; return; }
+      Kit.burst(e.clientX, e.clientY, ['✨', '⭐', '💫', '🌟'], 10, 90);
+      narrate(`s${i}-${k + 1}`, s.word[lang()] || s.word.en, { quiet: true });
+    });
+    $('spots').appendChild(b);
+  });
+  narrate('p' + i, page.text[lang()] || page.text.en).then(finished => {
+    if (!finished || at !== i) return;
+    // show where the pictures can be tapped, and that the next page is waiting
+    $('spots').querySelectorAll('.spot').forEach((s, k) => setTimeout(() => s.classList.add('hint'), k * 180));
+    $('next').classList.add('pulse');
+  });
+}
+$('again').addEventListener('click', () => { Kit.sfx.pop(); show(at); });
+// a tap on the picture anywhere else: a little sparkle
+$('pic').addEventListener('click', e => {
+  if (swallowClick) { swallowClick = false; return; }
+  if (tool === null && at > 0 && at <= book.pages.length) Kit.burst(e.clientX, e.clientY, ['✨', '💫'], 5, 50);
+});
+
+function fit() {
+  const img = $('img'), s = $('stage').getBoundingClientRect();
+  if (!img.naturalWidth || !s.height) return;
+  const r = img.naturalWidth / img.naturalHeight;
+  let w = s.width, h = w / r;
+  if (h > s.height) { h = s.height; w = h * r; }
+  $('pic').style.width = Math.floor(w) + 'px';
+  $('pic').style.height = Math.floor(h) + 'px';
+}
+$('img').addEventListener('load', fit);
+addEventListener('resize', fit);
+
+// ---------- the words, lighting up as they're read ----------
+let spans = [];
+function setWords(text) {
+  const w = $('words');
+  w.dir = lang() === 'fa' ? 'rtl' : 'ltr';
+  w.lang = lang();
+  // one span per word, split the same way tools/record-voice.mjs splits the text it times
+  let html = '', i = 0, k = 0;
+  for (const m of text.matchAll(/\S+/g)) {
+    html += esc(text.slice(i, m.index)).replace(/\n/g, '<br>') + `<span class="w" data-k="${k++}">${esc(m[0])}</span>`;
+    i = m.index + m[0].length;
+  }
+  w.innerHTML = html;
+  spans = [...w.querySelectorAll('.w')];
+}
+$('words').addEventListener('click', e => {
+  const s = e.target.closest('.w');
+  if (s) sayWord(+s.dataset.k);
+});
+
+// ---------- the reading ----------
+// (a word said in several pictures is recorded once; the others point to it with f)
+function clipUrl(key, c) { return `${base()}voice/${lang()}/${c.f || key}.mp3?v=${c.h}`; }
+const buffers = new Map();
+function loadClip(url) {
+  if (!buffers.has(url)) {
+    const p = fetch(url).then(r => { if (!r.ok) throw new Error(r.status); return r.arrayBuffer(); })
+      .then(data => new Promise((ok, fail) => Kit.audio().decodeAudioData(data, ok, fail)));
+    p.catch(() => buffers.delete(url));
+    buffers.set(url, p);
+  }
+  return buffers.get(url);
+}
+
+let playing = 0, source = null, current = null; // current: { key, buf, w } of the page being read
+function stopAll() {
+  playing++;
+  if (source) { try { source.stop(); } catch (e) {} source = null; }
+  if ('speechSynthesis' in window) speechSynthesis.cancel();
+  Voice.stop();
+  light(-1);
+}
+function light(k) { spans.forEach((s, j) => s.classList.toggle('on', j === k)); if (k >= 0 && spans[k]) spans[k].scrollIntoView({ block: 'nearest' }); }
+
+// reads one recorded line, lighting up its words; resolves true if it was read to the end
+async function narrate(key, text, { quiet = false } = {}) {
+  stopAll();
+  const token = playing;
+  if (Kit.muted) return false;
+  const c = (voice[lang()] || {})[key];
+  if (!quiet) current = null;
+  if (c) {
+    try {
+      const buf = await loadClip(clipUrl(key, c));
+      if (token !== playing) return false;
+      if (!quiet) current = { key, buf, w: c.w || [] };
+      return await playBuffer(buf, 0, buf.duration, quiet ? null : c.w, token);
+    } catch (e) { /* not downloaded and offline: the device's own voice reads it */ }
+  }
+  return speakTts(text, token, !quiet);
+}
+
+function playBuffer(buf, from, dur, words, token) {
+  return new Promise(done => {
+    const a = Kit.audio();
+    source = a.createBufferSource();
+    source.buffer = buf;
+    source.connect(a.destination);
+    const t0 = a.currentTime;
+    source.onended = () => { if (token === playing) { light(-1); source = null; } done(token === playing); };
+    source.start(0, from, dur);
+    if (!words) return;
+    const tick = () => {
+      if (token !== playing) return;
+      const ms = (a.currentTime - t0 + from) * 1000;
+      let k = -1;
+      for (let j = 0; j < words.length; j++) if (ms >= words[j][0] - 40) k = j; else break;
+      if (k >= 0 && ms > words[k][1] + 350 && (!words[k + 1] || ms < words[k + 1][0] - 40)) k = -1;
+      if (!spans[k] || !spans[k].classList.contains('on')) light(k);
+      requestAnimationFrame(tick);
+    };
+    tick();
+  });
+}
+
+// a tapped word: that bit of the page's recording, or the device's voice
+async function sayWord(k) {
+  const span = spans[k];
+  if (!span || Kit.muted) return;
+  const cur = current, w = cur && cur.w[k];
+  stopAll();
+  const token = playing;
+  light(k);
+  if (cur && w) {
+    current = cur;
+    await playBuffer(cur.buf, w[0] / 1000, (w[1] - w[0]) / 1000 + .12, null, token);
+  } else await speakTts(span.textContent.replace(/[^\p{L}\p{N}'’-]/gu, ''), token, false);
+  if (token === playing) light(-1);
+}
+
+const TTS_LANG = { en: 'en-US', nl: 'nl-NL', de: 'de-DE', fa: 'fa-IR' };
+function speakTts(text, token, follow) {
+  return new Promise(done => {
+    if (!('speechSynthesis' in window) || token !== playing) return done(false);
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = TTS_LANG[lang()] || 'en-US';
+    const v = speechSynthesis.getVoices().find(v => v.lang.replace('_', '-').startsWith(u.lang.slice(0, 2)));
+    if (v) u.voice = v;
+    u.rate = .9;
+    if (follow) {
+      // light up words as the device's voice reaches them
+      const starts = spans.map(() => 0);
+      let pos = 0;
+      spans.forEach((s, j) => { pos = text.indexOf(s.textContent, pos); starts[j] = pos; pos += s.textContent.length; });
+      u.onboundary = e => { if (token === playing) light(starts.findLastIndex(s => s <= e.charIndex)); };
+    }
+    u.onend = () => { if (token === playing) light(-1); done(token === playing); };
+    u.onerror = () => done(false);
+    speechSynthesis.speak(u);
+  });
+}
+
+// ---------- the end: questions ----------
+function showEnd() {
+  const w = $('words');
+  w.classList.add('big');
+  w.dir = 'ltr';
+  w.innerHTML = `<div>🎉</div><div id="endBox">
+    <button class="btn go" id="toQuiz" aria-label="Questions">❓</button>
+    <button class="btn sun" id="readAgain" aria-label="Read it again">🔁</button>
+    <button class="btn" id="otherBook" aria-label="Another book">📚</button></div>`;
+  spans = [];
+  Kit.sfx.yay();
+  Kit.burst(innerWidth / 2, innerHeight / 3, ['🎉', '⭐', '📖', '✨'], 18, 220);
+  Kit.say('sb.theEnd');
+  $('toQuiz').onclick = () => startQuiz();
+  $('readAgain').onclick = () => { Kit.sfx.pop(); show(0); };
+  $('otherBook').onclick = () => { Kit.sfx.pop(); showShelf(); };
+  if (!(book.quiz || []).length) $('toQuiz').remove();
+}
+
+async function startQuiz() {
+  stopAll();
+  $('quiz').classList.add('on');
+  $('qstars').textContent = '';
+  Kit.say('sb.quiz');
+  await sleep(1800);
+  for (let q = 0; q < book.quiz.length; q++) {
+    if (!$('quiz').classList.contains('on')) return;
+    await ask(book.quiz[q], q + 1);
+    $('qstars').textContent += '⭐';
+  }
+  const s = store.get({ done: {} });
+  s.done[book.slug] = true;
+  store.set(s);
+  Kit.sfx.yay();
+  Kit.burst(innerWidth / 2, innerHeight / 2, ['⭐', '🌟', '🎉'], 24, 260);
+  Kit.say('sb.allDone');
+  await sleep(2600);
+  $('quiz').classList.remove('on');
+  showShelf();
+}
+
+function ask(q, n) {
+  return new Promise(resolve => {
+    $('question').textContent = q.q[lang()] || q.q.en;
+    $('question').dir = lang() === 'fa' ? 'rtl' : 'ltr';
+    $('choices').innerHTML = shuffle(q.choices).map(p =>
+      `<button class="choice" data-p="${p}"><img src="${base()}${esc(book.pages[p - 1].img)}" alt="${esc(book.pages[p - 1].alt)}"></button>`).join('');
+    narrate('q' + n, q.q[lang()] || q.q.en, { quiet: true });
+    $('choices').onclick = async e => {
+      const c = e.target.closest('.choice');
+      if (!c || c.classList.contains('wrong')) return;
+      if (+c.dataset.p === q.answer) {
+        $('choices').onclick = null;
+        c.classList.add('right');
+        Kit.sfx.ding();
+        Kit.burstAt(c, ['⭐', '✨', '💛'], 14, 150);
+        stopAll();
+        Kit.say(['sb.right1', 'sb.right2']);
+        await sleep(1900);
+        resolve();
+      } else {
+        c.classList.add('wrong');
+        Kit.flash(c, 'wobble');
+        Kit.sfx.oops();
+        stopAll();
+        Kit.say('sb.tryAgain');
+      }
+    };
+  });
+}
+
+// ---------- colouring in the black-and-white books ----------
+// A tap fills the shape under the finger, up to the lines, with the crayon's colour (multiplied in, so the
+// lines and the paper's texture stay). Only the taps are saved, per child, and played back when the page opens.
+const CRAYONS = ['#ef4444', '#f97316', '#facc15', '#84cc16', '#22c55e', '#38bdf8', '#3b82f6', '#a855f7', '#ec4899', '#a16207', '#9ca3af', '#fde7c8'];
+let tool = null; // null: tapping the pictures; a number: that crayon
+function buildCrayons() {
+  tool = null;
+  const c = $('crayons');
+  c.innerHTML = !book.colouring ? '' :
+    `<button class="btn sel" data-t="hand" aria-label="Tap the pictures">👆</button>` +
+    CRAYONS.map((col, i) => `<button class="btn" data-t="${i}" aria-label="Crayon"><i class="crayon-dot" style="background:${col}"></i></button>`).join('') +
+    `<button class="btn" data-t="clear" aria-label="Wipe the colours off this page">🧽</button>`;
+}
+$('crayons').addEventListener('click', e => {
+  const b = e.target.closest('.btn');
+  if (!b) return;
+  Kit.sfx.pop();
+  const t = b.dataset.t;
+  if (t === 'clear') {
+    const s = store.get({ paint: {} });
+    if (s.paint[book.slug]) delete s.paint[book.slug][at];
+    store.set(s);
+    startPaint(at);
+    return;
+  }
+  const first = tool === null && t !== 'hand' && !store.get({}).heardColour;
+  tool = t === 'hand' ? null : +t;
+  $('crayons').querySelectorAll('.btn').forEach(x => x.classList.toggle('sel', x === b));
+  $('pic').classList.toggle('painting', tool !== null);
+  if (first) { const s = store.get({}); s.heardColour = true; store.set(s); stopAll(); Kit.say('sb.colour'); }
+});
+
+let canvasPage = null; // { i, w, h, orig: ImageData pixels, open: Uint8Array (1 where a fill may go), ctx }
+function startPaint(i) {
+  const img = $('img'), cv = $('paint');
+  const w = img.naturalWidth, h = img.naturalHeight;
+  if (!w) return;
+  cv.width = w; cv.height = h;
+  const ctx = cv.getContext('2d', { willReadFrequently: true });
+  ctx.drawImage(img, 0, 0);
+  const orig = ctx.getImageData(0, 0, w, h);
+  // the lines: dark pixels, thickened by one so small gaps don't let a fill leak out
+  const dark = new Uint8Array(w * h);
+  for (let p = 0, q = 0; p < dark.length; p++, q += 4) {
+    const d = orig.data;
+    dark[p] = (d[q] * .3 + d[q + 1] * .59 + d[q + 2] * .11) < 150 ? 1 : 0;
+  }
+  const open = new Uint8Array(w * h);
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+    const p = y * w + x;
+    open[p] = dark[p] || (x > 0 && dark[p - 1]) || (x < w - 1 && dark[p + 1]) || (y > 0 && dark[p - w]) || (y < h - 1 && dark[p + w]) ? 0 : 1;
+  }
+  canvasPage = { i, w, h, orig, open, ctx };
+  const fills = ((store.get({ paint: {} }).paint[book.slug] || {})[i]) || [];
+  const out = ctx.getImageData(0, 0, w, h);
+  for (const [x, y, c] of fills) fillAt(out, x, y, CRAYONS[c]);
+  ctx.putImageData(out, 0, 0);
+}
+
+function fillAt(out, x, y, colour) {
+  const { w, h, orig, open } = canvasPage;
+  // on a line? start from the nearest open spot
+  let seed = -1;
+  for (let r = 0; r <= 8 && seed < 0; r++)
+    for (let dy = -r; dy <= r && seed < 0; dy++) for (let dx = -r; dx <= r; dx++) {
+      const px = x + dx, py = y + dy;
+      if (px >= 0 && py >= 0 && px < w && py < h && open[py * w + px]) { seed = py * w + px; break; }
+    }
+  if (seed < 0) return false;
+  const rgb = [1, 3, 5].map(k => parseInt(colour.slice(k, k + 2), 16));
+  const seen = new Uint8Array(w * h), stack = [seed];
+  seen[seed] = 1;
+  const region = [];
+  while (stack.length) {
+    const p = stack.pop();
+    region.push(p);
+    const px = p % w;
+    for (const q of [px > 0 ? p - 1 : -1, px < w - 1 ? p + 1 : -1, p - w, p + w]) {
+      if (q >= 0 && q < w * h && !seen[q] && open[q]) { seen[q] = 1; stack.push(q); }
+    }
+  }
+  // paint the shape, and two pixels under its edge so no white rim is left next to the line
+  const paint = p => {
+    const q = p * 4, d = orig.data, o = out.data;
+    o[q] = d[q] * rgb[0] / 255; o[q + 1] = d[q + 1] * rgb[1] / 255; o[q + 2] = d[q + 2] * rgb[2] / 255;
+  };
+  for (const p of region) {
+    paint(p);
+    const px = p % w;
+    for (const dx of [-2, -1, 1, 2]) { const q = p + dx; if (px + dx >= 0 && px + dx < w && !open[q]) paint(q); }
+    for (const dy of [-2, -1, 1, 2]) { const q = p + dy * w; if (q >= 0 && q < w * h && !open[q]) paint(q); }
+  }
+  return true;
+}
+
+$('paint').addEventListener('click', e => {
+  if (tool === null || !canvasPage || canvasPage.i !== at) return;
+  const cv = $('paint'), r = cv.getBoundingClientRect();
+  const x = Math.round((e.clientX - r.left) * cv.width / r.width), y = Math.round((e.clientY - r.top) * cv.height / r.height);
+  const out = canvasPage.ctx.getImageData(0, 0, canvasPage.w, canvasPage.h);
+  if (!fillAt(out, x, y, CRAYONS[tool])) return;
+  canvasPage.ctx.putImageData(out, 0, 0);
+  Kit.sfx.note(440 + tool * 40, .2);
+  Kit.burst(e.clientX, e.clientY, ['✨', '🖍️'], 6, 60);
+  const s = store.get({ paint: {} });
+  const mine = (s.paint[book.slug] = s.paint[book.slug] || {});
+  (mine[at] = mine[at] || []).push([x, y, tool]);
+  store.set(s);
+});
+
+// ---------- for grown-ups: who made the book, where it's from, its licence and what we changed ----------
+const LANG_NAMES = { en: 'English', nl: 'Dutch', de: 'German', fa: 'Persian' };
+$('info').addEventListener('click', () => {
+  Kit.sfx.pop();
+  stopAll();
+  const g = book.gdl, langs = Voice.langs.filter(l => l !== 'en' && book.pages[0].text[l]).map(l => LANG_NAMES[l]);
+  const voices = Voice.langs.map(l => (voice.voices || {})[l] && `${LANG_NAMES[l]}: ${voice.voices[l]}`).filter(Boolean);
+  $('credits').querySelector('.card').innerHTML = `
+    <button class="btn close" aria-label="Close">✕</button>
+    <h2>${esc(book.title.en)}</h2>
+    <p>${g.byline.map(esc).join('<br>')}${g.publisher ? `<br>Publisher: ${esc(g.publisher)}` : ''}</p>
+    <p>From the <a href="${esc(g.url)}" target="_blank" rel="noopener">Global Digital Library</a>, under the
+      <a href="${esc(g.licenseUrl)}" target="_blank" rel="noopener">${esc(g.license)}</a> licence.</p>
+    <p><b>What we changed:</b> ${langs.length ? `translated the text into ${langs.join(', ')}, ` : ''}recorded it being read aloud
+      (ElevenLabs voices${voices.length ? ': ' + esc(voices.join('; ')) : ''}), made the pictures smaller, and added things to tap,
+      ${book.colouring ? 'colouring in, ' : ''}and questions. The original book is at the link above.</p>
+    <p class="small">${esc(g.credits).replace(/\n/g, '<br><br>')}</p>`;
+  $('credits').classList.add('on');
+});
+$('credits').addEventListener('click', e => {
+  if (e.target === $('credits') || e.target.closest('.close')) $('credits').classList.remove('on');
+});
+
+// ---------- start ----------
+const linked = location.hash.slice(1); // a link straight to a book: /games/story-books/#<slug>
+showShelf().then(() => {
+  if (self.BOOKS.includes(linked)) openBook(linked);
+  else Kit.say('sb.pick');
+});
+</script>
+</body>
+</html>

@@ -13,6 +13,7 @@ search-engine friendly pages. See [docs/public-site.md](docs/public-site.md).
 | --- | --- |
 | **Magic Doodles** | Draw anything with your finger, tap ✨, and it comes alive with googly eyes and hops, flies, swims, floats, crawls, rolls or bounces around one of ten animated cartoon worlds. Tap the scenery (the volcano erupts, the rocket launches, the cow moos), drop treats, throw a dance party, or sweep everyone away with 🧹 (↩️ brings them back). |
 | **Space Discovery** | Start at home on real satellite photos and zoom out until the whole Earth floats in space (real day and night, city lights, the real Moon phase), look up at the real sky from home, then fly to the Moon, the Sun, every planet, the asteroids, a comet and the stars. Sizes are true to scale. Grown-ups add family and friends' homes in ⚙️ (behind the grown-ups' question); they appear as faces to fly to. See *Space Discovery* below. |
+| **Story Books** | Picture books from the Global Digital Library, read aloud in English, Dutch, German or Persian while every word lights up. Tap a word to hear it again, tap things in the pictures to hear what they are, colour in the black-and-white books with crayons, and answer a picture question at the end. See *Story Books* below. |
 | **Beep Boop Robot** | Build your own robot, then program it with arrow cards to reach its battery: 64 levels in six worlds that add gears to collect, keys and doors, teleporting swirls and a repeat card. Teaches sequencing, loops and debugging (`node tools/check-robot-levels.mjs` checks every level). |
 | **Music Painter** | Colors are instruments and height is pitch: paint a picture, press play, and it becomes a song. |
 | **Story Theater** | Pick a stage, drag on characters and props, tap them to act, and film a story with her own voice. |
@@ -49,12 +50,14 @@ site/                     ← everything that gets served
   shared/saved.js         ← photos and drawings kept on the device (IndexedDB)
   shared/robot.js         ← the robot drawing used by the robot games
   shared/scenery.js       ← animated cartoon backdrops and props (SVG) any game can use
+  books/                  ← the Story Books: books.js (the shelf), <slug>/book.json, pictures and recordings
   voice/                  ← recorded clips (made by tools/record-voice.mjs)
   games/
     magic-doodles/index.html
 editions/public/         ← the public edition: name, home page extras for grown-ups
 editions/lili/           ← Lilli & Liam's edition: the children, languages, their own lines and clips
 tools/build.mjs           ← builds an edition into dist/ (node tools/build.mjs yas|lili|public)
+tools/import-books.mjs    ← imports picture books from the Global Digital Library into site/books/
 firebase.json             ← how Firebase serves the public edition
 Dockerfile, nginx.conf    ← container that serves one edition (--build-arg EDITION=yas|lili)
 deploy/docker-compose*.yml ← how the homelabs run it (Yas's, and .lili for Lilli's)
@@ -124,6 +127,30 @@ every device and work offline:
 3. Commit `site/voice/` and `editions/*/voice/` and push.
 
 If a clip is missing, the games fall back to the device's built-in voice.
+
+## Story Books
+
+The books come from the [Global Digital Library](https://digitallibrary.io) (GDL), the open library of
+children's books run by Norad (the Norwegian Agency for Development Cooperation) and the Global Book Alliance.
+Each book was made by its publisher (Book Dash, Room to Read, Pratham Books, ...) and is free to use under
+**CC BY 4.0**: we may translate, change and use it anywhere, also on the public site, as long as we credit the
+authors, illustrators, publisher and the GDL, link the licence and say what we changed. The shelf names the
+GDL, and ℹ️ in every book shows its full credits, a link to the original and the changes. Books under
+NonCommercial or NoDerivatives licences are not used (`tools/import-books.mjs` refuses them).
+
+- **Adding a book:** find it on digitallibrary.io and take the last part of its link (`/book/<slug>/`), then
+  `node tools/import-books.mjs <slug>`. That downloads its EPUB, checks the licence and writes
+  `site/books/<slug>/` (pictures resized, `book.json` with the English text and the credits) and adds it to
+  `site/books/books.js`. Then write its Dutch, German and Persian text, the `spots` (things to tap: `x`, `y` and
+  `r` in percent of the picture, and the `word` said) and one or two `quiz` questions (the right page among
+  `choices`) into `book.json`, and record. `"colouring": true` gives a black-and-white book crayons.
+- **Reading:** `node tools/record-voice.mjs` records the books along with the games' lines (`--book <slug>`
+  for just one book), with the time of every word so the words light up as they're read. The books' narrators:
+  Jessica (English), Ruth (Dutch, a native Dutch storyteller), Lucy Fennek (German), Matilda (Persian); the
+  books' list is `BOOK_VOICES` in the tool. A word said in several pictures of a book is recorded once.
+- **Offline:** after the voice clips, the offline cache downloads every book's pictures and its reading in the
+  chosen language.
+- **Colouring** is saved per child as the taps (where, which crayon), not as pictures.
 
 ## Space Discovery: maps and pictures
 

@@ -100,6 +100,15 @@ self.GAMES = [
     colors: ['#e2e8f0', '#bfdbfe', '#fde68a'],
   },
   {
+    name: 'Story Books',
+    group: 'words',
+    path: 'games/story-books/',
+    about: 'Picture books from the Global Digital Library, read aloud in English, Dutch, German or Persian: words light up as they are read, tap the pictures, colour the black-and-white ones and answer a little question at the end.',
+    art: '📖',
+    extras: ['🐝', '🐘', '🐸', '⭐', '🐭', '🦥'],
+    colors: ['#fde68a', '#fca5a5', '#a5b4fc'],
+  },
+  {
     name: 'Counting Garden',
     group: 'words',
     path: 'games/counting-garden/',

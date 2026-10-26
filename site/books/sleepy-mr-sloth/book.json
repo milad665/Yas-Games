@@ -1,0 +1,482 @@
+{
+  "slug": "sleepy-mr-sloth",
+  "title": {
+    "en": "Sleepy Mr Sloth",
+    "nl": "Slaperige meneer Luiaard",
+    "de": "Der müde Herr Faultier",
+    "fa": "آقای تنبلِ خواب‌آلود"
+  },
+  "gdl": {
+    "url": "https://digitallibrary.io/book/sleepy-mr-sloth/",
+    "publisher": "Book Dash",
+    "license": "CC BY 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+    "byline": [
+      "Authors: Graham Paterson, Paul Kennedy, Nick Mulgrew",
+      "Publisher: Book Dash"
+    ],
+    "credits": "Sleepy Mr Sloth Created by Graham Paterson, Paul Kennedy, Nick Mulgrew This work is licensed under a Creative Commons Attribution 4.0 International License. This means you are free to share (copy and redistribute the material in any medium or format) and adapt it (remix, transform, and build upon the material) for any purpose, even commercially, as long as you give appropriate credit, with a link to your source, and indicate if changes were made. You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use."
+  },
+  "pages": [
+    {
+      "img": "1.jpg",
+      "alt": "Mr Sloth is sitting on the floor",
+      "text": {
+        "en": "One day, Mr Sloth came to visit. He said:\n\"I’m sleepy! I need a good branch for a bed!\"",
+        "nl": "Op een dag kwam meneer Luiaard op bezoek. Hij zei:\n„Ik ben zo slaperig! Ik zoek een fijne tak als bed!\"",
+        "de": "Eines Tages kam Herr Faultier zu Besuch. Er sagte:\n„Ich bin so müde! Ich brauche einen schönen Ast als Bett!\"",
+        "fa": "یک روز، آقای تنبل به دیدنِ ما آمد. گفت:\n«خوابم می‌آید! یک شاخه‌ی خوب برای تختم لازم دارم!»"
+      },
+      "spots": [
+        {
+          "x": 65,
+          "y": 48,
+          "r": 13,
+          "word": {
+            "en": "sloth",
+            "nl": "de luiaard",
+            "de": "das Faultier",
+            "fa": "تَنبَل"
+          }
+        },
+        {
+          "x": 65,
+          "y": 18,
+          "r": 8,
+          "word": {
+            "en": "cloud",
+            "nl": "de wolk",
+            "de": "die Wolke",
+            "fa": "اَبر"
+          }
+        }
+      ]
+    },
+    {
+      "img": "2.jpg",
+      "alt": "Mr Sloth is hugging a tree",
+      "text": {
+        "en": "\"I’m quite good at climbing. I know how to swing.\nBut sleeping’s my favourite, favourite thing!\"",
+        "nl": "„Ik kan heel goed klimmen, ik schommel als de beste.\nMaar slapen, ja slapen, dat vind ik het allerbeste!\"",
+        "de": "„Ich kann prima klettern, ich schaukle auch fein,\ndoch am allerliebsten schlaf ich ein!\"",
+        "fa": "«من خوب از درخت بالا می‌روم و تاب می‌خورم.\nولی کارِ محبوبِ محبوبم، خوابیدن است!»"
+      },
+      "spots": [
+        {
+          "x": 40,
+          "y": 45,
+          "r": 11,
+          "word": {
+            "en": "sloth",
+            "nl": "de luiaard",
+            "de": "das Faultier",
+            "fa": "تَنبَل"
+          }
+        },
+        {
+          "x": 72,
+          "y": 22,
+          "r": 8,
+          "word": {
+            "en": "tree",
+            "nl": "de boom",
+            "de": "der Baum",
+            "fa": "درخت"
+          }
+        }
+      ]
+    },
+    {
+      "img": "3.jpg",
+      "alt": "Mr Sloth is climbing a tree",
+      "text": {
+        "en": "\"This branch looks lovely! I think I’ll sleep here.\nAnd you? Don’t you think that’s a splendid idea?\"",
+        "nl": "„Wat een mooie tak! Hier ga ik lekker slapen.\nEn jij? Is dat geen goed idee, om hier te gapen?\"",
+        "de": "„Was für ein schöner Ast! Hier mach ich es mir fein.\nUnd du? Ist das nicht eine prima Idee? Ich schlaf hier ein!\"",
+        "fa": "«چه شاخه‌ی قشنگی! فکر کنم همین‌جا بخوابم.\nتو چی؟ به نظرت فکرِ خیلی خوبی نیست؟»"
+      },
+      "spots": [
+        {
+          "x": 65,
+          "y": 72,
+          "r": 12,
+          "word": {
+            "en": "sloth",
+            "nl": "de luiaard",
+            "de": "das Faultier",
+            "fa": "تَنبَل"
+          }
+        },
+        {
+          "x": 82,
+          "y": 56,
+          "r": 8,
+          "word": {
+            "en": "branch",
+            "nl": "de tak",
+            "de": "der Ast",
+            "fa": "شاخه"
+          }
+        }
+      ]
+    },
+    {
+      "img": "4.jpg",
+      "alt": "A giraffe is nibbling on Mr Sloth",
+      "text": {
+        "en": "\"Oh no, Mr. Sloth! A giraffe’s eating there!\nHe might think you’re lunch and start nibbling your hair!\"",
+        "nl": "„O nee, meneer Luiaard! Daar zit een giraf te eten!\nStraks denkt hij dat je lunch bent en wordt je haar opgegeten!\"",
+        "de": "„Oh nein, Herr Faultier! Hier frisst die Giraffe!\nSie denkt, du bist ihr Mittagessen, und knabbert an deinem Haar!\"",
+        "fa": "«وای نه، آقای تنبل! زرافه دارد این‌جا غذا می‌خورد!\nممکن است فکر کند تو ناهارش هستی و موهایت را گاز بزند!»"
+      },
+      "spots": [
+        {
+          "x": 28,
+          "y": 50,
+          "r": 11,
+          "word": {
+            "en": "giraffe",
+            "nl": "de giraf",
+            "de": "die Giraffe",
+            "fa": "زَرافه"
+          }
+        },
+        {
+          "x": 55,
+          "y": 37,
+          "r": 10,
+          "word": {
+            "en": "sloth",
+            "nl": "de luiaard",
+            "de": "das Faultier",
+            "fa": "تَنبَل"
+          }
+        }
+      ]
+    },
+    {
+      "img": "5.jpg",
+      "alt": "Mr sloth is hanging on a tree",
+      "text": {
+        "en": "\"This branch looks lovely! I think I’ll sleep here.\nAnd you? Don’t you think that’s a splendid idea?\"",
+        "nl": "„Wat een mooie tak! Hier ga ik lekker slapen.\nEn jij? Is dat geen goed idee, om hier te gapen?\"",
+        "de": "„Was für ein schöner Ast! Hier mach ich es mir fein.\nUnd du? Ist das nicht eine prima Idee? Ich schlaf hier ein!\"",
+        "fa": "«چه شاخه‌ی قشنگی! فکر کنم همین‌جا بخوابم.\nتو چی؟ به نظرت فکرِ خیلی خوبی نیست؟»"
+      },
+      "spots": [
+        {
+          "x": 72,
+          "y": 47,
+          "r": 12,
+          "word": {
+            "en": "sloth",
+            "nl": "de luiaard",
+            "de": "das Faultier",
+            "fa": "تَنبَل"
+          }
+        },
+        {
+          "x": 16,
+          "y": 72,
+          "r": 6,
+          "word": {
+            "en": "bee",
+            "nl": "de bij",
+            "de": "die Biene",
+            "fa": "زنبور"
+          }
+        }
+      ]
+    },
+    {
+      "img": "6.jpg",
+      "alt": "Mr sloth is hanging from a branch, looking at a beehive",
+      "text": {
+        "en": "\"Oh no, Mr Sloth! There’s a beehive right there!\nYou’ll never get sleep with those bees everywhere!\"",
+        "nl": "„O nee, meneer Luiaard! Daar hangt een bijenkorf!\nMet al die bijen om je heen doe je nooit een oog dicht!\"",
+        "de": "„Oh nein, Herr Faultier! Da hängt ein Bienenstock!\nBei all den Bienen hier schläfst du nie, so ein Schock!\"",
+        "fa": "«وای نه، آقای تنبل! همین‌جا یک کندوی زنبور است!\nبا این همه زنبور، هیچ‌وقت خوابت نمی‌برد!»"
+      },
+      "spots": [
+        {
+          "x": 14,
+          "y": 50,
+          "r": 10,
+          "word": {
+            "en": "beehive",
+            "nl": "de bijenkorf",
+            "de": "der Bienenstock",
+            "fa": "کندوی زنبور"
+          }
+        },
+        {
+          "x": 37,
+          "y": 13,
+          "r": 6,
+          "word": {
+            "en": "bee",
+            "nl": "de bij",
+            "de": "die Biene",
+            "fa": "زنبور"
+          }
+        },
+        {
+          "x": 58,
+          "y": 19,
+          "r": 6,
+          "word": {
+            "en": "bee",
+            "nl": "de bij",
+            "de": "die Biene",
+            "fa": "زنبور"
+          }
+        }
+      ]
+    },
+    {
+      "img": "7.jpg",
+      "alt": "Mr Sloth is clinging to a tree",
+      "text": {
+        "en": "\"This branch looks lovely! I think I’ll sleep here.\nAnd you? Don’t you think that’s a splendid idea?\"",
+        "nl": "„Wat een mooie tak! Hier ga ik lekker slapen.\nEn jij? Is dat geen goed idee, om hier te gapen?\"",
+        "de": "„Was für ein schöner Ast! Hier mach ich es mir fein.\nUnd du? Ist das nicht eine prima Idee? Ich schlaf hier ein!\"",
+        "fa": "«چه شاخه‌ی قشنگی! فکر کنم همین‌جا بخوابم.\nتو چی؟ به نظرت فکرِ خیلی خوبی نیست؟»"
+      },
+      "spots": [
+        {
+          "x": 40,
+          "y": 68,
+          "r": 13,
+          "word": {
+            "en": "sloth",
+            "nl": "de luiaard",
+            "de": "das Faultier",
+            "fa": "تَنبَل"
+          }
+        },
+        {
+          "x": 60,
+          "y": 20,
+          "r": 8,
+          "word": {
+            "en": "tree",
+            "nl": "de boom",
+            "de": "der Baum",
+            "fa": "درخت"
+          }
+        }
+      ]
+    },
+    {
+      "img": "8.jpg",
+      "alt": "Mr Sloth is chocking a snake",
+      "text": {
+        "en": "\"Oh no, Mr Sloth, that’s a snake over there!\nNot a branch! Poor old snake. You gave him quite a scare.\"",
+        "nl": "„O nee, meneer Luiaard, dat is geen tak, dat is een slang!\nArme oude slang. Je maakte hem zo bang!\"",
+        "de": "„Oh nein, Herr Faultier, das ist kein Ast, das ist eine Schlange!\nDie arme alte Schlange! Ihr wurde ganz bange.\"",
+        "fa": "«وای نه، آقای تنبل، آن شاخه نیست، مار است!\nمارِ پیرِ بیچاره! حسابی ترساندی‌اش.»"
+      },
+      "spots": [
+        {
+          "x": 70,
+          "y": 46,
+          "r": 11,
+          "word": {
+            "en": "snake",
+            "nl": "de slang",
+            "de": "die Schlange",
+            "fa": "مار"
+          }
+        },
+        {
+          "x": 33,
+          "y": 40,
+          "r": 10,
+          "word": {
+            "en": "sloth",
+            "nl": "de luiaard",
+            "de": "das Faultier",
+            "fa": "تَنبَل"
+          }
+        }
+      ]
+    },
+    {
+      "img": "9.jpg",
+      "alt": "Mr Sloth is climbing a branch",
+      "text": {
+        "en": "\"This branch looks lovely! I think I’ll sleep here.\nAnd you? Don’t you think that’s a splendid idea?\"",
+        "nl": "„Wat een mooie tak! Hier ga ik lekker slapen.\nEn jij? Is dat geen goed idee, om hier te gapen?\"",
+        "de": "„Was für ein schöner Ast! Hier mach ich es mir fein.\nUnd du? Ist das nicht eine prima Idee? Ich schlaf hier ein!\"",
+        "fa": "«چه شاخه‌ی قشنگی! فکر کنم همین‌جا بخوابم.\nتو چی؟ به نظرت فکرِ خیلی خوبی نیست؟»"
+      },
+      "spots": [
+        {
+          "x": 64,
+          "y": 70,
+          "r": 12,
+          "word": {
+            "en": "sloth",
+            "nl": "de luiaard",
+            "de": "das Faultier",
+            "fa": "تَنبَل"
+          }
+        },
+        {
+          "x": 48,
+          "y": 7,
+          "r": 7,
+          "word": {
+            "en": "bird",
+            "nl": "de vogel",
+            "de": "der Vogel",
+            "fa": "پرنده"
+          }
+        }
+      ]
+    },
+    {
+      "img": "10.jpg",
+      "alt": "Mr Sloth is hanging from a branch and a bird is squawking",
+      "text": {
+        "en": "\"Oh no, Mr Sloth! There’s a bird squawking there!\nYou’ll never get sleep with that noise in the air!\"",
+        "nl": "„O nee, meneer Luiaard! Daar krijst een vogel, zo luid!\nMet al dat lawaai slaap je nooit, dat is uit!\"",
+        "de": "„Oh nein, Herr Faultier! Da kreischt ein Vogel ganz laut!\nBei dem Lärm machst du nie ein Auge zu!\"",
+        "fa": "«وای نه، آقای تنبل! آن‌جا یک پرنده جیغ می‌کشد!\nبا این سروصدا، هیچ‌وقت خوابت نمی‌برد!»"
+      },
+      "spots": [
+        {
+          "x": 35,
+          "y": 30,
+          "r": 12,
+          "word": {
+            "en": "bird",
+            "nl": "de vogel",
+            "de": "der Vogel",
+            "fa": "پرنده"
+          }
+        },
+        {
+          "x": 57,
+          "y": 58,
+          "r": 12,
+          "word": {
+            "en": "sloth",
+            "nl": "de luiaard",
+            "de": "das Faultier",
+            "fa": "تَنبَل"
+          }
+        }
+      ]
+    },
+    {
+      "img": "11.jpg",
+      "alt": "Mr Sloth is hanging from the top of a branch",
+      "text": {
+        "en": "\"Try climb one more branch, Mr Sloth!\" they all said.\nAnd that branch was just the right one for his bed.",
+        "nl": "„Klim nog één tak hoger, meneer Luiaard!\" riepen ze allemaal.\nEn die tak was precies goed als bed, helemaal!",
+        "de": "„Kletter noch einen Ast höher, Herr Faultier!\", riefen alle.\nUnd dieser Ast war genau das richtige Bett für ihn.",
+        "fa": "همه گفتند: «آقای تنبل، یک شاخه بالاتر برو!»\nو آن شاخه درست همان تختی بود که می‌خواست."
+      },
+      "spots": [
+        {
+          "x": 50,
+          "y": 40,
+          "r": 12,
+          "word": {
+            "en": "sloth",
+            "nl": "de luiaard",
+            "de": "das Faultier",
+            "fa": "تَنبَل"
+          }
+        },
+        {
+          "x": 75,
+          "y": 12,
+          "r": 8,
+          "word": {
+            "en": "cloud",
+            "nl": "de wolk",
+            "de": "die Wolke",
+            "fa": "اَبر"
+          }
+        }
+      ]
+    },
+    {
+      "img": "12.jpg",
+      "alt": "Animals are looking at Mr Sloth sleeping in the tree top",
+      "text": {
+        "en": "The bird and the snake, the giraffe and each bee were happy to have Mr Sloth in their tree.",
+        "nl": "De vogel en de slang, de giraf en elke bij, waren blij met meneer Luiaard in hun boom, zo blij!",
+        "de": "Der Vogel und die Schlange, die Giraffe und jede Biene freuten sich, dass Herr Faultier in ihrem Baum schlief.",
+        "fa": "پرنده و مار، زرافه و همه‌ی زنبورها، خوشحال بودند که آقای تنبل در درختشان است."
+      },
+      "spots": [
+        {
+          "x": 50,
+          "y": 30,
+          "r": 7,
+          "word": {
+            "en": "Shh! He's sleeping.",
+            "nl": "Sst! Hij slaapt.",
+            "de": "Psst! Er schläft.",
+            "fa": "هیس! خوابیده."
+          }
+        },
+        {
+          "x": 26,
+          "y": 74,
+          "r": 6,
+          "word": {
+            "en": "giraffe",
+            "nl": "de giraf",
+            "de": "die Giraffe",
+            "fa": "زَرافه"
+          }
+        },
+        {
+          "x": 52,
+          "y": 52,
+          "r": 10,
+          "word": {
+            "en": "tree",
+            "nl": "de boom",
+            "de": "der Baum",
+            "fa": "درخت"
+          }
+        }
+      ]
+    }
+  ],
+  "quiz": [
+    {
+      "q": {
+        "en": "Who was eating in the tree?",
+        "nl": "Wie zat er in de boom te eten?",
+        "de": "Wer hat im Baum gefressen?",
+        "fa": "چه کسی در درخت غذا می‌خورد؟"
+      },
+      "choices": [
+        4,
+        6,
+        8
+      ],
+      "answer": 4
+    },
+    {
+      "q": {
+        "en": "Which picture shows the snake?",
+        "nl": "Op welk plaatje zie je de slang?",
+        "de": "Auf welchem Bild ist die Schlange?",
+        "fa": "مار در کدام عکس است؟"
+      },
+      "choices": [
+        10,
+        8,
+        2
+      ],
+      "answer": 8
+    }
+  ]
+}

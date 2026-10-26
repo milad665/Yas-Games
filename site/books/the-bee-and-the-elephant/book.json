@@ -1,0 +1,424 @@
+{
+  "slug": "the-bee-and-the-elephant",
+  "title": {
+    "en": "The Bee and the Elephant",
+    "nl": "Het bijtje en de olifant",
+    "de": "Die Biene und der Elefant",
+    "fa": "زنبور و فیل"
+  },
+  "gdl": {
+    "url": "https://digitallibrary.io/book/the-bee-and-the-elephant/",
+    "publisher": "Room to Read",
+    "license": "CC BY 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+    "byline": [
+      "Author: Long Ravy",
+      "Illustrator: Try Samphos",
+      "Translator: Celia Bolam"
+    ],
+    "credits": "This book was made possible by Pratham Books' StoryWeaver platform. Content under Creative Commons licenses can be downloaded, translated and can even be used to create new stories provided you give appropriate credit, and indicate if changes were made. To know more about this, and the full terms of use and attribution, please visit the following link. Story Attribution: This story: 'The Bee and the Elephant' is translated by Celia Bolam. The © for this translation lies with Room to Read, 2015. Some rights reserved. Released under CC BY 4.0 license. Based on the Original story: 'ឃ្មុំនិងដំរី', by Long Ravy. © Room to Read, 2015. Some rights reserved. Released under CC BY 4.0 license. Other Credits: This story 'The Bee and the Elephant' has been published on StoryWeaver by Room to Read. Images Attributions: Cover page: Bee sleeping on elephant, by Try Samphos© Room to Read, 2011. Some rights reserved. Released under CC BY 4.0 license. Page 2: Bee crying while elephant looks on, by Try Samphos© Room to Read, 2011. Some rights reserved. Released under CC BY 4.0 license. Page 3: Elephant showing a bee a nest, by Try Samphos© Room to Read, 2011. Some rights reserved. Released under CC BY 4.0 license. Page 4: Bird flying towards elephant and bee, by Try Samphos© Room to Read, 2011. Some rights reserved. Released under CC BY 4.0 license. Page 5: Elephant showing a bee a cave, by Try Samphos© Room to Read, 2011. Some rights reserved. Released under CC BY 4.0 license. Page 6: Bee and elephant being chased by bats, by Try Samphos© Room to Read, 2011. Some rights reserved. Released under CC BY 4.0 license. Page 7: Elephant showing a bee a beehive, by Try Samphos© Room to Read, 2011. Some rights reserved. Released under CC BY 4.0 license.Page 8:Bees taking in beehive, by Try Samphos© Room to Read, 2011. Some rights reserved. Released under CC BY 4.0 license. Page 9: All animals going together in the forest, by Try Samphos© Room to Read, 2011. Some rights reserved. Released under CC BY 4.0 license. Page 10: Bee on elephant's trunk, by Try Samphos© Room to Read, 2011. Some rights reserved. Released under CC BY 4.0 license. Disclaimer: https://www.storyweaver.org.in/terms_and_conditions Some rights reserved. This book is CC-BY-4.0 licensed. You can copy, modify, distribute and perform the work, even for commercial purposes, all without asking permission. For full terms of use and attribution, http://creativecommons.org/licenses/by/4.0/"
+  },
+  "pages": [
+    {
+      "img": "1.jpg",
+      "alt": "A bee is crying in the center of a flower.",
+      "text": {
+        "en": "\"I am lost,\" said Little Bee. \"I cannot find my home!\"\n\"Can you please help me, Mr. Elephant?\"",
+        "nl": "„Ik ben verdwaald,\" zei Bijtje. „Ik kan mijn huis niet vinden!\"\n„Wil jij me alsjeblieft helpen, meneer Olifant?\"",
+        "de": "„Ich habe mich verirrt\", sagte die kleine Biene. „Ich finde mein Zuhause nicht!\"\n„Kannst du mir bitte helfen, Herr Elefant?\"",
+        "fa": "زنبورِ کوچولو گفت: «من گم شده‌ام. خانه‌ام را پیدا نمی‌کنم!»\n«آقای فیل، لطفاً به من کمک می‌کنی؟»"
+      },
+      "spots": [
+        {
+          "x": 42,
+          "y": 62,
+          "r": 9,
+          "word": {
+            "en": "bee",
+            "nl": "de bij",
+            "de": "die Biene",
+            "fa": "زنبور"
+          }
+        },
+        {
+          "x": 35,
+          "y": 15,
+          "r": 12,
+          "word": {
+            "en": "elephant",
+            "nl": "de olifant",
+            "de": "der Elefant",
+            "fa": "فیل"
+          }
+        },
+        {
+          "x": 30,
+          "y": 88,
+          "r": 10,
+          "word": {
+            "en": "flower",
+            "nl": "de bloem",
+            "de": "die Blume",
+            "fa": "گُل"
+          }
+        }
+      ]
+    },
+    {
+      "img": "2.jpg",
+      "alt": "Elephant brings a nest to the bee.",
+      "text": {
+        "en": "\"Is this nest your home, Little Bee?\" the elephant asked.",
+        "nl": "„Is dit nest jouw huis, Bijtje?\" vroeg de olifant.",
+        "de": "„Ist dieses Nest dein Zuhause, kleine Biene?\", fragte der Elefant.",
+        "fa": "فیل پرسید: «زنبورِ کوچولو، این لانه خانه‌ی توست؟»"
+      },
+      "spots": [
+        {
+          "x": 75,
+          "y": 12,
+          "r": 12,
+          "word": {
+            "en": "nest",
+            "nl": "het nest",
+            "de": "das Nest",
+            "fa": "لانه"
+          }
+        },
+        {
+          "x": 13,
+          "y": 83,
+          "r": 11,
+          "word": {
+            "en": "elephant",
+            "nl": "de olifant",
+            "de": "der Elefant",
+            "fa": "فیل"
+          }
+        },
+        {
+          "x": 71,
+          "y": 17,
+          "r": 5,
+          "word": {
+            "en": "bee",
+            "nl": "de bij",
+            "de": "die Biene",
+            "fa": "زنبور"
+          }
+        }
+      ]
+    },
+    {
+      "img": "3.jpg",
+      "alt": "A bird flies in toward them.",
+      "text": {
+        "en": "\"Oh no!\" cried Little Bee.\n\"This is a bird’s home.\"",
+        "nl": "„O nee!\" riep Bijtje.\n„Dit is het huis van een vogel.\"",
+        "de": "„Oh nein!\", rief die kleine Biene.\n„Das ist das Zuhause von einem Vogel.\"",
+        "fa": "زنبورِ کوچولو گفت: «وای نه!\nاین خانه‌ی یک پرنده است.»"
+      },
+      "spots": [
+        {
+          "x": 43,
+          "y": 17,
+          "r": 8,
+          "word": {
+            "en": "bird",
+            "nl": "de vogel",
+            "de": "der Vogel",
+            "fa": "پرنده"
+          }
+        },
+        {
+          "x": 61,
+          "y": 21,
+          "r": 5,
+          "word": {
+            "en": "bee",
+            "nl": "de bij",
+            "de": "die Biene",
+            "fa": "زنبور"
+          }
+        },
+        {
+          "x": 75,
+          "y": 57,
+          "r": 13,
+          "word": {
+            "en": "elephant",
+            "nl": "de olifant",
+            "de": "der Elefant",
+            "fa": "فیل"
+          }
+        }
+      ]
+    },
+    {
+      "img": "4.jpg",
+      "alt": "Elephant carries bee on its snout.",
+      "text": {
+        "en": "\"Is this cave your home?\" asked the elephant.",
+        "nl": "„Is deze grot jouw huis?\" vroeg de olifant.",
+        "de": "„Ist diese Höhle dein Zuhause?\", fragte der Elefant.",
+        "fa": "فیل پرسید: «این غار خانه‌ی توست؟»"
+      },
+      "spots": [
+        {
+          "x": 62,
+          "y": 20,
+          "r": 14,
+          "word": {
+            "en": "cave",
+            "nl": "de grot",
+            "de": "die Höhle",
+            "fa": "غار"
+          }
+        },
+        {
+          "x": 43,
+          "y": 22,
+          "r": 7,
+          "word": {
+            "en": "bee",
+            "nl": "de bij",
+            "de": "die Biene",
+            "fa": "زنبور"
+          }
+        }
+      ]
+    },
+    {
+      "img": "5.jpg",
+      "alt": "Bee flies on the ground next to elephant.",
+      "text": {
+        "en": "\"Oh no! This is a bat’s home.\"",
+        "nl": "„O nee! Dit is het huis van een vleermuis.\"",
+        "de": "„Oh nein! Das ist das Zuhause von einer Fledermaus.\"",
+        "fa": "«وای نه! این خانه‌ی یک خفاش است.»"
+      },
+      "spots": [
+        {
+          "x": 75,
+          "y": 12,
+          "r": 8,
+          "word": {
+            "en": "bat",
+            "nl": "de vleermuis",
+            "de": "die Fledermaus",
+            "fa": "خُفّاش"
+          }
+        },
+        {
+          "x": 82,
+          "y": 26,
+          "r": 6,
+          "word": {
+            "en": "bat",
+            "nl": "de vleermuis",
+            "de": "die Fledermaus",
+            "fa": "خُفّاش"
+          }
+        },
+        {
+          "x": 58,
+          "y": 50,
+          "r": 14,
+          "word": {
+            "en": "elephant",
+            "nl": "de olifant",
+            "de": "der Elefant",
+            "fa": "فیل"
+          }
+        },
+        {
+          "x": 55,
+          "y": 78,
+          "r": 5,
+          "word": {
+            "en": "bee",
+            "nl": "de bij",
+            "de": "die Biene",
+            "fa": "زنبور"
+          }
+        }
+      ]
+    },
+    {
+      "img": "6.jpg",
+      "alt": "Elephant carries it to a honey comb.",
+      "text": {
+        "en": "\"Is this hive your home, Little Bee?\"",
+        "nl": "„Is deze korf jouw huis, Bijtje?\"",
+        "de": "„Ist dieser Bienenstock dein Zuhause, kleine Biene?\"",
+        "fa": "«زنبورِ کوچولو، این کندو خانه‌ی توست؟»"
+      },
+      "spots": [
+        {
+          "x": 55,
+          "y": 25,
+          "r": 16,
+          "word": {
+            "en": "beehive",
+            "nl": "de bijenkorf",
+            "de": "der Bienenstock",
+            "fa": "کندوی زنبور"
+          }
+        },
+        {
+          "x": 77,
+          "y": 85,
+          "r": 13,
+          "word": {
+            "en": "elephant",
+            "nl": "de olifant",
+            "de": "der Elefant",
+            "fa": "فیل"
+          }
+        },
+        {
+          "x": 15,
+          "y": 70,
+          "r": 6,
+          "word": {
+            "en": "bat",
+            "nl": "de vleermuis",
+            "de": "die Fledermaus",
+            "fa": "خُفّاش"
+          }
+        },
+        {
+          "x": 9,
+          "y": 57,
+          "r": 5,
+          "word": {
+            "en": "bird",
+            "nl": "de vogel",
+            "de": "der Vogel",
+            "fa": "پرنده"
+          }
+        }
+      ]
+    },
+    {
+      "img": "7.jpg",
+      "alt": "Bees buzz at the honey comb.",
+      "text": {
+        "en": "\"Oh yes!\" said Little Bee happily.\n\"This is my home. \"",
+        "nl": "„O ja!\" zei Bijtje blij.\n„Dit is mijn huis.\"",
+        "de": "„Oh ja!\", sagte die kleine Biene fröhlich.\n„Das ist mein Zuhause.\"",
+        "fa": "زنبورِ کوچولو با خوشحالی گفت: «آره!\nاین خانه‌ی من است.»"
+      },
+      "spots": [
+        {
+          "x": 26,
+          "y": 40,
+          "r": 9,
+          "word": {
+            "en": "bee",
+            "nl": "de bij",
+            "de": "die Biene",
+            "fa": "زنبور"
+          }
+        },
+        {
+          "x": 37,
+          "y": 60,
+          "r": 8,
+          "word": {
+            "en": "bee",
+            "nl": "de bij",
+            "de": "die Biene",
+            "fa": "زنبور"
+          }
+        },
+        {
+          "x": 15,
+          "y": 60,
+          "r": 8,
+          "word": {
+            "en": "honey",
+            "nl": "de honing",
+            "de": "der Honig",
+            "fa": "عسل"
+          }
+        }
+      ]
+    },
+    {
+      "img": "8.jpg",
+      "alt": "Bees buzz in the forest.",
+      "text": {
+        "en": "\"Thank you for helping me, Mr. Elephant.\"",
+        "nl": "„Dank je wel dat je me hielp, meneer Olifant.\"",
+        "de": "„Danke, dass du mir geholfen hast, Herr Elefant.\"",
+        "fa": "«ممنونم که کمکم کردی، آقای فیل.»"
+      },
+      "spots": [
+        {
+          "x": 18,
+          "y": 65,
+          "r": 13,
+          "word": {
+            "en": "elephant",
+            "nl": "de olifant",
+            "de": "der Elefant",
+            "fa": "فیل"
+          }
+        },
+        {
+          "x": 72,
+          "y": 12,
+          "r": 6,
+          "word": {
+            "en": "bird",
+            "nl": "de vogel",
+            "de": "der Vogel",
+            "fa": "پرنده"
+          }
+        },
+        {
+          "x": 10,
+          "y": 15,
+          "r": 8,
+          "word": {
+            "en": "beehive",
+            "nl": "de bijenkorf",
+            "de": "der Bienenstock",
+            "fa": "کندوی زنبور"
+          }
+        }
+      ]
+    }
+  ],
+  "quiz": [
+    {
+      "q": {
+        "en": "Where is Little Bee's home?",
+        "nl": "Waar woont Bijtje?",
+        "de": "Wo wohnt die kleine Biene?",
+        "fa": "خانه‌ی زنبورِ کوچولو کجاست؟"
+      },
+      "choices": [
+        2,
+        4,
+        7
+      ],
+      "answer": 7
+    },
+    {
+      "q": {
+        "en": "Where do the bats live?",
+        "nl": "Waar wonen de vleermuizen?",
+        "de": "Wo wohnen die Fledermäuse?",
+        "fa": "خفاش‌ها کجا زندگی می‌کنند؟"
+      },
+      "choices": [
+        4,
+        2,
+        1
+      ],
+      "answer": 4
+    }
+  ]
+}

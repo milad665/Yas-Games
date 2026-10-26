@@ -1,0 +1,437 @@
+{
+  "slug": "a-house-for-mouse",
+  "title": {
+    "en": "A House for Mouse",
+    "nl": "Een huis voor Muis",
+    "de": "Ein Haus für Maus",
+    "fa": "یک خانه برای موش"
+  },
+  "gdl": {
+    "url": "https://digitallibrary.io/book/a-house-for-mouse/",
+    "publisher": "Book Dash",
+    "license": "CC BY 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+    "byline": [
+      "Authors: Michele Fry, Jennifer Jacobs, Amy Uzzell",
+      "Book Dash"
+    ],
+    "credits": "A House for Mouse Created by Michele Fry, Amy Uzzell, Jennifer Jacobs This work is licensed under a Creative Commons Attribution 4.0 International License. This means you are free to share (copy and redistribute the material in any medium or format) and adapt it (remix, transform, and build upon the material) for any purpose, even commercially, as long as you give appropriate credit, with a link to your source, and indicate if changes were made. You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use."
+  },
+  "pages": [
+    {
+      "img": "1.jpg",
+      "alt": "A mouse looks at a house on a hill. A mouse is sitting looking up towards something",
+      "text": {
+        "en": "Mouse was looking for a new house.",
+        "nl": "Muis zocht een nieuw huis.",
+        "de": "Maus suchte ein neues Haus.",
+        "fa": "موش دنبالِ یک خانه‌ی تازه می‌گشت."
+      },
+      "spots": [
+        {
+          "x": 61,
+          "y": 62,
+          "r": 6,
+          "word": {
+            "en": "house",
+            "nl": "het huis",
+            "de": "das Haus",
+            "fa": "خانه"
+          }
+        },
+        {
+          "x": 91,
+          "y": 94,
+          "r": 5,
+          "word": {
+            "en": "mouse",
+            "nl": "de muis",
+            "de": "die Maus",
+            "fa": "موش"
+          }
+        },
+        {
+          "x": 28,
+          "y": 60,
+          "r": 10,
+          "word": {
+            "en": "tree",
+            "nl": "de boom",
+            "de": "der Baum",
+            "fa": "درخت"
+          }
+        }
+      ]
+    },
+    {
+      "img": "2.jpg",
+      "alt": "The mouse goes to the door",
+      "text": {
+        "en": "This looks like a nice house.",
+        "nl": "Dit lijkt een fijn huis.",
+        "de": "Das sieht nach einem schönen Haus aus.",
+        "fa": "این خانه به نظر خوب می‌آید."
+      },
+      "spots": [
+        {
+          "x": 28,
+          "y": 82,
+          "r": 11,
+          "word": {
+            "en": "mouse",
+            "nl": "de muis",
+            "de": "die Maus",
+            "fa": "موش"
+          }
+        },
+        {
+          "x": 70,
+          "y": 50,
+          "r": 14,
+          "word": {
+            "en": "door",
+            "nl": "de deur",
+            "de": "die Tür",
+            "fa": "دَر"
+          }
+        }
+      ]
+    },
+    {
+      "img": "3.jpg",
+      "alt": "The mouse talks to a dog",
+      "text": {
+        "en": "“You can come and sleep with me,” said Puppy.\n“Thank you,” said Mouse.",
+        "nl": "„Je mag bij mij komen slapen,\" zei Puppy.\n„Dank je wel,\" zei Muis.",
+        "de": "„Du kannst bei mir schlafen\", sagte das Hündchen.\n„Danke schön\", sagte Maus.",
+        "fa": "توله‌سگ گفت: «می‌توانی بیایی پیشِ من بخوابی.»\nموش گفت: «ممنونم.»"
+      },
+      "spots": [
+        {
+          "x": 75,
+          "y": 45,
+          "r": 15,
+          "word": {
+            "en": "puppy",
+            "nl": "de puppy",
+            "de": "das Hündchen",
+            "fa": "توله‌سگ"
+          }
+        },
+        {
+          "x": 33,
+          "y": 63,
+          "r": 9,
+          "word": {
+            "en": "mouse",
+            "nl": "de muis",
+            "de": "die Maus",
+            "fa": "موش"
+          }
+        }
+      ]
+    },
+    {
+      "img": "4.jpg",
+      "alt": "The mouse is dreaming",
+      "text": {
+        "en": "That night, Mouse’s dreams were bouncy and muddy.",
+        "nl": "Die nacht droomde Muis van springen en modder.",
+        "de": "In dieser Nacht träumte Maus vom Hüpfen und vom Matsch.",
+        "fa": "آن شب، موش خوابِ بالا و پایین پریدن و گِل و شُل دید."
+      },
+      "spots": [
+        {
+          "x": 50,
+          "y": 50,
+          "r": 14,
+          "word": {
+            "en": "mouse",
+            "nl": "de muis",
+            "de": "die Maus",
+            "fa": "موش"
+          }
+        }
+      ]
+    },
+    {
+      "img": "5.jpg",
+      "alt": "The mouse is talking to a bird",
+      "text": {
+        "en": "“You can come and sleep with me,” said Parrot.\n“Thank you,” said Mouse.",
+        "nl": "„Je mag bij mij komen slapen,\" zei Papegaai.\n„Dank je wel,\" zei Muis.",
+        "de": "„Du kannst bei mir schlafen\", sagte der Papagei.\n„Danke schön\", sagte Maus.",
+        "fa": "طوطی گفت: «می‌توانی بیایی پیشِ من بخوابی.»\nموش گفت: «ممنونم.»"
+      },
+      "spots": [
+        {
+          "x": 65,
+          "y": 30,
+          "r": 14,
+          "word": {
+            "en": "parrot",
+            "nl": "de papegaai",
+            "de": "der Papagei",
+            "fa": "طوطی"
+          }
+        },
+        {
+          "x": 37,
+          "y": 63,
+          "r": 9,
+          "word": {
+            "en": "mouse",
+            "nl": "de muis",
+            "de": "die Maus",
+            "fa": "موش"
+          }
+        }
+      ]
+    },
+    {
+      "img": "6.jpg",
+      "alt": "The mouse is dreaming about weeds",
+      "text": {
+        "en": "That night, Mouse’s dreams were noisy and wild.",
+        "nl": "Die nacht droomde Muis van lawaai en wilde planten.",
+        "de": "In dieser Nacht träumte Maus von Lärm und wilden Pflanzen.",
+        "fa": "آن شب، موش خوابِ سروصدا و گیاه‌های وحشی دید."
+      },
+      "spots": [
+        {
+          "x": 35,
+          "y": 75,
+          "r": 14,
+          "word": {
+            "en": "mouse",
+            "nl": "de muis",
+            "de": "die Maus",
+            "fa": "موش"
+          }
+        },
+        {
+          "x": 82,
+          "y": 50,
+          "r": 10,
+          "word": {
+            "en": "plants",
+            "nl": "de planten",
+            "de": "die Pflanzen",
+            "fa": "گیاه‌ها"
+          }
+        }
+      ]
+    },
+    {
+      "img": "7.jpg",
+      "alt": "The mouse is talking to a fish",
+      "text": {
+        "en": "“You can come and sleep with me,” said Fish.\n“Thank you,” said Mouse.",
+        "nl": "„Je mag bij mij komen slapen,\" zei Vis.\n„Dank je wel,\" zei Muis.",
+        "de": "„Du kannst bei mir schlafen\", sagte der Fisch.\n„Danke schön\", sagte Maus.",
+        "fa": "ماهی گفت: «می‌توانی بیایی پیشِ من بخوابی.»\nموش گفت: «ممنونم.»"
+      },
+      "spots": [
+        {
+          "x": 63,
+          "y": 37,
+          "r": 13,
+          "word": {
+            "en": "fish",
+            "nl": "de vis",
+            "de": "der Fisch",
+            "fa": "ماهی"
+          }
+        },
+        {
+          "x": 34,
+          "y": 65,
+          "r": 10,
+          "word": {
+            "en": "mouse",
+            "nl": "de muis",
+            "de": "die Maus",
+            "fa": "موش"
+          }
+        }
+      ]
+    },
+    {
+      "img": "8.jpg",
+      "alt": "The mouse is dreaming about water",
+      "text": {
+        "en": "That night, Mouse’s dreams were cold and wet.",
+        "nl": "Die nacht droomde Muis van kou en water.",
+        "de": "In dieser Nacht träumte Maus von Kälte und Wasser.",
+        "fa": "آن شب، موش خوابِ سرما و آب دید."
+      },
+      "spots": [
+        {
+          "x": 50,
+          "y": 55,
+          "r": 14,
+          "word": {
+            "en": "mouse",
+            "nl": "de muis",
+            "de": "die Maus",
+            "fa": "موش"
+          }
+        },
+        {
+          "x": 80,
+          "y": 15,
+          "r": 8,
+          "word": {
+            "en": "fish",
+            "nl": "de vis",
+            "de": "der Fisch",
+            "fa": "ماهی"
+          }
+        },
+        {
+          "x": 54,
+          "y": 21,
+          "r": 6,
+          "word": {
+            "en": "fish",
+            "nl": "de vis",
+            "de": "der Fisch",
+            "fa": "ماهی"
+          }
+        }
+      ]
+    },
+    {
+      "img": "9.jpg",
+      "alt": "The mouse is running away",
+      "text": {
+        "en": "Mouse needed somewhere warm and dry.",
+        "nl": "Muis had een warm en droog plekje nodig.",
+        "de": "Maus brauchte einen warmen und trockenen Platz.",
+        "fa": "موش یک جای گرم و خشک لازم داشت."
+      },
+      "spots": [
+        {
+          "x": 40,
+          "y": 72,
+          "r": 14,
+          "word": {
+            "en": "mouse",
+            "nl": "de muis",
+            "de": "die Maus",
+            "fa": "موش"
+          }
+        }
+      ]
+    },
+    {
+      "img": "10.jpg",
+      "alt": "Several books are stacked on a shelf",
+      "text": {
+        "en": "Mouse found a bookshelf nearby.",
+        "nl": "Vlakbij vond Muis een boekenkast.",
+        "de": "In der Nähe fand Maus ein Bücherregal.",
+        "fa": "موش همان نزدیکی یک قفسه‌ی کتاب پیدا کرد."
+      },
+      "spots": [
+        {
+          "x": 21,
+          "y": 50,
+          "r": 9,
+          "word": {
+            "en": "book",
+            "nl": "het boek",
+            "de": "das Buch",
+            "fa": "کتاب"
+          }
+        },
+        {
+          "x": 65,
+          "y": 55,
+          "r": 9,
+          "word": {
+            "en": "book",
+            "nl": "het boek",
+            "de": "das Buch",
+            "fa": "کتاب"
+          }
+        },
+        {
+          "x": 40,
+          "y": 55,
+          "r": 7,
+          "word": {
+            "en": "book",
+            "nl": "het boek",
+            "de": "das Buch",
+            "fa": "کتاب"
+          }
+        }
+      ]
+    },
+    {
+      "img": "11.jpg",
+      "alt": "The mouse is dreaming about cheese",
+      "text": {
+        "en": "That night, Mouse had warm and cosy dreams.",
+        "nl": "Die nacht droomde Muis warm en knus.",
+        "de": "In dieser Nacht hatte Maus warme, gemütliche Träume.",
+        "fa": "آن شب، موش خواب‌های گرم و نرم دید."
+      },
+      "spots": [
+        {
+          "x": 70,
+          "y": 25,
+          "r": 12,
+          "word": {
+            "en": "cheese",
+            "nl": "de kaas",
+            "de": "der Käse",
+            "fa": "پنیر"
+          }
+        },
+        {
+          "x": 32,
+          "y": 70,
+          "r": 14,
+          "word": {
+            "en": "mouse",
+            "nl": "de muis",
+            "de": "die Maus",
+            "fa": "موش"
+          }
+        }
+      ]
+    }
+  ],
+  "quiz": [
+    {
+      "q": {
+        "en": "Where did Mouse find a warm, dry home?",
+        "nl": "Waar vond Muis een warm, droog huisje?",
+        "de": "Wo fand Maus ein warmes, trockenes Zuhause?",
+        "fa": "موش کجا یک خانه‌ی گرم و خشک پیدا کرد؟"
+      },
+      "choices": [
+        7,
+        10,
+        3
+      ],
+      "answer": 10
+    },
+    {
+      "q": {
+        "en": "Who is the parrot?",
+        "nl": "Wie is de papegaai?",
+        "de": "Wer ist der Papagei?",
+        "fa": "طوطی کدام است؟"
+      },
+      "choices": [
+        5,
+        3,
+        7
+      ],
+      "answer": 5
+    }
+  ]
+}

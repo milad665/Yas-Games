@@ -1,0 +1,458 @@
+{
+  "slug": "colours",
+  "title": {
+    "en": "Colours",
+    "nl": "Kleuren",
+    "de": "Farben",
+    "fa": "رنگ‌ها"
+  },
+  "gdl": {
+    "url": "https://digitallibrary.io/book/colours/",
+    "publisher": "Room to Read",
+    "license": "CC BY 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+    "byline": [
+      "Author: Priyanka",
+      "Illustrator: Ajanta Guhathakurta",
+      "Translator: Alisha Berger"
+    ],
+    "credits": "This book was made possible by Pratham Books' StoryWeaver platform. Content under Creative Commons licenses can be downloaded, translated and can even be used to create new stories provided you give appropriate credit, and indicate if changes were made. To know more about this, and the full terms of use and attribution, please visit the following link. Story Attribution: This story: 'Colours' is translated by Alisha Berger. The © for this translation lies with Room to Read, 2015. Some rights reserved. Released under CC BY 4.0 license. Based on Original story: 'रंग', byPriyanka. © Room to Read, 2015. Some rights reserved. Released under CC BY 4.0 license. Other Credits: This story 'Rang' has been published on StoryWeaver by Room to Read. Images Attributions: Cover page: White bear and multicoloured butterflies, by Ajanta Guhathakurta© Room to Read, 2015. Some rights reserved. Released under CC BY 4.0 license. Page 2 :A bear in a chair, by Ajanta Guhathakurta© Room to Read, 2015. Some rights reserved. Released under CC BY 4.0 license. Page 3: Bear walking away from multi-coloured house, by Ajanta Guhathakurta© Room to Read, 2015. Some rights reserved. Released under CC BY 4.0 license. Page 4: Honey dripping on bear, by Ajanta Guhathakurta© Room to Read, 2015. Some rights reserved. Released under CC BY 4.0 license.Page 5:Bear with yellow ears dripping with honey, byAjanta Guhathakurta© Room to Read, 2015. Some rights reserved. Released under CC BY 4.0 license.Page 6:Bear falls in mud, byAjanta Guhathakurta© Room to Read, 2015. Some rights reserved. Released under CC BY 4.0 license.Page 7:Bear all muddy, byAjanta Guhathakurta© Room to Read, 2015. Some rights reserved. Released under CC BY 4.0 license.Page 8:Bear eating a watermelon, byAjanta Guhathakurta© Room to Read, 2015. Some rights reserved. Released under CC BY 4.0 license.Page 9:Bear with red face and watermelons all around, byAjanta Guhathakurta© Room to Read, 2015. Some rights reserved. Released under CC BY 4.0 license.Page 10:Bear paws plucking flowers, byAjanta Guhathakurta© Room to Read, 2015. Some rights reserved. Released under CC BY 4.0 license.Disclaimer:https://www.storyweaver.org.in/terms_and_conditions Some rights reserved. This book is CC-BY-4.0 licensed. You can copy, modify, distribute and perform the work, even for commercial purposes, all without asking permission. For full terms of use and attribution, http://creativecommons.org/licenses/by/4.0/\nThis book was made possible by Pratham Books' StoryWeaver platform. Content under Creative Commons licenses can be downloaded, translated and can even be used to create new stories provided you give appropriate credit, and indicate if changes were made. To know more about this, and the full terms of use and attribution, please visit the following link. Images Attributions: Page 11: Bear with blue hands, red mouth and brown stomach, by Ajanta Guhathakurta© Room to Read, 2015. Some rights reserved. Released under CC BY 4.0 license. Page 12: Bear on his back on the grass, by Ajanta Guhathakurta© Room to Read, 2015. Some rights reserved. Released under CC BY 4.0 license. Page 13: Bear walking looking surprised, by Ajanta Guhathakurta© Room to Read, 2015. Some rights reserved. Released under CC BY 4.0 license. Page 14: Bear watching man on ladder painting, by Ajanta Guhathakurta© Room to Read, 2015. Some rights reserved. Released under CC BY 4.0 license. Page 15: Bear happy and dancing, by Ajanta Guhathakurta© Room to Read, 2015. Some rights reserved. Released under CC BY 4.0 license. Page 16: Bear happy and playing with bee, by Ajanta Guhathakurta© Room to Read, 2015. Some rights reserved. Released under CC BY 4.0 license. Page 17: Bear dancing and trips on stones, by Ajanta Guhathakurta© Room to Read, 2015. Some rights reserved. Released under CC BY 4.0 license. Page 18: Bear falls into bucket of water, byAjanta Guhathakurta© Room to Read, 2015. Some rights reserved. Released under CC BY 4.0 license.Page 19:Bear plays in water, byAjanta Guhathakurta© Room to Read, 2015. Some rights reserved. Released under CC BY 4.0 license. Page 20: White bear standing in colours, by Ajanta Guhathakurta© Room to Read, 2015. Some rights reserved. Released under CC BY 4.0 license. Disclaimer: https://www.storyweaver.org.in/terms_and_conditions Some rights reserved. This book is CC-BY-4.0 licensed. You can copy, modify, distribute and perform the work, even for commercial purposes, all without asking permission. For full terms of use and attribution, http://creativecommons.org/licenses/by/4.0/"
+  },
+  "pages": [
+    {
+      "img": "1.jpg",
+      "alt": "A polar bear sits in a red chair.",
+      "text": {
+        "en": "Bear likes colours.",
+        "nl": "Beer houdt van kleuren.",
+        "de": "Bär mag Farben.",
+        "fa": "خرسه رنگ‌ها را دوست دارد."
+      },
+      "spots": [
+        {
+          "x": 25,
+          "y": 75,
+          "r": 13,
+          "word": {
+            "en": "chair",
+            "nl": "de stoel",
+            "de": "der Sessel",
+            "fa": "صندلی"
+          }
+        },
+        {
+          "x": 45,
+          "y": 60,
+          "r": 12,
+          "word": {
+            "en": "bear",
+            "nl": "de beer",
+            "de": "der Bär",
+            "fa": "خرس"
+          }
+        },
+        {
+          "x": 70,
+          "y": 15,
+          "r": 9,
+          "word": {
+            "en": "painting",
+            "nl": "het schilderij",
+            "de": "das Bild",
+            "fa": "نقاشی"
+          }
+        },
+        {
+          "x": 65,
+          "y": 40,
+          "r": 9,
+          "word": {
+            "en": "painting",
+            "nl": "het schilderij",
+            "de": "das Bild",
+            "fa": "نقاشی"
+          }
+        }
+      ]
+    },
+    {
+      "img": "2.jpg",
+      "alt": "A bear with a honey bee.",
+      "text": {
+        "en": "Now, her ears are yellow.",
+        "nl": "Nu zijn haar oren geel.",
+        "de": "Jetzt sind ihre Ohren gelb.",
+        "fa": "حالا گوش‌هایش زرد است."
+      },
+      "spots": [
+        {
+          "x": 18,
+          "y": 45,
+          "r": 10,
+          "word": {
+            "en": "yellow",
+            "nl": "geel",
+            "de": "gelb",
+            "fa": "زرد"
+          }
+        },
+        {
+          "x": 85,
+          "y": 20,
+          "r": 12,
+          "word": {
+            "en": "yellow",
+            "nl": "geel",
+            "de": "gelb",
+            "fa": "زرد"
+          }
+        },
+        {
+          "x": 25,
+          "y": 22,
+          "r": 7,
+          "word": {
+            "en": "bee",
+            "nl": "de bij",
+            "de": "die Biene",
+            "fa": "زنبور"
+          }
+        }
+      ]
+    },
+    {
+      "img": "3.jpg",
+      "alt": "She has a brown belly.",
+      "text": {
+        "en": "Now, her tummy is brown.",
+        "nl": "Nu is haar buik bruin.",
+        "de": "Jetzt ist ihr Bauch braun.",
+        "fa": "حالا شکمش قهوه‌ای است."
+      },
+      "spots": [
+        {
+          "x": 55,
+          "y": 55,
+          "r": 14,
+          "word": {
+            "en": "brown",
+            "nl": "bruin",
+            "de": "braun",
+            "fa": "قهوه‌ای"
+          }
+        },
+        {
+          "x": 72,
+          "y": 15,
+          "r": 9,
+          "word": {
+            "en": "bear",
+            "nl": "de beer",
+            "de": "der Bär",
+            "fa": "خرس"
+          }
+        }
+      ]
+    },
+    {
+      "img": "4.jpg",
+      "alt": "She is surrounded by watermelon slices.",
+      "text": {
+        "en": "Now, her mouth is red.",
+        "nl": "Nu is haar mond rood.",
+        "de": "Jetzt ist ihr Mund rot.",
+        "fa": "حالا دهانش قرمز است."
+      },
+      "spots": [
+        {
+          "x": 20,
+          "y": 15,
+          "r": 8,
+          "word": {
+            "en": "red",
+            "nl": "rood",
+            "de": "rot",
+            "fa": "قرمز"
+          }
+        },
+        {
+          "x": 40,
+          "y": 65,
+          "r": 10,
+          "word": {
+            "en": "watermelon",
+            "nl": "de watermeloen",
+            "de": "die Wassermelone",
+            "fa": "هندوانه"
+          }
+        },
+        {
+          "x": 80,
+          "y": 75,
+          "r": 10,
+          "word": {
+            "en": "watermelon",
+            "nl": "de watermeloen",
+            "de": "die Wassermelone",
+            "fa": "هندوانه"
+          }
+        },
+        {
+          "x": 40,
+          "y": 25,
+          "r": 12,
+          "word": {
+            "en": "bear",
+            "nl": "de beer",
+            "de": "der Bär",
+            "fa": "خرس"
+          }
+        }
+      ]
+    },
+    {
+      "img": "5.jpg",
+      "alt": "She is surrounded by blue.",
+      "text": {
+        "en": "Now, her hands are blue.",
+        "nl": "Nu zijn haar handen blauw.",
+        "de": "Jetzt sind ihre Hände blau.",
+        "fa": "حالا دست‌هایش آبی است."
+      },
+      "spots": [
+        {
+          "x": 25,
+          "y": 10,
+          "r": 8,
+          "word": {
+            "en": "blue",
+            "nl": "blauw",
+            "de": "blau",
+            "fa": "آبی"
+          }
+        },
+        {
+          "x": 75,
+          "y": 10,
+          "r": 8,
+          "word": {
+            "en": "blue",
+            "nl": "blauw",
+            "de": "blau",
+            "fa": "آبی"
+          }
+        },
+        {
+          "x": 18,
+          "y": 33,
+          "r": 6,
+          "word": {
+            "en": "bee",
+            "nl": "de bij",
+            "de": "die Biene",
+            "fa": "زنبور"
+          }
+        },
+        {
+          "x": 50,
+          "y": 50,
+          "r": 12,
+          "word": {
+            "en": "brown",
+            "nl": "bruin",
+            "de": "braun",
+            "fa": "قهوه‌ای"
+          }
+        }
+      ]
+    },
+    {
+      "img": "6.jpg",
+      "alt": "She walks surrounded by green.",
+      "text": {
+        "en": "Now, her back is green.",
+        "nl": "Nu is haar rug groen.",
+        "de": "Jetzt ist ihr Rücken grün.",
+        "fa": "حالا پشتش سبز است."
+      },
+      "spots": [
+        {
+          "x": 45,
+          "y": 25,
+          "r": 14,
+          "word": {
+            "en": "green",
+            "nl": "groen",
+            "de": "grün",
+            "fa": "سبز"
+          }
+        },
+        {
+          "x": 18,
+          "y": 77,
+          "r": 6,
+          "word": {
+            "en": "bee",
+            "nl": "de bij",
+            "de": "die Biene",
+            "fa": "زنبور"
+          }
+        },
+        {
+          "x": 63,
+          "y": 33,
+          "r": 6,
+          "word": {
+            "en": "red",
+            "nl": "rood",
+            "de": "rot",
+            "fa": "قرمز"
+          }
+        }
+      ]
+    },
+    {
+      "img": "7.jpg",
+      "alt": "She walks on purple.",
+      "text": {
+        "en": "Now, her legs are pink.",
+        "nl": "Nu zijn haar benen roze.",
+        "de": "Jetzt sind ihre Beine rosa.",
+        "fa": "حالا پاهایش صورتی است."
+      },
+      "spots": [
+        {
+          "x": 75,
+          "y": 88,
+          "r": 11,
+          "word": {
+            "en": "pink",
+            "nl": "roze",
+            "de": "rosa",
+            "fa": "صورتی"
+          }
+        },
+        {
+          "x": 72,
+          "y": 50,
+          "r": 11,
+          "word": {
+            "en": "bear",
+            "nl": "de beer",
+            "de": "der Bär",
+            "fa": "خرس"
+          }
+        }
+      ]
+    },
+    {
+      "img": "8.jpg",
+      "alt": "The bee buzzes by her head.",
+      "text": {
+        "en": "Now, Bear is colourful!",
+        "nl": "Nu heeft Beer alle kleuren!",
+        "de": "Jetzt ist Bär ganz bunt!",
+        "fa": "حالا خرسه رنگارنگ است!"
+      },
+      "spots": [
+        {
+          "x": 15,
+          "y": 25,
+          "r": 12,
+          "word": {
+            "en": "colourful",
+            "nl": "kleurrijk",
+            "de": "bunt",
+            "fa": "رنگارنگ"
+          }
+        },
+        {
+          "x": 85,
+          "y": 75,
+          "r": 12,
+          "word": {
+            "en": "colourful",
+            "nl": "kleurrijk",
+            "de": "bunt",
+            "fa": "رنگارنگ"
+          }
+        },
+        {
+          "x": 87,
+          "y": 40,
+          "r": 5,
+          "word": {
+            "en": "bee",
+            "nl": "de bij",
+            "de": "die Biene",
+            "fa": "زنبور"
+          }
+        }
+      ]
+    },
+    {
+      "img": "9.jpg",
+      "alt": "She stands on a color palette.",
+      "text": {
+        "en": "Oh no! Where did all her colours go?",
+        "nl": "O nee! Waar zijn al haar kleuren gebleven?",
+        "de": "Oh nein! Wo sind all ihre Farben hin?",
+        "fa": "وای نه! همه‌ی رنگ‌هایش کجا رفتند؟"
+      },
+      "spots": [
+        {
+          "x": 50,
+          "y": 60,
+          "r": 15,
+          "word": {
+            "en": "all the colours",
+            "nl": "alle kleuren",
+            "de": "alle Farben",
+            "fa": "همه‌ی رنگ‌ها"
+          }
+        },
+        {
+          "x": 50,
+          "y": 25,
+          "r": 9,
+          "word": {
+            "en": "bear",
+            "nl": "de beer",
+            "de": "der Bär",
+            "fa": "خرس"
+          }
+        }
+      ]
+    }
+  ],
+  "quiz": [
+    {
+      "q": {
+        "en": "When was her tummy brown?",
+        "nl": "Wanneer was haar buik bruin?",
+        "de": "Wann war ihr Bauch braun?",
+        "fa": "کی شکمش قهوه‌ای شد؟"
+      },
+      "choices": [
+        1,
+        2,
+        3
+      ],
+      "answer": 3
+    },
+    {
+      "q": {
+        "en": "Where is Bear all colourful?",
+        "nl": "Waar heeft Beer alle kleuren?",
+        "de": "Wo ist Bär ganz bunt?",
+        "fa": "کجا خرسه رنگارنگ است؟"
+      },
+      "choices": [
+        8,
+        1,
+        9
+      ],
+      "answer": 8
+    }
+  ]
+}

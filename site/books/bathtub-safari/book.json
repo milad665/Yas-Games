@@ -1,0 +1,547 @@
+{
+  "slug": "bathtub-safari",
+  "title": {
+    "en": "Bathtub Safari",
+    "nl": "Badkuipsafari",
+    "de": "Badewannen-Safari",
+    "fa": "سافاریِ وانِ حمام"
+  },
+  "gdl": {
+    "url": "https://digitallibrary.io/book/bathtub-safari/",
+    "publisher": "Book Dash",
+    "license": "CC BY 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+    "byline": [
+      "Authors: Tracy Lynn Chemaly, Robert McEwen, Sarah-Jane Williams",
+      "Publisher: Book Dash"
+    ],
+    "credits": "Bathtub Safari Created by Tracy Lynn Chemaly, Robert McEwan, Sarah-Jane Williams This work is licensed under a Creative Commons Attribution 4.0 International License. This means you are free to share (copy and redistribute the material in any medium or format) and adapt it (remix, transform, and build upon the material) for any purpose, even commercially, as long as you give appropriate credit, with a link to your source, and indicate if changes were made. You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use."
+  },
+  "pages": [
+    {
+      "img": "1.jpg",
+      "alt": "A woman is looking at boy in the bath",
+      "text": {
+        "en": "Bathtime is Jack’s favourite part of the day.\n‘I’ll be back in a few moments,’ says his mom. ‘Make sure to clean behind your ears.’",
+        "nl": "In bad gaan vindt Jack het allerleukst van de hele dag.\n„Ik ben zo terug,\" zegt zijn mama. „Vergeet niet achter je oren te wassen.\"",
+        "de": "Baden ist für Jack das Schönste am ganzen Tag.\n„Ich bin gleich zurück\", sagt seine Mama. „Denk dran, hinter den Ohren zu waschen.\"",
+        "fa": "حمام کردن، بهترین وقتِ روزِ جک است.\nمامانش می‌گوید: «زود برمی‌گردم. یادت نرود پشتِ گوش‌هایت را بشویی.»"
+      },
+      "spots": [
+        {
+          "x": 30,
+          "y": 70,
+          "r": 10,
+          "word": {
+            "en": "Mom",
+            "nl": "mama",
+            "de": "Mama",
+            "fa": "مامان"
+          }
+        },
+        {
+          "x": 72,
+          "y": 60,
+          "r": 14,
+          "word": {
+            "en": "bathtub",
+            "nl": "het bad",
+            "de": "die Badewanne",
+            "fa": "وانِ حمام"
+          }
+        },
+        {
+          "x": 12,
+          "y": 30,
+          "r": 8,
+          "word": {
+            "en": "soap",
+            "nl": "de zeep",
+            "de": "die Seife",
+            "fa": "صابون"
+          }
+        }
+      ]
+    },
+    {
+      "img": "2.jpg",
+      "alt": "The boy is playing in the tub",
+      "text": {
+        "en": "There’s a SWOOSH. And a swish of a tail.\nAnd then…",
+        "nl": "Er klinkt een WOESJ. En een zwiep van een staart.\nEn dan …",
+        "de": "Da macht es WUSCH. Und ein Schwanz peitscht durchs Wasser.\nUnd dann …",
+        "fa": "صدای فیــش می‌آید. و یک دُم تکان می‌خورد.\nو بعد …"
+      },
+      "spots": [
+        {
+          "x": 70,
+          "y": 62,
+          "r": 12,
+          "word": {
+            "en": "crocodile",
+            "nl": "de krokodil",
+            "de": "das Krokodil",
+            "fa": "تمساح"
+          }
+        },
+        {
+          "x": 23,
+          "y": 82,
+          "r": 9,
+          "word": {
+            "en": "crocodile",
+            "nl": "de krokodil",
+            "de": "das Krokodil",
+            "fa": "تمساح"
+          }
+        },
+        {
+          "x": 20,
+          "y": 15,
+          "r": 8,
+          "word": {
+            "en": "bubbles",
+            "nl": "de zeepbellen",
+            "de": "die Seifenblasen",
+            "fa": "حُباب‌ها"
+          }
+        }
+      ]
+    },
+    {
+      "img": "3.jpg",
+      "alt": "The boy is sitting on a crocodile",
+      "text": {
+        "en": "Jack’s bathtub safari begins!",
+        "nl": "Jacks badkuipsafari begint!",
+        "de": "Jacks Badewannen-Safari beginnt!",
+        "fa": "سافاریِ وانِ حمامِ جک شروع می‌شود!"
+      },
+      "spots": [
+        {
+          "x": 65,
+          "y": 42,
+          "r": 14,
+          "word": {
+            "en": "crocodile",
+            "nl": "de krokodil",
+            "de": "das Krokodil",
+            "fa": "تمساح"
+          }
+        },
+        {
+          "x": 25,
+          "y": 20,
+          "r": 8,
+          "word": {
+            "en": "Jack",
+            "nl": "Jack",
+            "de": "Jack",
+            "fa": "جک"
+          }
+        },
+        {
+          "x": 20,
+          "y": 80,
+          "r": 10,
+          "word": {
+            "en": "bubbles",
+            "nl": "de zeepbellen",
+            "de": "die Seifenblasen",
+            "fa": "حُباب‌ها"
+          }
+        }
+      ]
+    },
+    {
+      "img": "4.jpg",
+      "alt": "The boy is playing with a crocodile and an elephant",
+      "text": {
+        "en": "Look at what’s coming!\nThere’s a twist and a turn..\nSomething’s growing…\nIt’s a…",
+        "nl": "Kijk eens wat daar komt!\nHet draait en het kronkelt …\nEr groeit iets …\nHet is een …",
+        "de": "Schau mal, was da kommt!\nEs dreht und windet sich …\nEtwas wächst …\nEs ist ein …",
+        "fa": "ببین چه دارد می‌آید!\nمی‌پیچد و تاب می‌خورد …\nیک چیزی دارد بزرگ می‌شود …\nاین یک …"
+      },
+      "spots": [
+        {
+          "x": 80,
+          "y": 22,
+          "r": 9,
+          "word": {
+            "en": "elephant",
+            "nl": "de olifant",
+            "de": "der Elefant",
+            "fa": "فیل"
+          }
+        },
+        {
+          "x": 20,
+          "y": 42,
+          "r": 8,
+          "word": {
+            "en": "crocodile",
+            "nl": "de krokodil",
+            "de": "das Krokodil",
+            "fa": "تمساح"
+          }
+        },
+        {
+          "x": 25,
+          "y": 78,
+          "r": 9,
+          "word": {
+            "en": "Jack",
+            "nl": "Jack",
+            "de": "Jack",
+            "fa": "جک"
+          }
+        }
+      ]
+    },
+    {
+      "img": "5.jpg",
+      "alt": "The elephant is pouring water on boy",
+      "text": {
+        "en": "TOOOT!",
+        "nl": "TOETOET!",
+        "de": "TÖRÖÖÖ!",
+        "fa": "بوووووق!"
+      },
+      "spots": [
+        {
+          "x": 50,
+          "y": 30,
+          "r": 14,
+          "word": {
+            "en": "TOOT!",
+            "nl": "TOETOET!",
+            "de": "TÖRÖÖÖ!",
+            "fa": "بوووق!"
+          }
+        },
+        {
+          "x": 40,
+          "y": 60,
+          "r": 14,
+          "word": {
+            "en": "elephant",
+            "nl": "de olifant",
+            "de": "der Elefant",
+            "fa": "فیل"
+          }
+        },
+        {
+          "x": 15,
+          "y": 85,
+          "r": 9,
+          "word": {
+            "en": "bubbles",
+            "nl": "de zeepbellen",
+            "de": "die Seifenblasen",
+            "fa": "حُباب‌ها"
+          }
+        }
+      ]
+    },
+    {
+      "img": "6.jpg",
+      "alt": "The boy is playing with the giraffe",
+      "text": {
+        "en": "There’s a RUMBLE!\nUP\nUP\nIt’s going up\nand…",
+        "nl": "Er klinkt een GEROMMEL! Het gaat\nOMHOOG\nOMHOOG\nhoger en hoger\nen …",
+        "de": "Es RUMPELT! Es geht\nHOCH\nHOCH\nimmer höher\nund …",
+        "fa": "صدای غُرّش می‌آید! دارد\nبالا\nبالا\nبالاتر می‌رود\nو …"
+      },
+      "spots": [
+        {
+          "x": 80,
+          "y": 32,
+          "r": 10,
+          "word": {
+            "en": "giraffe",
+            "nl": "de giraf",
+            "de": "die Giraffe",
+            "fa": "زَرافه"
+          }
+        },
+        {
+          "x": 38,
+          "y": 30,
+          "r": 6,
+          "word": {
+            "en": "giraffe",
+            "nl": "de giraf",
+            "de": "die Giraffe",
+            "fa": "زَرافه"
+          }
+        },
+        {
+          "x": 12,
+          "y": 70,
+          "r": 8,
+          "word": {
+            "en": "Jack",
+            "nl": "Jack",
+            "de": "Jack",
+            "fa": "جک"
+          }
+        },
+        {
+          "x": 90,
+          "y": 75,
+          "r": 8,
+          "word": {
+            "en": "elephant",
+            "nl": "de olifant",
+            "de": "der Elefant",
+            "fa": "فیل"
+          }
+        }
+      ]
+    },
+    {
+      "img": "7.jpg",
+      "alt": "The boy is hanging on a giraffe's neck",
+      "text": {
+        "en": "SPLASH!",
+        "nl": "PLONS!",
+        "de": "PLATSCH!",
+        "fa": "شَلَپ!"
+      },
+      "spots": [
+        {
+          "x": 15,
+          "y": 75,
+          "r": 12,
+          "word": {
+            "en": "SPLASH!",
+            "nl": "PLONS!",
+            "de": "PLATSCH!",
+            "fa": "شَلَپ!"
+          }
+        },
+        {
+          "x": 85,
+          "y": 20,
+          "r": 9,
+          "word": {
+            "en": "giraffe",
+            "nl": "de giraf",
+            "de": "die Giraffe",
+            "fa": "زَرافه"
+          }
+        },
+        {
+          "x": 63,
+          "y": 52,
+          "r": 7,
+          "word": {
+            "en": "Jack",
+            "nl": "Jack",
+            "de": "Jack",
+            "fa": "جک"
+          }
+        }
+      ]
+    },
+    {
+      "img": "8.jpg",
+      "alt": "The boy is playing with a hippopotamus",
+      "text": {
+        "en": "There’s a SPLOSH. Something bubbles.\nIt’s time to…",
+        "nl": "Er klinkt een PLONZ. Er borrelt iets.\nHet is tijd om …",
+        "de": "Da macht es PLUMPS. Etwas blubbert.\nEs ist Zeit zum …",
+        "fa": "صدای شالاپ می‌آید. یک چیزی قُل‌قُل می‌کند.\nوقتش است که …"
+      },
+      "spots": [
+        {
+          "x": 78,
+          "y": 65,
+          "r": 13,
+          "word": {
+            "en": "hippo",
+            "nl": "het nijlpaard",
+            "de": "das Nilpferd",
+            "fa": "اسب‌آبی"
+          }
+        },
+        {
+          "x": 30,
+          "y": 50,
+          "r": 10,
+          "word": {
+            "en": "sponge",
+            "nl": "de spons",
+            "de": "der Schwamm",
+            "fa": "اسفنج"
+          }
+        },
+        {
+          "x": 66,
+          "y": 47,
+          "r": 7,
+          "word": {
+            "en": "Jack",
+            "nl": "Jack",
+            "de": "Jack",
+            "fa": "جک"
+          }
+        }
+      ]
+    },
+    {
+      "img": "9.jpg",
+      "alt": "The boy is sunbathing on the hippopotamus",
+      "text": {
+        "en": "AAAAAAH\nBut something’s lurking in the background…",
+        "nl": "AAAAAAH\nMaar er loert iets op de achtergrond …",
+        "de": "AAAAAAH\nAber im Hintergrund lauert etwas …",
+        "fa": "آآآآآآخیش\nولی یک چیزی آن پشت قایم شده …"
+      },
+      "spots": [
+        {
+          "x": 30,
+          "y": 75,
+          "r": 14,
+          "word": {
+            "en": "hippo",
+            "nl": "het nijlpaard",
+            "de": "das Nilpferd",
+            "fa": "اسب‌آبی"
+          }
+        },
+        {
+          "x": 88,
+          "y": 70,
+          "r": 9,
+          "word": {
+            "en": "lion",
+            "nl": "de leeuw",
+            "de": "der Löwe",
+            "fa": "شیر"
+          }
+        },
+        {
+          "x": 23,
+          "y": 32,
+          "r": 5,
+          "word": {
+            "en": "sunglasses",
+            "nl": "de zonnebril",
+            "de": "die Sonnenbrille",
+            "fa": "عینکِ آفتابی"
+          }
+        }
+      ]
+    },
+    {
+      "img": "10.jpg",
+      "alt": "A roaring lion",
+      "text": {
+        "en": "ROAR",
+        "nl": "BRUL",
+        "de": "BRÜLL",
+        "fa": "غُرررر"
+      },
+      "spots": [
+        {
+          "x": 75,
+          "y": 45,
+          "r": 16,
+          "word": {
+            "en": "ROAR!",
+            "nl": "BRUL!",
+            "de": "BRÜLL!",
+            "fa": "غُرررر!"
+          }
+        },
+        {
+          "x": 80,
+          "y": 85,
+          "r": 8,
+          "word": {
+            "en": "bubbles",
+            "nl": "de zeepbellen",
+            "de": "die Seifenblasen",
+            "fa": "حُباب‌ها"
+          }
+        }
+      ]
+    },
+    {
+      "img": "11.jpg",
+      "alt": "The woman is smiling and the boy is playing in the tub",
+      "text": {
+        "en": "‘Time to get out. I hope you’re clean and ready for bed.’",
+        "nl": "„Uit bad maar. Ik hoop dat je schoon bent en klaar om te gaan slapen.\"",
+        "de": "„Zeit zum Aussteigen. Ich hoffe, du bist sauber und bereit fürs Bett.\"",
+        "fa": "«وقتِ بیرون آمدن است. امیدوارم تمیز شده باشی و آماده‌ی خواب باشی.»"
+      },
+      "spots": [
+        {
+          "x": 25,
+          "y": 50,
+          "r": 10,
+          "word": {
+            "en": "Mom",
+            "nl": "mama",
+            "de": "Mama",
+            "fa": "مامان"
+          }
+        },
+        {
+          "x": 70,
+          "y": 70,
+          "r": 12,
+          "word": {
+            "en": "bathtub",
+            "nl": "het bad",
+            "de": "die Badewanne",
+            "fa": "وانِ حمام"
+          }
+        },
+        {
+          "x": 70,
+          "y": 35,
+          "r": 7,
+          "word": {
+            "en": "Jack",
+            "nl": "Jack",
+            "de": "Jack",
+            "fa": "جک"
+          }
+        }
+      ]
+    }
+  ],
+  "quiz": [
+    {
+      "q": {
+        "en": "Who pours water on Jack?",
+        "nl": "Wie giet er water over Jack?",
+        "de": "Wer gießt Jack Wasser über den Kopf?",
+        "fa": "چه کسی روی جک آب می‌ریزد؟"
+      },
+      "choices": [
+        3,
+        5,
+        9
+      ],
+      "answer": 5
+    },
+    {
+      "q": {
+        "en": "Which picture shows the lion?",
+        "nl": "Op welk plaatje zie je de leeuw?",
+        "de": "Auf welchem Bild ist der Löwe?",
+        "fa": "شیر در کدام عکس است؟"
+      },
+      "choices": [
+        10,
+        7,
+        8
+      ],
+      "answer": 10
+    }
+  ]
+}

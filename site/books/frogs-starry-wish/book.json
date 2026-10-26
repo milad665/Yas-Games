@@ -1,0 +1,639 @@
+{
+  "slug": "frogs-starry-wish",
+  "title": {
+    "en": "Frog's Starry Wish",
+    "nl": "Kikkers sterrenwens",
+    "de": "Froschs Sternenwunsch",
+    "fa": "آرزوی ستاره‌ایِ قورباغه"
+  },
+  "gdl": {
+    "url": "https://digitallibrary.io/book/frogs-starry-wish/",
+    "publisher": "Room to Read",
+    "license": "CC BY 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+    "byline": [
+      "Author: Sheesh Pal",
+      "Illustrator: Proiti Roy",
+      "Translator: Alisha Berger"
+    ],
+    "credits": "This book was made possible by Pratham Books' StoryWeaver platform. Content under Creative Commons licenses can be downloaded, translated and can even be used to create new stories provided you give appropriate credit, and indicate if changes were made. To know more about this, and the full terms of use and attribution, please visit the following link. Story Attribution: This story: Frog's Starry Wish is translated by Alisha Berger. The © for this translation lies with Room to Read, 2016. Some rights reserved. Released under CC BY 4.0 license. Based on Original story:'मेंढक का तारों भरा सपना', by Sheesh Pal. © Room to Read, 2016. Some rights reserved. Released under CC BY 4.0 license. Other Credits: This story 'Frog's Starry Wish' has been published on StoryWeaver by Room to Read. Images Attributions: Cover page: A frog happily holding a star, by Proiti Roy © Room to Read, 2016. Some rights reserved. Released under CC BY 4.0 license. Page 2: A frog looking up at the sky, by Proiti Roy © Room to Read, 2016. Some rights reserved. Released under CC BY 4.0 license. Page 3: A frog sitting on a rock and reaching up to the sky, by Proiti Roy © Room to Read, 2016. Some rights reserved. Released under CC BY 4.0 license. Page 4: A frog standing on a rock and reaching up to the sky, by Proiti Roy © Room to Read, 2016. Some rights reserved. Released under CC BY 4.0 license. Page 5: A frog look up to the sky and wondering, by Proiti Roy © Room to Read, 2016. Some rights reserved. Released under CC BY 4.0 license. Page 6: A frog climbing up a coconut tree, by Proiti Roy © Room to Read, 2016. Some rights reserved. Released under CC BY 4.0 license. Page 7: A frog reaching out to the leaves of a coconut tree, by Proiti Roy © Room to Read, 2016. Some rights reserved. Released under CC BY 4.0 license. Page 8: A frog thinking to itself in the night, by Proiti Roy © Room to Read, 2016. Some rights reserved. Released under CC BY 4.0 license. Page 9: A frog standing with folded arms and closed eyes, by Proiti Roy © Room to Read, 2016. Some rights reserved. Released under CC BY 4.0 license. Page 10: A frog looking down at a pond from a coconut tree, by Proiti Roy © Room to Read, 2016. Some rights reserved. Released under CC BY 4.0 license.Disclaimer:https://www.storyweaver.org.in/terms_and_conditions Some rights reserved. This book is CC-BY-4.0 licensed. You can copy, modify, distribute and perform the work, even for commercial purposes, all without asking permission. For full terms of use and attribution, http://creativecommons.org/licenses/by/4.0/\nThis book was made possible by Pratham Books' StoryWeaver platform. Content under Creative Commons licenses can be downloaded, translated and can even be used to create new stories provided you give appropriate credit, and indicate if changes were made. To know more about this, and the full terms of use and attribution, please visit the following link. Images Attributions: Page 11: A frog jumping into a pond, by Proiti Roy © Room to Read, 2016. Some rights reserved. Released under CC BY 4.0 license. Page 12: A frog jumping into a pond and almost touching the water, by Proiti Roy © Room to Read, 2016. Some rights reserved. Released under CC BY 4.0 license. Page 13: A frog going under the water in a pond, by Proiti Roy © Room to Read, 2016. Some rights reserved. Released under CC BY 4.0 license. Page 14: A frog climbing out of a pond with a smile, by Proiti Roy © Room to Read, 2016. Some rights reserved. Released under CC BY 4.0 license. Page 15: A frog sitting on a rock and looking down at stars, by Proiti Roy © Room to Read, 2016. Some rights reserved. Released under CC BY 4.0 license.Disclaimer:https://www.storyweaver.org.in/terms_and_conditions Some rights reserved. This book is CC-BY-4.0 licensed. You can copy, modify, distribute and perform the work, even for commercial purposes, all without asking permission. For full terms of use and attribution, http://creativecommons.org/licenses/by/4.0/"
+  },
+  "pages": [
+    {
+      "img": "1.jpg",
+      "alt": "A frog looking up at the sky.",
+      "text": {
+        "en": "Frog loved looking at the stars. He wanted to jump up and touch them. One night, he was determined to touch the stars!",
+        "nl": "Kikker keek graag naar de sterren. Hij wilde omhoog springen en ze aanraken. Op een nacht besloot hij: vannacht raak ik de sterren aan!",
+        "de": "Frosch schaute so gern die Sterne an. Er wollte hochspringen und sie berühren. Eines Nachts beschloss er: Heute berühre ich die Sterne!",
+        "fa": "قورباغه عاشقِ تماشای ستاره‌ها بود. دلش می‌خواست بپرد بالا و به آن‌ها دست بزند. یک شب تصمیم گرفت که حتماً به ستاره‌ها دست بزند!"
+      },
+      "spots": [
+        {
+          "x": 22,
+          "y": 63,
+          "r": 9,
+          "word": {
+            "en": "frog",
+            "nl": "de kikker",
+            "de": "der Frosch",
+            "fa": "قورباغه"
+          }
+        },
+        {
+          "x": 7,
+          "y": 9,
+          "r": 6,
+          "word": {
+            "en": "moon",
+            "nl": "de maan",
+            "de": "der Mond",
+            "fa": "ماه"
+          }
+        },
+        {
+          "x": 85,
+          "y": 14,
+          "r": 7,
+          "word": {
+            "en": "stars",
+            "nl": "de sterren",
+            "de": "die Sterne",
+            "fa": "ستاره‌ها"
+          }
+        }
+      ]
+    },
+    {
+      "img": "2.jpg",
+      "alt": "A frog sitting on a rock and reaching for the sky.",
+      "text": {
+        "en": "He climbed a big rock, and reached out for them. But they were out of his reach. The stars were SO far away!",
+        "nl": "Hij klom op een grote steen en stak zijn hand uit. Maar hij kon er niet bij. De sterren waren ZO ver weg!",
+        "de": "Er kletterte auf einen großen Stein und streckte die Hand aus. Aber er kam nicht dran. Die Sterne waren SO weit weg!",
+        "fa": "از یک سنگِ بزرگ بالا رفت و دستش را دراز کرد. ولی دستش به آن‌ها نمی‌رسید. ستاره‌ها خیلی خیلی دور بودند!"
+      },
+      "spots": [
+        {
+          "x": 60,
+          "y": 70,
+          "r": 11,
+          "word": {
+            "en": "frog",
+            "nl": "de kikker",
+            "de": "der Frosch",
+            "fa": "قورباغه"
+          }
+        },
+        {
+          "x": 15,
+          "y": 17,
+          "r": 8,
+          "word": {
+            "en": "moon",
+            "nl": "de maan",
+            "de": "der Mond",
+            "fa": "ماه"
+          }
+        },
+        {
+          "x": 85,
+          "y": 10,
+          "r": 7,
+          "word": {
+            "en": "stars",
+            "nl": "de sterren",
+            "de": "die Sterne",
+            "fa": "ستاره‌ها"
+          }
+        }
+      ]
+    },
+    {
+      "img": "3.jpg",
+      "alt": "A frog sitting on a rock and reaching for the sky.",
+      "text": {
+        "en": "Then, he saw a hillock. Up he climbed. He stretched his hands, but the stars were still out of reach.",
+        "nl": "Toen zag hij een heuveltje. Hij klom naar boven. Hij rekte zich uit, maar hij kon nog steeds niet bij de sterren.",
+        "de": "Dann sah er einen kleinen Hügel. Er kletterte hinauf. Er streckte sich, aber die Sterne waren immer noch zu weit weg.",
+        "fa": "بعد یک تپه‌ی کوچک دید. از آن بالا رفت. دست‌هایش را دراز کرد، ولی باز هم دستش به ستاره‌ها نمی‌رسید."
+      },
+      "spots": [
+        {
+          "x": 55,
+          "y": 47,
+          "r": 8,
+          "word": {
+            "en": "frog",
+            "nl": "de kikker",
+            "de": "der Frosch",
+            "fa": "قورباغه"
+          }
+        },
+        {
+          "x": 55,
+          "y": 80,
+          "r": 15,
+          "word": {
+            "en": "hill",
+            "nl": "de heuvel",
+            "de": "der Hügel",
+            "fa": "تپه"
+          }
+        },
+        {
+          "x": 30,
+          "y": 10,
+          "r": 7,
+          "word": {
+            "en": "stars",
+            "nl": "de sterren",
+            "de": "die Sterne",
+            "fa": "ستاره‌ها"
+          }
+        }
+      ]
+    },
+    {
+      "img": "4.jpg",
+      "alt": "A curious frog looking at the sky.",
+      "text": {
+        "en": "Frog saw a coconut tree nearby. It was very tall. Ah, he thought this will work now.",
+        "nl": "Kikker zag een kokospalm vlakbij. Hij was heel hoog. Ah, dacht hij, zo gaat het vast lukken.",
+        "de": "Frosch sah eine Kokospalme in der Nähe. Sie war sehr hoch. Aha, dachte er, so klappt es bestimmt.",
+        "fa": "قورباغه آن نزدیکی یک درختِ نارگیل دید. خیلی بلند بود. فکر کرد: «آهان، این دفعه حتماً می‌شود.»"
+      },
+      "spots": [
+        {
+          "x": 12,
+          "y": 80,
+          "r": 9,
+          "word": {
+            "en": "frog",
+            "nl": "de kikker",
+            "de": "der Frosch",
+            "fa": "قورباغه"
+          }
+        },
+        {
+          "x": 85,
+          "y": 45,
+          "r": 10,
+          "word": {
+            "en": "coconut tree",
+            "nl": "de kokospalm",
+            "de": "die Kokospalme",
+            "fa": "درختِ نارگیل"
+          }
+        },
+        {
+          "x": 6,
+          "y": 10,
+          "r": 5,
+          "word": {
+            "en": "moon",
+            "nl": "de maan",
+            "de": "der Mond",
+            "fa": "ماه"
+          }
+        }
+      ]
+    },
+    {
+      "img": "5.jpg",
+      "alt": "A frog climbing a coconut tree.",
+      "text": {
+        "en": "He started to climb the tree. He climbed with great difficulty.",
+        "nl": "Hij begon in de boom te klimmen. Het was heel zwaar.",
+        "de": "Er fing an, auf den Baum zu klettern. Es war sehr anstrengend.",
+        "fa": "شروع کرد از درخت بالا رفتن. خیلی سخت بالا می‌رفت."
+      },
+      "spots": [
+        {
+          "x": 37,
+          "y": 52,
+          "r": 10,
+          "word": {
+            "en": "frog",
+            "nl": "de kikker",
+            "de": "der Frosch",
+            "fa": "قورباغه"
+          }
+        },
+        {
+          "x": 22,
+          "y": 12,
+          "r": 8,
+          "word": {
+            "en": "moon",
+            "nl": "de maan",
+            "de": "der Mond",
+            "fa": "ماه"
+          }
+        },
+        {
+          "x": 70,
+          "y": 20,
+          "r": 6,
+          "word": {
+            "en": "stars",
+            "nl": "de sterren",
+            "de": "die Sterne",
+            "fa": "ستاره‌ها"
+          }
+        }
+      ]
+    },
+    {
+      "img": "6.jpg",
+      "alt": "A frog climbing a tree reaching for the sky.",
+      "text": {
+        "en": "He stretched his hands… but the stars were still out of his reach.",
+        "nl": "Hij rekte zich uit … maar hij kon nog steeds niet bij de sterren.",
+        "de": "Er streckte sich … aber die Sterne waren immer noch zu weit weg.",
+        "fa": "دست‌هایش را دراز کرد … ولی باز هم دستش به ستاره‌ها نمی‌رسید."
+      },
+      "spots": [
+        {
+          "x": 60,
+          "y": 70,
+          "r": 11,
+          "word": {
+            "en": "frog",
+            "nl": "de kikker",
+            "de": "der Frosch",
+            "fa": "قورباغه"
+          }
+        },
+        {
+          "x": 15,
+          "y": 13,
+          "r": 8,
+          "word": {
+            "en": "moon",
+            "nl": "de maan",
+            "de": "der Mond",
+            "fa": "ماه"
+          }
+        },
+        {
+          "x": 70,
+          "y": 25,
+          "r": 14,
+          "word": {
+            "en": "coconut tree",
+            "nl": "de kokospalm",
+            "de": "die Kokospalme",
+            "fa": "درختِ نارگیل"
+          }
+        }
+      ]
+    },
+    {
+      "img": "7.jpg",
+      "alt": "A frog thinking at night.",
+      "text": {
+        "en": "He was disappointed. He looked down. His heart skipped a beat in fear.",
+        "nl": "Hij was teleurgesteld. Hij keek naar beneden. Zijn hart sloeg een slag over van schrik.",
+        "de": "Er war enttäuscht. Er schaute nach unten. Vor Schreck setzte sein Herz einen Schlag aus.",
+        "fa": "ناامید شد. به پایین نگاه کرد. از ترس دلش هُرّی ریخت."
+      },
+      "spots": [
+        {
+          "x": 25,
+          "y": 58,
+          "r": 14,
+          "word": {
+            "en": "frog",
+            "nl": "de kikker",
+            "de": "der Frosch",
+            "fa": "قورباغه"
+          }
+        },
+        {
+          "x": 75,
+          "y": 30,
+          "r": 8,
+          "word": {
+            "en": "stars",
+            "nl": "de sterren",
+            "de": "die Sterne",
+            "fa": "ستاره‌ها"
+          }
+        }
+      ]
+    },
+    {
+      "img": "8.jpg",
+      "alt": "A frog folding his arms and closing his eyes.",
+      "text": {
+        "en": "He put a hand to his heart and told himself, “I won’t be be scared. I can do it!”",
+        "nl": "Hij legde een hand op zijn hart en zei tegen zichzelf: „Ik ben niet bang. Ik kan het!\"",
+        "de": "Er legte eine Hand aufs Herz und sagte zu sich: „Ich habe keine Angst. Ich schaffe das!\"",
+        "fa": "دستش را روی قلبش گذاشت و به خودش گفت: «نمی‌ترسم. من می‌توانم!»"
+      },
+      "spots": [
+        {
+          "x": 50,
+          "y": 60,
+          "r": 16,
+          "word": {
+            "en": "I can do it!",
+            "nl": "Ik kan het!",
+            "de": "Ich schaffe das!",
+            "fa": "من می‌توانم!"
+          }
+        }
+      ]
+    },
+    {
+      "img": "9.jpg",
+      "alt": "A frog looking down at a pond from a coconut tree.",
+      "text": {
+        "en": "Then he saw a pond. The stars were twinkling in the water.",
+        "nl": "Toen zag hij een vijver. De sterren twinkelden in het water.",
+        "de": "Dann sah er einen Teich. Die Sterne funkelten im Wasser.",
+        "fa": "بعد یک برکه دید. ستاره‌ها توی آب چشمک می‌زدند."
+      },
+      "spots": [
+        {
+          "x": 40,
+          "y": 77,
+          "r": 14,
+          "word": {
+            "en": "pond",
+            "nl": "de vijver",
+            "de": "der Teich",
+            "fa": "بِرکه"
+          }
+        },
+        {
+          "x": 73,
+          "y": 17,
+          "r": 7,
+          "word": {
+            "en": "frog",
+            "nl": "de kikker",
+            "de": "der Frosch",
+            "fa": "قورباغه"
+          }
+        }
+      ]
+    },
+    {
+      "img": "10.jpg",
+      "alt": "A frog jumping into a pond.",
+      "text": {
+        "en": "He gazed at the stars and was joyous. He dived into the pond.",
+        "nl": "Hij keek naar de sterren en was heel blij. Hij dook in de vijver.",
+        "de": "Er schaute die Sterne an und freute sich sehr. Er sprang in den Teich.",
+        "fa": "به ستاره‌ها نگاه کرد و خیلی خوشحال شد. شیرجه زد توی برکه."
+      },
+      "spots": [
+        {
+          "x": 25,
+          "y": 18,
+          "r": 10,
+          "word": {
+            "en": "frog",
+            "nl": "de kikker",
+            "de": "der Frosch",
+            "fa": "قورباغه"
+          }
+        },
+        {
+          "x": 60,
+          "y": 65,
+          "r": 10,
+          "word": {
+            "en": "stars",
+            "nl": "de sterren",
+            "de": "die Sterne",
+            "fa": "ستاره‌ها"
+          }
+        },
+        {
+          "x": 57,
+          "y": 87,
+          "r": 6,
+          "word": {
+            "en": "flower",
+            "nl": "de bloem",
+            "de": "die Blume",
+            "fa": "گُل"
+          }
+        }
+      ]
+    },
+    {
+      "img": "11.jpg",
+      "alt": "A frog jumping into a pond.",
+      "text": {
+        "en": "The closer he got to the pond, the closer he seemed to the stars.",
+        "nl": "Hoe dichter hij bij de vijver kwam, hoe dichter hij bij de sterren leek.",
+        "de": "Je näher er dem Teich kam, desto näher schienen ihm die Sterne.",
+        "fa": "هر چه به برکه نزدیک‌تر می‌شد، انگار به ستاره‌ها هم نزدیک‌تر می‌شد."
+      },
+      "spots": [
+        {
+          "x": 33,
+          "y": 30,
+          "r": 12,
+          "word": {
+            "en": "frog",
+            "nl": "de kikker",
+            "de": "der Frosch",
+            "fa": "قورباغه"
+          }
+        },
+        {
+          "x": 55,
+          "y": 55,
+          "r": 8,
+          "word": {
+            "en": "stars",
+            "nl": "de sterren",
+            "de": "die Sterne",
+            "fa": "ستاره‌ها"
+          }
+        },
+        {
+          "x": 92,
+          "y": 30,
+          "r": 7,
+          "word": {
+            "en": "flower",
+            "nl": "de bloem",
+            "de": "die Blume",
+            "fa": "گُل"
+          }
+        }
+      ]
+    },
+    {
+      "img": "12.jpg",
+      "alt": "A frog inside a pond with his arms in the air.",
+      "text": {
+        "en": "SPLASH! He hit the surface of the water.",
+        "nl": "PLONS! Hij raakte het water.",
+        "de": "PLATSCH! Er landete im Wasser.",
+        "fa": "شَلَپ! خورد به آب."
+      },
+      "spots": [
+        {
+          "x": 62,
+          "y": 55,
+          "r": 15,
+          "word": {
+            "en": "SPLASH!",
+            "nl": "PLONS!",
+            "de": "PLATSCH!",
+            "fa": "شَلَپ!"
+          }
+        },
+        {
+          "x": 60,
+          "y": 85,
+          "r": 8,
+          "word": {
+            "en": "stars",
+            "nl": "de sterren",
+            "de": "die Sterne",
+            "fa": "ستاره‌ها"
+          }
+        },
+        {
+          "x": 22,
+          "y": 75,
+          "r": 6,
+          "word": {
+            "en": "flower",
+            "nl": "de bloem",
+            "de": "die Blume",
+            "fa": "گُل"
+          }
+        }
+      ]
+    },
+    {
+      "img": "13.jpg",
+      "alt": "A frog climbing out of the pond smiling.",
+      "text": {
+        "en": "He climbed out and sat on the bank.",
+        "nl": "Hij klom eruit en ging op de oever zitten.",
+        "de": "Er kletterte heraus und setzte sich ans Ufer.",
+        "fa": "از آب بیرون آمد و لبِ برکه نشست."
+      },
+      "spots": [
+        {
+          "x": 68,
+          "y": 70,
+          "r": 12,
+          "word": {
+            "en": "frog",
+            "nl": "de kikker",
+            "de": "der Frosch",
+            "fa": "قورباغه"
+          }
+        },
+        {
+          "x": 40,
+          "y": 55,
+          "r": 8,
+          "word": {
+            "en": "stars",
+            "nl": "de sterren",
+            "de": "die Sterne",
+            "fa": "ستاره‌ها"
+          }
+        },
+        {
+          "x": 22,
+          "y": 52,
+          "r": 6,
+          "word": {
+            "en": "flower",
+            "nl": "de bloem",
+            "de": "die Blume",
+            "fa": "گُل"
+          }
+        }
+      ]
+    },
+    {
+      "img": "14.jpg",
+      "alt": "A frog sitting on a rock and looking down at the stars.",
+      "text": {
+        "en": "He sat and watched the stars twinkling in the pond.",
+        "nl": "Hij ging zitten en keek naar de sterren die twinkelden in de vijver.",
+        "de": "Er saß da und schaute den Sternen zu, die im Teich funkelten.",
+        "fa": "نشست و ستاره‌هایی را تماشا کرد که توی برکه چشمک می‌زدند."
+      },
+      "spots": [
+        {
+          "x": 22,
+          "y": 35,
+          "r": 12,
+          "word": {
+            "en": "frog",
+            "nl": "de kikker",
+            "de": "der Frosch",
+            "fa": "قورباغه"
+          }
+        },
+        {
+          "x": 40,
+          "y": 70,
+          "r": 12,
+          "word": {
+            "en": "pond",
+            "nl": "de vijver",
+            "de": "der Teich",
+            "fa": "بِرکه"
+          }
+        },
+        {
+          "x": 15,
+          "y": 10,
+          "r": 6,
+          "word": {
+            "en": "stars",
+            "nl": "de sterren",
+            "de": "die Sterne",
+            "fa": "ستاره‌ها"
+          }
+        }
+      ]
+    }
+  ],
+  "quiz": [
+    {
+      "q": {
+        "en": "Where did Frog see the stars in the water?",
+        "nl": "Waar zag Kikker de sterren in het water?",
+        "de": "Wo sah Frosch die Sterne im Wasser?",
+        "fa": "قورباغه کجا ستاره‌ها را توی آب دید؟"
+      },
+      "choices": [
+        5,
+        13,
+        3
+      ],
+      "answer": 13
+    },
+    {
+      "q": {
+        "en": "Which picture shows Frog climbing a tree?",
+        "nl": "Op welk plaatje klimt Kikker in een boom?",
+        "de": "Auf welchem Bild klettert Frosch auf einen Baum?",
+        "fa": "در کدام عکس قورباغه از درخت بالا می‌رود؟"
+      },
+      "choices": [
+        2,
+        8,
+        5
+      ],
+      "answer": 5
+    }
+  ]
+}

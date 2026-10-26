@@ -689,7 +689,15 @@
     "sd.sky": "e395814d53",
     "sd.tiangong": "c085e2257c",
     "sd.gps": "09e549bf40",
-    "sd.weather": "e130c07d12"
+    "sd.weather": "e130c07d12",
+    "sb.theEnd": "34863684d2",
+    "sb.right1": "87f1463b76",
+    "sb.quiz": "a4f1232d26",
+    "sb.pick": "58a9dc7a7f",
+    "sb.right2": "64b3867f1f",
+    "sb.tryAgain": "52b3a49220",
+    "sb.allDone": "a1aa52dfb8",
+    "sb.colour": "2f1fd8e404"
   },
   "nl": {
     "hub.lang": "d1da1f5fa2",
@@ -1381,7 +1389,15 @@
     "sd.sky": "43aec92b06",
     "sd.tiangong": "dd0f34e2f2",
     "sd.gps": "60715c3fc0",
-    "sd.weather": "b04eaf8440"
+    "sd.weather": "b04eaf8440",
+    "sb.theEnd": "9f45a2daeb",
+    "sb.pick": "86cdfc54bb",
+    "sb.right1": "8be0b3e016",
+    "sb.quiz": "d170678139",
+    "sb.right2": "b797743574",
+    "sb.tryAgain": "d63c2bbcc5",
+    "sb.allDone": "5bdf8e35e4",
+    "sb.colour": "29db630454"
   },
   "voices": {
     "en": "Jessica (ElevenLabs eleven_v4)",
@@ -2079,7 +2095,15 @@
     "sd.sky": "c52ab68689",
     "sd.tiangong": "e9e4a384b8",
     "sd.gps": "07c9d9ca9f",
-    "sd.weather": "2b3b7bce1e"
+    "sd.weather": "2b3b7bce1e",
+    "sb.pick": "ad630cfe46",
+    "sb.theEnd": "e8fbd1cd4a",
+    "sb.quiz": "9b3507e3e0",
+    "sb.right2": "f2b3c69288",
+    "sb.right1": "6ce834062e",
+    "sb.tryAgain": "5497f52798",
+    "sb.allDone": "98a561780a",
+    "sb.colour": "cca26e6f70"
   },
   "de": {
     "md.castle": "4094e6aa8c",
@@ -2771,6 +2795,14 @@
     "sd.sky": "498ca27dcf",
     "sd.tiangong": "2080de1a89",
     "sd.weather": "bc183e00c1",
-    "sd.gps": "90034cf21c"
+    "sd.gps": "90034cf21c",
+    "sb.theEnd": "fb8c2568e8",
+    "sb.right1": "c6897aada5",
+    "sb.quiz": "5f76bbe25d",
+    "sb.pick": "1034e900c5",
+    "sb.right2": "478fbf38bc",
+    "sb.tryAgain": "71c61333be",
+    "sb.allDone": "c678c799a3",
+    "sb.colour": "3508227511"
   }
 }

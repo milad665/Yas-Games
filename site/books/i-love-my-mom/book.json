@@ -1,0 +1,460 @@
+{
+  "slug": "i-love-my-mom",
+  "title": {
+    "en": "I Love My Mom",
+    "nl": "Ik hou van mijn mama",
+    "de": "Ich hab meine Mama lieb",
+    "fa": "مامانم را دوست دارم"
+  },
+  "gdl": {
+    "url": "https://digitallibrary.io/book/i-love-my-mom/",
+    "publisher": "Room to Read",
+    "license": "CC BY 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+    "byline": [
+      "Author: Fongsamay Phommaxay",
+      "Illustrator: Nivong Sengsakoun",
+      "Translator: Stephanie Wei"
+    ],
+    "credits": "This book was made possible by Pratham Books' StoryWeaver platform. Content under Creative Commons licenses can be downloaded, translated and can even be used to create new stories provided you give appropriate credit, and indicate if changes were made. To know more about this, and the full terms of use and attribution, please visit the following link. Story Attribution: This story: 'I Love My Mom' is translated by Stephanie Wei. The © for this translation lies with Room to Read, 2016. Some rights reserved. Released under CC BY 4.0 license. Based on Original story: 'ຂ້ອຍຮັກແມ່ຂອງຂ້ອຍ', byFongsamay Phommaxay. © Room to Read, 2016. Some rights reserved. Released under CC BY 4.0 license. Other Credits: This story 'I Love My Mom' has been published on StoryWeaver by Room to Read. Images Attributions: Cover page: Woman and a girl in embrace, by Nivong Sengsakoun© Room to Read, 2016. Some rights reserved. Released under CC BY 4.0 license. Page 2: Woman and a girl walking together, by Nivong Sengsakoun© Room to Read, 2016. Some rights reserved. Released under CC BY 4.0 license. Page 3: Woman and a girl cook together, by Nivong Sengsakoun© Room to Read, 2016. Some rights reserved. Released under CC BY 4.0 license. Page 4: Woman and a girl water the plants, by Nivong Sengsakoun© Room to Read, 2016. Some rights reserved. Released under CC BY 4.0 license. Page 5: Woman and a girl wash clothes together, by Nivong Sengsakoun© Room to Read, 2016. Some rights reserved. Released under CC BY 4.0 license. Page 6: Woman and a girl dry some clothes, by Nivong Sengsakoun© Room to Read, 2016. Some rights reserved. Released under CC BY 4.0 license. Page 7: Woman helps a girl ride a bike, by Nivong Sengsakoun© Room to Read, 2016. Some rights reserved. Released under CC BY 4.0 license. Page 8: Girl rides a bike happily, a woman looks on, by Nivong Sengsakoun© Room to Read, 2016. Some rights reserved. Released under CC BY 4.0 license. Page 9: Woman and a girl prepare to go to bed, by Nivong Sengsakoun© Room to Read, 2016. Some rights reserved. Released under CC BY 4.0 license .Page 10: Woman and a girl enjoy a book together, by Nivong Sengsakoun© Room to Read, 2016. Some rights reserved. Released under CC BY 4.0 license. Disclaimer: https://www.storyweaver.org.in/terms_and_conditions Some rights reserved. This book is CC-BY-4.0 licensed. You can copy, modify, distribute and perform the work, even for commercial purposes, all without asking permission. For full terms of use and attribution, http://creativecommons.org/licenses/by/4.0/\nThis book was made possible by Pratham Books' StoryWeaver platform. Content under Creative Commons licenses can be downloaded, translated and can even be used to create new stories provided you give appropriate credit, and indicate if changes were made. To know more about this, and the full terms of use and attribution, please visit the following link. Images Attributions: Page 11: Woman tucks a child into bed, by Nivong Sengsakoun© Room to Read, 2016. Some rights reserved. Released under CC BY 4.0 license. Page 12: Girl sleeps under the moon and the stars, by Nivong Sengsakoun© Room to Read, 2016. Some rights reserved. Released under CC BY 4.0 license. Disclaimer: https://www.storyweaver.org.in/terms_and_conditions Some rights reserved. This book is CC-BY-4.0 licensed. You can copy, modify, distribute and perform the work, even for commercial purposes, all without asking permission. For full terms of use and attribution, http://creativecommons.org/licenses/by/4.0/"
+  },
+  "pages": [
+    {
+      "img": "1.jpg",
+      "alt": "A girl holds her mother's hand while walking",
+      "text": {
+        "en": "My mom’s name is Lee. She works hard all the time.\nAnd I learn so much from her!",
+        "nl": "Mijn mama heet Lee. Ze werkt altijd heel hard.\nEn ik leer zo veel van haar!",
+        "de": "Meine Mama heißt Lee. Sie arbeitet immer ganz fleißig.\nUnd ich lerne so viel von ihr!",
+        "fa": "اسمِ مامانم لی است. او همیشه خیلی سخت کار می‌کند.\nو من چیزهای زیادی از او یاد می‌گیرم!"
+      },
+      "spots": [
+        {
+          "x": 18,
+          "y": 38,
+          "r": 9,
+          "word": {
+            "en": "Mom",
+            "nl": "mama",
+            "de": "Mama",
+            "fa": "مامان"
+          }
+        },
+        {
+          "x": 55,
+          "y": 63,
+          "r": 7,
+          "word": {
+            "en": "house",
+            "nl": "het huis",
+            "de": "das Haus",
+            "fa": "خانه"
+          }
+        }
+      ]
+    },
+    {
+      "img": "2.jpg",
+      "alt": "Mom and her daughter make something in a bowl",
+      "text": {
+        "en": "When my mom cooks, I learn to cook too.",
+        "nl": "Als mama kookt, leer ik ook koken.",
+        "de": "Wenn Mama kocht, lerne ich auch kochen.",
+        "fa": "وقتی مامانم آشپزی می‌کند، من هم آشپزی یاد می‌گیرم."
+      },
+      "spots": [
+        {
+          "x": 64,
+          "y": 84,
+          "r": 11,
+          "word": {
+            "en": "bowl",
+            "nl": "de kom",
+            "de": "die Schüssel",
+            "fa": "کاسه"
+          }
+        },
+        {
+          "x": 80,
+          "y": 93,
+          "r": 9,
+          "word": {
+            "en": "vegetables",
+            "nl": "de groente",
+            "de": "das Gemüse",
+            "fa": "سبزیجات"
+          }
+        }
+      ]
+    },
+    {
+      "img": "3.jpg",
+      "alt": "Mom and her daughter water the flowers",
+      "text": {
+        "en": "When she waters the flowers, I learn to water the flowers too.",
+        "nl": "Als ze de bloemen water geeft, leer ik ook de bloemen water geven.",
+        "de": "Wenn sie die Blumen gießt, lerne ich auch, die Blumen zu gießen.",
+        "fa": "وقتی به گل‌ها آب می‌دهد، من هم یاد می‌گیرم به گل‌ها آب بدهم."
+      },
+      "spots": [
+        {
+          "x": 82,
+          "y": 78,
+          "r": 8,
+          "word": {
+            "en": "flowers",
+            "nl": "de bloemen",
+            "de": "die Blumen",
+            "fa": "گُل‌ها"
+          }
+        },
+        {
+          "x": 12,
+          "y": 63,
+          "r": 6,
+          "word": {
+            "en": "flowers",
+            "nl": "de bloemen",
+            "de": "die Blumen",
+            "fa": "گُل‌ها"
+          }
+        }
+      ]
+    },
+    {
+      "img": "4.jpg",
+      "alt": "Mom and her daughter wash the clothes",
+      "text": {
+        "en": "When she washes our clothes, I learn to wash our clothes too.",
+        "nl": "Als ze onze kleren wast, leer ik ook onze kleren wassen.",
+        "de": "Wenn sie unsere Kleider wäscht, lerne ich auch, unsere Kleider zu waschen.",
+        "fa": "وقتی لباس‌هایمان را می‌شوید، من هم شستنِ لباس‌ها را یاد می‌گیرم."
+      },
+      "spots": [
+        {
+          "x": 45,
+          "y": 87,
+          "r": 12,
+          "word": {
+            "en": "bubbles",
+            "nl": "de zeepbellen",
+            "de": "die Seifenblasen",
+            "fa": "حُباب‌ها"
+          }
+        },
+        {
+          "x": 35,
+          "y": 28,
+          "r": 10,
+          "word": {
+            "en": "clothes",
+            "nl": "de kleren",
+            "de": "die Kleider",
+            "fa": "لباس‌ها"
+          }
+        }
+      ]
+    },
+    {
+      "img": "5.jpg",
+      "alt": "Mom and her daughter hang clothes on the line",
+      "text": {
+        "en": "When she dries our clothes, I learn to dry our clothes too.",
+        "nl": "Als ze onze kleren ophangt om te drogen, leer ik dat ook.",
+        "de": "Wenn sie unsere Kleider zum Trocknen aufhängt, lerne ich das auch.",
+        "fa": "وقتی لباس‌هایمان را پهن می‌کند تا خشک شوند، من هم یاد می‌گیرم."
+      },
+      "spots": [
+        {
+          "x": 62,
+          "y": 83,
+          "r": 9,
+          "word": {
+            "en": "basket",
+            "nl": "de mand",
+            "de": "der Korb",
+            "fa": "سَبَد"
+          }
+        },
+        {
+          "x": 84,
+          "y": 42,
+          "r": 8,
+          "word": {
+            "en": "clothes",
+            "nl": "de kleren",
+            "de": "die Kleider",
+            "fa": "لباس‌ها"
+          }
+        }
+      ]
+    },
+    {
+      "img": "6.jpg",
+      "alt": "The mother pushes her daughter's bike",
+      "text": {
+        "en": "My mom also bought me a bicycle, and she taught me how to ride it.",
+        "nl": "Mama heeft ook een fiets voor me gekocht, en ze heeft me leren fietsen.",
+        "de": "Mama hat mir auch ein Fahrrad gekauft, und sie hat mir das Fahrradfahren beigebracht.",
+        "fa": "مامانم برایم یک دوچرخه هم خرید و دوچرخه‌سواری را یادم داد."
+      },
+      "spots": [
+        {
+          "x": 70,
+          "y": 82,
+          "r": 13,
+          "word": {
+            "en": "bicycle",
+            "nl": "de fiets",
+            "de": "das Fahrrad",
+            "fa": "دوچرخه"
+          }
+        }
+      ]
+    },
+    {
+      "img": "7.jpg",
+      "alt": "The girl rides her bike",
+      "text": {
+        "en": "As I ride my bicycle, my mom smiles when I go “WHEEEEEEE!”",
+        "nl": "Als ik fiets en „JOEPIEEEE!\" roep, lacht mama naar me.",
+        "de": "Wenn ich Fahrrad fahre und „JUHUUUU!\" rufe, lächelt Mama.",
+        "fa": "وقتی دوچرخه‌سواری می‌کنم و داد می‌زنم «هوووراااا!»، مامانم لبخند می‌زند."
+      },
+      "spots": [
+        {
+          "x": 37,
+          "y": 38,
+          "r": 12,
+          "word": {
+            "en": "Wheee!",
+            "nl": "Joepie!",
+            "de": "Juhu!",
+            "fa": "هورا!"
+          }
+        },
+        {
+          "x": 35,
+          "y": 85,
+          "r": 13,
+          "word": {
+            "en": "bicycle",
+            "nl": "de fiets",
+            "de": "das Fahrrad",
+            "fa": "دوچرخه"
+          }
+        },
+        {
+          "x": 80,
+          "y": 62,
+          "r": 9,
+          "word": {
+            "en": "Mom",
+            "nl": "mama",
+            "de": "Mama",
+            "fa": "مامان"
+          }
+        }
+      ]
+    },
+    {
+      "img": "8.jpg",
+      "alt": "Mom and her daughter make the bed",
+      "text": {
+        "en": "At night, my mom makes the bed. I learn how to make the bed too.",
+        "nl": "'s Avonds maakt mama het bed op. Ik leer ook het bed opmaken.",
+        "de": "Abends macht Mama das Bett. Ich lerne auch, das Bett zu machen.",
+        "fa": "شب‌ها مامانم رختخواب را مرتب می‌کند. من هم مرتب کردنِ رختخواب را یاد می‌گیرم."
+      },
+      "spots": [
+        {
+          "x": 80,
+          "y": 8,
+          "r": 6,
+          "word": {
+            "en": "moon",
+            "nl": "de maan",
+            "de": "der Mond",
+            "fa": "ماه"
+          }
+        },
+        {
+          "x": 12,
+          "y": 60,
+          "r": 8,
+          "word": {
+            "en": "pillow",
+            "nl": "het kussen",
+            "de": "das Kissen",
+            "fa": "بالِش"
+          }
+        },
+        {
+          "x": 65,
+          "y": 88,
+          "r": 13,
+          "word": {
+            "en": "blanket",
+            "nl": "de deken",
+            "de": "die Decke",
+            "fa": "پتو"
+          }
+        }
+      ]
+    },
+    {
+      "img": "9.jpg",
+      "alt": "The mother read a bedtime story",
+      "text": {
+        "en": "Before bedtime, my mom tells me stories.",
+        "nl": "Voor het slapengaan vertelt mama me verhaaltjes.",
+        "de": "Vor dem Schlafengehen erzählt Mama mir Geschichten.",
+        "fa": "پیش از خواب، مامانم برایم قصه می‌گوید."
+      },
+      "spots": [
+        {
+          "x": 54,
+          "y": 50,
+          "r": 9,
+          "word": {
+            "en": "book",
+            "nl": "het boek",
+            "de": "das Buch",
+            "fa": "کتاب"
+          }
+        },
+        {
+          "x": 57,
+          "y": 21,
+          "r": 9,
+          "word": {
+            "en": "rabbit",
+            "nl": "het konijn",
+            "de": "das Kaninchen",
+            "fa": "خرگوش"
+          }
+        },
+        {
+          "x": 70,
+          "y": 32,
+          "r": 8,
+          "word": {
+            "en": "turtle",
+            "nl": "de schildpad",
+            "de": "die Schildkröte",
+            "fa": "لاک‌پشت"
+          }
+        }
+      ]
+    },
+    {
+      "img": "10.jpg",
+      "alt": "The mother tucks her daughter in",
+      "text": {
+        "en": "When I'm sleepy, my mom sings me a lullaby.",
+        "nl": "Als ik moe ben, zingt mama een slaapliedje voor me.",
+        "de": "Wenn ich müde bin, singt Mama mir ein Schlaflied.",
+        "fa": "وقتی خوابم می‌آید، مامانم برایم لالایی می‌خواند."
+      },
+      "spots": [
+        {
+          "x": 86,
+          "y": 73,
+          "r": 9,
+          "word": {
+            "en": "teddy bear",
+            "nl": "de teddybeer",
+            "de": "der Teddybär",
+            "fa": "خرسِ عروسکی"
+          }
+        },
+        {
+          "x": 38,
+          "y": 88,
+          "r": 12,
+          "word": {
+            "en": "blanket",
+            "nl": "de deken",
+            "de": "die Decke",
+            "fa": "پتو"
+          }
+        }
+      ]
+    },
+    {
+      "img": "11.jpg",
+      "alt": "The girls sleeps in her bed",
+      "text": {
+        "en": "I love my mom so much!",
+        "nl": "Ik hou zo veel van mijn mama!",
+        "de": "Ich hab meine Mama so lieb!",
+        "fa": "من مامانم را خیلی دوست دارم!"
+      },
+      "spots": [
+        {
+          "x": 47,
+          "y": 12,
+          "r": 6,
+          "word": {
+            "en": "moon",
+            "nl": "de maan",
+            "de": "der Mond",
+            "fa": "ماه"
+          }
+        },
+        {
+          "x": 72,
+          "y": 16,
+          "r": 7,
+          "word": {
+            "en": "stars",
+            "nl": "de sterren",
+            "de": "die Sterne",
+            "fa": "ستاره‌ها"
+          }
+        },
+        {
+          "x": 28,
+          "y": 31,
+          "r": 5,
+          "word": {
+            "en": "teddy bear",
+            "nl": "de teddybeer",
+            "de": "der Teddybär",
+            "fa": "خرسِ عروسکی"
+          }
+        }
+      ]
+    }
+  ],
+  "quiz": [
+    {
+      "q": {
+        "en": "Which picture shows the girl riding her bicycle?",
+        "nl": "Op welk plaatje fietst het meisje?",
+        "de": "Auf welchem Bild fährt das Mädchen Fahrrad?",
+        "fa": "در کدام عکس دختر دوچرخه‌سواری می‌کند؟"
+      },
+      "choices": [
+        7,
+        2,
+        9
+      ],
+      "answer": 7
+    },
+    {
+      "q": {
+        "en": "Where is Mom telling a story?",
+        "nl": "Waar vertelt mama een verhaaltje?",
+        "de": "Wo erzählt Mama eine Geschichte?",
+        "fa": "کجا مامان قصه می‌گوید؟"
+      },
+      "choices": [
+        4,
+        9,
+        6
+      ],
+      "answer": 9
+    }
+  ]
+}

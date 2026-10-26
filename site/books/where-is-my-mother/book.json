@@ -1,0 +1,492 @@
+{
+  "slug": "where-is-my-mother",
+  "title": {
+    "en": "Where is My Mother?",
+    "nl": "Waar is mijn mama?",
+    "de": "Wo ist meine Mama?",
+    "fa": "مامانم کجاست؟"
+  },
+  "gdl": {
+    "url": "https://digitallibrary.io/book/where-is-my-mother/",
+    "publisher": "Room to Read",
+    "license": "CC BY 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+    "byline": [
+      "Author: Hemalatha Kanagalingam",
+      "Illustrator: R. C. Pradeep Kumar",
+      "Translator: Alisha Berger"
+    ],
+    "credits": "This book was made possible by Pratham Books' StoryWeaver platform. Content under Creative Commons licenses can be downloaded, translated and can even be used to create new stories provided you give appropriate credit, and indicate if changes were made. To know more about this, and the full terms of use and attribution, please visit the following link: Story Attribution: This story: Where is My Mother? is translated by Alisha Berger. The © for this translation lies with Room to Read, 2015. Some rights reserved. Released under CC BY 4.0 license.Based on Original story:'கீச்....கீச்...', byHemalatha Kanagalingam. © Room to Read, 2015. Some rights reserved. Released under CC BY 4.0 license. Other Credits: This story 'Where is my Mother?' has been published on StoryWeaver by Room to Read. Images Attributions: Cover page:A bird looks at its egg in a nest, byR. C. Pradeep Kumar© Room to Read, 2015. Some rights reserved. Released under CC BY 4.0 license.Page 2:A bird looks out from its nest, byR. C. Pradeep Kumar© Room to Read, 2015. Some rights reserved. Released under CC BY 4.0 license.Page 3:A bird tries to fly from its nest, byR. C. Pradeep Kumar© Room to Read, 2015. Some rights reserved. Released under CC BY 4.0 license.Page 4:A bird falls from its nest, byR. C. Pradeep Kumar© Room to Read, 2015. Some rights reserved. Released under CC BY 4.0 license.Page 5:A bird hits the ground, byR. C. Pradeep Kumar© Room to Read, 2015. Some rights reserved. Released under CC BY 4.0 license.Page 6:A bird talks to a crow, byR. C. Pradeep Kumar© Room to Read, 2015. Some rights reserved. Released under CC BY 4.0 license.Page 7:A bird talks to a hen, byR. C. Pradeep Kumar© Room to Read, 2015. Some rights reserved. Released under CC BY 4.0 license.Page 8:A bird talks to a duck, byR. C. Pradeep Kumar© Room to Read, 2015. Some rights reserved. Released under CC BY 4.0 license.Page 9:A mother bird flies to its chick, byR. C. Pradeep Kumar© Room to Read, 2015. Some rights reserved. Released under CC BY 4.0 license.Page 10:A mother bird teaches its baby to fly, byR. C. Pradeep Kumar© Room to Read, 2015. Some rights reserved. Released under CC BY 4.0 license.Disclaimer:https://www.storyweaver.org.in/terms_and_conditions Some rights reserved. This book is CC-BY-4.0 licensed. You can copy, modify, distribute and perform the work, even for commercial purposes, all without asking permission. For full terms of use and attribution, http://creativecommons.org/licenses/by/4.0/\nThis book was made possible by Pratham Books' StoryWeaver platform. Content under Creative Commons licenses can be downloaded, translated and can even be used to create new stories provided you give appropriate credit, and indicate if changes were made. To know more about this, and the full terms of use and attribution, please visit the following link. Images Attributions: Page 11:A mother bird and its baby fly in the sky, byR. C. Pradeep Kumar© Room to Read, 2015. Some rights reserved. Released under CC BY 4.0 license.Disclaimer:https://www.storyweaver.org.in/terms_and_conditions Some rights reserved. This book is CC-BY-4.0 licensed. You can copy, modify, distribute and perform the work, even for commercial purposes, all without asking permission. For full terms of use and attribution, http://creativecommons.org/licenses/by/4.0/"
+  },
+  "pages": [
+    {
+      "img": "1.jpg",
+      "alt": "Bird in a nest.",
+      "text": {
+        "en": "Baby bird wakes up.",
+        "nl": "Het vogeltje wordt wakker.",
+        "de": "Das Vogelkind wacht auf.",
+        "fa": "جوجه‌پرنده از خواب بیدار می‌شود."
+      },
+      "spots": [
+        {
+          "x": 50,
+          "y": 70,
+          "r": 14,
+          "word": {
+            "en": "nest",
+            "nl": "het nest",
+            "de": "das Nest",
+            "fa": "لانه"
+          }
+        },
+        {
+          "x": 9,
+          "y": 86,
+          "r": 5,
+          "word": {
+            "en": "ladybird",
+            "nl": "het lieveheersbeestje",
+            "de": "der Marienkäfer",
+            "fa": "کفشدوزک"
+          }
+        },
+        {
+          "x": 78,
+          "y": 10,
+          "r": 7,
+          "word": {
+            "en": "dragonfly",
+            "nl": "de libel",
+            "de": "die Libelle",
+            "fa": "سنجاقک"
+          }
+        }
+      ]
+    },
+    {
+      "img": "2.jpg",
+      "alt": "Bird looks worried.",
+      "text": {
+        "en": "Her mother is missing!",
+        "nl": "Haar mama is weg!",
+        "de": "Ihre Mama ist weg!",
+        "fa": "مامانش نیست!"
+      },
+      "spots": [
+        {
+          "x": 52,
+          "y": 22,
+          "r": 12,
+          "word": {
+            "en": "baby bird",
+            "nl": "het vogeltje",
+            "de": "das Vogelkind",
+            "fa": "جوجه‌پرنده"
+          }
+        },
+        {
+          "x": 50,
+          "y": 48,
+          "r": 12,
+          "word": {
+            "en": "nest",
+            "nl": "het nest",
+            "de": "das Nest",
+            "fa": "لانه"
+          }
+        },
+        {
+          "x": 58,
+          "y": 74,
+          "r": 4,
+          "word": {
+            "en": "ladybird",
+            "nl": "het lieveheersbeestje",
+            "de": "der Marienkäfer",
+            "fa": "کفشدوزک"
+          }
+        }
+      ]
+    },
+    {
+      "img": "3.jpg",
+      "alt": "Bird falls out of the nest.",
+      "text": {
+        "en": "Baby tries to fly in search of her mother.",
+        "nl": "Het vogeltje probeert te vliegen om haar mama te zoeken.",
+        "de": "Das Vogelkind versucht zu fliegen, um seine Mama zu suchen.",
+        "fa": "جوجه‌پرنده سعی می‌کند پرواز کند تا مامانش را پیدا کند."
+      },
+      "spots": [
+        {
+          "x": 60,
+          "y": 60,
+          "r": 16,
+          "word": {
+            "en": "baby bird",
+            "nl": "het vogeltje",
+            "de": "das Vogelkind",
+            "fa": "جوجه‌پرنده"
+          }
+        },
+        {
+          "x": 18,
+          "y": 12,
+          "r": 12,
+          "word": {
+            "en": "nest",
+            "nl": "het nest",
+            "de": "das Nest",
+            "fa": "لانه"
+          }
+        }
+      ]
+    },
+    {
+      "img": "4.jpg",
+      "alt": "Bird lands on the ground.",
+      "text": {
+        "en": "Oh no!\nShe cannot fly yet.",
+        "nl": "O nee!\nZe kan nog niet vliegen.",
+        "de": "Oh nein!\nEs kann noch nicht fliegen.",
+        "fa": "وای نه!\nاو هنوز نمی‌تواند پرواز کند."
+      },
+      "spots": [
+        {
+          "x": 45,
+          "y": 55,
+          "r": 15,
+          "word": {
+            "en": "Oops!",
+            "nl": "Oeps!",
+            "de": "Hoppla!",
+            "fa": "اوه!"
+          }
+        },
+        {
+          "x": 25,
+          "y": 48,
+          "r": 7,
+          "word": {
+            "en": "stars",
+            "nl": "de sterren",
+            "de": "die Sterne",
+            "fa": "ستاره‌ها"
+          }
+        },
+        {
+          "x": 12,
+          "y": 92,
+          "r": 5,
+          "word": {
+            "en": "ant",
+            "nl": "de mier",
+            "de": "die Ameise",
+            "fa": "مورچه"
+          }
+        }
+      ]
+    },
+    {
+      "img": "5.jpg",
+      "alt": "Birds and crow.",
+      "text": {
+        "en": "“Are you my mother?” Baby asks the crow.\n“\nKaa! Kaa!\nNot me!” the crow says.",
+        "nl": "„Ben jij mijn mama?\" vraagt het vogeltje aan de kraai.\n„Kra! Kra! Ik niet!\" zegt de kraai.",
+        "de": "„Bist du meine Mama?\", fragt das Vogelkind die Krähe.\n„Krah! Krah! Ich nicht!\", sagt die Krähe.",
+        "fa": "جوجه‌پرنده از کلاغ می‌پرسد: «تو مامانِ منی؟»\nکلاغ می‌گوید: «قار! قار! من نه!»"
+      },
+      "spots": [
+        {
+          "x": 70,
+          "y": 40,
+          "r": 15,
+          "word": {
+            "en": "crow",
+            "nl": "de kraai",
+            "de": "die Krähe",
+            "fa": "کلاغ"
+          }
+        },
+        {
+          "x": 15,
+          "y": 68,
+          "r": 9,
+          "word": {
+            "en": "baby bird",
+            "nl": "het vogeltje",
+            "de": "das Vogelkind",
+            "fa": "جوجه‌پرنده"
+          }
+        },
+        {
+          "x": 18,
+          "y": 14,
+          "r": 4,
+          "word": {
+            "en": "butterfly",
+            "nl": "de vlinder",
+            "de": "der Schmetterling",
+            "fa": "پروانه"
+          }
+        }
+      ]
+    },
+    {
+      "img": "6.jpg",
+      "alt": "Bird and chicken.",
+      "text": {
+        "en": "“Are you my mother?” Baby asks the hen.\n“Cukuruk-koo! Not me!” the hen says.",
+        "nl": "„Ben jij mijn mama?\" vraagt het vogeltje aan de kip.\n„Tok tok tok! Ik niet!\" zegt de kip.",
+        "de": "„Bist du meine Mama?\", fragt das Vogelkind das Huhn.\n„Gack gack gack! Ich nicht!\", sagt das Huhn.",
+        "fa": "جوجه‌پرنده از مرغ می‌پرسد: «تو مامانِ منی؟»\nمرغ می‌گوید: «قُدقُدا! من نه!»"
+      },
+      "spots": [
+        {
+          "x": 50,
+          "y": 35,
+          "r": 14,
+          "word": {
+            "en": "Mama hen",
+            "nl": "mama kip",
+            "de": "Mama Huhn",
+            "fa": "مامان‌مرغه"
+          }
+        },
+        {
+          "x": 87,
+          "y": 78,
+          "r": 8,
+          "word": {
+            "en": "baby bird",
+            "nl": "het vogeltje",
+            "de": "das Vogelkind",
+            "fa": "جوجه‌پرنده"
+          }
+        },
+        {
+          "x": 50,
+          "y": 8,
+          "r": 4,
+          "word": {
+            "en": "butterfly",
+            "nl": "de vlinder",
+            "de": "der Schmetterling",
+            "fa": "پروانه"
+          }
+        }
+      ]
+    },
+    {
+      "img": "7.jpg",
+      "alt": "Bird and duck.",
+      "text": {
+        "en": "“Are you my mother?” Baby asks duck.\n“Quack! Quack! Not me!\" the duck says.",
+        "nl": "„Ben jij mijn mama?\" vraagt het vogeltje aan de eend.\n„Kwak! Kwak! Ik niet!\" zegt de eend.",
+        "de": "„Bist du meine Mama?\", fragt das Vogelkind die Ente.\n„Quak! Quak! Ich nicht!\", sagt die Ente.",
+        "fa": "جوجه‌پرنده از اردک می‌پرسد: «تو مامانِ منی؟»\nاردک می‌گوید: «کواک! کواک! من نه!»"
+      },
+      "spots": [
+        {
+          "x": 27,
+          "y": 45,
+          "r": 18,
+          "word": {
+            "en": "duck",
+            "nl": "de eend",
+            "de": "die Ente",
+            "fa": "اردک"
+          }
+        },
+        {
+          "x": 73,
+          "y": 75,
+          "r": 9,
+          "word": {
+            "en": "baby bird",
+            "nl": "het vogeltje",
+            "de": "das Vogelkind",
+            "fa": "جوجه‌پرنده"
+          }
+        },
+        {
+          "x": 4,
+          "y": 70,
+          "r": 4,
+          "word": {
+            "en": "frog",
+            "nl": "de kikker",
+            "de": "der Frosch",
+            "fa": "قورباغه"
+          }
+        }
+      ]
+    },
+    {
+      "img": "8.jpg",
+      "alt": "Bird cries and mother comes.",
+      "text": {
+        "en": "Maybe if I call for my mother loudly, she will hear me, Baby thinks.\n“Cheep! Cheep! Cheep-cheep!”",
+        "nl": "Als ik heel hard naar mama roep, hoort ze me misschien, denkt het vogeltje.\n„Tjiep! Tjiep! Tjiep-tjiep!\"",
+        "de": "Wenn ich ganz laut nach Mama rufe, hört sie mich vielleicht, denkt das Vogelkind.\n„Piep! Piep! Piep-piep!\"",
+        "fa": "جوجه‌پرنده فکر می‌کند: «شاید اگر مامانم را بلند صدا کنم، صدایم را بشنود.»\n«جیک! جیک! جیک‌جیک!»"
+      },
+      "spots": [
+        {
+          "x": 18,
+          "y": 55,
+          "r": 10,
+          "word": {
+            "en": "Cheep! Cheep!",
+            "nl": "Tjiep! Tjiep!",
+            "de": "Piep! Piep!",
+            "fa": "جیک! جیک!"
+          }
+        },
+        {
+          "x": 52,
+          "y": 45,
+          "r": 14,
+          "word": {
+            "en": "Mama bird",
+            "nl": "mama vogel",
+            "de": "Mama Vogel",
+            "fa": "مامان‌پرنده"
+          }
+        },
+        {
+          "x": 18,
+          "y": 10,
+          "r": 4,
+          "word": {
+            "en": "butterfly",
+            "nl": "de vlinder",
+            "de": "der Schmetterling",
+            "fa": "پروانه"
+          }
+        }
+      ]
+    },
+    {
+      "img": "9.jpg",
+      "alt": "Baby chases its mother.",
+      "text": {
+        "en": "Mother hears Baby and comes flying.",
+        "nl": "Mama hoort het vogeltje en komt aanvliegen.",
+        "de": "Mama hört das Vogelkind und kommt angeflogen.",
+        "fa": "مامان صدای جوجه‌پرنده را می‌شنود و پرواز‌کنان می‌آید."
+      },
+      "spots": [
+        {
+          "x": 20,
+          "y": 45,
+          "r": 15,
+          "word": {
+            "en": "Mama bird",
+            "nl": "mama vogel",
+            "de": "Mama Vogel",
+            "fa": "مامان‌پرنده"
+          }
+        },
+        {
+          "x": 85,
+          "y": 60,
+          "r": 10,
+          "word": {
+            "en": "baby bird",
+            "nl": "het vogeltje",
+            "de": "das Vogelkind",
+            "fa": "جوجه‌پرنده"
+          }
+        },
+        {
+          "x": 68,
+          "y": 12,
+          "r": 4,
+          "word": {
+            "en": "butterfly",
+            "nl": "de vlinder",
+            "de": "der Schmetterling",
+            "fa": "پروانه"
+          }
+        }
+      ]
+    },
+    {
+      "img": "10.jpg",
+      "alt": "Two birds fly together.",
+      "text": {
+        "en": "They fly happily together into the sky.\nHooray!",
+        "nl": "Samen vliegen ze blij de lucht in.\nHoera!",
+        "de": "Zusammen fliegen sie fröhlich in den Himmel.\nHurra!",
+        "fa": "با هم، خوشحال، به آسمان پرواز می‌کنند.\nهورا!"
+      },
+      "spots": [
+        {
+          "x": 50,
+          "y": 35,
+          "r": 15,
+          "word": {
+            "en": "Hooray!",
+            "nl": "Hoera!",
+            "de": "Hurra!",
+            "fa": "هورا!"
+          }
+        },
+        {
+          "x": 47,
+          "y": 12,
+          "r": 10,
+          "word": {
+            "en": "Mama bird",
+            "nl": "mama vogel",
+            "de": "Mama Vogel",
+            "fa": "مامان‌پرنده"
+          }
+        },
+        {
+          "x": 58,
+          "y": 94,
+          "r": 4,
+          "word": {
+            "en": "ladybird",
+            "nl": "het lieveheersbeestje",
+            "de": "der Marienkäfer",
+            "fa": "کفشدوزک"
+          }
+        }
+      ]
+    }
+  ],
+  "quiz": [
+    {
+      "q": {
+        "en": "Who says \"Quack! Quack!\"?",
+        "nl": "Wie zegt „Kwak! Kwak!\"?",
+        "de": "Wer sagt „Quak! Quak!\"?",
+        "fa": "چه کسی می‌گوید «کواک! کواک!»؟"
+      },
+      "choices": [
+        5,
+        7,
+        6
+      ],
+      "answer": 7
+    },
+    {
+      "q": {
+        "en": "Where does Baby find her mother?",
+        "nl": "Waar vindt het vogeltje haar mama?",
+        "de": "Wo findet das Vogelkind seine Mama?",
+        "fa": "جوجه‌پرنده کجا مامانش را پیدا می‌کند؟"
+      },
+      "choices": [
+        6,
+        9,
+        4
+      ],
+      "answer": 9
+    }
+  ]
+}

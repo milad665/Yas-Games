@@ -1,0 +1,472 @@
+{
+  "slug": "the-royal-toothache",
+  "title": {
+    "en": "The Royal Toothache",
+    "nl": "De koninklijke kiespijn",
+    "de": "Das königliche Zahnweh",
+    "fa": "دندان‌دردِ پادشاه"
+  },
+  "gdl": {
+    "url": "https://digitallibrary.io/book/the-royal-toothache/",
+    "publisher": "Pratham books",
+    "license": "CC BY 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+    "byline": [
+      "Author: Sanjiv Jaiswal 'Sanjay'",
+      "Illustrator: Ajit Narayan",
+      "Translator: Manisha Chaudhry"
+    ],
+    "credits": "This book was made possible by Pratham Books' StoryWeaver platform. Content under Creative Commons licenses can be downloaded, translated and can even be used to create new stories provided you give appropriate credit, and indicate if changes were made. To know more about this, and the full terms of use and attribution, please visit the following link. Story Attribution: This story: The Royal Toothache is translated by Manisha Chaudhry. The © for this translation lies with Pratham Books, 2006. Some rights reserved. Released under CC BY 4.0 license. Based on Original story: ' राजा का दर्द ', by Sanjiv Jaiswal 'Sanjay'. © Pratham Books, 2016. Some rights reserved. Released under CC BY 4.0 license. Other Credits: This book has been published on StoryWeaver by Pratham Books. Pratham Books is a not-for-profit organization that publishes books in multiple Indian languages to promote reading among children. www.prathambooks.org Illustration Attributions: Cover page: Mouse and the lion, by Ajit Narayan © Pratham Books, 2006. Some rights reserved. Released under CC BY 4.0 license. Page 2: Lion in the jungle, by Ajit Narayan © Pratham Books, 2006. Some rights reserved. Released under CC BY 4.0 license. Page 3: Drowsy lion and monkey, by Ajit Narayan © Pratham Books, 2006. Some rights reserved. Released under CC BY 4.0 license. Page 4: Donkey, monkey and lion in conversation, by Ajit Narayan © Pratham Books, 2006. Some rights reserved. Released under CC BY 4.0 license. Page 5: Angry lion, monkey and a donkey's back, by Ajit Narayan © Pratham Books, 2006. Some rights reserved. Released under CC BY 4.0 license. Page 6: Elephant, bear, deer and cheetah are all worried, by Ajit Narayan © Pratham Books, 2006. Some rights reserved. Released under CC BY 4.0 license. Page 7: Mouse talking to unhappy lion, by Ajit Narayan © Pratham Books, 2006. Some rights reserved. Released under CC BY 4.0 license. Page 8: Mouse opens lion's mouth, by Ajit Narayan © Pratham Books, 2006. Some rights reserved. Released under CC BY 4.0 license. Page 9: Mouse giving advice to lion, by Ajit Narayan © Pratham Books, 2006. Some rights reserved. Released under CC BY 4.0 license. Page 10: Lion and mouse, by Ajit Narayan © Pratham Books, 2006. Some rights reserved. Released under CC BY 4.0 license. Disclaimer: https://www.storyweaver.org.in/terms_and_conditions Some rights reserved. This book is CC-BY-4.0 licensed. You can copy, modify, distribute and perform the work, even for commercial purposes, all without asking permission. For full terms of use and attribution, http://creativecommons.org/licenses/by/4.0/\nThis book was made possible by Pratham Books' StoryWeaver platform. Content under Creative Commons licenses can be downloaded, translated and can even be used to create new stories provided you give appropriate credit, and indicate if changes were made. To know more about this, and the full terms of use and attribution, please visit the following link. Illustration Attributions: Page 11: Mouse laughing, by Ajit Narayan © Pratham Books, 2006. Some rights reserved. Released under CC BY 4.0 license. Page 12: Laughing lion, by Ajit Narayan © Pratham Books, 2006. Some rights reserved. Released under CC BY 4.0 license. Disclaimer: https://www.storyweaver.org.in/terms_and_conditions Some rights reserved. This book is CC-BY-4.0 licensed. You can copy, modify, distribute and perform the work, even for commercial purposes, all without asking permission. For full terms of use and attribution, http://creativecommons.org/licenses/by/4.0/"
+  },
+  "pages": [
+    {
+      "img": "1.jpg",
+      "alt": "Lion in a jungle.",
+      "text": {
+        "en": "The lion was the king of the jungle.\nEveryone shivered and shook when he roared.",
+        "nl": "De leeuw was de koning van de jungle.\nIedereen beefde en trilde als hij brulde.",
+        "de": "Der Löwe war der König des Dschungels.\nAlle zitterten und bebten, wenn er brüllte.",
+        "fa": "شیر، پادشاهِ جنگل بود.\nوقتی غُرّش می‌کرد، همه از ترس می‌لرزیدند."
+      },
+      "spots": [
+        {
+          "x": 20,
+          "y": 40,
+          "r": 15,
+          "word": {
+            "en": "lion",
+            "nl": "de leeuw",
+            "de": "der Löwe",
+            "fa": "شیر"
+          }
+        },
+        {
+          "x": 30,
+          "y": 30,
+          "r": 6,
+          "word": {
+            "en": "ROAR!",
+            "nl": "BRUL!",
+            "de": "BRÜLL!",
+            "fa": "غُرررر!"
+          }
+        }
+      ]
+    },
+    {
+      "img": "2.jpg",
+      "alt": "Drowsy lion and monkey.",
+      "text": {
+        "en": "He had a terrible toothache since two days.\n“Maharaj, get this tooth extracted,” suggested the monkey, the jungle physician.\n“Alright,” agreed the lion.",
+        "nl": "Hij had al twee dagen vreselijke kiespijn.\n„Majesteit, laat die tand eruit halen,\" zei de aap, de dokter van de jungle.\n„Goed dan,\" zei de leeuw.",
+        "de": "Er hatte seit zwei Tagen schreckliches Zahnweh.\n„Majestät, lasst den Zahn ziehen\", riet der Affe, der Arzt des Dschungels.\n„Na gut\", sagte der Löwe.",
+        "fa": "دو روز بود که دندانش خیلی درد می‌کرد.\nمیمون، که دکترِ جنگل بود، گفت: «قربان، این دندان را بکشید.»\nشیر گفت: «باشد.»"
+      },
+      "spots": [
+        {
+          "x": 32,
+          "y": 55,
+          "r": 14,
+          "word": {
+            "en": "lion",
+            "nl": "de leeuw",
+            "de": "der Löwe",
+            "fa": "شیر"
+          }
+        },
+        {
+          "x": 72,
+          "y": 50,
+          "r": 12,
+          "word": {
+            "en": "monkey",
+            "nl": "de aap",
+            "de": "der Affe",
+            "fa": "میمون"
+          }
+        },
+        {
+          "x": 30,
+          "y": 65,
+          "r": 7,
+          "word": {
+            "en": "Ouch, my tooth!",
+            "nl": "Au, mijn tand!",
+            "de": "Au, mein Zahn!",
+            "fa": "آخ، دندانم!"
+          }
+        }
+      ]
+    },
+    {
+      "img": "3.jpg",
+      "alt": "Donkey, monkey and lion talking.",
+      "text": {
+        "en": "Who would extract the lion’s tooth? They were all terrified of him!\n“Maharaj, I will give you a kick with my hind legs. The tooth will pop out,” said the foolish donkey.",
+        "nl": "Wie zou de tand van de leeuw eruit halen? Ze waren allemaal doodsbang voor hem!\n„Majesteit, ik geef u een trap met mijn achterpoten. Dan springt de tand er zo uit,\" zei de domme ezel.",
+        "de": "Wer sollte dem Löwen den Zahn ziehen? Alle hatten schreckliche Angst vor ihm!\n„Majestät, ich gebe Euch einen Tritt mit meinen Hinterbeinen. Dann fliegt der Zahn raus\", sagte der dumme Esel.",
+        "fa": "چه کسی دندانِ شیر را می‌کشید؟ همه از او خیلی می‌ترسیدند!\nالاغِ نادان گفت: «قربان، من با پاهای عقبم یک لگد به شما می‌زنم. دندان می‌پرد بیرون.»"
+      },
+      "spots": [
+        {
+          "x": 30,
+          "y": 55,
+          "r": 15,
+          "word": {
+            "en": "donkey",
+            "nl": "de ezel",
+            "de": "der Esel",
+            "fa": "الاغ"
+          }
+        },
+        {
+          "x": 80,
+          "y": 55,
+          "r": 10,
+          "word": {
+            "en": "monkey",
+            "nl": "de aap",
+            "de": "der Affe",
+            "fa": "میمون"
+          }
+        }
+      ]
+    },
+    {
+      "img": "4.jpg",
+      "alt": "Angry lion, monkey and a donkey's back.",
+      "text": {
+        "en": "“You will dare to kick the king?” roared the lion peevishly.\nThe donkey tucked his tail between his legs and ran off.",
+        "nl": "„Durf jij de koning te schoppen?\" brulde de leeuw boos.\nDe ezel stak zijn staart tussen zijn benen en rende weg.",
+        "de": "„Du wagst es, den König zu treten?\", brüllte der Löwe wütend.\nDer Esel zog den Schwanz ein und rannte davon.",
+        "fa": "شیر با عصبانیت غُرّید: «جرئت داری به پادشاه لگد بزنی؟»\nالاغ دُمش را لای پاهایش گذاشت و فرار کرد."
+      },
+      "spots": [
+        {
+          "x": 85,
+          "y": 60,
+          "r": 14,
+          "word": {
+            "en": "lion",
+            "nl": "de leeuw",
+            "de": "der Löwe",
+            "fa": "شیر"
+          }
+        },
+        {
+          "x": 22,
+          "y": 55,
+          "r": 14,
+          "word": {
+            "en": "donkey",
+            "nl": "de ezel",
+            "de": "der Esel",
+            "fa": "الاغ"
+          }
+        },
+        {
+          "x": 72,
+          "y": 40,
+          "r": 8,
+          "word": {
+            "en": "monkey",
+            "nl": "de aap",
+            "de": "der Affe",
+            "fa": "میمون"
+          }
+        }
+      ]
+    },
+    {
+      "img": "5.jpg",
+      "alt": "Elephant, bear, deer and cheetah looking worried.",
+      "text": {
+        "en": "The elephant, cheetah, bear and deer were all worried.\nWho would stick their hand into the lion's mouth?",
+        "nl": "De olifant, het jachtluipaard, de beer en het hert maakten zich allemaal zorgen.\nWie durfde zijn hand in de bek van de leeuw te steken?",
+        "de": "Der Elefant, der Gepard, der Bär und der Hirsch machten sich alle Sorgen.\nWer würde seine Hand in das Maul des Löwen stecken?",
+        "fa": "فیل، یوزپلنگ، خرس و آهو همه نگران بودند.\nچه کسی دستش را توی دهانِ شیر می‌کرد؟"
+      },
+      "spots": [
+        {
+          "x": 18,
+          "y": 50,
+          "r": 14,
+          "word": {
+            "en": "elephant",
+            "nl": "de olifant",
+            "de": "der Elefant",
+            "fa": "فیل"
+          }
+        },
+        {
+          "x": 46,
+          "y": 60,
+          "r": 11,
+          "word": {
+            "en": "bear",
+            "nl": "de beer",
+            "de": "der Bär",
+            "fa": "خرس"
+          }
+        },
+        {
+          "x": 63,
+          "y": 30,
+          "r": 8,
+          "word": {
+            "en": "deer",
+            "nl": "het hert",
+            "de": "der Hirsch",
+            "fa": "آهو"
+          }
+        },
+        {
+          "x": 72,
+          "y": 65,
+          "r": 9,
+          "word": {
+            "en": "cheetah",
+            "nl": "het jachtluipaard",
+            "de": "der Gepard",
+            "fa": "یوزپلنگ"
+          }
+        }
+      ]
+    },
+    {
+      "img": "6.jpg",
+      "alt": "Mouse talking to unhappy lion.",
+      "text": {
+        "en": "Two days passed. The toothache was getting unbearable.\n“Should I take a look?” asked the mouse one night when the lion and he were alone.\n“Alright,” said the lion and opened his mouth wide.",
+        "nl": "Er gingen twee dagen voorbij. De kiespijn werd ondraaglijk.\n„Zal ik eens kijken?\" vroeg de muis op een avond, toen hij alleen was met de leeuw.\n„Goed,\" zei de leeuw, en hij deed zijn bek wijd open.",
+        "de": "Zwei Tage vergingen. Das Zahnweh wurde unerträglich.\n„Soll ich mal nachsehen?\", fragte die Maus eines Abends, als sie mit dem Löwen allein war.\n„Na gut\", sagte der Löwe und riss das Maul weit auf.",
+        "fa": "دو روز گذشت. دندان‌درد دیگر غیرقابلِ تحمل شده بود.\nیک شب که موش و شیر تنها بودند، موش پرسید: «می‌خواهید من نگاه کنم؟»\nشیر گفت: «باشد» و دهانش را باز باز کرد."
+      },
+      "spots": [
+        {
+          "x": 18,
+          "y": 70,
+          "r": 10,
+          "word": {
+            "en": "mouse",
+            "nl": "de muis",
+            "de": "die Maus",
+            "fa": "موش"
+          }
+        },
+        {
+          "x": 62,
+          "y": 50,
+          "r": 14,
+          "word": {
+            "en": "lion",
+            "nl": "de leeuw",
+            "de": "der Löwe",
+            "fa": "شیر"
+          }
+        }
+      ]
+    },
+    {
+      "img": "7.jpg",
+      "alt": "Mouse opening lion's mouth.",
+      "text": {
+        "en": "“Oh! There is a lot of dirt trapped between your teeth!” said the mouse taking a peek inside. Using his sharp teeth, he cleaned out the lion’s teeth. The lion felt much better.",
+        "nl": "„O! Er zit heel veel vuil tussen je tanden!\" zei de muis toen hij naar binnen keek. Met zijn scherpe tandjes maakte hij de tanden van de leeuw schoon. De leeuw voelde zich al veel beter.",
+        "de": "„Oh! Zwischen deinen Zähnen steckt ja ganz viel Schmutz!\", sagte die Maus, als sie hineinschaute. Mit ihren scharfen Zähnchen putzte sie die Zähne des Löwen. Dem Löwen ging es gleich viel besser.",
+        "fa": "موش نگاهی به داخلِ دهانش انداخت و گفت: «وای! لای دندان‌هایتان پر از کثیفی است!» با دندان‌های تیزش، دندان‌های شیر را تمیز کرد. حالِ شیر خیلی بهتر شد."
+      },
+      "spots": [
+        {
+          "x": 20,
+          "y": 70,
+          "r": 10,
+          "word": {
+            "en": "mouse",
+            "nl": "de muis",
+            "de": "die Maus",
+            "fa": "موش"
+          }
+        },
+        {
+          "x": 45,
+          "y": 60,
+          "r": 9,
+          "word": {
+            "en": "teeth",
+            "nl": "de tanden",
+            "de": "die Zähne",
+            "fa": "دندان‌ها"
+          }
+        },
+        {
+          "x": 60,
+          "y": 25,
+          "r": 12,
+          "word": {
+            "en": "lion",
+            "nl": "de leeuw",
+            "de": "der Löwe",
+            "fa": "شیر"
+          }
+        }
+      ]
+    },
+    {
+      "img": "8.jpg",
+      "alt": "Mouse giving advice to lion.",
+      "text": {
+        "en": "“Maharaj, please clean your teeth everyday, or else your teeth will rot,” said the wise little mouse.",
+        "nl": "„Majesteit, poets alstublieft elke dag uw tanden, anders gaan ze rotten,\" zei het wijze muisje.",
+        "de": "„Majestät, putzt bitte jeden Tag Eure Zähne, sonst werden sie faul\", sagte die kluge kleine Maus.",
+        "fa": "موشِ کوچولوی دانا گفت: «قربان، لطفاً هر روز دندان‌هایتان را مسواک بزنید، وگرنه خراب می‌شوند.»"
+      },
+      "spots": [
+        {
+          "x": 15,
+          "y": 65,
+          "r": 10,
+          "word": {
+            "en": "Brush your teeth!",
+            "nl": "Tanden poetsen!",
+            "de": "Zähne putzen!",
+            "fa": "مسواک بزن!"
+          }
+        },
+        {
+          "x": 62,
+          "y": 45,
+          "r": 15,
+          "word": {
+            "en": "lion",
+            "nl": "de leeuw",
+            "de": "der Löwe",
+            "fa": "شیر"
+          }
+        }
+      ]
+    },
+    {
+      "img": "9.jpg",
+      "alt": "Lion and mouse.",
+      "text": {
+        "en": "“Yes, you are right. But please don’t tell anybody or they will say their king doesn’t keep clean…” pleaded the lion.",
+        "nl": "„Ja, je hebt gelijk. Maar vertel het alsjeblieft aan niemand, anders zeggen ze dat hun koning niet schoon is …\" smeekte de leeuw.",
+        "de": "„Ja, du hast recht. Aber bitte erzähl es niemandem, sonst sagen sie, ihr König ist nicht sauber …\", bat der Löwe.",
+        "fa": "شیر التماس کرد: «آره، راست می‌گویی. ولی لطفاً به هیچ‌کس نگو، وگرنه می‌گویند پادشاهشان تمیز نیست …»"
+      },
+      "spots": [
+        {
+          "x": 50,
+          "y": 50,
+          "r": 15,
+          "word": {
+            "en": "lion",
+            "nl": "de leeuw",
+            "de": "der Löwe",
+            "fa": "شیر"
+          }
+        }
+      ]
+    },
+    {
+      "img": "10.jpg",
+      "alt": "Mouse laughing.",
+      "text": {
+        "en": "\"Alright,\" laughed the mouse.",
+        "nl": "„Goed,\" lachte de muis.",
+        "de": "„Na gut\", lachte die Maus.",
+        "fa": "موش خندید و گفت: «باشد.»"
+      },
+      "spots": [
+        {
+          "x": 30,
+          "y": 60,
+          "r": 13,
+          "word": {
+            "en": "mouse",
+            "nl": "de muis",
+            "de": "die Maus",
+            "fa": "موش"
+          }
+        },
+        {
+          "x": 32,
+          "y": 30,
+          "r": 8,
+          "word": {
+            "en": "Ha ha ha!",
+            "nl": "Ha ha ha!",
+            "de": "Ha ha ha!",
+            "fa": "ها ها ها!"
+          }
+        }
+      ]
+    },
+    {
+      "img": "11.jpg",
+      "alt": "Lion laughing.",
+      "text": {
+        "en": "The lion also laughed.",
+        "nl": "De leeuw moest ook lachen.",
+        "de": "Da lachte auch der Löwe.",
+        "fa": "شیر هم خندید."
+      },
+      "spots": [
+        {
+          "x": 50,
+          "y": 55,
+          "r": 15,
+          "word": {
+            "en": "lion",
+            "nl": "de leeuw",
+            "de": "der Löwe",
+            "fa": "شیر"
+          }
+        },
+        {
+          "x": 50,
+          "y": 35,
+          "r": 8,
+          "word": {
+            "en": "Ha ha ha!",
+            "nl": "Ha ha ha!",
+            "de": "Ha ha ha!",
+            "fa": "ها ها ها!"
+          }
+        }
+      ]
+    }
+  ],
+  "colouring": true,
+  "quiz": [
+    {
+      "q": {
+        "en": "Who cleaned the lion's teeth?",
+        "nl": "Wie maakte de tanden van de leeuw schoon?",
+        "de": "Wer hat dem Löwen die Zähne geputzt?",
+        "fa": "چه کسی دندان‌های شیر را تمیز کرد؟"
+      },
+      "choices": [
+        3,
+        7,
+        5
+      ],
+      "answer": 7
+    },
+    {
+      "q": {
+        "en": "Who wanted to kick the lion?",
+        "nl": "Wie wilde de leeuw een trap geven?",
+        "de": "Wer wollte den Löwen treten?",
+        "fa": "چه کسی می‌خواست به شیر لگد بزند؟"
+      },
+      "choices": [
+        3,
+        2,
+        10
+      ],
+      "answer": 3
+    }
+  ]
+}

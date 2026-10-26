@@ -1,0 +1,389 @@
+{
+  "slug": "watch-out-the-tiger-is-here",
+  "title": {
+    "en": "Watch Out! The Tiger is Here!",
+    "nl": "Pas op! De tijger is er!",
+    "de": "Achtung! Der Tiger ist da!",
+    "fa": "مواظب باشید! ببر آمده!"
+  },
+  "gdl": {
+    "url": "https://digitallibrary.io/book/watch-out-the-tiger-is-here/",
+    "publisher": "Pratham books",
+    "license": "CC BY 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+    "byline": [
+      "Author: Sejal Mehta",
+      "Illustrator: Rohan Chakravarty"
+    ],
+    "credits": "This book was made possible by Pratham Books' StoryWeaver platform. Content under Creative Commons licenses can be downloaded, translated and can even be used to create new stories provided you give appropriate credit, and indicate if changes were made. To know more about this, and the full terms of use and attribution, please visit the following link. Story Attribution: This story:Watch Out! The Tiger is Here!is written bySejal Mehta. © Pratham Books, 2017. Some rights reserved. Released under CC BY 4.0 license. Other Credits: 'Watch Out! The Tiger is Here!' has been published on StoryWeaver by Pratham Books. www.prathambooks.org Images Attributions: Cover page:Wild animals looking at tiger, byRohan Chakravarty© Pratham Books, 2017. Some rights reserved. Released under CC BY 4.0 license.Page 2:Tiger looking at its reflection, byRohan Chakravarty© Pratham Books, 2017. Some rights reserved. Released under CC BY 4.0 license.Page 3:Tiger Looking at Hare, byRohan Chakravarty© Pratham Books, 2017. Some rights reserved. Released under CC BY 4.0 license.Page 4:Tiger with Dead Deer, byRohan Chakravarty© Pratham Books, 2017. Some rights reserved. Released under CC BY 4.0 license.Page 5:Langur Sounding Its Alarm Call, byRohan Chakravarty© Pratham Books, 2017. Some rights reserved. Released under CC BY 4.0 license.Page 6:Barking Deer Sounding An Alarm Call, byRohan Chakravarty© Pratham Books, 2017. Some rights reserved. Released under CC BY 4.0 license.Page 7:Spotted Deer Sounding an Alarm Call, byRohan Chakravarty© Pratham Books, 2017. Some rights reserved. Released under CC BY 4.0 license.Page 8:Tiger Alone in the Forest, byRohan Chakravarty© Pratham Books, 2017. Some rights reserved. Released under CC BY 4.0 license.Disclaimer:https://www.storyweaver.org.in/terms_and_conditions Some rights reserved. This book is CC-BY-4.0 licensed. You can copy, modify, distribute and perform the work, even for commercial purposes, all without asking permission. For full terms of use and attribution, http://creativecommons.org/licenses/by/4.0/\nThis book was made possible by Pratham Books' StoryWeaver platform. Content under Creative Commons licenses can be downloaded, translated and can even be used to create new stories provided you give appropriate credit, and indicate if changes were made. To know more about this, and the full terms of use and attribution, please visit the following link: Images Attributions: Disclaimer:https://www.storyweaver.org.in/terms_and_conditions Some rights reserved. This book is CC-BY-4.0 licensed. You can copy, modify, distribute and perform the work, even for commercial purposes, all without asking permission. For full terms of use and attribution, visit: http://creativecommons.org/licenses/by/4.0/"
+  },
+  "pages": [
+    {
+      "img": "1.jpg",
+      "alt": "Tiger looking at its reflection in a pond",
+      "text": {
+        "en": "It's not easy being a tiger.\nYes, tigers are beautiful and fierce.",
+        "nl": "Het is niet makkelijk om een tijger te zijn.\nJa, tijgers zijn mooi en woest.",
+        "de": "Es ist nicht leicht, ein Tiger zu sein.\nJa, Tiger sind wunderschön und wild.",
+        "fa": "ببر بودن آسان نیست.\nبله، ببرها زیبا و قوی هستند."
+      },
+      "spots": [
+        {
+          "x": 45,
+          "y": 60,
+          "r": 14,
+          "word": {
+            "en": "tiger",
+            "nl": "de tijger",
+            "de": "der Tiger",
+            "fa": "بَبر"
+          }
+        },
+        {
+          "x": 91,
+          "y": 13,
+          "r": 5,
+          "word": {
+            "en": "frog",
+            "nl": "de kikker",
+            "de": "der Frosch",
+            "fa": "قورباغه"
+          }
+        },
+        {
+          "x": 57,
+          "y": 22,
+          "r": 7,
+          "word": {
+            "en": "water lily",
+            "nl": "de waterlelie",
+            "de": "die Seerose",
+            "fa": "نیلوفرِ آبی"
+          }
+        }
+      ]
+    },
+    {
+      "img": "2.jpg",
+      "alt": "Rabbit jumping away from a tiger",
+      "text": {
+        "en": "But tigers are also big and heavy.\nThis makes it difficult for them to hunt for food.",
+        "nl": "Maar tijgers zijn ook groot en zwaar.\nDaardoor is het moeilijk voor ze om eten te vangen.",
+        "de": "Aber Tiger sind auch groß und schwer.\nDarum ist es schwer für sie, Futter zu fangen.",
+        "fa": "ولی ببرها بزرگ و سنگین هم هستند.\nبرای همین شکار کردن برایشان سخت است."
+      },
+      "spots": [
+        {
+          "x": 55,
+          "y": 50,
+          "r": 14,
+          "word": {
+            "en": "tiger",
+            "nl": "de tijger",
+            "de": "der Tiger",
+            "fa": "بَبر"
+          }
+        },
+        {
+          "x": 88,
+          "y": 73,
+          "r": 7,
+          "word": {
+            "en": "hare",
+            "nl": "de haas",
+            "de": "der Hase",
+            "fa": "خرگوش"
+          }
+        }
+      ]
+    },
+    {
+      "img": "3.jpg",
+      "alt": "Tiger with dead deer in its mouth",
+      "text": {
+        "en": "Out of every twenty times a tiger hunts,\nit eats only once.",
+        "nl": "Van elke twintig keer dat een tijger jaagt,\neet hij maar één keer.",
+        "de": "Von zwanzig Mal, die ein Tiger jagt,\nbekommt er nur ein einziges Mal etwas zu fressen.",
+        "fa": "ببر از هر بیست باری که شکار می‌کند،\nفقط یک بار غذا می‌خورد."
+      },
+      "spots": [
+        {
+          "x": 55,
+          "y": 35,
+          "r": 12,
+          "word": {
+            "en": "tiger",
+            "nl": "de tijger",
+            "de": "der Tiger",
+            "fa": "بَبر"
+          }
+        },
+        {
+          "x": 80,
+          "y": 15,
+          "r": 8,
+          "word": {
+            "en": "leaves",
+            "nl": "de bladeren",
+            "de": "die Blätter",
+            "fa": "برگ‌ها"
+          }
+        }
+      ]
+    },
+    {
+      "img": "4.jpg",
+      "alt": "Lemurs making noise and jumping away from a tiger",
+      "text": {
+        "en": "When a tiger moves through the forest,\nKHAU! KHAU! KHAK!\nThe langur calls, just like an old man coughing!\nKHAU! KHAU! KHAK!",
+        "nl": "Als een tijger door het bos sluipt,\nKHAU! KHAU! KHAK!\nroept de langoer, net als een oude man die hoest!\nKHAU! KHAU! KHAK!",
+        "de": "Wenn ein Tiger durch den Wald schleicht,\nKHAU! KHAU! KHAK!\nruft der Langur, wie ein alter Mann, der hustet!\nKHAU! KHAU! KHAK!",
+        "fa": "وقتی ببر در جنگل راه می‌رود،\nخاو! خاو! خاک!\nمیمونِ لَنگور صدا می‌کند، درست مثلِ پیرمردی که سرفه می‌کند!\nخاو! خاو! خاک!"
+      },
+      "spots": [
+        {
+          "x": 12,
+          "y": 20,
+          "r": 9,
+          "word": {
+            "en": "langur monkey",
+            "nl": "de langoer",
+            "de": "der Langur",
+            "fa": "میمونِ لَنگور"
+          }
+        },
+        {
+          "x": 85,
+          "y": 25,
+          "r": 9,
+          "word": {
+            "en": "langur monkey",
+            "nl": "de langoer",
+            "de": "der Langur",
+            "fa": "میمونِ لَنگور"
+          }
+        },
+        {
+          "x": 45,
+          "y": 62,
+          "r": 9,
+          "word": {
+            "en": "tiger",
+            "nl": "de tijger",
+            "de": "der Tiger",
+            "fa": "بَبر"
+          }
+        },
+        {
+          "x": 40,
+          "y": 15,
+          "r": 5,
+          "word": {
+            "en": "bird",
+            "nl": "de vogel",
+            "de": "der Vogel",
+            "fa": "پرنده"
+          }
+        }
+      ]
+    },
+    {
+      "img": "5.jpg",
+      "alt": "Deer calling and jumping away from the tiger",
+      "text": {
+        "en": "AWOOOO! HAWOOOO!\nThe barking deer calls, like a scared dog!\nAWOOOO! HAWOOOO!",
+        "nl": "AWOEEE! HAWOEEE!\nHet blafhert roept, als een bange hond!\nAWOEEE! HAWOEEE!",
+        "de": "AWUUUU! HAWUUUU!\nDer Muntjak ruft, wie ein ängstlicher Hund!\nAWUUUU! HAWUUUU!",
+        "fa": "آووووو! هاووووو!\nآهوی پارس‌کن صدا می‌کند، مثلِ یک سگِ ترسیده!\nآووووو! هاووووو!"
+      },
+      "spots": [
+        {
+          "x": 18,
+          "y": 75,
+          "r": 9,
+          "word": {
+            "en": "deer",
+            "nl": "het hert",
+            "de": "der Hirsch",
+            "fa": "آهو"
+          }
+        },
+        {
+          "x": 88,
+          "y": 72,
+          "r": 8,
+          "word": {
+            "en": "deer",
+            "nl": "het hert",
+            "de": "der Hirsch",
+            "fa": "آهو"
+          }
+        },
+        {
+          "x": 75,
+          "y": 40,
+          "r": 10,
+          "word": {
+            "en": "peacock",
+            "nl": "de pauw",
+            "de": "der Pfau",
+            "fa": "طاووس"
+          }
+        },
+        {
+          "x": 45,
+          "y": 68,
+          "r": 8,
+          "word": {
+            "en": "tiger",
+            "nl": "de tijger",
+            "de": "der Tiger",
+            "fa": "بَبر"
+          }
+        }
+      ]
+    },
+    {
+      "img": "6.jpg",
+      "alt": "Deer calling and jumping away from the tiger",
+      "text": {
+        "en": "OOW! OOW! OOW!\nThe spotted deer calls, like a little bird!\nOOW! OOW! OOW!",
+        "nl": "OEW! OEW! OEW!\nHet gevlekte hert roept, als een klein vogeltje!\nOEW! OEW! OEW!",
+        "de": "UU! UU! UU!\nDer Axishirsch ruft, wie ein kleiner Vogel!\nUU! UU! UU!",
+        "fa": "اوو! اوو! اوو!\nآهوی خال‌خالی صدا می‌کند، مثلِ یک پرنده‌ی کوچولو!\nاوو! اوو! اوو!"
+      },
+      "spots": [
+        {
+          "x": 85,
+          "y": 72,
+          "r": 9,
+          "word": {
+            "en": "deer",
+            "nl": "het hert",
+            "de": "der Hirsch",
+            "fa": "آهو"
+          }
+        },
+        {
+          "x": 15,
+          "y": 72,
+          "r": 9,
+          "word": {
+            "en": "deer",
+            "nl": "het hert",
+            "de": "der Hirsch",
+            "fa": "آهو"
+          }
+        },
+        {
+          "x": 45,
+          "y": 65,
+          "r": 9,
+          "word": {
+            "en": "tiger",
+            "nl": "de tijger",
+            "de": "der Tiger",
+            "fa": "بَبر"
+          }
+        },
+        {
+          "x": 70,
+          "y": 25,
+          "r": 6,
+          "word": {
+            "en": "bird",
+            "nl": "de vogel",
+            "de": "der Vogel",
+            "fa": "پرنده"
+          }
+        }
+      ]
+    },
+    {
+      "img": "7.jpg",
+      "alt": "Tiger looking confused. Frightened animals watching from their hiding places",
+      "text": {
+        "en": "The whole forest knows the tiger is here!\nAHUUUN? AHUUUN?\nThe tiger wonders, where has everyone gone?",
+        "nl": "Het hele bos weet dat de tijger er is!\nAHOEN? AHOEN?\nDe tijger vraagt zich af: waar is iedereen gebleven?",
+        "de": "Der ganze Wald weiß, dass der Tiger da ist!\nAHUUN? AHUUN?\nDer Tiger wundert sich: Wo sind denn alle hin?",
+        "fa": "همه‌ی جنگل می‌داند که ببر آمده!\nآهوون؟ آهوون؟\nببر با خودش فکر می‌کند: همه کجا رفتند؟"
+      },
+      "spots": [
+        {
+          "x": 45,
+          "y": 68,
+          "r": 12,
+          "word": {
+            "en": "tiger",
+            "nl": "de tijger",
+            "de": "der Tiger",
+            "fa": "بَبر"
+          }
+        },
+        {
+          "x": 35,
+          "y": 30,
+          "r": 5,
+          "word": {
+            "en": "owl",
+            "nl": "de uil",
+            "de": "die Eule",
+            "fa": "جُغد"
+          }
+        },
+        {
+          "x": 85,
+          "y": 47,
+          "r": 6,
+          "word": {
+            "en": "deer",
+            "nl": "het hert",
+            "de": "der Hirsch",
+            "fa": "آهو"
+          }
+        },
+        {
+          "x": 73,
+          "y": 22,
+          "r": 6,
+          "word": {
+            "en": "langur monkey",
+            "nl": "de langoer",
+            "de": "der Langur",
+            "fa": "میمونِ لَنگور"
+          }
+        }
+      ]
+    }
+  ],
+  "quiz": [
+    {
+      "q": {
+        "en": "Which picture shows the tiger looking at the water?",
+        "nl": "Op welk plaatje kijkt de tijger naar het water?",
+        "de": "Auf welchem Bild schaut der Tiger ins Wasser?",
+        "fa": "در کدام عکس ببر به آب نگاه می‌کند؟"
+      },
+      "choices": [
+        1,
+        5,
+        7
+      ],
+      "answer": 1
+    },
+    {
+      "q": {
+        "en": "Where does the tiger wonder where everyone has gone?",
+        "nl": "Waar vraagt de tijger zich af waar iedereen is?",
+        "de": "Wo fragt sich der Tiger, wo alle hin sind?",
+        "fa": "کجا ببر فکر می‌کند همه کجا رفتند؟"
+      },
+      "choices": [
+        2,
+        7,
+        4
+      ],
+      "answer": 7
+    }
+  ]
+}

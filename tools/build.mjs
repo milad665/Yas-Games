@@ -118,6 +118,18 @@ for (const lang of Object.keys(manifest)) {
   fs.rmSync(out('voice', lang), { recursive: true, force: true });
 }
 write(out('voice', 'manifest.json'), JSON.stringify(manifest, null, 2) + '\n');
+// the same for the story books' reading
+if (fs.existsSync(out('books'))) for (const slug of fs.readdirSync(out('books'))) {
+  const file = out('books', slug, 'voice', 'manifest.json');
+  if (!fs.existsSync(file)) continue;
+  const m = JSON.parse(read(file));
+  for (const lang of Object.keys(m)) {
+    if (lang === 'voices' || langs.includes(lang)) continue;
+    delete m[lang]; delete m.voices[lang];
+    fs.rmSync(out('books', slug, 'voice', lang), { recursive: true, force: true });
+  }
+  write(file, JSON.stringify(m, null, 2) + '\n');
+}
 
 // shared/edition.js: this edition's data, then the same code as Yas's (which child, how old)
 const editionInfo = {

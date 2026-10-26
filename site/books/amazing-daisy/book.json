@@ -1,0 +1,549 @@
+{
+  "slug": "amazing-daisy",
+  "title": {
+    "en": "Amazing Daisy",
+    "nl": "Geweldige Daisy",
+    "de": "Die unglaubliche Daisy",
+    "fa": "دیزیِ شگفت‌انگیز"
+  },
+  "gdl": {
+    "url": "https://digitallibrary.io/book/amazing-daisy/",
+    "publisher": "Book Dash",
+    "license": "CC BY 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+    "byline": [
+      "Authors: Siya Masaku, Nozizwe Herero, Leona Ingram",
+      "Book Dash"
+    ],
+    "credits": "Amazing Daisy Created by Nozizwe Herero, Siya Masuku, Leona Ingram This work is licensed under a Creative Commons Attribution 4.0 International License. This means you are free to share (copy and redistribute the material in any medium or format) and adapt it (remix, transform, and build upon the material) for any purpose, even commercially, as long as you give appropriate credit, with a link to your source, and indicate if changes were made. You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use."
+  },
+  "pages": [
+    {
+      "img": "1.jpg",
+      "alt": "The chicken Daisy is pointing to the hen house. Three chickens are outside the henhouse",
+      "text": {
+        "en": "Once upon a time on a little farm near a little village there lived a little chicken called Daisy.",
+        "nl": "Er was eens, op een kleine boerderij bij een klein dorp, een klein kippetje dat Daisy heette.",
+        "de": "Es war einmal ein kleines Huhn namens Daisy. Es lebte auf einem kleinen Bauernhof bei einem kleinen Dorf.",
+        "fa": "روزی روزگاری، در یک مزرعه‌ی کوچک نزدیکِ یک روستای کوچک، مرغِ کوچکی به اسمِ دِیزی زندگی می‌کرد."
+      },
+      "spots": [
+        {
+          "x": 25,
+          "y": 47,
+          "r": 14,
+          "word": {
+            "en": "chicken coop",
+            "nl": "het kippenhok",
+            "de": "der Hühnerstall",
+            "fa": "لانه‌ی مرغ"
+          }
+        },
+        {
+          "x": 85,
+          "y": 47,
+          "r": 10,
+          "word": {
+            "en": "Daisy",
+            "nl": "Daisy",
+            "de": "Daisy",
+            "fa": "دیزی"
+          }
+        },
+        {
+          "x": 42,
+          "y": 78,
+          "r": 6,
+          "word": {
+            "en": "chicks",
+            "nl": "de kuikens",
+            "de": "die Küken",
+            "fa": "جوجه‌ها"
+          }
+        }
+      ]
+    },
+    {
+      "img": "2.jpg",
+      "alt": "Some of the chicks are laughing at Daisy",
+      "text": {
+        "en": "“When I grow up, I want to fly high, high into the sky,” Daisy said.\nBut all the other chickens laughed at her.",
+        "nl": "„Als ik groot ben, wil ik vliegen, hoog, hoog de lucht in,\" zei Daisy.\nMaar alle andere kippen lachten haar uit.",
+        "de": "„Wenn ich groß bin, will ich fliegen, hoch, hoch hinauf in den Himmel\", sagte Daisy.\nAber alle anderen Hühner lachten sie aus.",
+        "fa": "دیزی گفت: «وقتی بزرگ شدم، می‌خواهم پرواز کنم، بالا، بالا، توی آسمان.»\nولی همه‌ی مرغ‌های دیگر به او خندیدند."
+      },
+      "spots": [
+        {
+          "x": 22,
+          "y": 65,
+          "r": 13,
+          "word": {
+            "en": "chickens",
+            "nl": "de kippen",
+            "de": "die Hühner",
+            "fa": "مرغ‌ها"
+          }
+        },
+        {
+          "x": 85,
+          "y": 65,
+          "r": 11,
+          "word": {
+            "en": "Ha ha ha!",
+            "nl": "Ha ha ha!",
+            "de": "Ha ha ha!",
+            "fa": "ها ها ها!"
+          }
+        }
+      ]
+    },
+    {
+      "img": "3.jpg",
+      "alt": "Some of the chicken are laughing and making fun of Daisy",
+      "text": {
+        "en": "“You are so weird,” they said. “We won’t play with you anymore.”\n“Daisy, we can all flap our wings, but it’s very difficult for chickens to fly,” Mama told her.",
+        "nl": "„Jij bent raar,\" zeiden ze. „We spelen niet meer met je.\"\n„Daisy, we kunnen allemaal met onze vleugels klapperen, maar vliegen is heel moeilijk voor kippen,\" zei mama.",
+        "de": "„Du bist komisch\", sagten sie. „Wir spielen nicht mehr mit dir.\"\n„Daisy, wir können alle mit den Flügeln schlagen, aber fliegen ist für Hühner sehr schwer\", sagte Mama.",
+        "fa": "گفتند: «تو خیلی عجیبی. دیگر با تو بازی نمی‌کنیم.»\nمامان به او گفت: «دیزی، همه‌ی ما می‌توانیم بال بزنیم، ولی پرواز کردن برای مرغ‌ها خیلی سخت است.»"
+      },
+      "spots": [
+        {
+          "x": 90,
+          "y": 60,
+          "r": 9,
+          "word": {
+            "en": "Mama hen",
+            "nl": "mama kip",
+            "de": "Mama Huhn",
+            "fa": "مامان‌مرغه"
+          }
+        },
+        {
+          "x": 25,
+          "y": 68,
+          "r": 12,
+          "word": {
+            "en": "Ha ha ha!",
+            "nl": "Ha ha ha!",
+            "de": "Ha ha ha!",
+            "fa": "ها ها ها!"
+          }
+        }
+      ]
+    },
+    {
+      "img": "4.jpg",
+      "alt": "Daisy is flapping her wings again and again while the other chicken are eating",
+      "text": {
+        "en": "Daisy wouldn’t give up. Every day she practised by herself, flapping her wings.\nFlap, flap, flap, she would flap her wings, but she couldn’t lift off the ground.",
+        "nl": "Maar Daisy gaf niet op. Elke dag oefende ze in haar eentje met haar vleugels.\nFlap, flap, flap, ze klapperde met haar vleugels, maar ze kwam niet van de grond.",
+        "de": "Aber Daisy gab nicht auf. Jeden Tag übte sie ganz allein mit ihren Flügeln.\nFlatter, flatter, flatter, sie schlug mit den Flügeln, aber sie kam nicht vom Boden hoch.",
+        "fa": "ولی دیزی ناامید نشد. هر روز تنهایی تمرین می‌کرد و بال می‌زد.\nبال، بال، بال، بال می‌زد، ولی از زمین بلند نمی‌شد."
+      },
+      "spots": [
+        {
+          "x": 14,
+          "y": 85,
+          "r": 7,
+          "word": {
+            "en": "Flap, flap, flap!",
+            "nl": "Flap, flap, flap!",
+            "de": "Flatter, flatter, flatter!",
+            "fa": "بال، بال، بال!"
+          }
+        },
+        {
+          "x": 32,
+          "y": 40,
+          "r": 14,
+          "word": {
+            "en": "chicken coop",
+            "nl": "het kippenhok",
+            "de": "der Hühnerstall",
+            "fa": "لانه‌ی مرغ"
+          }
+        },
+        {
+          "x": 60,
+          "y": 82,
+          "r": 7,
+          "word": {
+            "en": "chicks",
+            "nl": "de kuikens",
+            "de": "die Küken",
+            "fa": "جوجه‌ها"
+          }
+        }
+      ]
+    },
+    {
+      "img": "5.jpg",
+      "alt": "Daisy is dreaming that she is flying",
+      "text": {
+        "en": "While she practised, she imagined herself flying high into the sky and looking at the chickens below. She imagined herself flying past the sparrows and past the swallows.\n“Wow!” the birds would say. “A chicken that can fly!”",
+        "nl": "Tijdens het oefenen droomde ze dat ze hoog in de lucht vloog en naar de kippen beneden keek. Ze droomde dat ze langs de mussen en de zwaluwen vloog.\n„Wauw!\" zouden de vogels zeggen. „Een kip die kan vliegen!\"",
+        "de": "Beim Üben stellte sie sich vor, wie sie hoch am Himmel flog und auf die Hühner hinunterschaute. Sie stellte sich vor, wie sie an den Spatzen und den Schwalben vorbeiflog.\n„Wow!\", würden die Vögel sagen. „Ein Huhn, das fliegen kann!\"",
+        "fa": "وقتی تمرین می‌کرد، خیال می‌کرد که بالا در آسمان پرواز می‌کند و مرغ‌های پایین را تماشا می‌کند. خیال می‌کرد که از کنارِ گنجشک‌ها و پرستوها پرواز می‌کند.\nپرنده‌ها می‌گفتند: «وای! یک مرغ که می‌تواند پرواز کند!»"
+      },
+      "spots": [
+        {
+          "x": 38,
+          "y": 12,
+          "r": 7,
+          "word": {
+            "en": "bird",
+            "nl": "de vogel",
+            "de": "der Vogel",
+            "fa": "پرنده"
+          }
+        },
+        {
+          "x": 14,
+          "y": 30,
+          "r": 6,
+          "word": {
+            "en": "bird",
+            "nl": "de vogel",
+            "de": "der Vogel",
+            "fa": "پرنده"
+          }
+        },
+        {
+          "x": 52,
+          "y": 42,
+          "r": 12,
+          "word": {
+            "en": "Wow! A chicken that can fly!",
+            "nl": "Wauw! Een kip die kan vliegen!",
+            "de": "Wow! Ein Huhn, das fliegen kann!",
+            "fa": "وای! مرغی که پرواز می‌کند!"
+          }
+        },
+        {
+          "x": 18,
+          "y": 78,
+          "r": 8,
+          "word": {
+            "en": "Daisy",
+            "nl": "Daisy",
+            "de": "Daisy",
+            "fa": "دیزی"
+          }
+        }
+      ]
+    },
+    {
+      "img": "6.jpg",
+      "alt": "She is jumping, and falling",
+      "text": {
+        "en": "So … Flap, flap, flap, every day Daisy would flap her wings.\nShe would lift off the ground but fall down again.",
+        "nl": "Dus … flap, flap, flap, elke dag klapperde Daisy met haar vleugels.\nZe kwam even van de grond, maar viel dan weer neer.",
+        "de": "Also … flatter, flatter, flatter, jeden Tag schlug Daisy mit den Flügeln.\nSie hob kurz vom Boden ab, aber fiel wieder herunter.",
+        "fa": "پس … بال، بال، بال، دیزی هر روز بال می‌زد.\nاز زمین بلند می‌شد، ولی دوباره می‌افتاد."
+      },
+      "spots": [
+        {
+          "x": 25,
+          "y": 40,
+          "r": 11,
+          "word": {
+            "en": "Flap, flap, flap!",
+            "nl": "Flap, flap, flap!",
+            "de": "Flatter, flatter, flatter!",
+            "fa": "بال، بال، بال!"
+          }
+        },
+        {
+          "x": 75,
+          "y": 48,
+          "r": 11,
+          "word": {
+            "en": "Oops!",
+            "nl": "Oeps!",
+            "de": "Hoppla!",
+            "fa": "اوه!"
+          }
+        }
+      ]
+    },
+    {
+      "img": "7.jpg",
+      "alt": "Daisy is looking uncertain while crying to her mom",
+      "text": {
+        "en": "“I’m never going to fly!” Daisy cried to Mama. “The others are right.”\n“Daisy, you are different from the other chickens. They don’t want to fly but you do! You can do it,” Mama said.",
+        "nl": "„Ik ga nooit vliegen!\" huilde Daisy bij mama. „De anderen hebben gelijk.\"\n„Daisy, jij bent anders dan de andere kippen. Zij willen niet vliegen, maar jij wel! Jij kunt het,\" zei mama.",
+        "de": "„Ich werde nie fliegen!\", weinte Daisy bei Mama. „Die anderen haben recht.\"\n„Daisy, du bist anders als die anderen Hühner. Sie wollen nicht fliegen, aber du schon! Du schaffst das\", sagte Mama.",
+        "fa": "دیزی پیشِ مامان گریه کرد: «من هیچ‌وقت پرواز نمی‌کنم! بقیه راست می‌گویند.»\nمامان گفت: «دیزی، تو با مرغ‌های دیگر فرق داری. آن‌ها نمی‌خواهند پرواز کنند، ولی تو می‌خواهی! تو می‌توانی.»"
+      },
+      "spots": [
+        {
+          "x": 30,
+          "y": 45,
+          "r": 12,
+          "word": {
+            "en": "Mama hen",
+            "nl": "mama kip",
+            "de": "Mama Huhn",
+            "fa": "مامان‌مرغه"
+          }
+        },
+        {
+          "x": 68,
+          "y": 47,
+          "r": 10,
+          "word": {
+            "en": "Daisy",
+            "nl": "Daisy",
+            "de": "Daisy",
+            "fa": "دیزی"
+          }
+        }
+      ]
+    },
+    {
+      "img": "8.jpg",
+      "alt": "Daisy is climbing a ladder",
+      "text": {
+        "en": "The following day Daisy climbed to the top of the chicken coop and flap, flap, flap, she flapped her wings.\nShe flew into the air and flapped her wings … and flapped her wings ... and flapped her wings\nand …",
+        "nl": "De volgende dag klom Daisy boven op het kippenhok en flap, flap, flap, ze klapperde met haar vleugels.\nZe vloog de lucht in en klapperde met haar vleugels … en klapperde … en klapperde\nen …",
+        "de": "Am nächsten Tag kletterte Daisy ganz oben auf den Hühnerstall, und flatter, flatter, flatter, sie schlug mit den Flügeln.\nSie flog in die Luft und schlug mit den Flügeln … und schlug mit den Flügeln … und schlug mit den Flügeln\nund …",
+        "fa": "فردای آن روز، دیزی رفت بالای لانه‌ی مرغ‌ها و بال، بال، بال، بال زد.\nتوی هوا پرید و بال زد … و بال زد … و بال زد\nو …"
+      },
+      "spots": [
+        {
+          "x": 28,
+          "y": 55,
+          "r": 13,
+          "word": {
+            "en": "Flap, flap, flap!",
+            "nl": "Flap, flap, flap!",
+            "de": "Flatter, flatter, flatter!",
+            "fa": "بال، بال، بال!"
+          }
+        },
+        {
+          "x": 70,
+          "y": 62,
+          "r": 9,
+          "word": {
+            "en": "ladder",
+            "nl": "de ladder",
+            "de": "die Leiter",
+            "fa": "نردبان"
+          }
+        }
+      ]
+    },
+    {
+      "img": "9.jpg",
+      "alt": "Daisy is falling off the ladder",
+      "text": {
+        "en": "BAM! The other chickens laughed out loud.“Ha ha ha! We told you! Chickens can’t fly!”",
+        "nl": "BAM! De andere kippen lachten hardop. „Ha ha ha! Zie je wel! Kippen kunnen niet vliegen!\"",
+        "de": "BUMM! Die anderen Hühner lachten laut. „Ha ha ha! Wir haben's dir ja gesagt! Hühner können nicht fliegen!\"",
+        "fa": "بُومب! مرغ‌های دیگر بلند بلند خندیدند. «ها ها ها! گفتیم که! مرغ‌ها نمی‌توانند پرواز کنند!»"
+      },
+      "spots": [
+        {
+          "x": 55,
+          "y": 55,
+          "r": 12,
+          "word": {
+            "en": "BAM!",
+            "nl": "BAM!",
+            "de": "BUMM!",
+            "fa": "بُومب!"
+          }
+        },
+        {
+          "x": 15,
+          "y": 75,
+          "r": 9,
+          "word": {
+            "en": "Ha ha ha!",
+            "nl": "Ha ha ha!",
+            "de": "Ha ha ha!",
+            "fa": "ها ها ها!"
+          }
+        },
+        {
+          "x": 88,
+          "y": 72,
+          "r": 9,
+          "word": {
+            "en": "Ha ha ha!",
+            "nl": "Ha ha ha!",
+            "de": "Ha ha ha!",
+            "fa": "ها ها ها!"
+          }
+        }
+      ]
+    },
+    {
+      "img": "10.jpg",
+      "alt": "Daisy is flapping her wings and finally flying in the air",
+      "text": {
+        "en": "But the next day Daisy climbed even higher, right up to the top of the rondavel.\nFlap, flap, flap, Daisy flapped her wings.\nShe flew into the air and flapped her wings … and flapped her wings … and flapped her wings and …",
+        "nl": "Maar de volgende dag klom Daisy nog hoger, helemaal boven op het ronde hutje.\nFlap, flap, flap, Daisy klapperde met haar vleugels.\nZe vloog de lucht in en klapperde … en klapperde … en klapperde en …",
+        "de": "Aber am nächsten Tag kletterte Daisy noch höher, ganz oben auf die runde Hütte.\nFlatter, flatter, flatter, Daisy schlug mit den Flügeln.\nSie flog in die Luft und schlug mit den Flügeln … und schlug … und schlug und …",
+        "fa": "ولی روزِ بعد، دیزی باز هم بالاتر رفت، درست تا بالای کلبه‌ی گِرد.\nبال، بال، بال، دیزی بال زد.\nتوی هوا پرید و بال زد … و بال زد … و بال زد و …"
+      },
+      "spots": [
+        {
+          "x": 82,
+          "y": 32,
+          "r": 11,
+          "word": {
+            "en": "Flap, flap, flap!",
+            "nl": "Flap, flap, flap!",
+            "de": "Flatter, flatter, flatter!",
+            "fa": "بال، بال، بال!"
+          }
+        },
+        {
+          "x": 36,
+          "y": 42,
+          "r": 9,
+          "word": {
+            "en": "Flap, flap, flap!",
+            "nl": "Flap, flap, flap!",
+            "de": "Flatter, flatter, flatter!",
+            "fa": "بال، بال، بال!"
+          }
+        },
+        {
+          "x": 10,
+          "y": 85,
+          "r": 7,
+          "word": {
+            "en": "Daisy",
+            "nl": "Daisy",
+            "de": "Daisy",
+            "fa": "دیزی"
+          }
+        }
+      ]
+    },
+    {
+      "img": "11.jpg",
+      "alt": "She is flying together with two other birds",
+      "text": {
+        "en": "She kept flying! The wind beneath her wings grew stronger and she flew higher and higher!\nThe sparrows and the swallows said, “Amazing! A flying chicken!”",
+        "nl": "Ze bleef vliegen! De wind onder haar vleugels werd sterker en ze vloog hoger en hoger!\nDe mussen en de zwaluwen zeiden: „Geweldig! Een vliegende kip!\"",
+        "de": "Sie flog weiter! Der Wind unter ihren Flügeln wurde stärker, und sie flog höher und höher!\nDie Spatzen und die Schwalben sagten: „Unglaublich! Ein fliegendes Huhn!\"",
+        "fa": "او پرواز کرد و پرواز کرد! باد زیرِ بال‌هایش قوی‌تر شد و او بالاتر و بالاتر رفت!\nگنجشک‌ها و پرستوها گفتند: «شگفت‌انگیز است! یک مرغِ پرنده!»"
+      },
+      "spots": [
+        {
+          "x": 60,
+          "y": 50,
+          "r": 14,
+          "word": {
+            "en": "Amazing!",
+            "nl": "Geweldig!",
+            "de": "Unglaublich!",
+            "fa": "شگفت‌انگیز!"
+          }
+        },
+        {
+          "x": 15,
+          "y": 14,
+          "r": 7,
+          "word": {
+            "en": "bird",
+            "nl": "de vogel",
+            "de": "der Vogel",
+            "fa": "پرنده"
+          }
+        },
+        {
+          "x": 12,
+          "y": 90,
+          "r": 7,
+          "word": {
+            "en": "bird",
+            "nl": "de vogel",
+            "de": "der Vogel",
+            "fa": "پرنده"
+          }
+        }
+      ]
+    },
+    {
+      "img": "12.jpg",
+      "alt": "The other chicks try to fly, too",
+      "text": {
+        "en": "And the other chickens wanted to be just like her.\nThey said, “Oh Daisy, you’re amazing!”",
+        "nl": "En de andere kippen wilden net zo zijn als zij.\nZe zeiden: „O Daisy, jij bent geweldig!\"",
+        "de": "Und die anderen Hühner wollten genauso sein wie sie.\nSie sagten: „Oh Daisy, du bist unglaublich!\"",
+        "fa": "و مرغ‌های دیگر هم می‌خواستند مثلِ او باشند.\nگفتند: «وای دیزی، تو شگفت‌انگیزی!»"
+      },
+      "spots": [
+        {
+          "x": 90,
+          "y": 24,
+          "r": 7,
+          "word": {
+            "en": "Daisy",
+            "nl": "Daisy",
+            "de": "Daisy",
+            "fa": "دیزی"
+          }
+        },
+        {
+          "x": 70,
+          "y": 64,
+          "r": 9,
+          "word": {
+            "en": "Amazing!",
+            "nl": "Geweldig!",
+            "de": "Unglaublich!",
+            "fa": "شگفت‌انگیز!"
+          }
+        },
+        {
+          "x": 18,
+          "y": 26,
+          "r": 8,
+          "word": {
+            "en": "Flap, flap, flap!",
+            "nl": "Flap, flap, flap!",
+            "de": "Flatter, flatter, flatter!",
+            "fa": "بال، بال، بال!"
+          }
+        }
+      ]
+    }
+  ],
+  "colouring": true,
+  "quiz": [
+    {
+      "q": {
+        "en": "Which picture shows Daisy flying high in the sky?",
+        "nl": "Op welk plaatje vliegt Daisy hoog in de lucht?",
+        "de": "Auf welchem Bild fliegt Daisy hoch am Himmel?",
+        "fa": "در کدام عکس دیزی بالا در آسمان پرواز می‌کند؟"
+      },
+      "choices": [
+        11,
+        6,
+        3
+      ],
+      "answer": 11
+    },
+    {
+      "q": {
+        "en": "Where does Mama say: \"You can do it\"?",
+        "nl": "Waar zegt mama: „Jij kunt het\"?",
+        "de": "Wo sagt Mama: „Du schaffst das\"?",
+        "fa": "کجا مامان می‌گوید: «تو می‌توانی»؟"
+      },
+      "choices": [
+        2,
+        9,
+        7
+      ],
+      "answer": 7
+    }
+  ]
+}

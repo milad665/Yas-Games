@@ -4,9 +4,11 @@
 // language she's using are downloaded ahead of time; the pages tell us which one that is
 // (see /shared/voice.js), and switching languages fetches the other set.
 // Images (and Space Discovery's pictures of the Earth and the Moon): served from cache, refreshed in the background.
-importScripts('/shared/games.js', '/shared/edition.js');
+// Story Books: the covers come with the pages; each book's pictures and its reading in her language are
+// downloaded after the voice clips, so every book works offline too.
+importScripts('/shared/games.js', '/shared/edition.js', '/books/books.js');
 
-const CACHE = 'yas-games-v14';
+const CACHE = 'yas-games-v15';
 // survives version bumps: remembers the chosen language so a new version can precache its clips
 const SETTINGS = 'yas-games-settings';
 const LANGS = (self.EDITION && EDITION.langs) || ['en', 'nl', 'fa'];
@@ -27,6 +29,8 @@ const CORE = [
   '/shared/scenery.js',
   '/voice/manifest.json',
   ...self.GAMES.map(g => '/' + g.path),
+  '/books/books.js',
+  ...(self.BOOKS || []).flatMap(b => [`/books/${b}/book.json`, `/books/${b}/cover.jpg`, `/books/${b}/voice/manifest.json`]),
 ];
 
 self.addEventListener('install', event => {
@@ -81,6 +85,21 @@ function cacheClips(lang) {
         for (const url of urls) if (!(await cache.match(url))) todo.push(url);
         await Promise.all(Array.from({ length: 6 }, async () => {
           while (todo.length) await cache.add(todo.shift()).catch(() => {});
+        }));
+        // then the story books: pictures, and their reading in this language
+        const later = [];
+        for (const b of self.BOOKS || []) {
+          try {
+            const book = await (await fetch(`/books/${b}/book.json`)).json();
+            const voice = await (await fetch(`/books/${b}/voice/manifest.json`, { cache: 'no-cache' })).json().catch(() => ({}));
+            later.push(...book.pages.map(p => `/books/${b}/${p.img}`));
+            later.push(...Object.entries(voice[lang] || {}).filter(([, c]) => !c.f).map(([key, c]) => `/books/${b}/voice/${lang}/${encodeURIComponent(key)}.mp3?v=${c.h}`));
+          } catch (e) { /* this book another time */ }
+        }
+        const rest = [];
+        for (const url of later) if (!(await cache.match(url))) rest.push(url);
+        await Promise.all(Array.from({ length: 4 }, async () => {
+          while (rest.length) await cache.add(rest.shift()).catch(() => {});
         }));
       } catch (e) { /* offline or no clips yet: games fall back to the built-in voice */ }
       finally { delete filling[lang]; }
