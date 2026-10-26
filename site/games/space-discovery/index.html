@@ -38,6 +38,19 @@
   .pin .dot { width: 14px; height: 14px; border-radius: 50%; background: #ff5fa2; border: 3px solid #fff; margin-top: -2px; }
   .pin.boing .face { animation: sd-boing .6s cubic-bezier(.3,1.6,.5,1); }
 
+  /* the sky from the ground: rings to tap round the Sun, the Moon and the planets */
+  .skytag { position: absolute; left: 0; top: 0; width: 0; height: 0; padding: 0; border: none; background: none; display: none; pointer-events: auto; touch-action: manipulation; --size: 64px; }
+  .skytag .ring { position: absolute; left: calc(var(--size) / -2); top: calc(var(--size) / -2); width: var(--size); height: var(--size); border-radius: 50%;
+    border: 3px dashed rgba(253, 224, 71, .95); animation: kit-spin 12s linear infinite; box-shadow: 0 0 12px rgba(253, 224, 71, .5); }
+  .skytag .icon { position: absolute; left: 50%; top: calc(var(--size) / 2 + 6px); translate: -50% 0; display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%;
+    background: rgba(255,255,255,.92); font-size: 26px; box-shadow: 0 4px 10px rgba(0,0,0,.3); }
+  .skytag .icon .ball { width: 26px; height: 26px; }
+  .skytag .icon .ball.saturn { width: 20px; height: 20px; }
+  .skytag .icon .ball.saturn::after { left: -8px; right: -8px; top: 7px; height: 6px; border-width: 2px; }
+  .skytag.boing .icon { animation: sd-boing .6s cubic-bezier(.3,1.6,.5,1); }
+  #fade { position: fixed; inset: 0; z-index: 30; background: #fff; opacity: 0; pointer-events: none; transition: opacity .28s; }
+  #fade.on { opacity: 1; }
+
   /* the rocket that flies along on a trip */
   #rocket { position: fixed; left: 50%; top: 58%; z-index: 4; font-size: 74px; pointer-events: none; opacity: 0; transition: opacity .3s; filter: drop-shadow(0 0 12px rgba(255, 180, 80, .8)); }
   #rocket.on { opacity: 1; animation: sd-shake .18s linear infinite; }
@@ -123,6 +136,7 @@
 <div id="touch"></div>
 <div id="world"></div>
 <div id="rocket">🚀</div>
+<div id="fade"></div>
 
 <a class="btn corner left" href="../../" aria-label="Back to Yas's Games">🏠</a>
 <button id="soundBtn" class="btn corner right" aria-label="Sound on or off">🔊</button>
@@ -218,23 +232,26 @@
   const latLon = v => [Math.asin(clamp(v[1], -1, 1)) / D2R, Math.atan2(-v[2], v[0]) / D2R];
   const wrapLon = l => ((l + 540) % 360) - 180;
 
-  // ---------- the solar system (not to scale: real distances would make everything too tiny to see) ----------
-  //   r: radius (the Earth is 1)   a: distance from the Sun   L0, n: where it is on its orbit (degrees, J2000, per day)
+  // ---------- the solar system ----------
+  // Every size is true to every other (the Earth is 1, the Sun 109), and so is the Moon's distance.
+  // Only the distances from the Sun are squeezed, about 90 times: at true scale the planets would be
+  // too tiny to find. au is the real distance, for the sky as seen from the Earth.
+  //   r: radius   a: distance from the Sun here   L0, n: where it is on its orbit (degrees, J2000, per day)
   const BODIES = [
-    { id: 'sun', r: 12, color: '#ffd166' },
-    { id: 'mercury', r: .38, a: 36, L0: 252.25, n: 4.09233, spin: .02, color: '#b8b0a8' },
-    { id: 'venus', r: .95, a: 50, L0: 181.98, n: 1.60213, spin: .006, color: '#f5d48a' },
-    { id: 'earth', r: 1, a: 69, L0: 100.46, n: .98561, color: '#5aa7ff' },
-    { id: 'mars', r: .53, a: 90, L0: 355.45, n: .52403, spin: .04, color: '#e8784a' },
-    { id: 'jupiter', r: 5, a: 144, L0: 34.40, n: .08309, spin: .07, color: '#e0c49a' },
-    { id: 'saturn', r: 4.2, a: 192, L0: 49.94, n: .03346, spin: .06, tilt: 27, color: '#ecd9a0' },
-    { id: 'uranus', r: 2.2, a: 234, L0: 313.23, n: .01173, spin: .05, roll: 98, color: '#9fe6ee' },
-    { id: 'neptune', r: 2.1, a: 270, L0: 304.88, n: .00598, spin: .05, color: '#5b82f0' },
-    { id: 'moon', r: .27, color: '#cfcfcf' },
+    { id: 'sun', r: 109, color: '#ffd166' },
+    { id: 'mercury', r: .383, a: 160, au: .387, L0: 252.25, n: 4.09233, spin: .02, color: '#b8b0a8' },
+    { id: 'venus', r: .949, a: 210, au: .723, L0: 181.98, n: 1.60213, spin: .006, color: '#f5d48a' },
+    { id: 'earth', r: 1, a: 260, au: 1, L0: 100.46, n: .98561, color: '#5aa7ff' },
+    { id: 'mars', r: .532, a: 320, au: 1.524, L0: 355.45, n: .52403, spin: .04, color: '#e8784a' },
+    { id: 'jupiter', r: 11.21, a: 560, au: 5.203, L0: 34.40, n: .08309, spin: .07, color: '#e0c49a' },
+    { id: 'saturn', r: 9.45, a: 720, au: 9.537, L0: 49.94, n: .03346, spin: .06, tilt: 27, color: '#ecd9a0' },
+    { id: 'uranus', r: 4.01, a: 880, au: 19.19, L0: 313.23, n: .01173, spin: .05, roll: 98, color: '#9fe6ee' },
+    { id: 'neptune', r: 3.88, a: 1020, au: 30.07, L0: 304.88, n: .00598, spin: .05, color: '#5b82f0' },
+    { id: 'moon', r: .273, color: '#cfcfcf' },
   ];
   const B = Object.fromEntries(BODIES.map((b, i) => [b.id, Object.assign(b, { i, pos: [0, 0, 0], rot: I3 })]));
-  const MOON_A = 7;          // the Moon's orbit (the real one is 60 Earths away)
-  const BELT = [108, 129];     // the asteroid belt, between Mars and Jupiter
+  const MOON_A = 60;         // the Moon's orbit: 60 Earth radii, as in real life
+  const BELT = [400, 470];     // the asteroid belt, between Mars and Jupiter
   const J2000 = Date.UTC(2000, 0, 1, 12);
   const NEW_MOON = (Date.UTC(2000, 0, 6, 18, 14) - J2000) / 864e5, SYNODIC = 29.530588;
 
@@ -270,12 +287,13 @@
       b.rot = m;
     }
     const eAng = B.earth.L0 + B.earth.n * days;
-    rocksAt = helio(118, eAng + 55); rocksAt[1] = .8;
-    cometAt = helio(162, eAng - 70); cometAt[1] = 18;
+    rocksAt = helio(435, eAng + 55); rocksAt[1] = .8;
+    cometAt = helio(640, eAng - 70); cometAt[1] = 60;
   }
 
   // ---------- places to fly to ----------
   const NAMES = {
+    sky: ['🔭', { en: 'Our sky', nl: 'Onze lucht', de: 'Unser Himmel', es: 'Nuestro cielo', fa: 'آسمونِ ما' }],
     earth: ['🌍', { en: 'Earth', nl: 'Aarde', de: 'Erde', es: 'Tierra', fa: 'زمین' }],
     moon: ['🌙', { en: 'Moon', nl: 'Maan', de: 'Mond', es: 'Luna', fa: 'ماه' }],
     sun: ['☀️', { en: 'Sun', nl: 'Zon', de: 'Sonne', es: 'Sol', fa: 'خورشید' }],
@@ -309,7 +327,7 @@
   // the Earth's camera turns with the Earth, so home stays put (except while it spins for day and night)
   let spinFrame = null;
   const frameOf = f => f === 'earth' ? (spinFrame || earthR) : I3;
-  const MAXD = { earth: 45, moon: 30, sun: 1300, stars: 16000 };
+  const MAXD = { earth: 200, moon: 30, sun: 5500, stars: 70000 };
   const maxDist = f => MAXD[f] || radiusOf(f) * 40 + 20;
   const minDist = f => f === 'earth' ? distForZoom(MAX_ZOOM, cam.lat) : radiusOf(f) * 1.25;
 
@@ -397,7 +415,7 @@
     void main() { vec2 p = vec2(float((gl_VertexID << 1) & 2), float(gl_VertexID & 2)); gl_Position = vec4(p * 2. - 1., 0., 1.); }`;
   const FRAG = `#version 300 es
     precision highp float;
-    uniform vec2 uRes; uniform vec3 uR, uU, uF, uCam; uniform float uTan, uTime, uOrbits, uMoonOrbit, uFlat;
+    uniform vec2 uRes; uniform vec3 uR, uU, uF, uCam; uniform float uTan, uTime, uOrbits, uMoonOrbit, uFlat, uSky; uniform vec3 uUp, uNorth;
     uniform vec4 uB[10]; uniform mat3 uRot[10];
     uniform sampler2D uDay, uNight, uMoonT;
     out vec4 outColor;
@@ -434,6 +452,20 @@
       float m = exp(-pow(dot(d, normalize(vec3(.3, .86, .42))), 2.) * 14.);
       col += (vec3(.17, .14, .28) * fbm(d * 4.) * smoothstep(.25, .7, fbm(d * 9. + 2.)) * 1.6 + vec3(.04, .04, .08)) * m;
       return col + star(d, 170., .955, .34) + star(d, 70., .985, .3) * 1.5;
+    }
+    // standing on the Earth: blue by day, starry at night, a glow at sunrise and sunset
+    vec3 skyFromGround(vec3 rd) {
+      vec3 s = normalize(uB[0].xyz);
+      float alt = dot(rd, uUp), sunAlt = dot(s, uUp), day = smoothstep(-.1, .1, sunAlt);
+      vec3 blue = mix(vec3(.66, .82, 1.), vec3(.22, .47, .92), smoothstep(0., .5, alt));
+      float glow = exp(-abs(sunAlt + .02) * 9.) * exp(-max(alt, 0.) * 5.) * (.35 + .65 * pow(dot(rd, s) * .5 + .5, 3.));
+      return mix(sky(rd), blue, day) + vec3(1., .45, .15) * glow * .75;
+    }
+    // rolling hills all round
+    float hills(vec3 rd) {
+      vec3 e = cross(uNorth, uUp); float az = atan(dot(rd, e), dot(rd, uNorth));
+      vec3 q = vec3(cos(az), sin(az), 0.);
+      return .03 * noise(q * 3.) + .014 * noise(q * 11. + 4.) - .006;
     }
     vec3 shade(int id, vec3 P, vec3 rd) {
       vec4 b = uB[id]; vec3 N = normalize(P - b.xyz), L = normalize(uB[0].xyz - P);
@@ -482,6 +514,16 @@
       vec3 rd = normalize(uF + uTan * (p.x * uR + p.y * uU));
       float tm = 1e30; int id = -1;
       for (int i = 0; i < 10; i++) { float t = sphere(rd, uB[i]); if (t > 0. && t < tm) { tm = t; id = i; } }
+      if (uSky > .5) {
+        vec3 bg = skyFromGround(rd), col = id < 0 ? bg : shade(id, rd * tm, rd);
+        float day = smoothstep(-.1, .1, dot(normalize(uB[0].xyz), uUp));
+        if (id == 9) col += bg * .55 * day; // the Moon in a daytime sky
+        { vec4 s = uB[0]; float t = dot(s.xyz, rd); if (t > 0.) { float g = s.w / max(length(t * rd - s.xyz), s.w); col += vec3(1., .85, .6) * (pow(g, 1.3) * .9 + pow(g, .5) * .12) * (.35 + .65 * day) + vec3(1.) * step(.999, g); } }
+        float alt = dot(rd, uUp), h = hills(rd);
+        if (alt < h) col = mix(vec3(.03, .06, .05), vec3(.3, .6, .24), day) * (.7 + .3 * smoothstep(h - .25, h, alt));
+        outColor = vec4(min(col, 1.), 1.);
+        return;
+      }
       vec3 col = id < 0 ? sky(rd) : shade(id, rd * tm, rd);
       { // the glow of the Earth's air
         vec4 e = uB[3]; float t = dot(e.xyz, rd);
@@ -555,7 +597,7 @@
     if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(prog));
     gl.useProgram(prog);
     gl.bindVertexArray(gl.createVertexArray());
-    for (const n of ['uRes', 'uR', 'uU', 'uF', 'uCam', 'uTan', 'uTime', 'uOrbits', 'uMoonOrbit', 'uFlat', 'uB', 'uRot', 'uDay', 'uNight', 'uMoonT']) U[n] = gl.getUniformLocation(prog, n);
+    for (const n of ['uRes', 'uR', 'uU', 'uF', 'uCam', 'uTan', 'uTime', 'uOrbits', 'uMoonOrbit', 'uFlat', 'uSky', 'uUp', 'uNorth', 'uB', 'uRot', 'uDay', 'uNight', 'uMoonT']) U[n] = gl.getUniformLocation(prog, n);
     texture(0, 'earth-day.jpg', [20, 60, 140]); gl.uniform1i(U.uDay, 0);
     texture(1, 'earth-night.jpg', [0, 0, 0]); gl.uniform1i(U.uNight, 1);
     texture(2, 'moon.jpg', [150, 150, 150]); gl.uniform1i(U.uMoonT, 2);
@@ -580,18 +622,23 @@
     gl.viewport(0, 0, glCv.width, glCv.height);
     gl.uniform2f(U.uRes, glCv.width, glCv.height);
     gl.uniform3fv(U.uR, c.r); gl.uniform3fv(U.uU, c.u); gl.uniform3fv(U.uF, c.f); gl.uniform3fv(U.uCam, c.pos);
-    gl.uniform1f(U.uTan, TAN); gl.uniform1f(U.uTime, secs % 1000); gl.uniform1f(U.uFlat, flat);
+    gl.uniform1f(U.uTan, c.tan); gl.uniform1f(U.uTime, secs % 1000); gl.uniform1f(U.uFlat, flat);
     for (const b of BODIES) {
-      const p = sub(b.pos, c.pos);
-      bodyArr.set([p[0], p[1], p[2], b.r], b.i * 4);
+      let p = sub(b.pos, c.pos), r = b.r;
+      // from the ground: the Sun in its real direction at its real size (half a degree); the Moon is already true
+      if (sky && b.id === 'sun') { p = mul(norm(sub(B.sun.pos, B.earth.pos)), 2e4); r = 2e4 * Math.tan(.2666 * D2R); }
+      else if (sky && b.id !== 'moon') r = 0;
+      bodyArr.set([p[0], p[1], p[2], r], b.i * 4);
       rotArr.set(b.rot, b.i * 9);
     }
+    gl.uniform1f(U.uSky, sky ? 1 : 0);
+    if (sky) { const g = skyFrame(); gl.uniform3fv(U.uUp, g.U); gl.uniform3fv(U.uNorth, g.N); }
     gl.uniform4fv(U.uB, bodyArr); gl.uniformMatrix3fv(U.uRot, false, rotArr);
     // the orbits show when you're out among the planets; the Moon's when you see the Earth and the Moon together
-    const far = len(sub(c.pos, B.sun.pos)) > 2500 ? 0 : 1;
+    const far = len(sub(c.pos, B.sun.pos)) > 10000 ? 0 : 1;
     const fromEarth = len(sub(c.pos, B.earth.pos));
-    gl.uniform1f(U.uOrbits, .55 * smooth(10, 70, cam.focus === 'earth' || cam.focus === 'moon' ? fromEarth : 999) * far);
-    gl.uniform1f(U.uMoonOrbit, .4 * smooth(3, 7, fromEarth) * (1 - smooth(60, 160, fromEarth)));
+    gl.uniform1f(U.uOrbits, .55 * smooth(30, 300, cam.focus === 'earth' || cam.focus === 'moon' ? fromEarth : 999) * far);
+    gl.uniform1f(U.uMoonOrbit, .4 * smooth(8, 25, fromEarth) * (1 - smooth(500, 1500, fromEarth)));
     gl.drawArrays(gl.TRIANGLES, 0, 3);
   }
 
@@ -599,6 +646,10 @@
   let flight = null; // a trip in progress
   function pose() {
     if (flight && flight.pose) return flight.pose;
+    if (sky) {
+      const g = skyFrame(), pos = add(B.earth.pos, mul(g.U, 1.00001));
+      return { pos, target: add(pos, skyDir(sky.az, sky.alt)), up: g.U, tan: Math.tan(sky.fov / 2 * D2R) };
+    }
     const F = centerOf(cam.focus), V = frameOf(cam.focus);
     return { pos: add(F, mul(mulMV(V, local(cam.lat, cam.lon)), cam.dist)), target: F, up: mulMV(V, UP) };
   }
@@ -607,12 +658,12 @@
     let r = cross(f, p.up);
     if (len(r) < 1e-6) r = cross(f, [1, 0, 0]);
     r = norm(r);
-    return { pos: p.pos, f, r, u: cross(r, f) };
+    return { pos: p.pos, f, r, u: cross(r, f), tan: p.tan || TAN };
   }
   function project(P, c) {
     const v = sub(P, c.pos), z = dot(v, c.f);
     if (z <= 1e-9) return null;
-    const k = H / 2 / (TAN * z);
+    const k = H / 2 / (c.tan * z);
     return { x: W / 2 + dot(v, c.r) * k, y: H / 2 - dot(v, c.u) * k, z, k };
   }
   function hitBody(rd, c, maxT = Infinity) {
@@ -625,7 +676,61 @@
     }
     return best;
   }
-  const rayAt = (x, y, c) => norm(add(c.f, mul(add(mul(c.r, (2 * x - W) / H), mul(c.u, (H - 2 * y) / H)), TAN)));
+  const rayAt = (x, y, c) => norm(add(c.f, mul(add(mul(c.r, (2 * x - W) / H), mul(c.u, (H - 2 * y) / H)), c.tan)));
+
+  // ---------- the sky above home ----------
+  // Standing on the Earth looking up: sky = { lat, lon, az, alt, fov } (degrees; az from north towards east).
+  let sky = null;
+  function skyFrame() {
+    const U = mulMV(earthR, local(sky.lat, sky.lon)), P = mulMV(earthR, UP);
+    const N = norm(sub(P, mul(U, dot(P, U))));
+    return { U, N, E: cross(N, U) };
+  }
+  function skyDir(az, alt) {
+    const g = skyFrame(), a = az * D2R, h = alt * D2R;
+    return norm(add(add(mul(g.N, Math.cos(h) * Math.cos(a)), mul(g.E, Math.cos(h) * Math.sin(a))), mul(g.U, Math.sin(h))));
+  }
+  const azAlt = d => { const g = skyFrame(); return [Math.atan2(dot(d, g.E), dot(d, g.N)) / D2R, Math.asin(clamp(dot(d, g.U), -1, 1)) / D2R]; };
+  // which way to look for each thing in the sky: the Sun and the Moon from the model (the Moon is true to
+  // scale), the planets from their real distances, so they're where they really are tonight
+  function skyTarget(id) {
+    if (id === 'sun') return norm(sub(B.sun.pos, B.earth.pos));
+    if (id === 'moon') return norm(sub(B.moon.pos, add(B.earth.pos, skyFrame().U)));
+    const days = (Date.now() + timeOffset - J2000) / 864e5, b = B[id], e = B.earth;
+    return norm(sub(helio(b.au, b.L0 + b.n * days), helio(1, e.L0 + e.n * days)));
+  }
+  const SKY_THINGS = ['sun', 'moon', 'mercury', 'venus', 'mars', 'jupiter', 'saturn', 'uranus', 'neptune'];
+  const visibleInSky = id => {
+    const [, alt] = azAlt(skyTarget(id)), sunAlt = azAlt(skyTarget('sun'))[1];
+    return alt > 1.5 && (id === 'sun' || id === 'moon' || sunAlt < -4); // planets only once it's dark
+  };
+  function fade(on) { $('fade').classList.toggle('on', on); return Kit.sleep(300); }
+  async function enterSky() {
+    const my = ++trip;
+    stopSpin(true); rocket(false);
+    // stand where she's looking (zoomed in on a house), else at home
+    const h = places[0], close = cam.focus === 'earth' && !flight && mapZoom() > 6;
+    const lat = close ? cam.lat : h ? h.lat : cam.focus === 'earth' ? cam.lat : 52;
+    const lon = close ? cam.lon : h ? h.lon : cam.focus === 'earth' ? cam.lon : cam.lon;
+    view = 'sky'; paintBar(); setLabel('sky');
+    await fade(true);
+    if (my !== trip) return;
+    flight = null;
+    sky = { lat, lon, az: 180, alt: 25, fov: 60, zoom: close || h ? 17 : 10 }; // take off from the house, or from higher up
+    // face the Moon if it's up, else the Sun, else south
+    const look = ['moon', 'sun'].find(visibleInSky);
+    if (look) { const [az, alt] = azAlt(skyTarget(look)); sky.az = az; sky.alt = clamp(alt - 12, 8, 50); } // with the hills in view
+    fade(false);
+    say('sd.sky');
+  }
+  // blast off: from the sky to standing over the house on the map, then up and away
+  async function leaveSky() {
+    const { lat, lon, zoom } = sky;
+    await fade(true);
+    sky = null;
+    Object.assign(cam, { focus: 'earth', lat, lon, dist: distForZoom(zoom, lat) });
+    fade(false);
+  }
 
   // ---------- trips ----------
   // Round the Earth (house → house, or out to see the whole Earth): latitude, longitude and height,
@@ -675,9 +780,9 @@
     switch (id) {
       case 'earth': { const h = places[0]; return [h ? h.lat : 25, h ? h.lon : cam.lon, 3.4]; }
       case 'moon': return [...tilt(norm(add(mul(toSun, .6), mul(norm(sub(B.earth.pos, C)), .8))), .25), B.moon.r * 4.2];
-      case 'sun': return [...tilt(toEarth, .35), B.sun.r * 3.3];
-      case 'solar': return [...tilt(mul(toEarth, .6), 1), Math.max(245 / TAN, 285 / (TAN * aspect))];
-      case 'stars': return [...tilt(mulMV(rotY(.5), toEarth), .5), 7000];
+      case 'sun': return [...tilt(toEarth, .45), B.sun.r * 2.8];
+      case 'solar': return [...tilt(mul(toEarth, .6), 1), Math.max(1000 / TAN, 1150 / (TAN * aspect))];
+      case 'stars': return [...tilt(mulMV(rotY(.5), toEarth), .5), 30000];
       case 'rocks': return [...tilt(mulMV(rotY(.7), toSun), .35), 9];
       case 'comet': return [...tilt(mulMV(rotY(.9), toSun), .3), 7.5];
       default: return [...tilt(mulMV(rotY(.6), toSun), .3), B[id].r * (id === 'saturn' ? 6.2 : 3.6)];
@@ -687,9 +792,10 @@
   let trip = 0; // each new trip cancels the one before
   async function flyTo(id, { quiet = false } = {}) {
     const my = ++trip;
-    stopSpin(true);
-    const f = FOCUS(id), [lat, lon, dist] = arrival(id);
+    stopSpin(true); rocket(false);
     view = id; paintBar(); setLabel(id);
+    if (sky) { await leaveSky(); if (my !== trip) return; }
+    const f = FOCUS(id), [lat, lon, dist] = arrival(id);
     if (cam.focus === 'earth' && f === 'earth' && !(flight && flight.space)) {
       await flyEarth(lat, lon, dist);
     } else {
@@ -705,8 +811,9 @@
   }
   async function flyToPlace(p) {
     const my = ++trip;
-    stopSpin(true);
+    stopSpin(true); rocket(false);
     view = 'place:' + p.id; paintBar(); setLabel(null, p);
+    if (sky) { await leaveSky(); if (my !== trip) return; }
     if (cam.focus !== 'earth' || (flight && flight.space)) {
       say(['sd.go1', 'sd.go2']); Kit.sfx.whoosh(); rocket(true);
       await flySpace('earth', p.lat, p.lon, 3.4);
@@ -722,8 +829,9 @@
   // the next step out: from a planet to the whole solar system, and from there to the stars
   function zoomOutMore() {
     if (flight) return;
+    if (sky) return flyTo('earth');
     if (view === 'stars') return bump();
-    flyTo(cam.focus === 'sun' && cam.dist > 450 ? 'stars' : 'solar');
+    flyTo(cam.focus === 'sun' && cam.dist > 1800 ? 'stars' : 'solar');
   }
   function bump() { Kit.sfx.boing(); Kit.flash($('zoom'), 'wobble'); }
 
@@ -732,6 +840,13 @@
   function zoomBy(inwards) {
     if (flight || pickMode && !inwards && mapZoom() < 5) return;
     stopSpin(true);
+    if (sky) {
+      if (inwards && sky.fov <= 2.01) return bump();
+      if (!inwards && sky.fov >= 74.9) return zoomOutMore();
+      zoomTween = { sky: true, from: Math.log(sky.fov), to: Math.log(clamp(sky.fov * (inwards ? .4 : 2.5), 2, 75)), t0: performance.now() };
+      Kit.sfx.pop();
+      return;
+    }
     const f = cam.focus, r = f === 'earth' ? 1 : radiusOf(f), lo = minDist(f), hi = maxDist(f);
     let to = r + (cam.dist - r) * (inwards ? .3 : 3.4);
     if (inwards && cam.dist <= lo * 1.0001) return bump();
@@ -743,6 +858,7 @@
   function stepZoom(now) {
     if (!zoomTween) return;
     const t = clamp((now - zoomTween.t0) / 450, 0, 1);
+    if (zoomTween.sky) { if (sky) sky.fov = Math.exp(zoomTween.from + (zoomTween.to - zoomTween.from) * ease(t)); if (t >= 1) zoomTween = null; return; }
     cam.dist = zoomTween.r + Math.exp(zoomTween.from + (zoomTween.to - zoomTween.from) * ease(t));
     if (t >= 1) zoomTween = null;
   }
@@ -760,6 +876,12 @@
   function stepHold(now, dt) {
     if (!hold || now - hold.t0 < 300 || flight) return;
     if (!hold.held) { hold.held = true; zoomTween = null; stopSpin(true); }
+    if (sky) {
+      const fov = sky.fov * Math.exp((hold.inwards ? -1 : 1) * dt * .0018);
+      if (fov > 75) { hold = null; return zoomOutMore(); }
+      sky.fov = clamp(fov, 2, 75);
+      return;
+    }
     const f = cam.focus, r = f === 'earth' ? 1 : radiusOf(f);
     const to = r + (cam.dist - r) * Math.exp((hold.inwards ? -1 : 1) * dt * .0024);
     if (!hold.inwards && to > maxDist(f)) { hold = null; return zoomOutMore(); }
@@ -801,6 +923,7 @@
   touch.addEventListener('wheel', e => {
     e.preventDefault();
     if (flight) return;
+    if (sky) { sky.fov = clamp(sky.fov * Math.exp(e.deltaY * .002), 2, 75); return; }
     const r = cam.focus === 'earth' ? 1 : radiusOf(cam.focus);
     const to = r + (cam.dist - r) * Math.exp(e.deltaY * .002);
     if (to > maxDist(cam.focus)) { cam.dist = maxDist(cam.focus); return; }
@@ -813,7 +936,7 @@
     if (pts.length >= 2) {
       const [a, b] = pts, mid = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
       const z = mapZoom(), [cx, cy] = merc(cam.lat, cam.lon), W0 = 256 * Math.pow(2, z);
-      gesture = { kind: 'pinch', d0: Math.hypot(a.x - b.x, a.y - b.y), dist0: cam.dist, map, z0: z,
+      gesture = { kind: 'pinch', d0: Math.hypot(a.x - b.x, a.y - b.y), dist0: cam.dist, fov0: sky && sky.fov, map, z0: z,
         anchor: [cx + (mid.x - W / 2) / W0, cy + (mid.y - H / 2) / W0] };
       stopSpin(true);
     } else if (pts.length === 1) {
@@ -824,7 +947,11 @@
     const pts = [...fingers.values()];
     if (gesture.kind === 'pinch' && pts.length >= 2) {
       const [a, b] = pts, scale = Math.max(.05, Math.hypot(a.x - b.x, a.y - b.y) / gesture.d0);
-      if (gesture.map) {
+      if (sky) {
+        const fov = gesture.fov0 / scale;
+        gesture.past = fov > 75 * 1.3;
+        sky.fov = clamp(fov, 2, 75);
+      } else if (gesture.map) {
         const z = Math.min(MAX_ZOOM, gesture.z0 + Math.log2(scale)), W0 = 256 * Math.pow(2, z);
         const mid = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
         const c = [gesture.anchor[0] - (mid.x - W / 2) / W0, clamp(gesture.anchor[1] - (mid.y - H / 2) / W0, .02, .98)];
@@ -848,6 +975,12 @@
     turn(dx, dy, gesture.map);
   }
   function turn(dx, dy, map) {
+    if (sky) { // drag the sky round
+      const k = sky.fov / H;
+      sky.az = (sky.az - dx * k + 360) % 360;
+      sky.alt = clamp(sky.alt + dy * k, -10, 85);
+      return;
+    }
     if (map && cam.focus === 'earth') {
       const W0 = 256 * Math.pow(2, mapZoom()), [cx, cy] = merc(cam.lat, cam.lon), z = mapZoom();
       [cam.lat, cam.lon] = unmerc((((cx - dx / W0) % 1) + 1) % 1, clamp(cy - dy / W0, .02, .98));
@@ -869,6 +1002,7 @@
 
   function tapAt(x, y) {
     if (pickMode) return;
+    if (sky) { Kit.burst(x, y, ['✨', '⭐'], 6, 60); Kit.sfx.note(1200 + rand(0, 600), .2); return; }
     const c = basis(pose());
     if (mapZoom() > 4) { // map: zoom in on that spot
       const W0 = 256 * Math.pow(2, mapZoom()), [cx, cy] = merc(cam.lat, cam.lon);
@@ -1016,18 +1150,50 @@
     }
   }
 
+  // ---------- in the sky: a ring round the Sun, the Moon and the planets, to tap and fly there ----------
+  const skyTags = new Map();
+  function makeSkyTags() { for (const id of SKY_THINGS) {
+    const el = document.createElement('button');
+    el.className = 'skytag'; el.setAttribute('aria-label', NAMES[id][1].en);
+    el.innerHTML = `<span class="ring"></span><span class="icon">${ICON[id]}</span>`;
+    el.addEventListener('pointerdown', e => { e.stopPropagation(); boing(el); Kit.sfx.pop(); flyTo(id); });
+    world.appendChild(el); skyTags.set(id, el);
+  } }
+  function placeSkyTags(c) {
+    for (const [id, el] of skyTags) {
+      const p = sky && !flight && visibleInSky(id) && project(add(c.pos, mul(skyTarget(id), 1e3)), c);
+      if (!p || p.x < -40 || p.x > W + 40 || p.y < -40 || p.y > H + 40) { el.style.display = 'none'; continue; }
+      // big enough to see the real Moon or Sun inside when zoomed in like binoculars
+      const real = id === 'sun' || id === 'moon' ? Math.tan(.27 * D2R) * H / 2 / c.tan * 2.4 : 0;
+      el.style.display = 'block';
+      el.style.setProperty('--size', Math.max(64, real) + 'px');
+      el.style.transform = `translate(${p.x.toFixed(1)}px, ${p.y.toFixed(1)}px)`;
+    }
+  }
+
   // ---------- the asteroid belt, tiny planets as dots, and "this is us" markers ----------
   const belt = Array.from({ length: 700 }, () => ({ a: rand(BELT[0], BELT[1]), th: rand(0, TAU), y: (Math.random() + Math.random() - 1) * 1.6, s: rand(.15, .45) }));
   function drawFx(c) {
     const d = dpr();
     fx.setTransform(d, 0, 0, d, 0, 0);
     fx.clearRect(0, 0, W, H);
+    if (sky) { // the planets: bright dots, as they really look
+      for (const id of SKY_THINGS.slice(2)) {
+        if (!visibleInSky(id)) continue;
+        const p = project(add(c.pos, mul(skyTarget(id), 1e3)), c);
+        if (!p) continue;
+        fx.fillStyle = B[id].color; fx.shadowColor = B[id].color; fx.shadowBlur = 8;
+        fx.beginPath(); fx.arc(p.x, p.y, id === 'venus' || id === 'jupiter' ? 3.5 : 2.5, 0, TAU); fx.fill();
+        fx.shadowBlur = 0;
+      }
+      return;
+    }
     const days = (Date.now() + timeOffset - J2000) / 864e5, fromSun = len(sub(c.pos, B.sun.pos));
-    if (fromSun < 5000) {
+    if (fromSun < 20000) {
       fx.fillStyle = 'rgba(200, 180, 160, .85)';
       const sun = project(B.sun.pos, c), sunR = sun ? B.sun.r * sun.k * 1.05 : 0;
       for (const r of belt) {
-        const th = r.th + days * .0038 * Math.pow(118 / r.a, 1.5);
+        const th = r.th + days * .0038 * Math.pow(435 / r.a, 1.5);
         const p = project([r.a * Math.cos(th), r.y, -r.a * Math.sin(th)], c);
         if (!p || p.x < 0 || p.x > W || p.y < 0 || p.y > H) continue;
         if (sun && p.z > sun.z && Math.hypot(p.x - sun.x, p.y - sun.y) < sunR) continue; // behind the Sun
@@ -1039,8 +1205,8 @@
     for (const b of BODIES) {
       if (b.id === 'sun') continue;
       const p = project(b.pos, c);
-      if (!p || b.r * p.k > 3 || fromSun > 3500) continue;
-      if (b.id === 'moon' && len(sub(c.pos, B.earth.pos)) > 120) continue;
+      if (!p || b.r * p.k > 3 || fromSun > 14000) continue;
+      if (b.id === 'moon' && len(sub(c.pos, B.earth.pos)) > 400) continue;
       if (occluded(b.pos, c)) continue;
       const r = b.id === 'moon' ? 3 : clamp(3 + b.r * 1.3, 4, 9);
       const g = fx.createRadialGradient(p.x - r / 3, p.y - r / 3, r / 6, p.x, p.y, r);
@@ -1058,8 +1224,8 @@
       fx.font = '26px system-ui'; fx.textAlign = 'center'; fx.textBaseline = 'bottom'; fx.fillText(emoji, p.x, p.y - r - 4);
     };
     const pe = project(B.earth.pos, c);
-    if (pe && pe.k < 8 && len(sub(c.pos, B.earth.pos)) > 25 && fromSun < 3500) mark(B.earth.pos, '🏠', 16);
-    if (fromSun > 3500) mark(B.sun.pos, '☀️', 18);
+    if (pe && pe.k < 8 && len(sub(c.pos, B.earth.pos)) > 120 && fromSun < 14000) mark(B.earth.pos, '🏠', 16);
+    if (fromSun > 14000) mark(B.sun.pos, '☀️', 18);
   }
 
   // ---------- the people ----------
@@ -1084,7 +1250,7 @@
     }
   }
   function placePins(c, z) {
-    const onMap = z > 4, show = cam.focus === 'earth' || flight;
+    const onMap = z > 4, show = !sky && (cam.focus === 'earth' || flight);
     const ek = project(B.earth.pos, c);
     const shown = [];
     for (const p of places) {
@@ -1132,10 +1298,10 @@
     jupiter: '<div class="ball" style="background:linear-gradient(#efe2c8,#c08a5a 22%,#efe2c8 38%,#b8774a 52%,#e9d6b4 66%,#c99a6b 82%,#efe2c8)"></div>',
     uranus: '<div class="ball" style="width:36px;height:36px;background:radial-gradient(circle at 35% 35%,#e0fbff,#7fdbe6 55%,#2a8a99)"></div>',
     neptune: '<div class="ball" style="width:36px;height:36px;background:radial-gradient(circle at 35% 35%,#c7d9ff,#4f7cf0 55%,#1c3aa0)"></div>',
-    rocks: '🪨', comet: '☄️', stars: '✨',
+    rocks: '🪨', comet: '☄️', stars: '✨', sky: '🔭',
     solar: '<svg viewBox="-24 -24 48 48"><circle r="6" fill="#fbbf24"/><ellipse rx="13" ry="13" fill="none" stroke="#7c8cc4" stroke-width="1.6"/><ellipse rx="21" ry="21" fill="none" stroke="#7c8cc4" stroke-width="1.6"/><circle cx="9.2" cy="-9.2" r="3" fill="#3b82f6"/><circle cx="-18" cy="10.5" r="4" fill="#d6a46a"/></svg>',
   };
-  const TRIP = ['earth', 'moon', 'sun', '|', 'mercury', 'venus', 'mars', 'jupiter', 'saturn', 'uranus', 'neptune', '|', 'rocks', 'comet', 'solar', 'stars'];
+  const TRIP = ['sky', 'earth', 'moon', 'sun', '|', 'mercury', 'venus', 'mars', 'jupiter', 'saturn', 'uranus', 'neptune', '|', 'rocks', 'comet', 'solar', 'stars'];
   function paintBar() {
     const bar = $('trip');
     if (!bar.childElementCount || bar.dataset.n !== String(places.length) + places.map(p => p.emoji).join('')) {
@@ -1151,7 +1317,7 @@
           b.onclick = () => { Kit.sfx.pop(); flyToPlace(p); };
         } else {
           b.innerHTML = ICON[id]; b.setAttribute('aria-label', NAMES[id][1].en);
-          b.onclick = () => { Kit.sfx.pop(); flyTo(id); };
+          b.onclick = () => { Kit.sfx.pop(); id === 'sky' ? enterSky() : flyTo(id); };
         }
         bar.appendChild(b);
       }
@@ -1173,16 +1339,17 @@
     updateWorld(secs);
     stepFlight(now); stepZoom(now); stepHold(now, dt); glide(dt);
     if (cam.focus === 'earth' && !flight) cam.dist = clamp(cam.dist, minDist('earth'), maxDist('earth'));
-    const c = basis(pose()), z = mapZoom(), mapA = flight && flight.space ? 0 : smooth(3.6, 4.4, z);
+    const c = basis(pose()), z = sky ? -99 : mapZoom(), mapA = sky || (flight && flight.space) ? 0 : smooth(3.6, 4.4, z);
     if (mapA < 1 || z < 8) { drawSpace(c, secs, smooth(4.4, 5.5, z)); drawFx(c); }
     glCv.style.visibility = mapA < 1 || z < 8 ? 'visible' : 'hidden';
     fxCv.style.visibility = mapA < 1 ? 'visible' : 'hidden';
     if (mapA > 0) drawMap();
     mapCv.style.opacity = mapA;
     $('credit').style.opacity = mapA;
-    placeSprites(c, mapA > .5);
+    placeSprites(c, mapA > .5 || !!sky);
     placePins(c, z);
-    $('spinBtn').hidden = !(cam.focus === 'earth' && mapA === 0 && !flight && !pickMode && cam.dist < 12);
+    placeSkyTags(c);
+    $('spinBtn').hidden = !(!sky && cam.focus === 'earth' && mapA === 0 && !flight && !pickMode && cam.dist < 12);
     // leaving the map for space: say what she's seeing
     const isMap = z > 4.2;
     if (wasMap && z < 3.4 && !flight && now - saidSpace > 30000) { saidSpace = now; say('sd.inSpace'); }
@@ -1303,7 +1470,7 @@
 
   // ---------- off we go ----------
   Kit.soundButton('soundBtn');
-  paintPins(); paintBar();
+  makeSkyTags(); paintPins(); paintBar();
   updateWorld(performance.now() / 1000);
   if (places.length) {
     const h = places[0];

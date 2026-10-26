@@ -685,7 +685,8 @@
     "sd.hubble": "e42e187cd4",
     "sd.stars2": "07087172e4",
     "sd.stars1": "5ab607fe70",
-    "sd.solar": "ac01e3ddfb"
+    "sd.solar": "ac01e3ddfb",
+    "sd.sky": "e395814d53"
   },
   "nl": {
     "hub.lang": "d1da1f5fa2",
@@ -1373,7 +1374,8 @@
     "sd.hubble": "c81cdad1de",
     "sd.stars2": "568ff3d140",
     "sd.stars1": "c2c0daefcb",
-    "sd.solar": "b1d1ae05b1"
+    "sd.solar": "b1d1ae05b1",
+    "sd.sky": "43aec92b06"
   },
   "voices": {
     "en": "Jessica (ElevenLabs eleven_v4)",
@@ -2067,7 +2069,8 @@
     "sd.hubble": "4405e52793",
     "sd.stars2": "019c323092",
     "sd.stars1": "7d556cd983",
-    "sd.solar": "d8f06daf19"
+    "sd.solar": "d8f06daf19",
+    "sd.sky": "c52ab68689"
   },
   "de": {
     "md.castle": "4094e6aa8c",
@@ -2755,6 +2758,7 @@
     "sd.hubble": "b73b2974ee",
     "sd.stars2": "5cdcb4e5e3",
     "sd.stars1": "99aaf4d188",
-    "sd.solar": "7b4f39e9a1"
+    "sd.solar": "7b4f39e9a1",
+    "sd.sky": "498ca27dcf"
   }
 }

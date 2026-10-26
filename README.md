@@ -12,7 +12,7 @@ search-engine friendly pages. See [docs/public-site.md](docs/public-site.md).
 | Game | What it is |
 | --- | --- |
 | **Magic Doodles** | Draw anything with your finger, tap ✨, and it comes alive with googly eyes and hops, flies, swims, floats, crawls, rolls or bounces around one of ten animated cartoon worlds. Tap the scenery (the volcano erupts, the rocket launches, the cow moos), drop treats, throw a dance party, or sweep everyone away with 🧹 (↩️ brings them back). |
-| **Space Discovery** | Start at home on real satellite photos and zoom out until the whole Earth floats in space (real day and night, city lights, the real Moon phase), then fly to the Moon, the Sun, every planet, the asteroids, a comet and the stars. Grown-ups add family and friends' homes in ⚙️ (behind the grown-ups' question); they appear as faces to fly to. See *Space Discovery* below. |
+| **Space Discovery** | Start at home on real satellite photos and zoom out until the whole Earth floats in space (real day and night, city lights, the real Moon phase), look up at the real sky from home, then fly to the Moon, the Sun, every planet, the asteroids, a comet and the stars. Sizes are true to scale. Grown-ups add family and friends' homes in ⚙️ (behind the grown-ups' question); they appear as faces to fly to. See *Space Discovery* below. |
 | **Beep Boop Robot** | Build your own robot, then program it with arrow cards to reach its battery: 64 levels in six worlds that add gears to collect, keys and doors, teleporting swirls and a repeat card. Teaches sequencing, loops and debugging (`node tools/check-robot-levels.mjs` checks every level). |
 | **Music Painter** | Colors are instruments and height is pitch: paint a picture, press play, and it becomes a song. |
 | **Story Theater** | Pick a stage, drag on characters and props, tap them to act, and film a story with her own voice. |
@@ -135,8 +135,12 @@ If a clip is missing, the games fall back to the device's built-in voice.
   which shows towns but not single houses).
 - **Address search** (grown-ups' places): OpenStreetMap Nominatim, only when a grown-up searches.
 - **Places** are saved on the device (shared by brothers and sisters), never sent anywhere.
-- Sizes and distances are squeezed so everything fits on a screen; the Moon and Sun lines say how far and big
-  they really are.
+- Every size is true to every other (the Sun is 109 Earths wide, Jupiter 11), and so is the Moon's distance
+  (60 Earth radii). Only the distances from the Sun are squeezed, about 90 times, or the planets would be
+  too tiny to find.
+- 🔭 *Our sky*: standing at home (or wherever the map is zoomed in), the real sky right now: the Sun and the
+  Moon (real phase, real size; ➕ zooms in like binoculars) and, once it's dark, the planets where they
+  really are. Tap one to blast off from the house and fly there.
 
 ## Children's birthdays
 
