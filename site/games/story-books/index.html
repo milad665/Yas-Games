@@ -238,7 +238,7 @@ document.addEventListener('keydown', e => {
 let swipe = null;
 $('stage').addEventListener('pointerdown', e => { swipe = { x: e.clientX, y: e.clientY }; swallowClick = false; });
 $('stage').addEventListener('pointerup', e => {
-  if (!swipe || tool !== null) return;
+  if (!swipe || mode !== 'hand') return;
   const dx = e.clientX - swipe.x, dy = e.clientY - swipe.y;
   swipe = null;
   if (Math.abs(dx) > 70 && Math.abs(dx) > Math.abs(dy) * 1.5) { swallowClick = true; go(dx < 0 ? 1 : -1); }
@@ -263,8 +263,11 @@ function show(i, d = 0) {
   $('img').alt = page ? page.alt : '';
   $('spots').innerHTML = '';
   pic.classList.toggle('colouring', !!(book.colouring && page));
-  pic.classList.toggle('painting', !!(book.colouring && page && tool !== null));
-  if (book.colouring && page) $('img').decode().catch(() => {}).then(() => { if (at === i) startPaint(i); });
+  pic.classList.toggle('painting', !!(book.colouring && page && mode !== 'hand'));
+  if (book.colouring && page) {
+    const img = $('img'), ready = () => { if (at === i && img.naturalWidth) startPaint(i); };
+    if (img.complete) ready(); else img.addEventListener('load', ready, { once: true });
+  }
 
   const w = $('words');
   w.className = '';
@@ -302,7 +305,7 @@ $('again').addEventListener('click', () => { Kit.sfx.pop(); show(at); });
 // a tap on the picture anywhere else: a little sparkle
 $('pic').addEventListener('click', e => {
   if (swallowClick) { swallowClick = false; return; }
-  if (tool === null && at > 0 && at <= book.pages.length) Kit.burst(e.clientX, e.clientY, ['✨', '💫'], 5, 50);
+  if (mode === 'hand' && at > 0 && at <= book.pages.length) Kit.burst(e.clientX, e.clientY, ['✨', '💫'], 5, 50);
 });
 
 function fit() {
@@ -511,114 +514,221 @@ function ask(q, n) {
 }
 
 // ---------- colouring in the black-and-white books ----------
-// A tap fills the shape under the finger, up to the lines, with the crayon's colour (multiplied in, so the
-// lines and the paper's texture stay). Only the taps are saved, per child, and played back when the page opens.
+// Two ways to colour: 🪣 a tap fills the shape under the finger up to its lines, 🖍️ a finger draws like a marker.
+// Either way the colour is multiplied in, so the lines and the paper's texture stay. What's done is saved per child
+// as the taps and strokes (not as pictures) and played back when the page opens; ↩️ takes the last one back.
 const CRAYONS = ['#ef4444', '#f97316', '#facc15', '#84cc16', '#22c55e', '#38bdf8', '#3b82f6', '#a855f7', '#ec4899', '#a16207', '#9ca3af', '#fde7c8'];
-let tool = null; // null: tapping the pictures; a number: that crayon
+let mode = 'hand', colour = 0, lastMode = 'fill'; // mode: 'hand' (tapping the pictures), 'fill' or 'marker'
 function buildCrayons() {
-  tool = null;
-  const c = $('crayons');
-  c.innerHTML = !book.colouring ? '' :
-    `<button class="btn sel" data-t="hand" aria-label="Tap the pictures">👆</button>` +
-    CRAYONS.map((col, i) => `<button class="btn" data-t="${i}" aria-label="Crayon"><i class="crayon-dot" style="background:${col}"></i></button>`).join('') +
+  mode = 'hand';
+  $('crayons').innerHTML = !book.colouring ? '' :
+    `<button class="btn sel" data-mode="hand" aria-label="Tap the pictures">👆</button>` +
+    `<button class="btn" data-mode="fill" aria-label="Fill a shape">🪣</button>` +
+    `<button class="btn" data-mode="marker" aria-label="Draw with a marker">🖍️</button>` +
+    CRAYONS.map((col, i) => `<button class="btn${i === colour ? ' sel' : ''}" data-c="${i}" aria-label="Colour"><i class="crayon-dot" style="background:${col}"></i></button>`).join('') +
+    `<button class="btn" data-t="undo" aria-label="Take back the last colour">↩️</button>` +
     `<button class="btn" data-t="clear" aria-label="Wipe the colours off this page">🧽</button>`;
+}
+function setMode(m) {
+  const first = mode === 'hand' && m !== 'hand' && !store.get({}).heardColour;
+  mode = m;
+  if (m !== 'hand') lastMode = m;
+  $('crayons').querySelectorAll('[data-mode]').forEach(x => x.classList.toggle('sel', x.dataset.mode === m));
+  $('pic').classList.toggle('painting', m !== 'hand');
+  if (first) { const s = store.get({}); s.heardColour = true; store.set(s); stopAll(); Kit.say('sb.colour'); }
 }
 $('crayons').addEventListener('click', e => {
   const b = e.target.closest('.btn');
   if (!b) return;
   Kit.sfx.pop();
-  const t = b.dataset.t;
-  if (t === 'clear') {
-    const s = store.get({ paint: {} });
-    if (s.paint[book.slug]) delete s.paint[book.slug][at];
-    store.set(s);
-    startPaint(at);
+  if (b.dataset.mode) return setMode(b.dataset.mode);
+  if (b.dataset.c) {
+    colour = +b.dataset.c;
+    $('crayons').querySelectorAll('[data-c]').forEach(x => x.classList.toggle('sel', x === b));
+    if (mode === 'hand') setMode(lastMode);
     return;
   }
-  const first = tool === null && t !== 'hand' && !store.get({}).heardColour;
-  tool = t === 'hand' ? null : +t;
-  $('crayons').querySelectorAll('.btn').forEach(x => x.classList.toggle('sel', x === b));
-  $('pic').classList.toggle('painting', tool !== null);
-  if (first) { const s = store.get({}); s.heardColour = true; store.set(s); stopAll(); Kit.say('sb.colour'); }
+  const s = store.get({ paint: {} }), mine = s.paint[book.slug] || {};
+  if (b.dataset.t === 'clear') delete mine[at];
+  if (b.dataset.t === 'undo' && mine[at]) mine[at].pop();
+  store.set(s);
+  startPaint(at);
 });
 
-let canvasPage = null; // { i, w, h, orig: ImageData pixels, open: Uint8Array (1 where a fill may go), ctx }
+let canvasPage = null; // { i, w, h, orig: ImageData pixels, out: what's shown, dark: 1 on a line, dist: to the nearest line (thirds of a pixel), ctx }
 function startPaint(i) {
   const img = $('img'), cv = $('paint');
-  const w = img.naturalWidth, h = img.naturalHeight;
+  const w = img.naturalWidth, h = img.naturalHeight, n = w * h;
   if (!w) return;
   cv.width = w; cv.height = h;
   const ctx = cv.getContext('2d', { willReadFrequently: true });
   ctx.drawImage(img, 0, 0);
-  const orig = ctx.getImageData(0, 0, w, h);
-  // the lines: dark pixels, thickened by one so small gaps don't let a fill leak out
-  const dark = new Uint8Array(w * h);
-  for (let p = 0, q = 0; p < dark.length; p++, q += 4) {
-    const d = orig.data;
-    dark[p] = (d[q] * .3 + d[q + 1] * .59 + d[q + 2] * .11) < 150 ? 1 : 0;
-  }
-  const open = new Uint8Array(w * h);
+  const orig = ctx.getImageData(0, 0, w, h), d = orig.data;
+  // the lines: dark pixels
+  const dark = new Uint8Array(n);
+  for (let p = 0, q = 0; p < n; p++, q += 4) dark[p] = (d[q] * .3 + d[q + 1] * .59 + d[q + 2] * .11) < 150 ? 1 : 0;
+  // how far every pixel is from a line (a 3-4 chamfer distance, so 3 is one pixel), in two sweeps
+  const dist = new Float32Array(n);
+  for (let p = 0; p < n; p++) dist[p] = dark[p] ? 0 : 1e9;
   for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
     const p = y * w + x;
-    open[p] = dark[p] || (x > 0 && dark[p - 1]) || (x < w - 1 && dark[p + 1]) || (y > 0 && dark[p - w]) || (y < h - 1 && dark[p + w]) ? 0 : 1;
+    let v = dist[p];
+    if (x > 0) v = Math.min(v, dist[p - 1] + 3);
+    if (y > 0) {
+      v = Math.min(v, dist[p - w] + 3);
+      if (x > 0) v = Math.min(v, dist[p - w - 1] + 4);
+      if (x < w - 1) v = Math.min(v, dist[p - w + 1] + 4);
+    }
+    dist[p] = v;
   }
-  canvasPage = { i, w, h, orig, open, ctx };
-  const fills = ((store.get({ paint: {} }).paint[book.slug] || {})[i]) || [];
-  const out = ctx.getImageData(0, 0, w, h);
-  for (const [x, y, c] of fills) fillAt(out, x, y, CRAYONS[c]);
-  ctx.putImageData(out, 0, 0);
+  for (let y = h - 1; y >= 0; y--) for (let x = w - 1; x >= 0; x--) {
+    const p = y * w + x;
+    let v = dist[p];
+    if (x < w - 1) v = Math.min(v, dist[p + 1] + 3);
+    if (y < h - 1) {
+      v = Math.min(v, dist[p + w] + 3);
+      if (x < w - 1) v = Math.min(v, dist[p + w + 1] + 4);
+      if (x > 0) v = Math.min(v, dist[p + w - 1] + 4);
+    }
+    dist[p] = v;
+  }
+  canvasPage = { i, w, h, orig, out: ctx.getImageData(0, 0, w, h), dark, dist, ctx };
+  // saved: [x, y, colour] for a fill, { c: colour, s: size, p: [x0, y0, x1, y1, ...] } for a marker stroke
+  for (const op of ((store.get({ paint: {} }).paint[book.slug] || {})[i]) || []) {
+    if (Array.isArray(op)) fillAt(op[0], op[1], CRAYONS[op[2]]);
+    else for (let k = 0; k + 3 < op.p.length || k === 0; k += 2) markAt(op.p[k], op.p[k + 1], op.p[k + 2] ?? op.p[k], op.p[k + 3] ?? op.p[k + 1], CRAYONS[op.c], op.s);
+  }
+  ctx.putImageData(canvasPage.out, 0, 0);
+}
+const rgbOf = c => [1, 3, 5].map(k => parseInt(c.slice(k, k + 2), 16));
+
+// Lines in drawings have little gaps. So the shape is found with the lines a bit thicker (`gap`: everything that
+// close to a line counts as line, which closes gaps up to twice as wide), then checked for bigger gaps: with the
+// lines much thicker (`core`), what's left of the shape falls apart wherever two parts were joined only by a narrow
+// passage. If it falls into more than one big part, the shape is split between them (every pixel goes to the part
+// it's nearest along the way) and only the finger's part is coloured. Then the colour grows back out to the line.
+function fillAt(x, y, colour) {
+  const { w, h, orig, out, dark, dist } = canvasPage, n = w * h;
+  const scale = w / 960, core = 3 * Math.max(4, Math.round(6 * scale)), minCore = Math.max(150, n * .002);
+  const four = p => { const px = p % w; return [px > 0 ? p - 1 : -1, px < w - 1 ? p + 1 : -1, p - w, p + w < n ? p + w : -1]; };
+  for (let gap = Math.max(1, Math.round(2 * scale)); gap >= 0; gap--) {
+    const wall = 3 * gap;
+    // the nearest spot to the finger that's inside a shape (a finger in a shape too thin for this gap finds
+    // nothing, and tries a smaller gap, rather than spilling into the shape next door)
+    let seed = -1;
+    for (let r = 0; r <= 3 && seed < 0; r++)
+      for (let dy = -r; dy <= r && seed < 0; dy++) for (let dx = -r; dx <= r; dx++) {
+        const px = x + dx, py = y + dy;
+        if (px >= 0 && py >= 0 && px < w && py < h && dist[py * w + px] > wall) { seed = py * w + px; break; }
+      }
+    if (seed < 0) continue;
+    const mine = new Uint8Array(n), stack = [seed];
+    let region = [];
+    mine[seed] = 1;
+    while (stack.length) {
+      const p = stack.pop();
+      region.push(p);
+      for (const q of four(p)) if (q >= 0 && !mine[q] && dist[q] > wall) { mine[q] = 1; stack.push(q); }
+    }
+    // the big parts (label 1, 2, ...), then every pixel of the shape to its nearest part
+    const part = new Int32Array(n), looked = new Uint8Array(n);
+    let parts = 0, front = [];
+    for (const s0 of region) {
+      if (looked[s0] || dist[s0] <= core) continue;
+      const blob = [s0];
+      looked[s0] = 1;
+      for (let k = 0; k < blob.length; k++) for (const q of four(blob[k])) if (q >= 0 && mine[q] && !looked[q] && dist[q] > core) { looked[q] = 1; blob.push(q); }
+      if (blob.length < minCore) continue;
+      parts++;
+      for (const q of blob) { part[q] = parts; front.push(q); }
+    }
+    if (parts > 1) {
+      while (front.length) {
+        const next = [];
+        for (const p of front) for (const q of four(p)) if (q >= 0 && mine[q] && !part[q]) { part[q] = part[p]; next.push(q); }
+        front = next;
+      }
+      const keep = part[seed];
+      region = region.filter(p => part[p] === keep);
+      mine.fill(0);
+      for (const p of region) mine[p] = 1;
+    }
+    // grow back out to the real line, never further than the lines were thickened
+    let edge = region.slice();
+    for (let step = 0; step <= gap && edge.length; step++) {
+      const next = [];
+      for (const p of edge) for (const q of four(p)) if (q >= 0 && !mine[q] && !dark[q]) { mine[q] = 1; next.push(q); }
+      for (const q of next) region.push(q);
+      edge = next;
+    }
+    // and colour the line's soft edge under it too, so no white rim is left (multiplied, the line stays dark)
+    for (const p of region.slice()) for (const q of four(p)) if (q >= 0 && !mine[q] && dark[q]) { mine[q] = 1; region.push(q); }
+    const rgb = rgbOf(colour), o = out.data, d = orig.data;
+    for (const p of region) {
+      const q = p * 4;
+      o[q] = d[q] * rgb[0] / 255; o[q + 1] = d[q + 1] * rgb[1] / 255; o[q + 2] = d[q + 2] * rgb[2] / 255;
+    }
+    return true;
+  }
+  return false;
 }
 
-function fillAt(out, x, y, colour) {
-  const { w, h, orig, open } = canvasPage;
-  // on a line? start from the nearest open spot
-  let seed = -1;
-  for (let r = 0; r <= 8 && seed < 0; r++)
-    for (let dy = -r; dy <= r && seed < 0; dy++) for (let dx = -r; dx <= r; dx++) {
-      const px = x + dx, py = y + dy;
-      if (px >= 0 && py >= 0 && px < w && py < h && open[py * w + px]) { seed = py * w + px; break; }
-    }
-  if (seed < 0) return false;
-  const rgb = [1, 3, 5].map(k => parseInt(colour.slice(k, k + 2), 16));
-  const seen = new Uint8Array(w * h), stack = [seed];
-  seen[seed] = 1;
-  const region = [];
-  while (stack.length) {
-    const p = stack.pop();
-    region.push(p);
-    const px = p % w;
-    for (const q of [px > 0 ? p - 1 : -1, px < w - 1 ? p + 1 : -1, p - w, p + w]) {
-      if (q >= 0 && q < w * h && !seen[q] && open[q]) { seen[q] = 1; stack.push(q); }
-    }
+// one stretch of a marker stroke, a round-ended line `size` pixels wide; returns the rectangle it changed
+function markAt(x0, y0, x1, y1, colour, size) {
+  const { w, h, orig, out } = canvasPage, r = size / 2, rgb = rgbOf(colour), o = out.data, d = orig.data;
+  const left = Math.max(0, Math.floor(Math.min(x0, x1) - r - 1)), right = Math.min(w - 1, Math.ceil(Math.max(x0, x1) + r + 1));
+  const top = Math.max(0, Math.floor(Math.min(y0, y1) - r - 1)), bottom = Math.min(h - 1, Math.ceil(Math.max(y0, y1) + r + 1));
+  const dx = x1 - x0, dy = y1 - y0, len2 = dx * dx + dy * dy;
+  for (let y = top; y <= bottom; y++) for (let x = left; x <= right; x++) {
+    const t = len2 ? Math.max(0, Math.min(1, ((x - x0) * dx + (y - y0) * dy) / len2)) : 0;
+    const ex = x - (x0 + t * dx), ey = y - (y0 + t * dy);
+    const a = Math.max(0, Math.min(1, r - Math.sqrt(ex * ex + ey * ey) + .5)); // soft edge
+    if (!a) continue;
+    const q = (y * w + x) * 4;
+    for (let k = 0; k < 3; k++) o[q + k] += (d[q + k] * rgb[k] / 255 - o[q + k]) * a;
   }
-  // paint the shape, and two pixels under its edge so no white rim is left next to the line
-  const paint = p => {
-    const q = p * 4, d = orig.data, o = out.data;
-    o[q] = d[q] * rgb[0] / 255; o[q + 1] = d[q + 1] * rgb[1] / 255; o[q + 2] = d[q + 2] * rgb[2] / 255;
-  };
-  for (const p of region) {
-    paint(p);
-    const px = p % w;
-    for (const dx of [-2, -1, 1, 2]) { const q = p + dx; if (px + dx >= 0 && px + dx < w && !open[q]) paint(q); }
-    for (const dy of [-2, -1, 1, 2]) { const q = p + dy * w; if (q >= 0 && q < w * h && !open[q]) paint(q); }
-  }
-  return true;
+  return [left, top, right - left + 1, bottom - top + 1];
 }
 
-$('paint').addEventListener('click', e => {
-  if (tool === null || !canvasPage || canvasPage.i !== at) return;
+const toImage = e => {
   const cv = $('paint'), r = cv.getBoundingClientRect();
-  const x = Math.round((e.clientX - r.left) * cv.width / r.width), y = Math.round((e.clientY - r.top) * cv.height / r.height);
-  const out = canvasPage.ctx.getImageData(0, 0, canvasPage.w, canvasPage.h);
-  if (!fillAt(out, x, y, CRAYONS[tool])) return;
-  canvasPage.ctx.putImageData(out, 0, 0);
-  Kit.sfx.note(440 + tool * 40, .2);
-  Kit.burst(e.clientX, e.clientY, ['✨', '🖍️'], 6, 60);
+  return [Math.round((e.clientX - r.left) * cv.width / r.width), Math.round((e.clientY - r.top) * cv.height / r.height)];
+};
+function saveOp(op) {
   const s = store.get({ paint: {} });
   const mine = (s.paint[book.slug] = s.paint[book.slug] || {});
-  (mine[at] = mine[at] || []).push([x, y, tool]);
+  (mine[at] = mine[at] || []).push(op);
   store.set(s);
+}
+let stroke = null;
+$('paint').addEventListener('pointerdown', e => {
+  if (!canvasPage || canvasPage.i !== at || mode === 'hand') return;
+  const [x, y] = toImage(e);
+  if (mode === 'fill') {
+    if (!fillAt(x, y, CRAYONS[colour])) return;
+    canvasPage.ctx.putImageData(canvasPage.out, 0, 0);
+    Kit.sfx.note(440 + colour * 40, .2);
+    Kit.burst(e.clientX, e.clientY, ['✨', '🪣'], 6, 60);
+    saveOp([x, y, colour]);
+    return;
+  }
+  // the marker: about as wide as a child's finger on the picture
+  $('paint').setPointerCapture(e.pointerId);
+  stroke = { c: colour, s: Math.max(6, Math.round(canvasPage.w / 45)), p: [x, y] };
+  const [l, t, ww, hh] = markAt(x, y, x, y, CRAYONS[colour], stroke.s);
+  canvasPage.ctx.putImageData(canvasPage.out, 0, 0, l, t, ww, hh);
 });
+$('paint').addEventListener('pointermove', e => {
+  if (!stroke) return;
+  const [x, y] = toImage(e), p = stroke.p, px = p[p.length - 2], py = p[p.length - 1];
+  if (Math.abs(x - px) + Math.abs(y - py) < 3) return;
+  p.push(x, y);
+  const [l, t, ww, hh] = markAt(px, py, x, y, CRAYONS[stroke.c], stroke.s);
+  canvasPage.ctx.putImageData(canvasPage.out, 0, 0, l, t, ww, hh);
+});
+const endStroke = () => { if (stroke) { saveOp(stroke); stroke = null; } };
+$('paint').addEventListener('pointerup', endStroke);
+$('paint').addEventListener('pointercancel', endStroke);
 
 // ---------- for grown-ups: who made the book, where it's from, its licence and what we changed ----------
 const LANG_NAMES = { en: 'English', nl: 'Dutch', de: 'German', fa: 'Persian' };

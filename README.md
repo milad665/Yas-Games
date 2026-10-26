@@ -13,7 +13,7 @@ search-engine friendly pages. See [docs/public-site.md](docs/public-site.md).
 | --- | --- |
 | **Magic Doodles** | Draw anything with your finger, tap ✨, and it comes alive with googly eyes and hops, flies, swims, floats, crawls, rolls or bounces around one of ten animated cartoon worlds. Tap the scenery (the volcano erupts, the rocket launches, the cow moos), drop treats, throw a dance party, or sweep everyone away with 🧹 (↩️ brings them back). |
 | **Space Discovery** | Start at home on real satellite photos and zoom out until the whole Earth floats in space (real day and night, city lights, the real Moon phase), look up at the real sky from home, then fly to the Moon, the Sun, every planet, the asteroids, a comet and the stars. Sizes are true to scale. Grown-ups add family and friends' homes in ⚙️ (behind the grown-ups' question); they appear as faces to fly to. See *Space Discovery* below. |
-| **Story Books** | Picture books from the Global Digital Library, read aloud in English, Dutch, German or Persian while every word lights up. Tap a word to hear it again, tap things in the pictures to hear what they are, colour in the black-and-white books with crayons, and answer a picture question at the end. See *Story Books* below. |
+| **Story Books** | Picture books from the Global Digital Library, read aloud in English, Dutch, German or Persian while every word lights up. Tap a word to hear it again, tap things in the pictures to hear what they are, colour in the black-and-white books (fill a shape, or draw with a marker), and answer a picture question at the end. See *Story Books* below. |
 | **Beep Boop Robot** | Build your own robot, then program it with arrow cards to reach its battery: 64 levels in six worlds that add gears to collect, keys and doors, teleporting swirls and a repeat card. Teaches sequencing, loops and debugging (`node tools/check-robot-levels.mjs` checks every level). |
 | **Music Painter** | Colors are instruments and height is pitch: paint a picture, press play, and it becomes a song. |
 | **Story Theater** | Pick a stage, drag on characters and props, tap them to act, and film a story with her own voice. |
@@ -150,7 +150,10 @@ NonCommercial or NoDerivatives licences are not used (`tools/import-books.mjs` r
   books' list is `BOOK_VOICES` in the tool. A word said in several pictures of a book is recorded once.
 - **Offline:** after the voice clips, the offline cache downloads every book's pictures and its reading in the
   chosen language.
-- **Colouring** is saved per child as the taps (where, which crayon), not as pictures.
+- **Colouring** has two tools: 🪣 fills a shape up to its lines and 🖍️ draws like a marker (both multiply the colour
+  in, so the lines stay). Lines in drawings have small gaps, so a fill closes gaps of a few pixels and then splits a
+  shape where two big parts meet only through a narrow passage, colouring just the part under the finger. ↩️ takes
+  back the last fill or stroke, 🧽 wipes the page. It's saved per child as the taps and strokes, not as pictures.
 
 ## Space Discovery: maps and pictures
 
